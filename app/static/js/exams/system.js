@@ -45,10 +45,51 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    // 🌟 تعديل سحابي (SaaS): تعطيل الاستيراد المباشر لحماية تداخل البيانات بين الأقسام
-    if(restoreBtn) {
-        restoreBtn.addEventListener('click', () => {
-            alert("🔒 حماية سحابية: ميزة الاسترجاع المباشر معطلة في بيئة (SaaS) لمنع الكتابة الخاطئة فوق بيانات الكلية. يرجى التواصل مع مدير النظام أو الدعم الفني لرفع ملف الاسترجاع الخاص بك.");
+    // 🌟 تفعيل الاسترجاع السحابي الآمن لبرنامج الامتحانات
+    if (restoreBtn) {
+        // إنشاء عنصر مخفي لاختيار الملفات برمجياً
+        const fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.accept = '.json';
+        fileInput.style.display = 'none';
+        document.body.appendChild(fileInput);
+
+        // فتح نافذة اختيار الملفات عند النقر على الزر
+        restoreBtn.addEventListener('click', () => fileInput.click());
+        
+        fileInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            // رسالة تأكيد تطمئن رئيس القسم
+            if (!confirm("⚠️ تحذير: سيتم مسح بيانات الامتحانات الحالية (فقط) واستبدالها ببيانات الملف المرفوع.\n\n(لن تتأثر الجداول الدراسية وقوائم التدريس إطلاقاً).\n\nهل أنت متأكد من الاستمرار؟")) {
+                fileInput.value = ''; 
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    fetch('/exams/api/restore', { 
+                        method: 'POST', 
+                        headers: { 'Content-Type': 'application/json' }, 
+                        body: JSON.stringify(data) 
+                    })
+                    .then(res => res.json())
+                    .then(res => {
+                        if (res.success) { 
+                            alert(res.message); 
+                            location.reload(); 
+                        } else {
+                            showNotification(res.error, 'error'); 
+                        }
+                    });
+                } catch (error) { 
+                    showNotification('ملف غير صالح.', 'error'); 
+                }
+            };
+            reader.readAsText(file);
         });
     }
 
@@ -141,7 +182,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('about-button')?.addEventListener('click', () => {
         const aboutContent = `
             <div style="text-align: center; padding: 10px;">
-                <h2 style="color: #3f51b5; margin-bottom: 5px; margin-top: 0;">🎓 موزع حراسة الامتحانات الذكي</h2>
+                <h2 style="color: #3f51b5; margin-bottom: 5px; margin-top: 0;">🎓 نظام حراسة الامتحانات</h2>
                 <p style="color: #666; margin-top: 0; font-size: 14px;">(Smart Exam Invigilation Scheduler - SaaS Edition)</p>
                 <span style="display: inline-block; background: #e8f5e9; color: #2e7d32; padding: 5px 15px; border-radius: 20px; font-weight: bold; margin: 10px 0;">الإصدار السحابي 2.0</span>
                 <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">

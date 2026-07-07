@@ -267,7 +267,7 @@ function saveAllConditions() {
             max_daily: document.getElementById('weight_max_daily')?.value || 0,
             share_pairs: document.getElementById('weight_share_pairs')?.value || 0,
             consecutive_halls: document.getElementById('weight_consecutive_halls')?.value || 0,
-            morning_pref: document.getElementById('weight_morning_pref')?.value || 0,
+            morning_pref: 0,
             start_end_time: document.getElementById('weight_start_end_time')?.value || 0,
             consecutive_lectures: document.getElementById('weight_consecutive_lectures')?.value || 0,
             max_consecutive_lectures_limit: parseInt(document.getElementById('max-consecutive-lectures-limit')?.value || 2)
@@ -397,7 +397,6 @@ function populateSavedConditions(data) {
             'weight_max_daily': data.weights.max_daily,
             'weight_share_pairs': data.weights.share_pairs,
             'weight_consecutive_halls': data.weights.consecutive_halls,
-            'weight_morning_pref': data.weights.morning_pref,
             'weight_start_end_time': data.weights.start_end_time,
             'weight_consecutive_lectures': data.weights.consecutive_lectures
         };

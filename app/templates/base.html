@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>موزع الجداول الجامعية الذكي</title>
+    <title>نظام الجداول الدراسية</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="icon" href="data:;base64,iVBORw0KGgo=">
     <style>
@@ -26,6 +26,31 @@
         .tab-btn.active { background: #3498db; color: white; border-bottom: 3px solid #2980b9; }
         .tab-content { display: none; padding: 20px; }
         .tab-content.active { display: block; }
+
+        /* ✨ تنسيقات الأزرار العلوية الجديدة ✨ */
+        .header-btn {
+            padding: 8px 15px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: bold; font-family: inherit; transition: 0.2s; color: white;
+        }
+        .btn-green { background-color: #27ae60; } .btn-green:hover { background-color: #2ecc71; }
+        .btn-blue { background-color: #2980b9; } .btn-blue:hover { background-color: #3498db; }
+        .btn-red { background-color: #e74c3c; } .btn-red:hover { background-color: #c0392b; }
+
+        /* ✨ تنسيقات القائمة المنسدلة (⋮) ✨ */
+        .dropdown { position: relative; display: inline-block; }
+        .dropbtn { background-color: #34495e; color: white; padding: 6px 12px; font-size: 18px; border: none; cursor: pointer; border-radius: 4px; transition: 0.2s; font-weight: bold; }
+        .dropbtn:hover { background-color: #1abc9c; }
+        .dropdown-content { 
+            display: none; position: absolute; left: 0; background-color: #ffffff; min-width: 180px; 
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2); z-index: 10001; border-radius: 6px; 
+            overflow: hidden; margin-top: 8px; text-align: right; border: 1px solid #ecf0f1;
+        }
+        .dropdown-item {
+            width: 100%; text-align: right; background: none; border: none; color: #2c3e50; 
+            padding: 12px 16px; font-size: 14px; font-weight: bold; font-family: inherit; 
+            cursor: pointer; transition: background 0.2s; display: block;
+        }
+        .dropdown-item:hover { background-color: #f1f2f6; color: #2980b9; }
+        .show-dropdown { display: block; }
 
         /* ✨ قواعد التجاوب (Media Queries) الخاصة بالهواتف ✨ */
         @media (max-width: 768px) {
@@ -54,20 +79,25 @@
             <img src="{{ url_for('static', filename='images/chy_logo.png') }}" 
                 alt="شعار المؤسسة" 
                 style="height: 45px; width: auto; object-fit: contain;">
-            <h1 style="margin: 0; font-size: 28px; font-weight: 900; letter-spacing: 1px;">📅 موزع الجداول الجامعية الذكي</h1>
+            <h1 style="margin: 0; font-size: 28px; font-weight: 900; letter-spacing: 1px;">📅 نظام الجداول الدراسية</h1>
         </div>
         
-        <div id="admin-header-btns" style="display: flex; gap: 10px;">
-            <button id="btn-about" style="background-color: #16a085; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-size: 15px; font-weight: bold; transition: 0.2s;" onmouseover="this.style.backgroundColor='#1abc9c'" onmouseout="this.style.backgroundColor='#16a085'">ℹ️ عن البرنامج</button>
-
-            <button id="btn-save-settings" style="background-color: #27ae60; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-size: 15px; font-weight: bold; transition: 0.2s;" onmouseover="this.style.backgroundColor='#2ecc71'" onmouseout="this.style.backgroundColor='#27ae60'">💾 حفظ الإعدادات</button>
+        <div id="admin-header-btns" style="display: flex; gap: 10px; align-items: center;">
             
-            <button id="btn-save-as" style="background-color: #2980b9; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-size: 15px; font-weight: bold; transition: 0.2s;" onmouseover="this.style.backgroundColor='#3498db'" onmouseout="this.style.backgroundColor='#2980b9'">📁 حفظ باسم...</button>
+            <button id="btn-save-settings" class="header-btn btn-green">💾 حفظ الإعدادات</button>
+            <button onclick="window.location.href='/'" class="header-btn btn-blue">🏠 العودة للبوابة</button>
+            <button onclick="window.location.href='/logout'" class="header-btn btn-red">🚪 خروج</button>
             
-            <button id="btn-restore" style="background-color: #8e44ad; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-size: 15px; font-weight: bold; transition: 0.2s;" onmouseover="this.style.backgroundColor='#9b59b6'" onmouseout="this.style.backgroundColor='#8e44ad'">🔄 استعادة</button>
-
-            <button id="btn-delete-profile" style="background-color: #e67e22; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-size: 15px; font-weight: bold; transition: 0.2s;" onmouseover="this.style.backgroundColor='#d35400'" onmouseout="this.style.backgroundColor='#e67e22'">🗑️ حذف إعدادات</button>
-            
+            <div class="dropdown">
+                <button class="dropbtn" onclick="toggleDropdown()" title="خيارات إضافية">⋮</button>
+                <div id="myDropdown" class="dropdown-content">
+                    <button id="btn-save-as" class="dropdown-item">📁 حفظ باسم...</button>
+                    <button id="btn-restore" class="dropdown-item">🔄 استعادة</button>
+                    <button id="btn-delete-profile" class="dropdown-item" style="color: #e74c3c;">🗑️ حذف إعدادات</button>
+                    <div style="border-top: 1px solid #ecf0f1; margin: 5px 0;"></div>
+                    <button id="btn-about" class="dropdown-item">ℹ️ عن البرنامج</button>
+                </div>
+            </div>
             
         </div>
     </header>
@@ -75,8 +105,8 @@
     <div id="aboutModal" style="display: none; position: fixed; z-index: 10001; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px);">
         <div style="background-color: #fff; margin: 10% auto; padding: 30px; width: 350px; border-radius: 12px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3); position: relative; color: #333; direction: rtl;">
             <span id="closeAboutBtn" style="position: absolute; top: 10px; left: 15px; font-size: 28px; font-weight: bold; color: #aaa; cursor: pointer;" onmouseover="this.style.color='#e74c3c'" onmouseout="this.style.color='#aaa'">&times;</span>
-            <h3 style="color: #2c3e50; margin-top: 0; margin-bottom: 10px; font-size: 22px;">موزع الجداول الجامعية الذكي</h3>
-            <p style="font-size: 15px; color: #7f8c8d; margin: 0;">الإصدار 2.0</p>
+            <h3 style="color: #2c3e50; margin-top: 0; margin-bottom: 10px; font-size: 22px;">نظام الجداول الدراسية</h3>
+            <p style="font-size: 15px; color: #7f8c8d; margin: 0;">الإصدار 2.0 (النسخة السحابية)</p>
             <hr style="border-top: 1px solid #ecf0f1; margin: 20px 0;">
             <p style="font-size: 16px; margin-bottom: 5px;">تم تصميم وتطوير هذا النظام بواسطة:</p>
             <p style="font-size: 24px; font-weight: bold; color: #2980b9; margin: 0;">الدكتور شعيب يحيى</p>
@@ -85,16 +115,42 @@
     </div>
 
     <script>
+        // دالة فتح وإغلاق القائمة المنسدلة
+        function toggleDropdown() {
+            document.getElementById("myDropdown").classList.toggle("show-dropdown");
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             var modal = document.getElementById("aboutModal");
             var btn = document.getElementById("btn-about");
             var span = document.getElementById("closeAboutBtn");
+            
             btn.onclick = function() {
                 modal.style.display = "block";
                 modal.querySelector('div').style.animation = "fadeInDown 0.3s ease-out";
+                // إغلاق القائمة المنسدلة عند فتح النافذة
+                document.getElementById("myDropdown").classList.remove('show-dropdown');
             }
             span.onclick = function() { modal.style.display = "none"; }
-            window.onclick = function(event) { if (event.target == modal) { modal.style.display = "none"; } }
+            
+            // دمج إغلاق النافذة المنبثقة وإغلاق القائمة المنسدلة عند النقر في أي مكان
+            window.onclick = function(event) { 
+                // إغلاق نافذة عن البرنامج
+                if (event.target == modal) { 
+                    modal.style.display = "none"; 
+                }
+                
+                // إغلاق القائمة المنسدلة إذا تم النقر خارجها
+                if (!event.target.matches('.dropbtn')) {
+                    var dropdowns = document.getElementsByClassName("dropdown-content");
+                    for (var i = 0; i < dropdowns.length; i++) {
+                        var openDropdown = dropdowns[i];
+                        if (openDropdown.classList.contains('show-dropdown')) {
+                            openDropdown.classList.remove('show-dropdown');
+                        }
+                    }
+                }
+            }
         });
     </script>
 

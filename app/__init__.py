@@ -1,5 +1,6 @@
 from flask import Flask, render_template, jsonify, session, redirect, url_for
 import os
+import sys
 from dotenv import load_dotenv
 from app.database import db  # استيراد db من الهيكلة الجديدة
 
@@ -23,9 +24,41 @@ def create_app():
     
     # 1. الإعدادات الأساسية
     app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'chy_secret_key_2026_fallback')
-    
-    # 2. إعدادات قاعدة البيانات (PostgreSQL أو SQLite مؤقتاً)
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///saas_database.db')
+    # التعرف التلقائي الذكي على البيئة (Desktop vs Web)
+    if getattr(sys, 'frozen', False):
+        # إذا كان النظام يعمل كملف تنفيذي (exe)، فهو حتماً في بيئة سطح المكتب
+        app.config['APP_MODE'] = 'desktop'
+    else:
+        # إذا كان يعمل كسكريبت بايثون (على استضافة أو للتطوير)، نقرأ من ملف .env
+        app.config['APP_MODE'] = os.environ.get('APP_MODE', 'production')
+
+    # ==========================================
+    # 🌟 الكود الذكي لتحديد مسار قاعدة البيانات 
+    # ==========================================
+    def get_db_path():
+        # تحديد المسار الرئيسي للبرنامج (سواء كان سكربت بايثون أو ملف exe)
+        if getattr(sys, 'frozen', False):
+            base_dir = os.path.dirname(sys.executable)
+        else:
+            base_dir = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
+            
+        # التحقق مما إذا كان المسار يحتوي على Program Files
+        if "Program Files" in base_dir or "ProgramFiles" in base_dir:
+            # توجيه قاعدة البيانات إلى مجلد AppData/Roaming الآمن
+            appdata = os.environ.get('APPDATA')
+            db_dir = os.path.join(appdata, 'UniPlanSaaS') # سيتم إنشاء مجلد بهذا الاسم
+            if not os.path.exists(db_dir):
+                os.makedirs(db_dir)
+            return os.path.join(db_dir, 'saas_database.db')
+        else:
+            # إنشاء قاعدة البيانات بجوار الملف التنفيذي مباشرة
+            return os.path.join(base_dir, 'saas_database.db')
+            
+    # توليد المسار النهائي
+    db_path = get_db_path()
+
+    # 2. إعدادات قاعدة البيانات (PostgreSQL سحابي أو SQLite محلي)
+    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', f'sqlite:///{db_path}')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
     # 3. ربط قاعدة البيانات بالتطبيق
@@ -118,5 +151,37 @@ def create_app():
 
     from .routes.exams_routes.exams_export import exams_export_bp
     app.register_blueprint(exams_export_bp)
+
+    # ==========================================
+    # 🌟 مسار الإغلاق الآمن للنظام (يعمل فقط في وضع سطح المكتب)
+    # ==========================================
+    @app.route('/shutdown', methods=['POST'])
+    def shutdown():
+        import os
+        import subprocess
+        import threading
+        
+        # التحقق من أن النظام يعمل في بيئة سطح المكتب
+        if app.config.get('APP_MODE') == 'desktop':
+            
+            # دالة الإغلاق الشامل لشجرة العمليات (البرنامج الرئيسي + السيليري)
+            def terminate_process_tree():
+                # استخدام أمر الويندوز لقتل العملية وأبنائها بشكل نظيف ومخفي
+                subprocess.run(
+                    ['taskkill', '/F', '/T', '/PID', str(os.getpid())],
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                    creationflags=subprocess.CREATE_NO_WINDOW
+                )
+
+            # نضبط مؤقت زمني لثانية واحدة:
+            # لكي نعطي فرصة للخادم ليرد على المتصفح بـ (success: True) أولاً
+            # ثم يقوم بالانتحار وإغلاق كل شيء.
+            threading.Timer(1.0, terminate_process_tree).start()
+            
+            return jsonify({"success": True})
+        
+        # إذا كان على استضافة حقيقية، نرفض طلب الإغلاق
+        return jsonify({"success": False, "error": "ميزة الإغلاق معطلة في النسخة السحابية الحية."}), 403
 
     return app

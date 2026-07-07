@@ -3,8 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>موزع حراسة الامتحانات الذكي</title>
+    <title>نظام حراسة الامتحانات</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/exams_style.css') }}">
+    <style>
+        /* ✨ تنسيقات الأزرار العلوية الجديدة ✨ */
+        .header-btn {
+            padding: 8px 15px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: bold; font-family: inherit; transition: 0.2s; color: white; text-decoration: none; display: inline-block; box-sizing: border-box; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .btn-green { background-color: #27ae60; } .btn-green:hover { background-color: #2ecc71; }
+        .btn-blue { background-color: #2980b9; } .btn-blue:hover { background-color: #3498db; }
+        .btn-red { background-color: #e74c3c; } .btn-red:hover { background-color: #c0392b; }
+
+        /* ✨ تنسيقات القائمة المنسدلة (⋮) ✨ */
+        .dropdown { position: relative; display: inline-block; }
+        .dropbtn { background-color: rgba(255,255,255,0.2); color: white; padding: 6px 12px; font-size: 18px; border: 1px solid transparent; cursor: pointer; border-radius: 4px; transition: 0.2s; font-weight: bold; }
+        .dropbtn:hover { background-color: rgba(255,255,255,0.4); border-color: white; }
+        .dropdown-content {
+            display: none; position: absolute; left: 0; background-color: #ffffff; min-width: 180px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2); z-index: 10001; border-radius: 6px;
+            overflow: hidden; margin-top: 8px; text-align: right; border: 1px solid #ecf0f1;
+        }
+        .dropdown-item {
+            width: 100%; text-align: right; background: none; border: none; color: #2c3e50;
+            padding: 12px 16px; font-size: 14px; font-weight: bold; font-family: inherit;
+            cursor: pointer; transition: background 0.2s; display: block;
+        }
+        .dropdown-item:hover { background-color: #f1f2f6; color: #2980b9; }
+        .show-dropdown { display: block; }
+    </style>
 </head>
 <body>
     <main>
@@ -16,16 +42,22 @@
                     <img src="{{ url_for('static', filename='images/chy_logo.png') }}" 
                          alt="شعار المؤسسة" 
                          style="height: 45px; margin-left: 15px; width: auto; object-fit: contain;">
-                    <h1 style="margin: 0; font-size: 24px; color: #ffffff; border-bottom: none; padding-bottom: 0;">🎓 موزع حراسة الامتحانات الذكي</h1>
+                    <h1 style="margin: 0; font-size: 24px; color: #ffffff; border-bottom: none; padding-bottom: 0;">🎓 نظام حراسة الامتحانات</h1>
                 </div>
 
                 <div class="header-actions" style="display: flex; gap: 10px; align-items: center;">
-                    <button id="about-button" class="header-btn" style="background-color: rgba(255,255,255,0.2); color: white; border: 1px solid white;">عن البرنامج</button>
-                    <button id="help-button" class="header-btn" style="background-color: rgba(255,255,255,0.2); color: white; border: 1px solid white;">المساعدة</button>
-                    <button id="save-settings-btn" style="background: #27ae60; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; font-family: inherit; font-size: 14px; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">💾 حفظ الإعدادات</button>
-                    
-                    <a href="/" style="background: #f39c12; color: white; padding: 8px 15px; border-radius: 4px; text-decoration: none; font-weight: bold; font-family: inherit; font-size: 14px; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">🗓️ العودة لنظام التدريس</a>
-                    <a href="/logout" style="background: #e74c3c; color: white; padding: 8px 15px; border-radius: 4px; text-decoration: none; font-weight: bold; font-size: 14px; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">تسجيل الخروج</a>
+                    <button id="save-settings-btn" class="header-btn btn-green">💾 حفظ الإعدادات</button>
+                    <a href="/" class="header-btn btn-blue">🏠 العودة للبوابة</a>
+                    <a href="/logout" class="header-btn btn-red">🚪 خروج</a>
+
+                    <div class="dropdown">
+                        <button class="dropbtn" onclick="toggleDropdown()" title="خيارات إضافية">⋮</button>
+                        <div id="myDropdown" class="dropdown-content">
+                            <button id="help-button" class="dropdown-item">❓ المساعدة ودليل الاستخدام</button>
+                            <div style="border-top: 1px solid #ecf0f1; margin: 5px 0;"></div>
+                            <button id="about-button" class="dropdown-item">ℹ️ عن البرنامج</button>
+                        </div>
+                    </div>
                 </div>
                 
             </header>
@@ -67,7 +99,25 @@
     <script src="{{ url_for('static', filename='js/exams/generation.js') }}"></script>
     <script src="{{ url_for('static', filename='js/exams/system.js') }}"></script>
     <script src="{{ url_for('static', filename='js/exams/backup.js') }}"></script>
-    
     <script src="{{ url_for('static', filename='js/exams/chart.min.js') }}"></script>
+
+    <script>
+        function toggleDropdown() {
+            document.getElementById("myDropdown").classList.toggle("show-dropdown");
+        }
+
+        // إغلاق القائمة المنسدلة إذا تم النقر خارجها
+        window.addEventListener('click', function(event) {
+            if (!event.target.matches('.dropbtn')) {
+                var dropdowns = document.getElementsByClassName("dropdown-content");
+                for (var i = 0; i < dropdowns.length; i++) {
+                    var openDropdown = dropdowns[i];
+                    if (openDropdown.classList.contains('show-dropdown')) {
+                        openDropdown.classList.remove('show-dropdown');
+                    }
+                }
+            }
+        });
+    </script>
 </body>
 </html>
