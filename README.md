@@ -45,14 +45,12 @@
 تهيئة قاعدة البيانات:
 النظام يستخدم SQLite افتراضياً للبيئة المحلية، ويمكن ربطه بـ PostgreSQL عبر ملف .env.
 
-
 تشغيل خادم العمليات الخلفية (Celery):
-    ```bash
+
    celery -A celery_worker.celery_app worker --loglevel=info
 
-
 تشغيل تطبيق Flask:
-    ```bash
+
    flask run
 
 
