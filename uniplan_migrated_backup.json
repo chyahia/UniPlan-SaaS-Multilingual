@@ -1,0 +1,3138 @@
+{
+  "settings": [],
+  "course_natures": [
+    {
+      "name": "محاضرة",
+      "symbol": "[مح]"
+    },
+    {
+      "name": "أعمال موجهة",
+      "symbol": "[أم]"
+    },
+    {
+      "name": "أعمال تطبيقية",
+      "symbol": "[أت]"
+    }
+  ],
+  "rooms": [
+    {
+      "name": "مدرج مغربي",
+      "type": "مدرج"
+    },
+    {
+      "name": "ق28",
+      "type": "عادية"
+    },
+    {
+      "name": "ق20",
+      "type": "عادية"
+    },
+    {
+      "name": "ق21",
+      "type": "عادية"
+    },
+    {
+      "name": "ق22",
+      "type": "عادية"
+    },
+    {
+      "name": "ق23",
+      "type": "عادية"
+    },
+    {
+      "name": "ق24",
+      "type": "عادية"
+    },
+    {
+      "name": "ق25",
+      "type": "عادية"
+    },
+    {
+      "name": "ق26",
+      "type": "عادية"
+    },
+    {
+      "name": "ق29",
+      "type": "عادية"
+    },
+    {
+      "name": "ق30",
+      "type": "عادية"
+    },
+    {
+      "name": "مدرج مدغري",
+      "type": "مدرج"
+    },
+    {
+      "name": "ق01",
+      "type": "عادية"
+    },
+    {
+      "name": "ق02",
+      "type": "عادية"
+    },
+    {
+      "name": "ق03",
+      "type": "عادية"
+    }
+  ],
+  "levels": [
+    {
+      "name": "سنة1 ليسانس"
+    },
+    {
+      "name": "سنة2 ليسانس"
+    },
+    {
+      "name": "سنة3 ليسانس (لسانيات عامة)"
+    },
+    {
+      "name": "سنة3 ليسانس (أدب عربي)"
+    },
+    {
+      "name": "سنة3 ليسانس (نقد ومناهج)"
+    },
+    {
+      "name": "ماستر1 (لسانيات عامة)"
+    },
+    {
+      "name": "ماستر1 (أدب عربي حديث ومعاصر)"
+    },
+    {
+      "name": "ماستر1 (نقد عربي قديم)"
+    },
+    {
+      "name": "ماستر2 (لسانيات عامة)"
+    },
+    {
+      "name": "ماستر2 (أدب عربي حديث ومعاصر)"
+    },
+    {
+      "name": "ماستر2 (نقد عربي قديم)"
+    }
+  ],
+  "teachers": [
+    {
+      "old_id": 1,
+      "name": "أ.بلحيارة",
+      "show_assigned": 1
+    },
+    {
+      "old_id": 2,
+      "name": "أ.بلقندوز",
+      "show_assigned": 0
+    },
+    {
+      "old_id": 3,
+      "name": "أ.بلهادي",
+      "show_assigned": 0
+    },
+    {
+      "old_id": 4,
+      "name": "أ.بن امحمد",
+      "show_assigned": 0
+    },
+    {
+      "old_id": 5,
+      "name": "أ.بن سعيد",
+      "show_assigned": 0
+    },
+    {
+      "old_id": 6,
+      "name": "أ.بن ضياف",
+      "show_assigned": 0
+    },
+    {
+      "old_id": 7,
+      "name": "أ.بن يخلف",
+      "show_assigned": 0
+    },
+    {
+      "old_id": 8,
+      "name": "أ.زايدي",
+      "show_assigned": 0
+    },
+    {
+      "old_id": 9,
+      "name": "أ.بهلول",
+      "show_assigned": 0
+    },
+    {
+      "old_id": 10,
+      "name": "أ.بوخال",
+      "show_assigned": 0
+    },
+    {
+      "old_id": 11,
+      "name": "أ.بودية",
+      "show_assigned": 0
+    },
+    {
+      "old_id": 12,
+      "name": "أ.تامي",
+      "show_assigned": 0
+    },
+    {
+      "old_id": 13,
+      "name": "أ.حاكمي",
+      "show_assigned": 0
+    },
+    {
+      "old_id": 14,
+      "name": "أ.حمداد",
+      "show_assigned": 0
+    },
+    {
+      "old_id": 15,
+      "name": "أ.حميدات",
+      "show_assigned": 0
+    },
+    {
+      "old_id": 16,
+      "name": "أ.حميدي بلعباس",
+      "show_assigned": 0
+    },
+    {
+      "old_id": 17,
+      "name": "أ.دايري",
+      "show_assigned": 0
+    },
+    {
+      "old_id": 18,
+      "name": "أ.دحماني",
+      "show_assigned": 0
+    },
+    {
+      "old_id": 19,
+      "name": "أ.دخيل",
+      "show_assigned": 0
+    },
+    {
+      "old_id": 20,
+      "name": "أ.دين",
+      "show_assigned": 0
+    },
+    {
+      "old_id": 21,
+      "name": "أ.رابحي",
+      "show_assigned": 0
+    },
+    {
+      "old_id": 22,
+      "name": "أ.رازي",
+      "show_assigned": 0
+    },
+    {
+      "old_id": 23,
+      "name": "أ.رماس",
+      "show_assigned": 0
+    },
+    {
+      "old_id": 24,
+      "name": "أ.زحاف",
+      "show_assigned": 0
+    },
+    {
+      "old_id": 25,
+      "name": "أ.زروقي",
+      "show_assigned": 0
+    },
+    {
+      "old_id": 26,
+      "name": "أ.زغوان",
+      "show_assigned": 0
+    },
+    {
+      "old_id": 27,
+      "name": "أ.سحنين",
+      "show_assigned": 0
+    },
+    {
+      "old_id": 28,
+      "name": "أ.سعيداني",
+      "show_assigned": 0
+    },
+    {
+      "old_id": 29,
+      "name": "أ.شعيب",
+      "show_assigned": 1
+    },
+    {
+      "old_id": 30,
+      "name": "أ.صغير",
+      "show_assigned": 0
+    },
+    {
+      "old_id": 31,
+      "name": "أ.طاهر جيلالـي",
+      "show_assigned": 0
+    },
+    {
+      "old_id": 32,
+      "name": "أ.طيبي",
+      "show_assigned": 0
+    },
+    {
+      "old_id": 33,
+      "name": "أ.عباس",
+      "show_assigned": 1
+    },
+    {
+      "old_id": 34,
+      "name": "أ.عبو",
+      "show_assigned": 1
+    },
+    {
+      "old_id": 35,
+      "name": "أ.عبيد",
+      "show_assigned": 0
+    },
+    {
+      "old_id": 36,
+      "name": "أ.عثمان",
+      "show_assigned": 0
+    },
+    {
+      "old_id": 37,
+      "name": "أ.فيدوح",
+      "show_assigned": 0
+    },
+    {
+      "old_id": 38,
+      "name": "أ.ماي",
+      "show_assigned": 0
+    },
+    {
+      "old_id": 39,
+      "name": "أ.مخلوف",
+      "show_assigned": 0
+    },
+    {
+      "old_id": 40,
+      "name": "أ.مرسلي",
+      "show_assigned": 0
+    },
+    {
+      "old_id": 41,
+      "name": "أ.مسلم",
+      "show_assigned": 0
+    },
+    {
+      "old_id": 42,
+      "name": "أ.مصباحي",
+      "show_assigned": 0
+    },
+    {
+      "old_id": 43,
+      "name": "أ.هاشمي",
+      "show_assigned": 0
+    },
+    {
+      "old_id": 44,
+      "name": "أ.واضح",
+      "show_assigned": 0
+    },
+    {
+      "old_id": 45,
+      "name": "أستاذ الإنجليزية1",
+      "show_assigned": 0
+    },
+    {
+      "old_id": 46,
+      "name": "أستاذ الإنجليزية2",
+      "show_assigned": 0
+    },
+    {
+      "old_id": 47,
+      "name": "أستاذ الإعلام الآلي",
+      "show_assigned": 0
+    },
+    {
+      "old_id": 48,
+      "name": "أستاذ المقاولاتية",
+      "show_assigned": 0
+    }
+  ],
+  "users": [],
+  "courses": [
+    {
+      "old_id": 1,
+      "name": "(سنة1 ليسانس) نص أدبي قديم-شعر [مح]",
+      "room_type": "مدرج",
+      "division": "جذع مشترك",
+      "specialization": "جذع مشترك",
+      "course_nature": "محاضرة",
+      "old_teacher_id": 9,
+      "level_names": [
+        "سنة1 ليسانس"
+      ]
+    },
+    {
+      "old_id": 2,
+      "name": "(سنة1 ليسانس) نص أدبي قديم-شعر [أم] ف1",
+      "room_type": "عادية",
+      "division": "جذع مشترك",
+      "specialization": "جذع مشترك",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 9,
+      "level_names": [
+        "سنة1 ليسانس"
+      ]
+    },
+    {
+      "old_id": 3,
+      "name": "(سنة1 ليسانس) نص أدبي قديم-شعر [أم] ف2",
+      "room_type": "عادية",
+      "division": "جذع مشترك",
+      "specialization": "جذع مشترك",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 9,
+      "level_names": [
+        "سنة1 ليسانس"
+      ]
+    },
+    {
+      "old_id": 4,
+      "name": "(سنة1 ليسانس) نص أدبي قديم-شعر [أم] ف3",
+      "room_type": "عادية",
+      "division": "جذع مشترك",
+      "specialization": "جذع مشترك",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 27,
+      "level_names": [
+        "سنة1 ليسانس"
+      ]
+    },
+    {
+      "old_id": 5,
+      "name": "(سنة1 ليسانس) نص أدبي قديم-شعر [أم] ف4",
+      "room_type": "عادية",
+      "division": "جذع مشترك",
+      "specialization": "جذع مشترك",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 27,
+      "level_names": [
+        "سنة1 ليسانس"
+      ]
+    },
+    {
+      "old_id": 6,
+      "name": "(سنة1 ليسانس) نقد أدبي قديم1 [مح]",
+      "room_type": "مدرج",
+      "division": "جذع مشترك",
+      "specialization": "جذع مشترك",
+      "course_nature": "محاضرة",
+      "old_teacher_id": 23,
+      "level_names": [
+        "سنة1 ليسانس"
+      ]
+    },
+    {
+      "old_id": 7,
+      "name": "(سنة1 ليسانس) نقد أدبي قديم1 [أم] ف1",
+      "room_type": "عادية",
+      "division": "جذع مشترك",
+      "specialization": "جذع مشترك",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 23,
+      "level_names": [
+        "سنة1 ليسانس"
+      ]
+    },
+    {
+      "old_id": 8,
+      "name": "(سنة1 ليسانس) نقد أدبي قديم1 [أم] ف2",
+      "room_type": "عادية",
+      "division": "جذع مشترك",
+      "specialization": "جذع مشترك",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 23,
+      "level_names": [
+        "سنة1 ليسانس"
+      ]
+    },
+    {
+      "old_id": 9,
+      "name": "(سنة1 ليسانس) نقد أدبي قديم1 [أم] ف3",
+      "room_type": "عادية",
+      "division": "جذع مشترك",
+      "specialization": "جذع مشترك",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 35,
+      "level_names": [
+        "سنة1 ليسانس"
+      ]
+    },
+    {
+      "old_id": 10,
+      "name": "(سنة1 ليسانس) نقد أدبي قديم1 [أم] ف4",
+      "room_type": "عادية",
+      "division": "جذع مشترك",
+      "specialization": "جذع مشترك",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 35,
+      "level_names": [
+        "سنة1 ليسانس"
+      ]
+    },
+    {
+      "old_id": 11,
+      "name": "(سنة1 ليسانس) علم الصرف1 [مح]",
+      "room_type": "مدرج",
+      "division": "جذع مشترك",
+      "specialization": "جذع مشترك",
+      "course_nature": "محاضرة",
+      "old_teacher_id": 25,
+      "level_names": [
+        "سنة1 ليسانس"
+      ]
+    },
+    {
+      "old_id": 12,
+      "name": "(سنة1 ليسانس) علم الصرف1 [أم] ف1",
+      "room_type": "عادية",
+      "division": "جذع مشترك",
+      "specialization": "جذع مشترك",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 25,
+      "level_names": [
+        "سنة1 ليسانس"
+      ]
+    },
+    {
+      "old_id": 13,
+      "name": "(سنة1 ليسانس) علم الصرف1 [أم] ف2",
+      "room_type": "عادية",
+      "division": "جذع مشترك",
+      "specialization": "جذع مشترك",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 25,
+      "level_names": [
+        "سنة1 ليسانس"
+      ]
+    },
+    {
+      "old_id": 14,
+      "name": "(سنة1 ليسانس) علم الصرف1 [أم] ف3",
+      "room_type": "عادية",
+      "division": "جذع مشترك",
+      "specialization": "جذع مشترك",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 25,
+      "level_names": [
+        "سنة1 ليسانس"
+      ]
+    },
+    {
+      "old_id": 15,
+      "name": "(سنة1 ليسانس) علم الصرف1 [أم] ف4",
+      "room_type": "عادية",
+      "division": "جذع مشترك",
+      "specialization": "جذع مشترك",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 25,
+      "level_names": [
+        "سنة1 ليسانس"
+      ]
+    },
+    {
+      "old_id": 16,
+      "name": "(سنة1 ليسانس) بلاغة عربية [مح]",
+      "room_type": "مدرج",
+      "division": "جذع مشترك",
+      "specialization": "جذع مشترك",
+      "course_nature": "محاضرة",
+      "old_teacher_id": 29,
+      "level_names": [
+        "سنة1 ليسانس"
+      ]
+    },
+    {
+      "old_id": 17,
+      "name": "(سنة1 ليسانس) بلاغة عربية [أم] ف1",
+      "room_type": "عادية",
+      "division": "جذع مشترك",
+      "specialization": "جذع مشترك",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 29,
+      "level_names": [
+        "سنة1 ليسانس"
+      ]
+    },
+    {
+      "old_id": 18,
+      "name": "(سنة1 ليسانس) بلاغة عربية [أم] ف2",
+      "room_type": "عادية",
+      "division": "جذع مشترك",
+      "specialization": "جذع مشترك",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 29,
+      "level_names": [
+        "سنة1 ليسانس"
+      ]
+    },
+    {
+      "old_id": 19,
+      "name": "(سنة1 ليسانس) بلاغة عربية [أم] ف3",
+      "room_type": "عادية",
+      "division": "جذع مشترك",
+      "specialization": "جذع مشترك",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 36,
+      "level_names": [
+        "سنة1 ليسانس"
+      ]
+    },
+    {
+      "old_id": 20,
+      "name": "(سنة1 ليسانس) بلاغة عربية [أم] ف4",
+      "room_type": "عادية",
+      "division": "جذع مشترك",
+      "specialization": "جذع مشترك",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 36,
+      "level_names": [
+        "سنة1 ليسانس"
+      ]
+    },
+    {
+      "old_id": 21,
+      "name": "(سنة1 ليسانس) عروض وموسيقى الشعر [مح]",
+      "room_type": "مدرج",
+      "division": "جذع مشترك",
+      "specialization": "جذع مشترك",
+      "course_nature": "محاضرة",
+      "old_teacher_id": 37,
+      "level_names": [
+        "سنة1 ليسانس"
+      ]
+    },
+    {
+      "old_id": 22,
+      "name": "(سنة1 ليسانس) عروض وموسيقى الشعر [أم] ف1",
+      "room_type": "عادية",
+      "division": "جذع مشترك",
+      "specialization": "جذع مشترك",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 4,
+      "level_names": [
+        "سنة1 ليسانس"
+      ]
+    },
+    {
+      "old_id": 23,
+      "name": "(سنة1 ليسانس) عروض وموسيقى الشعر [أم] ف2",
+      "room_type": "عادية",
+      "division": "جذع مشترك",
+      "specialization": "جذع مشترك",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 4,
+      "level_names": [
+        "سنة1 ليسانس"
+      ]
+    },
+    {
+      "old_id": 24,
+      "name": "(سنة1 ليسانس) عروض وموسيقى الشعر [أم] ف3",
+      "room_type": "عادية",
+      "division": "جذع مشترك",
+      "specialization": "جذع مشترك",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 18,
+      "level_names": [
+        "سنة1 ليسانس"
+      ]
+    },
+    {
+      "old_id": 25,
+      "name": "(سنة1 ليسانس) عروض وموسيقى الشعر [أم] ف4",
+      "room_type": "عادية",
+      "division": "جذع مشترك",
+      "specialization": "جذع مشترك",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 18,
+      "level_names": [
+        "سنة1 ليسانس"
+      ]
+    },
+    {
+      "old_id": 26,
+      "name": "(سنة1 ليسانس) علوم القرآن [مح]",
+      "room_type": "مدرج",
+      "division": "جذع مشترك",
+      "specialization": "جذع مشترك",
+      "course_nature": "محاضرة",
+      "old_teacher_id": 18,
+      "level_names": [
+        "سنة1 ليسانس"
+      ]
+    },
+    {
+      "old_id": 27,
+      "name": "(سنة1 ليسانس) لغة أجنبية [مح]",
+      "room_type": "مدرج",
+      "division": "جذع مشترك",
+      "specialization": "جذع مشترك",
+      "course_nature": "محاضرة",
+      "old_teacher_id": 45,
+      "level_names": [
+        "سنة1 ليسانس"
+      ]
+    },
+    {
+      "old_id": 28,
+      "name": "(سنة1 ليسانس) إعلام آلي وبرمجة1 [مح]",
+      "room_type": "مدرج",
+      "division": "جذع مشترك",
+      "specialization": "جذع مشترك",
+      "course_nature": "محاضرة",
+      "old_teacher_id": 47,
+      "level_names": [
+        "سنة1 ليسانس"
+      ]
+    },
+    {
+      "old_id": 29,
+      "name": "(سنة1 ليسانس) تقنيات البحث1 [أم] ف1",
+      "room_type": "عادية",
+      "division": "جذع مشترك",
+      "specialization": "جذع مشترك",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 41,
+      "level_names": [
+        "سنة1 ليسانس"
+      ]
+    },
+    {
+      "old_id": 30,
+      "name": "(سنة1 ليسانس) تقنيات البحث1 [أم] ف2",
+      "room_type": "عادية",
+      "division": "جذع مشترك",
+      "specialization": "جذع مشترك",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 15,
+      "level_names": [
+        "سنة1 ليسانس"
+      ]
+    },
+    {
+      "old_id": 31,
+      "name": "(سنة1 ليسانس) تقنيات البحث1 [أم] ف3",
+      "room_type": "عادية",
+      "division": "جذع مشترك",
+      "specialization": "جذع مشترك",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 17,
+      "level_names": [
+        "سنة1 ليسانس"
+      ]
+    },
+    {
+      "old_id": 32,
+      "name": "(سنة1 ليسانس) تقنيات البحث1 [أم] ف4",
+      "room_type": "عادية",
+      "division": "جذع مشترك",
+      "specialization": "جذع مشترك",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 3,
+      "level_names": [
+        "سنة1 ليسانس"
+      ]
+    },
+    {
+      "old_id": 33,
+      "name": "(سنة1 ليسانس) تقنيات التعبير الشفهي [أم] ف1",
+      "room_type": "عادية",
+      "division": "جذع مشترك",
+      "specialization": "جذع مشترك",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 30,
+      "level_names": [
+        "سنة1 ليسانس"
+      ]
+    },
+    {
+      "old_id": 34,
+      "name": "(سنة1 ليسانس) تقنيات التعبير الشفهي [أم] ف2",
+      "room_type": "عادية",
+      "division": "جذع مشترك",
+      "specialization": "جذع مشترك",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 19,
+      "level_names": [
+        "سنة1 ليسانس"
+      ]
+    },
+    {
+      "old_id": 35,
+      "name": "(سنة1 ليسانس) تقنيات التعبير الشفهي [أم] ف3",
+      "room_type": "عادية",
+      "division": "جذع مشترك",
+      "specialization": "جذع مشترك",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 39,
+      "level_names": [
+        "سنة1 ليسانس"
+      ]
+    },
+    {
+      "old_id": 36,
+      "name": "(سنة1 ليسانس) تقنيات التعبير الشفهي [أم] ف4",
+      "room_type": "عادية",
+      "division": "جذع مشترك",
+      "specialization": "جذع مشترك",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 21,
+      "level_names": [
+        "سنة1 ليسانس"
+      ]
+    },
+    {
+      "old_id": 37,
+      "name": "(سنة2 ليسانس كل التخصصات) نص أدبي حديث [مح]",
+      "room_type": "مدرج",
+      "division": "كل الشعب",
+      "specialization": "كل التخصصات",
+      "course_nature": "محاضرة",
+      "old_teacher_id": 28,
+      "level_names": [
+        "سنة2 ليسانس"
+      ]
+    },
+    {
+      "old_id": 38,
+      "name": "(سنة2 ليسانس) نص أدبي حديث (د.لغوية) [أم]",
+      "room_type": "عادية",
+      "division": "دراسات لغوية",
+      "specialization": "دراسات لغوية",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 1,
+      "level_names": [
+        "سنة2 ليسانس"
+      ]
+    },
+    {
+      "old_id": 39,
+      "name": "(سنة2 ليسانس) نص أدبي حديث (د.أدبية) [أم]",
+      "room_type": "عادية",
+      "division": "دراسات أدبية",
+      "specialization": "دراسات أدبية",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 28,
+      "level_names": [
+        "سنة2 ليسانس"
+      ]
+    },
+    {
+      "old_id": 40,
+      "name": "(سنة2 ليسانس) نص أدبي حديث (د.نقدية) [أم]",
+      "room_type": "عادية",
+      "division": "دراسات نقدية",
+      "specialization": "دراسات نقدية",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 28,
+      "level_names": [
+        "سنة2 ليسانس"
+      ]
+    },
+    {
+      "old_id": 41,
+      "name": "(سنة2 ليسانس كل التخصصات) نقد أدبي حديث [مح]",
+      "room_type": "مدرج",
+      "division": "كل الشعب",
+      "specialization": "كل التخصصات",
+      "course_nature": "محاضرة",
+      "old_teacher_id": 15,
+      "level_names": [
+        "سنة2 ليسانس"
+      ]
+    },
+    {
+      "old_id": 42,
+      "name": "(سنة2 ليسانس) نقد أدبي حديث (د.لغوية) [أم]",
+      "room_type": "عادية",
+      "division": "دراسات لغوية",
+      "specialization": "دراسات لغوية",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 15,
+      "level_names": [
+        "سنة2 ليسانس"
+      ]
+    },
+    {
+      "old_id": 43,
+      "name": "(سنة2 ليسانس) نقد أدبي حديث (د.أدبية) [أم]",
+      "room_type": "عادية",
+      "division": "دراسات أدبية",
+      "specialization": "دراسات أدبية",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 15,
+      "level_names": [
+        "سنة2 ليسانس"
+      ]
+    },
+    {
+      "old_id": 44,
+      "name": "(سنة2 ليسانس) نقد أدبي حديث (د.نقدية) [أم]",
+      "room_type": "عادية",
+      "division": "دراسات نقدية",
+      "specialization": "دراسات نقدية",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 15,
+      "level_names": [
+        "سنة2 ليسانس"
+      ]
+    },
+    {
+      "old_id": 45,
+      "name": "(سنة2 ليسانس كل التخصصات) لسانيات عامة [مح]",
+      "room_type": "مدرج",
+      "division": "كل الشعب",
+      "specialization": "كل التخصصات",
+      "course_nature": "محاضرة",
+      "old_teacher_id": 8,
+      "level_names": [
+        "سنة2 ليسانس"
+      ]
+    },
+    {
+      "old_id": 46,
+      "name": "(سنة2 ليسانس) لسانيات عامة (د.لغوية) [أم]",
+      "room_type": "عادية",
+      "division": "دراسات لغوية",
+      "specialization": "دراسات لغوية",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 8,
+      "level_names": [
+        "سنة2 ليسانس"
+      ]
+    },
+    {
+      "old_id": 47,
+      "name": "(سنة2 ليسانس) لسانيات عامة (د.أدبية) [أم]",
+      "room_type": "عادية",
+      "division": "دراسات أدبية",
+      "specialization": "دراسات أدبية",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 8,
+      "level_names": [
+        "سنة2 ليسانس"
+      ]
+    },
+    {
+      "old_id": 48,
+      "name": "(سنة2 ليسانس) لسانيات عامة (د.نقدية) [أم]",
+      "room_type": "عادية",
+      "division": "دراسات نقدية",
+      "specialization": "دراسات نقدية",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 8,
+      "level_names": [
+        "سنة2 ليسانس"
+      ]
+    },
+    {
+      "old_id": 49,
+      "name": "(سنة2 ليسانس كل التخصصات) نظرية الأدب [مح]",
+      "room_type": "مدرج",
+      "division": "كل الشعب",
+      "specialization": "كل التخصصات",
+      "course_nature": "محاضرة",
+      "old_teacher_id": 3,
+      "level_names": [
+        "سنة2 ليسانس"
+      ]
+    },
+    {
+      "old_id": 50,
+      "name": "(سنة2 ليسانس) نظرية الأدب (د.لغوية) [أم]",
+      "room_type": "عادية",
+      "division": "دراسات لغوية",
+      "specialization": "دراسات لغوية",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 3,
+      "level_names": [
+        "سنة2 ليسانس"
+      ]
+    },
+    {
+      "old_id": 51,
+      "name": "(سنة2 ليسانس) نظرية الأدب (د.أدبية) [أم]",
+      "room_type": "عادية",
+      "division": "دراسات أدبية",
+      "specialization": "دراسات أدبية",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 3,
+      "level_names": [
+        "سنة2 ليسانس"
+      ]
+    },
+    {
+      "old_id": 52,
+      "name": "(سنة2 ليسانس) نظرية الأدب (د.نقدية) [أم]",
+      "room_type": "عادية",
+      "division": "دراسات نقدية",
+      "specialization": "دراسات نقدية",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 3,
+      "level_names": [
+        "سنة2 ليسانس"
+      ]
+    },
+    {
+      "old_id": 53,
+      "name": "(سنة2 ليسانس كل التخصصات) المدارس اللسانية [مح]",
+      "room_type": "مدرج",
+      "division": "كل الشعب",
+      "specialization": "كل التخصصات",
+      "course_nature": "محاضرة",
+      "old_teacher_id": 4,
+      "level_names": [
+        "سنة2 ليسانس"
+      ]
+    },
+    {
+      "old_id": 54,
+      "name": "(سنة2 ليسانس) المدارس اللسانية (د.لغوية) [أم]",
+      "room_type": "عادية",
+      "division": "دراسات لغوية",
+      "specialization": "دراسات لغوية",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 4,
+      "level_names": [
+        "سنة2 ليسانس"
+      ]
+    },
+    {
+      "old_id": 55,
+      "name": "(سنة2 ليسانس) المدارس اللسانية (د.أدبية) [أم]",
+      "room_type": "عادية",
+      "division": "دراسات أدبية",
+      "specialization": "دراسات أدبية",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 4,
+      "level_names": [
+        "سنة2 ليسانس"
+      ]
+    },
+    {
+      "old_id": 56,
+      "name": "(سنة2 ليسانس) المدارس اللسانية (د.نقدية) [أم]",
+      "room_type": "عادية",
+      "division": "دراسات نقدية",
+      "specialization": "دراسات نقدية",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 4,
+      "level_names": [
+        "سنة2 ليسانس"
+      ]
+    },
+    {
+      "old_id": 57,
+      "name": "(سنة2 ليسانس كل التخصصات) مدخل إلى الأدب المقارن [مح]",
+      "room_type": "مدرج",
+      "division": "كل الشعب",
+      "specialization": "كل التخصصات",
+      "course_nature": "محاضرة",
+      "old_teacher_id": 17,
+      "level_names": [
+        "سنة2 ليسانس"
+      ]
+    },
+    {
+      "old_id": 58,
+      "name": "(سنة2 ليسانس) مدخل إلى الأدب المقارن (د.لغوية) [أم]",
+      "room_type": "عادية",
+      "division": "دراسات لغوية",
+      "specialization": "دراسات لغوية",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 17,
+      "level_names": [
+        "سنة2 ليسانس"
+      ]
+    },
+    {
+      "old_id": 59,
+      "name": "(سنة2 ليسانس) مدخل إلى الأدب المقارن (د.أدبية) [أم]",
+      "room_type": "عادية",
+      "division": "دراسات أدبية",
+      "specialization": "دراسات أدبية",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 17,
+      "level_names": [
+        "سنة2 ليسانس"
+      ]
+    },
+    {
+      "old_id": 60,
+      "name": "(سنة2 ليسانس) مدخل إلى الأدب المقارن (د.نقدية) [أم]",
+      "room_type": "عادية",
+      "division": "دراسات نقدية",
+      "specialization": "دراسات نقدية",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 17,
+      "level_names": [
+        "سنة2 ليسانس"
+      ]
+    },
+    {
+      "old_id": 61,
+      "name": "(سنة2 ليسانس كل التخصصات) علم الصرف2 [مح]",
+      "room_type": "مدرج",
+      "division": "كل الشعب",
+      "specialization": "كل التخصصات",
+      "course_nature": "محاضرة",
+      "old_teacher_id": 24,
+      "level_names": [
+        "سنة2 ليسانس"
+      ]
+    },
+    {
+      "old_id": 62,
+      "name": "(سنة2 ليسانس) علم الصرف2 (د.لغوية) [أم]",
+      "room_type": "عادية",
+      "division": "دراسات لغوية",
+      "specialization": "دراسات لغوية",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 24,
+      "level_names": [
+        "سنة2 ليسانس"
+      ]
+    },
+    {
+      "old_id": 63,
+      "name": "(سنة2 ليسانس) علم الصرف2 (د.أدبية) [أم]",
+      "room_type": "عادية",
+      "division": "دراسات أدبية",
+      "specialization": "دراسات أدبية",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 24,
+      "level_names": [
+        "سنة2 ليسانس"
+      ]
+    },
+    {
+      "old_id": 64,
+      "name": "(سنة2 ليسانس) علم الصرف2 (د.نقدية) [أم]",
+      "room_type": "عادية",
+      "division": "دراسات نقدية",
+      "specialization": "دراسات نقدية",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 24,
+      "level_names": [
+        "سنة2 ليسانس"
+      ]
+    },
+    {
+      "old_id": 65,
+      "name": "(سنة2 ليسانس كل التخصصات) اللغة الأجنبية [مح]",
+      "room_type": "مدرج",
+      "division": "كل الشعب",
+      "specialization": "كل التخصصات",
+      "course_nature": "محاضرة",
+      "old_teacher_id": 46,
+      "level_names": [
+        "سنة2 ليسانس"
+      ]
+    },
+    {
+      "old_id": 66,
+      "name": "(سنة2 ليسانس) علم الدلالة (د.لغوية) [أم]",
+      "room_type": "عادية",
+      "division": "دراسات لغوية",
+      "specialization": "دراسات لغوية",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 22,
+      "level_names": [
+        "سنة2 ليسانس"
+      ]
+    },
+    {
+      "old_id": 67,
+      "name": "(سنة2 ليسانس) أصول النحو (د.لغوية) [أم]",
+      "room_type": "عادية",
+      "division": "دراسات لغوية",
+      "specialization": "دراسات لغوية",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 24,
+      "level_names": [
+        "سنة2 ليسانس"
+      ]
+    },
+    {
+      "old_id": 68,
+      "name": "(سنة2 ليسانس) أدب شعبي عام (د.أدبية) [أم]",
+      "room_type": "عادية",
+      "division": "دراسات أدبية",
+      "specialization": "دراسات أدبية",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 11,
+      "level_names": [
+        "سنة2 ليسانس"
+      ]
+    },
+    {
+      "old_id": 69,
+      "name": "(سنة2 ليسانس) مدخل إلى الأدب المغاربي (د.أدبية) [أم]",
+      "room_type": "عادية",
+      "division": "دراسات أدبية",
+      "specialization": "دراسات أدبية",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 16,
+      "level_names": [
+        "سنة2 ليسانس"
+      ]
+    },
+    {
+      "old_id": 70,
+      "name": "(سنة2 ليسانس) فلسفة النقد الأدبي (د.نقدية) [أم]",
+      "room_type": "عادية",
+      "division": "دراسات نقدية",
+      "specialization": "دراسات نقدية",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 35,
+      "level_names": [
+        "سنة2 ليسانس"
+      ]
+    },
+    {
+      "old_id": 71,
+      "name": "(سنة2 ليسانس) نظرية الأجناس الأدبية (د.نقدية) [أم]",
+      "room_type": "عادية",
+      "division": "دراسات نقدية",
+      "specialization": "دراسات نقدية",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 3,
+      "level_names": [
+        "سنة2 ليسانس"
+      ]
+    },
+    {
+      "old_id": 72,
+      "name": "(سنة3 ليسانس لسانيات عامة) لسانيات عربية [مح]",
+      "room_type": "مدرج",
+      "division": "دراسات لغوية",
+      "specialization": "لسانيات عامة",
+      "course_nature": "محاضرة",
+      "old_teacher_id": 6,
+      "level_names": [
+        "سنة3 ليسانس (لسانيات عامة)"
+      ]
+    },
+    {
+      "old_id": 73,
+      "name": "(سنة3 ليسانس لسانيات عامة) لسانيات عربية [أم] ف1",
+      "room_type": "عادية",
+      "division": "دراسات لغوية",
+      "specialization": "لسانيات عامة",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 6,
+      "level_names": [
+        "سنة3 ليسانس (لسانيات عامة)"
+      ]
+    },
+    {
+      "old_id": 74,
+      "name": "(سنة3 ليسانس لسانيات عامة) لسانيات عربية [أم] ف2",
+      "room_type": "عادية",
+      "division": "دراسات لغوية",
+      "specialization": "لسانيات عامة",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 6,
+      "level_names": [
+        "سنة3 ليسانس (لسانيات عامة)"
+      ]
+    },
+    {
+      "old_id": 75,
+      "name": "(سنة3 ليسانس لسانيات عامة) لسانيات النص [مح]",
+      "room_type": "مدرج",
+      "division": "دراسات لغوية",
+      "specialization": "لسانيات عامة",
+      "course_nature": "محاضرة",
+      "old_teacher_id": 13,
+      "level_names": [
+        "سنة3 ليسانس (لسانيات عامة)"
+      ]
+    },
+    {
+      "old_id": 76,
+      "name": "(سنة3 ليسانس لسانيات عامة) لسانيات النص [أم] ف1",
+      "room_type": "عادية",
+      "division": "دراسات لغوية",
+      "specialization": "لسانيات عامة",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 13,
+      "level_names": [
+        "سنة3 ليسانس (لسانيات عامة)"
+      ]
+    },
+    {
+      "old_id": 77,
+      "name": "(سنة3 ليسانس لسانيات عامة) لسانيات النص [أم] ف2",
+      "room_type": "عادية",
+      "division": "دراسات لغوية",
+      "specialization": "لسانيات عامة",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 2,
+      "level_names": [
+        "سنة3 ليسانس (لسانيات عامة)"
+      ]
+    },
+    {
+      "old_id": 78,
+      "name": "(سنة3 ليسانس لسانيات عامة) المدارس النحوية [مح]",
+      "room_type": "مدرج",
+      "division": "دراسات لغوية",
+      "specialization": "لسانيات عامة",
+      "course_nature": "محاضرة",
+      "old_teacher_id": 5,
+      "level_names": [
+        "سنة3 ليسانس (لسانيات عامة)"
+      ]
+    },
+    {
+      "old_id": 79,
+      "name": "(سنة3 ليسانس لسانيات عامة) المدارس النحوية [أم] ف1",
+      "room_type": "عادية",
+      "division": "دراسات لغوية",
+      "specialization": "لسانيات عامة",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 5,
+      "level_names": [
+        "سنة3 ليسانس (لسانيات عامة)"
+      ]
+    },
+    {
+      "old_id": 80,
+      "name": "(سنة3 ليسانس لسانيات عامة) المدارس النحوية [أم] ف2",
+      "room_type": "عادية",
+      "division": "دراسات لغوية",
+      "specialization": "لسانيات عامة",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 5,
+      "level_names": [
+        "سنة3 ليسانس (لسانيات عامة)"
+      ]
+    },
+    {
+      "old_id": 81,
+      "name": "(سنة3 ليسانس لسانيات عامة) علم الدلالة1 [مح]",
+      "room_type": "مدرج",
+      "division": "دراسات لغوية",
+      "specialization": "لسانيات عامة",
+      "course_nature": "محاضرة",
+      "old_teacher_id": 32,
+      "level_names": [
+        "سنة3 ليسانس (لسانيات عامة)"
+      ]
+    },
+    {
+      "old_id": 82,
+      "name": "(سنة3 ليسانس لسانيات عامة) علم الدلالة1 [أم] ف1",
+      "room_type": "عادية",
+      "division": "دراسات لغوية",
+      "specialization": "لسانيات عامة",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 32,
+      "level_names": [
+        "سنة3 ليسانس (لسانيات عامة)"
+      ]
+    },
+    {
+      "old_id": 83,
+      "name": "(سنة3 ليسانس لسانيات عامة) علم الدلالة1 [أم] ف2",
+      "room_type": "عادية",
+      "division": "دراسات لغوية",
+      "specialization": "لسانيات عامة",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 32,
+      "level_names": [
+        "سنة3 ليسانس (لسانيات عامة)"
+      ]
+    },
+    {
+      "old_id": 84,
+      "name": "(سنة3 ليسانس لسانيات عامة) منهجية البحث اللغوي [مح]",
+      "room_type": "مدرج",
+      "division": "دراسات لغوية",
+      "specialization": "لسانيات عامة",
+      "course_nature": "محاضرة",
+      "old_teacher_id": 6,
+      "level_names": [
+        "سنة3 ليسانس (لسانيات عامة)"
+      ]
+    },
+    {
+      "old_id": 85,
+      "name": "(سنة3 ليسانس لسانيات عامة) منهجية البحث اللغوي [أم] ف1",
+      "room_type": "عادية",
+      "division": "دراسات لغوية",
+      "specialization": "لسانيات عامة",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 6,
+      "level_names": [
+        "سنة3 ليسانس (لسانيات عامة)"
+      ]
+    },
+    {
+      "old_id": 86,
+      "name": "(سنة3 ليسانس لسانيات عامة) منهجية البحث اللغوي [أم] ف2",
+      "room_type": "عادية",
+      "division": "دراسات لغوية",
+      "specialization": "لسانيات عامة",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 6,
+      "level_names": [
+        "سنة3 ليسانس (لسانيات عامة)"
+      ]
+    },
+    {
+      "old_id": 87,
+      "name": "(سنة3 ليسانس لسانيات عامة) المصطلحية [مح]",
+      "room_type": "مدرج",
+      "division": "دراسات لغوية",
+      "specialization": "لسانيات عامة",
+      "course_nature": "محاضرة",
+      "old_teacher_id": 14,
+      "level_names": [
+        "سنة3 ليسانس (لسانيات عامة)"
+      ]
+    },
+    {
+      "old_id": 88,
+      "name": "(سنة3 ليسانس لسانيات عامة) المصطلحية [أم] ف1",
+      "room_type": "عادية",
+      "division": "دراسات لغوية",
+      "specialization": "لسانيات عامة",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 14,
+      "level_names": [
+        "سنة3 ليسانس (لسانيات عامة)"
+      ]
+    },
+    {
+      "old_id": 89,
+      "name": "(سنة3 ليسانس لسانيات عامة) المصطلحية [أم] ف2",
+      "room_type": "عادية",
+      "division": "دراسات لغوية",
+      "specialization": "لسانيات عامة",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 14,
+      "level_names": [
+        "سنة3 ليسانس (لسانيات عامة)"
+      ]
+    },
+    {
+      "old_id": 90,
+      "name": "(سنة3 ليسانس لسانيات عامة) المعجمية [مح]",
+      "room_type": "مدرج",
+      "division": "دراسات لغوية",
+      "specialization": "لسانيات عامة",
+      "course_nature": "محاضرة",
+      "old_teacher_id": 14,
+      "level_names": [
+        "سنة3 ليسانس (لسانيات عامة)"
+      ]
+    },
+    {
+      "old_id": 91,
+      "name": "(سنة3 ليسانس لسانيات عامة) المعجمية [أم] ف1",
+      "room_type": "عادية",
+      "division": "دراسات لغوية",
+      "specialization": "لسانيات عامة",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 14,
+      "level_names": [
+        "سنة3 ليسانس (لسانيات عامة)"
+      ]
+    },
+    {
+      "old_id": 92,
+      "name": "(سنة3 ليسانس لسانيات عامة) المعجمية [أم] ف2",
+      "room_type": "عادية",
+      "division": "دراسات لغوية",
+      "specialization": "لسانيات عامة",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 14,
+      "level_names": [
+        "سنة3 ليسانس (لسانيات عامة)"
+      ]
+    },
+    {
+      "old_id": 93,
+      "name": "(سنة3 ليسانس لسانيات عامة) أدب جزائري [أم] ف1",
+      "room_type": "عادية",
+      "division": "دراسات لغوية",
+      "specialization": "لسانيات عامة",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 30,
+      "level_names": [
+        "سنة3 ليسانس (لسانيات عامة)"
+      ]
+    },
+    {
+      "old_id": 94,
+      "name": "(سنة3 ليسانس لسانيات عامة) أدب جزائري [أم] ف2",
+      "room_type": "عادية",
+      "division": "دراسات لغوية",
+      "specialization": "لسانيات عامة",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 30,
+      "level_names": [
+        "سنة3 ليسانس (لسانيات عامة)"
+      ]
+    },
+    {
+      "old_id": 95,
+      "name": "(سنة3 ليسانس لسانيات عامة) نظرية النظم [أم] ف1",
+      "room_type": "عادية",
+      "division": "دراسات لغوية",
+      "specialization": "لسانيات عامة",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 26,
+      "level_names": [
+        "سنة3 ليسانس (لسانيات عامة)"
+      ]
+    },
+    {
+      "old_id": 96,
+      "name": "(سنة3 ليسانس لسانيات عامة) نظرية النظم [أم] ف2",
+      "room_type": "عادية",
+      "division": "دراسات لغوية",
+      "specialization": "لسانيات عامة",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 43,
+      "level_names": [
+        "سنة3 ليسانس (لسانيات عامة)"
+      ]
+    },
+    {
+      "old_id": 97,
+      "name": "(سنة3 ليسانس لسانيات عامة) ترجمة المصطلحات اللغوية [أم] ف1",
+      "room_type": "عادية",
+      "division": "دراسات لغوية",
+      "specialization": "لسانيات عامة",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 7,
+      "level_names": [
+        "سنة3 ليسانس (لسانيات عامة)"
+      ]
+    },
+    {
+      "old_id": 98,
+      "name": "(سنة3 ليسانس لسانيات عامة) ترجمة المصطلحات اللغوية [أم] ف2",
+      "room_type": "عادية",
+      "division": "دراسات لغوية",
+      "specialization": "لسانيات عامة",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 7,
+      "level_names": [
+        "سنة3 ليسانس (لسانيات عامة)"
+      ]
+    },
+    {
+      "old_id": 99,
+      "name": "(سنة3 ليسانس أدب عربي) قضايا النص الشعري القديم [مح]",
+      "room_type": "عادية",
+      "division": "دراسات أدبية",
+      "specialization": "أدب عربي",
+      "course_nature": "محاضرة",
+      "old_teacher_id": 30,
+      "level_names": [
+        "سنة3 ليسانس (أدب عربي)"
+      ]
+    },
+    {
+      "old_id": 100,
+      "name": "(سنة3 ليسانس أدب عربي) قضايا النص الشعري القديم [أم]",
+      "room_type": "عادية",
+      "division": "دراسات أدبية",
+      "specialization": "أدب عربي",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 30,
+      "level_names": [
+        "سنة3 ليسانس (أدب عربي)"
+      ]
+    },
+    {
+      "old_id": 101,
+      "name": "(سنة3 ليسانس أدب عربي) جماليات السرد العربي القديم [مح]",
+      "room_type": "عادية",
+      "division": "دراسات أدبية",
+      "specialization": "أدب عربي",
+      "course_nature": "محاضرة",
+      "old_teacher_id": 11,
+      "level_names": [
+        "سنة3 ليسانس (أدب عربي)"
+      ]
+    },
+    {
+      "old_id": 102,
+      "name": "(سنة3 ليسانس أدب عربي) جماليات السرد العربي القديم [أم]",
+      "room_type": "عادية",
+      "division": "دراسات أدبية",
+      "specialization": "أدب عربي",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 11,
+      "level_names": [
+        "سنة3 ليسانس (أدب عربي)"
+      ]
+    },
+    {
+      "old_id": 103,
+      "name": "(سنة3 ليسانس أدب عربي) قضايا النص الشعري الحديث والمعاصر [مح]",
+      "room_type": "عادية",
+      "division": "دراسات أدبية",
+      "specialization": "أدب عربي",
+      "course_nature": "محاضرة",
+      "old_teacher_id": 11,
+      "level_names": [
+        "سنة3 ليسانس (أدب عربي)"
+      ]
+    },
+    {
+      "old_id": 104,
+      "name": "(سنة3 ليسانس أدب عربي) قضايا النص الشعري الحديث والمعاصر [أم]",
+      "room_type": "عادية",
+      "division": "دراسات أدبية",
+      "specialization": "أدب عربي",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 11,
+      "level_names": [
+        "سنة3 ليسانس (أدب عربي)"
+      ]
+    },
+    {
+      "old_id": 105,
+      "name": "(سنة3 ليسانس أدب عربي) السرديات العربية الحديثة والمعاصرة [مح]",
+      "room_type": "عادية",
+      "division": "دراسات أدبية",
+      "specialization": "أدب عربي",
+      "course_nature": "محاضرة",
+      "old_teacher_id": 16,
+      "level_names": [
+        "سنة3 ليسانس (أدب عربي)"
+      ]
+    },
+    {
+      "old_id": 106,
+      "name": "(سنة3 ليسانس أدب عربي) السرديات العربية الحديثة والمعاصرة [أم]",
+      "room_type": "عادية",
+      "division": "دراسات أدبية",
+      "specialization": "أدب عربي",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 16,
+      "level_names": [
+        "سنة3 ليسانس (أدب عربي)"
+      ]
+    },
+    {
+      "old_id": 107,
+      "name": "(سنة3 ليسانس أدب عربي) منهجية البحث الأدبي [مح]",
+      "room_type": "عادية",
+      "division": "دراسات أدبية",
+      "specialization": "أدب عربي",
+      "course_nature": "محاضرة",
+      "old_teacher_id": 23,
+      "level_names": [
+        "سنة3 ليسانس (أدب عربي)"
+      ]
+    },
+    {
+      "old_id": 108,
+      "name": "(سنة3 ليسانس أدب عربي) منهجية البحث الأدبي [أم]",
+      "room_type": "عادية",
+      "division": "دراسات أدبية",
+      "specialization": "أدب عربي",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 23,
+      "level_names": [
+        "سنة3 ليسانس (أدب عربي)"
+      ]
+    },
+    {
+      "old_id": 109,
+      "name": "(سنة3 ليسانس أدب عربي) أدب الطفل [مح]",
+      "room_type": "عادية",
+      "division": "دراسات أدبية",
+      "specialization": "أدب عربي",
+      "course_nature": "محاضرة",
+      "old_teacher_id": 39,
+      "level_names": [
+        "سنة3 ليسانس (أدب عربي)"
+      ]
+    },
+    {
+      "old_id": 110,
+      "name": "(سنة3 ليسانس أدب عربي) أدب الطفل [أم]",
+      "room_type": "عادية",
+      "division": "دراسات أدبية",
+      "specialization": "أدب عربي",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 39,
+      "level_names": [
+        "سنة3 ليسانس (أدب عربي)"
+      ]
+    },
+    {
+      "old_id": 111,
+      "name": "(سنة3 ليسانس أدب عربي) الآداب العالمية المعاصرة [مح]",
+      "room_type": "عادية",
+      "division": "دراسات أدبية",
+      "specialization": "أدب عربي",
+      "course_nature": "محاضرة",
+      "old_teacher_id": 10,
+      "level_names": [
+        "سنة3 ليسانس (أدب عربي)"
+      ]
+    },
+    {
+      "old_id": 112,
+      "name": "(سنة3 ليسانس أدب عربي) الآداب العالمية المعاصرة [أم]",
+      "room_type": "عادية",
+      "division": "دراسات أدبية",
+      "specialization": "أدب عربي",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 10,
+      "level_names": [
+        "سنة3 ليسانس (أدب عربي)"
+      ]
+    },
+    {
+      "old_id": 113,
+      "name": "(سنة3 ليسانس أدب عربي) الأدب الصوفي [أم]",
+      "room_type": "عادية",
+      "division": "دراسات أدبية",
+      "specialization": "أدب عربي",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 13,
+      "level_names": [
+        "سنة3 ليسانس (أدب عربي)"
+      ]
+    },
+    {
+      "old_id": 114,
+      "name": "(سنة3 ليسانس أدب عربي) الأدب العربي والاستشراق [أم]",
+      "room_type": "عادية",
+      "division": "دراسات أدبية",
+      "specialization": "أدب عربي",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 10,
+      "level_names": [
+        "سنة3 ليسانس (أدب عربي)"
+      ]
+    },
+    {
+      "old_id": 115,
+      "name": "(سنة3 ليسانس أدب عربي) لغة أجنبية في التخصص [أم]",
+      "room_type": "عادية",
+      "division": "دراسات أدبية",
+      "specialization": "أدب عربي",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 46,
+      "level_names": [
+        "سنة3 ليسانس (أدب عربي)"
+      ]
+    },
+    {
+      "old_id": 116,
+      "name": "(سنة3 ليسانس نقد ومناهج) النقد الاجتماعي [مح]",
+      "room_type": "عادية",
+      "division": "دراسات نقدية",
+      "specialization": "نقد ومناهج",
+      "course_nature": "محاضرة",
+      "old_teacher_id": 33,
+      "level_names": [
+        "سنة3 ليسانس (نقد ومناهج)"
+      ]
+    },
+    {
+      "old_id": 117,
+      "name": "(سنة3 ليسانس نقد ومناهج) النقد الاجتماعي [أم]",
+      "room_type": "عادية",
+      "division": "دراسات نقدية",
+      "specialization": "نقد ومناهج",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 33,
+      "level_names": [
+        "سنة3 ليسانس (نقد ومناهج)"
+      ]
+    },
+    {
+      "old_id": 118,
+      "name": "(سنة3 ليسانس نقد ومناهج) التحليل النفسي للأدب [مح]",
+      "room_type": "عادية",
+      "division": "دراسات نقدية",
+      "specialization": "نقد ومناهج",
+      "course_nature": "محاضرة",
+      "old_teacher_id": 41,
+      "level_names": [
+        "سنة3 ليسانس (نقد ومناهج)"
+      ]
+    },
+    {
+      "old_id": 119,
+      "name": "(سنة3 ليسانس نقد ومناهج) التحليل النفسي للأدب [أم]",
+      "room_type": "عادية",
+      "division": "دراسات نقدية",
+      "specialization": "نقد ومناهج",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 41,
+      "level_names": [
+        "سنة3 ليسانس (نقد ومناهج)"
+      ]
+    },
+    {
+      "old_id": 120,
+      "name": "(سنة3 ليسانس نقد ومناهج) النقد البنيوي [مح]",
+      "room_type": "عادية",
+      "division": "دراسات نقدية",
+      "specialization": "نقد ومناهج",
+      "course_nature": "محاضرة",
+      "old_teacher_id": 40,
+      "level_names": [
+        "سنة3 ليسانس (نقد ومناهج)"
+      ]
+    },
+    {
+      "old_id": 121,
+      "name": "(سنة3 ليسانس نقد ومناهج) النقد البنيوي [أم]",
+      "room_type": "عادية",
+      "division": "دراسات نقدية",
+      "specialization": "نقد ومناهج",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 40,
+      "level_names": [
+        "سنة3 ليسانس (نقد ومناهج)"
+      ]
+    },
+    {
+      "old_id": 122,
+      "name": "(سنة3 ليسانس نقد ومناهج) النقد السيميائي [مح]",
+      "room_type": "عادية",
+      "division": "دراسات نقدية",
+      "specialization": "نقد ومناهج",
+      "course_nature": "محاضرة",
+      "old_teacher_id": 27,
+      "level_names": [
+        "سنة3 ليسانس (نقد ومناهج)"
+      ]
+    },
+    {
+      "old_id": 123,
+      "name": "(سنة3 ليسانس نقد ومناهج) النقد السيميائي [أم]",
+      "room_type": "عادية",
+      "division": "دراسات نقدية",
+      "specialization": "نقد ومناهج",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 27,
+      "level_names": [
+        "سنة3 ليسانس (نقد ومناهج)"
+      ]
+    },
+    {
+      "old_id": 124,
+      "name": "(سنة3 ليسانس نقد ومناهج) النقد الأدبي الجزائري [مح]",
+      "room_type": "عادية",
+      "division": "دراسات نقدية",
+      "specialization": "نقد ومناهج",
+      "course_nature": "محاضرة",
+      "old_teacher_id": 21,
+      "level_names": [
+        "سنة3 ليسانس (نقد ومناهج)"
+      ]
+    },
+    {
+      "old_id": 125,
+      "name": "(سنة3 ليسانس نقد ومناهج) النقد الأدبي الجزائري [أم]",
+      "room_type": "عادية",
+      "division": "دراسات نقدية",
+      "specialization": "نقد ومناهج",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 21,
+      "level_names": [
+        "سنة3 ليسانس (نقد ومناهج)"
+      ]
+    },
+    {
+      "old_id": 126,
+      "name": "(سنة3 ليسانس نقد ومناهج) قراءة النصوص النقدية [مح]",
+      "room_type": "عادية",
+      "division": "دراسات نقدية",
+      "specialization": "نقد ومناهج",
+      "course_nature": "محاضرة",
+      "old_teacher_id": 22,
+      "level_names": [
+        "سنة3 ليسانس (نقد ومناهج)"
+      ]
+    },
+    {
+      "old_id": 127,
+      "name": "(سنة3 ليسانس نقد ومناهج) قراءة النصوص النقدية [أم]",
+      "room_type": "عادية",
+      "division": "دراسات نقدية",
+      "specialization": "نقد ومناهج",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 22,
+      "level_names": [
+        "سنة3 ليسانس (نقد ومناهج)"
+      ]
+    },
+    {
+      "old_id": 128,
+      "name": "(سنة3 ليسانس نقد ومناهج) تطبيقات نقدية [مح]",
+      "room_type": "عادية",
+      "division": "دراسات نقدية",
+      "specialization": "نقد ومناهج",
+      "course_nature": "محاضرة",
+      "old_teacher_id": 16,
+      "level_names": [
+        "سنة3 ليسانس (نقد ومناهج)"
+      ]
+    },
+    {
+      "old_id": 129,
+      "name": "(سنة3 ليسانس نقد ومناهج) تطبيقات نقدية [أم]",
+      "room_type": "عادية",
+      "division": "دراسات نقدية",
+      "specialization": "نقد ومناهج",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 16,
+      "level_names": [
+        "سنة3 ليسانس (نقد ومناهج)"
+      ]
+    },
+    {
+      "old_id": 130,
+      "name": "(سنة3 ليسانس نقد ومناهج) الأدب المقارن [أم]",
+      "room_type": "عادية",
+      "division": "دراسات نقدية",
+      "specialization": "نقد ومناهج",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 17,
+      "level_names": [
+        "سنة3 ليسانس (نقد ومناهج)"
+      ]
+    },
+    {
+      "old_id": 131,
+      "name": "(سنة3 ليسانس نقد ومناهج) الأدب الجزائري [أم]",
+      "room_type": "عادية",
+      "division": "دراسات نقدية",
+      "specialization": "نقد ومناهج",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 30,
+      "level_names": [
+        "سنة3 ليسانس (نقد ومناهج)"
+      ]
+    },
+    {
+      "old_id": 132,
+      "name": "(سنة3 ليسانس نقد ومناهج) ترجمة المصطلح النقدي [أم]",
+      "room_type": "عادية",
+      "division": "دراسات نقدية",
+      "specialization": "نقد ومناهج",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 7,
+      "level_names": [
+        "سنة3 ليسانس (نقد ومناهج)"
+      ]
+    },
+    {
+      "old_id": 133,
+      "name": "(ماستر1 لسانيات عامة) - أصول النحو العربي [مح]",
+      "room_type": "عادية",
+      "division": "دراسات لغوية",
+      "specialization": "لسانيات عامة",
+      "course_nature": "محاضرة",
+      "old_teacher_id": 18,
+      "level_names": [
+        "ماستر1 (لسانيات عامة)"
+      ]
+    },
+    {
+      "old_id": 134,
+      "name": "(ماستر1 لسانيات عامة) - أصول النحو العربي [أم]",
+      "room_type": "عادية",
+      "division": "دراسات لغوية",
+      "specialization": "لسانيات عامة",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 18,
+      "level_names": [
+        "ماستر1 (لسانيات عامة)"
+      ]
+    },
+    {
+      "old_id": 135,
+      "name": "(ماستر1 لسانيات عامة) - النحو الوظيفي1 [مح]",
+      "room_type": "عادية",
+      "division": "دراسات لغوية",
+      "specialization": "لسانيات عامة",
+      "course_nature": "محاضرة",
+      "old_teacher_id": 2,
+      "level_names": [
+        "ماستر1 (لسانيات عامة)"
+      ]
+    },
+    {
+      "old_id": 136,
+      "name": "(ماستر1 لسانيات عامة) - النحو الوظيفي1 [أم]",
+      "room_type": "عادية",
+      "division": "دراسات لغوية",
+      "specialization": "لسانيات عامة",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 2,
+      "level_names": [
+        "ماستر1 (لسانيات عامة)"
+      ]
+    },
+    {
+      "old_id": 137,
+      "name": "(ماستر1 لسانيات عامة) - اللسانيات المعاصرة واتجاهاتها [مح]",
+      "room_type": "عادية",
+      "division": "دراسات لغوية",
+      "specialization": "لسانيات عامة",
+      "course_nature": "محاضرة",
+      "old_teacher_id": 31,
+      "level_names": [
+        "ماستر1 (لسانيات عامة)"
+      ]
+    },
+    {
+      "old_id": 138,
+      "name": "(ماستر1 لسانيات عامة) - اللسانيات المعاصرة واتجاهاتها [أم]",
+      "room_type": "عادية",
+      "division": "دراسات لغوية",
+      "specialization": "لسانيات عامة",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 31,
+      "level_names": [
+        "ماستر1 (لسانيات عامة)"
+      ]
+    },
+    {
+      "old_id": 139,
+      "name": "(ماستر1 لسانيات عامة) - التداوليات [مح]",
+      "room_type": "عادية",
+      "division": "دراسات لغوية",
+      "specialization": "لسانيات عامة",
+      "course_nature": "محاضرة",
+      "old_teacher_id": 44,
+      "level_names": [
+        "ماستر1 (لسانيات عامة)"
+      ]
+    },
+    {
+      "old_id": 140,
+      "name": "(ماستر1 لسانيات عامة) - التداوليات [أم]",
+      "room_type": "عادية",
+      "division": "دراسات لغوية",
+      "specialization": "لسانيات عامة",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 44,
+      "level_names": [
+        "ماستر1 (لسانيات عامة)"
+      ]
+    },
+    {
+      "old_id": 141,
+      "name": "(ماستر1 لسانيات عامة) - التعدد في التحليل النحوي [مح]",
+      "room_type": "عادية",
+      "division": "دراسات لغوية",
+      "specialization": "لسانيات عامة",
+      "course_nature": "محاضرة",
+      "old_teacher_id": 5,
+      "level_names": [
+        "ماستر1 (لسانيات عامة)"
+      ]
+    },
+    {
+      "old_id": 142,
+      "name": "(ماستر1 لسانيات عامة) - التعدد في التحليل النحوي [أم]",
+      "room_type": "عادية",
+      "division": "دراسات لغوية",
+      "specialization": "لسانيات عامة",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 5,
+      "level_names": [
+        "ماستر1 (لسانيات عامة)"
+      ]
+    },
+    {
+      "old_id": 143,
+      "name": "(ماستر1 لسانيات عامة) - منهجية البحث وتقنياته [مح]",
+      "room_type": "عادية",
+      "division": "دراسات لغوية",
+      "specialization": "لسانيات عامة",
+      "course_nature": "محاضرة",
+      "old_teacher_id": 22,
+      "level_names": [
+        "ماستر1 (لسانيات عامة)"
+      ]
+    },
+    {
+      "old_id": 144,
+      "name": "(ماستر1 لسانيات عامة) - منهجية البحث وتقنياته [أم]",
+      "room_type": "عادية",
+      "division": "دراسات لغوية",
+      "specialization": "لسانيات عامة",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 22,
+      "level_names": [
+        "ماستر1 (لسانيات عامة)"
+      ]
+    },
+    {
+      "old_id": 145,
+      "name": "(ماستر1 لسانيات عامة+) - التصحيح اللغوي [أم]",
+      "room_type": "عادية",
+      "division": "دراسات لغوية",
+      "specialization": "لسانيات عامة",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 25,
+      "level_names": [
+        "ماستر1 (لسانيات عامة)"
+      ]
+    },
+    {
+      "old_id": 146,
+      "name": "(ماستر1 لسانيات عامة+) - لسانيات تطبيقية [أم]",
+      "room_type": "عادية",
+      "division": "دراسات لغوية",
+      "specialization": "لسانيات عامة",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 8,
+      "level_names": [
+        "ماستر1 (لسانيات عامة)"
+      ]
+    },
+    {
+      "old_id": 161,
+      "name": "(ماستر1 نقد عربي قديم) - النقد الأدبي أصوله ومناهجه [مح]",
+      "room_type": "عادية",
+      "division": "دراسات نقدية",
+      "specialization": "نقد عربي قديم",
+      "course_nature": "محاضرة",
+      "old_teacher_id": 34,
+      "level_names": [
+        "ماستر1 (نقد عربي قديم)"
+      ]
+    },
+    {
+      "old_id": 162,
+      "name": "(ماستر1 نقد عربي قديم) - النقد الأدبي أصوله ومناهجه [أم]",
+      "room_type": "عادية",
+      "division": "دراسات نقدية",
+      "specialization": "نقد عربي قديم",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 34,
+      "level_names": [
+        "ماستر1 (نقد عربي قديم)"
+      ]
+    },
+    {
+      "old_id": 163,
+      "name": "(ماستر1 نقد عربي قديم) - الدراسة النقدية والبيان الإعجازي [مح]",
+      "room_type": "عادية",
+      "division": "دراسات نقدية",
+      "specialization": "نقد عربي قديم",
+      "course_nature": "محاضرة",
+      "old_teacher_id": 26,
+      "level_names": [
+        "ماستر1 (نقد عربي قديم)"
+      ]
+    },
+    {
+      "old_id": 164,
+      "name": "(ماستر1 نقد عربي قديم) - الدراسة النقدية والبيان الإعجازي [أم]",
+      "room_type": "عادية",
+      "division": "دراسات نقدية",
+      "specialization": "نقد عربي قديم",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 26,
+      "level_names": [
+        "ماستر1 (نقد عربي قديم)"
+      ]
+    },
+    {
+      "old_id": 165,
+      "name": "(ماستر1 نقد عربي قديم) - المعايير البلاغية والبحث الجمالي [مح]",
+      "room_type": "عادية",
+      "division": "دراسات نقدية",
+      "specialization": "نقد عربي قديم",
+      "course_nature": "محاضرة",
+      "old_teacher_id": 19,
+      "level_names": [
+        "ماستر1 (نقد عربي قديم)"
+      ]
+    },
+    {
+      "old_id": 166,
+      "name": "(ماستر1 نقد عربي قديم) - المعايير البلاغية والبحث الجمالي [أم]",
+      "room_type": "عادية",
+      "division": "دراسات نقدية",
+      "specialization": "نقد عربي قديم",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 19,
+      "level_names": [
+        "ماستر1 (نقد عربي قديم)"
+      ]
+    },
+    {
+      "old_id": 167,
+      "name": "(ماستر1 نقد عربي قديم) - التأصيل النقدي ومنطق البيان القرآني [مح]",
+      "room_type": "عادية",
+      "division": "دراسات نقدية",
+      "specialization": "نقد عربي قديم",
+      "course_nature": "محاضرة",
+      "old_teacher_id": 9,
+      "level_names": [
+        "ماستر1 (نقد عربي قديم)"
+      ]
+    },
+    {
+      "old_id": 168,
+      "name": "(ماستر1 نقد عربي قديم) - التأصيل النقدي ومنطق البيان القرآني [أم]",
+      "room_type": "عادية",
+      "division": "دراسات نقدية",
+      "specialization": "نقد عربي قديم",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 9,
+      "level_names": [
+        "ماستر1 (نقد عربي قديم)"
+      ]
+    },
+    {
+      "old_id": 169,
+      "name": "(ماستر1 نقد عربي قديم) - المصادر والمدونات النقدية [مح]",
+      "room_type": "عادية",
+      "division": "دراسات نقدية",
+      "specialization": "نقد عربي قديم",
+      "course_nature": "محاضرة",
+      "old_teacher_id": 33,
+      "level_names": [
+        "ماستر1 (نقد عربي قديم)"
+      ]
+    },
+    {
+      "old_id": 170,
+      "name": "(ماستر1 نقد عربي قديم) - المصادر والمدونات النقدية [أم]",
+      "room_type": "عادية",
+      "division": "دراسات نقدية",
+      "specialization": "نقد عربي قديم",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 33,
+      "level_names": [
+        "ماستر1 (نقد عربي قديم)"
+      ]
+    },
+    {
+      "old_id": 171,
+      "name": "(ماستر1 نقد عربي قديم) - مناهج البحث والتحقيق [مح]",
+      "room_type": "عادية",
+      "division": "دراسات نقدية",
+      "specialization": "نقد عربي قديم",
+      "course_nature": "محاضرة",
+      "old_teacher_id": 1,
+      "level_names": [
+        "ماستر1 (نقد عربي قديم)"
+      ]
+    },
+    {
+      "old_id": 172,
+      "name": "(ماستر1 نقد عربي قديم) - مناهج البحث والتحقيق [أم]",
+      "room_type": "عادية",
+      "division": "دراسات نقدية",
+      "specialization": "نقد عربي قديم",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 1,
+      "level_names": [
+        "ماستر1 (نقد عربي قديم)"
+      ]
+    },
+    {
+      "old_id": 173,
+      "name": "(ماستر1 نقد عربي قديم) - قضايا النقد القديم [أم]",
+      "room_type": "عادية",
+      "division": "دراسات نقدية",
+      "specialization": "نقد عربي قديم",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 34,
+      "level_names": [
+        "ماستر1 (نقد عربي قديم)"
+      ]
+    },
+    {
+      "old_id": 174,
+      "name": "(ماستر1 نقد عربي قديم) - أدب صدر الإسلام ونقده [أم]",
+      "room_type": "عادية",
+      "division": "دراسات نقدية",
+      "specialization": "نقد عربي قديم",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 40,
+      "level_names": [
+        "ماستر1 (نقد عربي قديم)"
+      ]
+    },
+    {
+      "old_id": 175,
+      "name": "(ماستر1 كل التخصصات) - لغة أجنبية [مح]",
+      "room_type": "مدرج",
+      "division": "كل الشعب",
+      "specialization": "كل التخصصات",
+      "course_nature": "محاضرة",
+      "old_teacher_id": 45,
+      "level_names": [
+        "ماستر1 (لسانيات عامة)",
+        "ماستر1 (أدب عربي حديث ومعاصر)",
+        "ماستر1 (نقد عربي قديم)"
+      ]
+    },
+    {
+      "old_id": 176,
+      "name": "(ماستر1 كل التخصصات) - المقاولاتية [مح]",
+      "room_type": "مدرج",
+      "division": "كل الشعب",
+      "specialization": "كل التخصصات",
+      "course_nature": "محاضرة",
+      "old_teacher_id": 48,
+      "level_names": [
+        "ماستر1 (لسانيات عامة)",
+        "ماستر1 (أدب عربي حديث ومعاصر)",
+        "ماستر1 (نقد عربي قديم)"
+      ]
+    },
+    {
+      "old_id": 186,
+      "name": "(ماستر2 لسانيات عامة) - النحو الدلالي [مح]",
+      "room_type": "مدرج",
+      "division": "دراسات لغوية",
+      "specialization": "لسانيات عامة",
+      "course_nature": "محاضرة",
+      "old_teacher_id": 20,
+      "level_names": [
+        "ماستر2 (لسانيات عامة)"
+      ]
+    },
+    {
+      "old_id": 187,
+      "name": "(ماستر2 لسانيات عامة) - النحو الدلالي [أم] ف1",
+      "room_type": "عادية",
+      "division": "دراسات لغوية",
+      "specialization": "لسانيات عامة",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 20,
+      "level_names": [
+        "ماستر2 (لسانيات عامة)"
+      ]
+    },
+    {
+      "old_id": 188,
+      "name": "(ماستر2 لسانيات عامة) - النحو الدلالي [أم] ف2",
+      "room_type": "عادية",
+      "division": "دراسات لغوية",
+      "specialization": "لسانيات عامة",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 20,
+      "level_names": [
+        "ماستر2 (لسانيات عامة)"
+      ]
+    },
+    {
+      "old_id": 189,
+      "name": "(ماستر2 لسانيات عامة) - اللسانيات التعليمية [مح]",
+      "room_type": "مدرج",
+      "division": "دراسات لغوية",
+      "specialization": "لسانيات عامة",
+      "course_nature": "محاضرة",
+      "old_teacher_id": 44,
+      "level_names": [
+        "ماستر2 (لسانيات عامة)"
+      ]
+    },
+    {
+      "old_id": 190,
+      "name": "(ماستر2 لسانيات عامة) - اللسانيات التعليمية [أم] ف1",
+      "room_type": "عادية",
+      "division": "دراسات لغوية",
+      "specialization": "لسانيات عامة",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 44,
+      "level_names": [
+        "ماستر2 (لسانيات عامة)"
+      ]
+    },
+    {
+      "old_id": 191,
+      "name": "(ماستر2 لسانيات عامة) - اللسانيات التعليمية [أم] ف2",
+      "room_type": "عادية",
+      "division": "دراسات لغوية",
+      "specialization": "لسانيات عامة",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 44,
+      "level_names": [
+        "ماستر2 (لسانيات عامة)"
+      ]
+    },
+    {
+      "old_id": 192,
+      "name": "(ماستر2 لسانيات عامة) - البلاغة الجديدة ونحو النص [مح]",
+      "room_type": "مدرج",
+      "division": "دراسات لغوية",
+      "specialization": "لسانيات عامة",
+      "course_nature": "محاضرة",
+      "old_teacher_id": 7,
+      "level_names": [
+        "ماستر2 (لسانيات عامة)"
+      ]
+    },
+    {
+      "old_id": 193,
+      "name": "(ماستر2 لسانيات عامة) - البلاغة الجديدة ونحو النص [أم] ف1",
+      "room_type": "عادية",
+      "division": "دراسات لغوية",
+      "specialization": "لسانيات عامة",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 7,
+      "level_names": [
+        "ماستر2 (لسانيات عامة)"
+      ]
+    },
+    {
+      "old_id": 194,
+      "name": "(ماستر2 لسانيات عامة) - البلاغة الجديدة ونحو النص [أم] ف2",
+      "room_type": "عادية",
+      "division": "دراسات لغوية",
+      "specialization": "لسانيات عامة",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 7,
+      "level_names": [
+        "ماستر2 (لسانيات عامة)"
+      ]
+    },
+    {
+      "old_id": 195,
+      "name": "(ماستر2 لسانيات عامة) -علم الأصوات الوظيفي [مح]",
+      "room_type": "مدرج",
+      "division": "دراسات لغوية",
+      "specialization": "لسانيات عامة",
+      "course_nature": "محاضرة",
+      "old_teacher_id": 32,
+      "level_names": [
+        "ماستر2 (لسانيات عامة)"
+      ]
+    },
+    {
+      "old_id": 196,
+      "name": "(ماستر2 لسانيات عامة) -علم الأصوات الوظيفي [أم] ف1",
+      "room_type": "عادية",
+      "division": "دراسات لغوية",
+      "specialization": "لسانيات عامة",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 32,
+      "level_names": [
+        "ماستر2 (لسانيات عامة)"
+      ]
+    },
+    {
+      "old_id": 197,
+      "name": "(ماستر2 لسانيات عامة) -علم الأصوات الوظيفي [أم] ف2",
+      "room_type": "عادية",
+      "division": "دراسات لغوية",
+      "specialization": "لسانيات عامة",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 32,
+      "level_names": [
+        "ماستر2 (لسانيات عامة)"
+      ]
+    },
+    {
+      "old_id": 198,
+      "name": "(ماستر2 لسانيات عامة) - منهجية تحليل الخطاب [مح]",
+      "room_type": "مدرج",
+      "division": "دراسات لغوية",
+      "specialization": "لسانيات عامة",
+      "course_nature": "محاضرة",
+      "old_teacher_id": 13,
+      "level_names": [
+        "ماستر2 (لسانيات عامة)"
+      ]
+    },
+    {
+      "old_id": 199,
+      "name": "(ماستر2 لسانيات عامة) - منهجية تحليل الخطاب [أم] ف1",
+      "room_type": "عادية",
+      "division": "دراسات لغوية",
+      "specialization": "لسانيات عامة",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 13,
+      "level_names": [
+        "ماستر2 (لسانيات عامة)"
+      ]
+    },
+    {
+      "old_id": 200,
+      "name": "(ماستر2 لسانيات عامة) - منهجية تحليل الخطاب [أم] ف2",
+      "room_type": "عادية",
+      "division": "دراسات لغوية",
+      "specialization": "لسانيات عامة",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 13,
+      "level_names": [
+        "ماستر2 (لسانيات عامة)"
+      ]
+    },
+    {
+      "old_id": 201,
+      "name": "(ماستر2 لسانيات عامة) - بيداغوجيا [مح]",
+      "room_type": "مدرج",
+      "division": "دراسات لغوية",
+      "specialization": "لسانيات عامة",
+      "course_nature": "محاضرة",
+      "old_teacher_id": 20,
+      "level_names": [
+        "ماستر2 (لسانيات عامة)"
+      ]
+    },
+    {
+      "old_id": 202,
+      "name": "(ماستر2 لسانيات عامة) - بيداغوجيا [أم] ف1",
+      "room_type": "عادية",
+      "division": "دراسات لغوية",
+      "specialization": "لسانيات عامة",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 20,
+      "level_names": [
+        "ماستر2 (لسانيات عامة)"
+      ]
+    },
+    {
+      "old_id": 203,
+      "name": "(ماستر2 لسانيات عامة) - بيداغوجيا [أم] ف2",
+      "room_type": "عادية",
+      "division": "دراسات لغوية",
+      "specialization": "لسانيات عامة",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 20,
+      "level_names": [
+        "ماستر2 (لسانيات عامة)"
+      ]
+    },
+    {
+      "old_id": 204,
+      "name": "(ماستر2 لسانيات عامة) - اللغة ومظاهر البيان في أسلوب القرآن [أم] ف1",
+      "room_type": "عادية",
+      "division": "دراسات لغوية",
+      "specialization": "لسانيات عامة",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 26,
+      "level_names": [
+        "ماستر2 (لسانيات عامة)"
+      ]
+    },
+    {
+      "old_id": 205,
+      "name": "(ماستر2 لسانيات عامة) - اللغة ومظاهر البيان في أسلوب القرآن [أم] ف2",
+      "room_type": "عادية",
+      "division": "دراسات لغوية",
+      "specialization": "لسانيات عامة",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 26,
+      "level_names": [
+        "ماستر2 (لسانيات عامة)"
+      ]
+    },
+    {
+      "old_id": 206,
+      "name": "(ماستر2 لسانيات عامة) - التعدد اللغوي وقضاياه [أم] ف1",
+      "room_type": "عادية",
+      "division": "دراسات لغوية",
+      "specialization": "لسانيات عامة",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 2,
+      "level_names": [
+        "ماستر2 (لسانيات عامة)"
+      ]
+    },
+    {
+      "old_id": 207,
+      "name": "(ماستر2 لسانيات عامة) - التعدد اللغوي وقضاياه [أم] ف2",
+      "room_type": "عادية",
+      "division": "دراسات لغوية",
+      "specialization": "لسانيات عامة",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 2,
+      "level_names": [
+        "ماستر2 (لسانيات عامة)"
+      ]
+    },
+    {
+      "old_id": 208,
+      "name": "(ماستر2 لسانيات عامة) - ترجمة [أم] ف1",
+      "room_type": "عادية",
+      "division": "دراسات لغوية",
+      "specialization": "لسانيات عامة",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 31,
+      "level_names": [
+        "ماستر2 (لسانيات عامة)"
+      ]
+    },
+    {
+      "old_id": 209,
+      "name": "(ماستر2 لسانيات عامة) - ترجمة [أم] ف2",
+      "room_type": "عادية",
+      "division": "دراسات لغوية",
+      "specialization": "لسانيات عامة",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 31,
+      "level_names": [
+        "ماستر2 (لسانيات عامة)"
+      ]
+    },
+    {
+      "old_id": 210,
+      "name": "(ماستر2 أدب عربي حديث..) - الأدبية وقضايا النص [مح]",
+      "room_type": "عادية",
+      "division": "دراسات أدبية",
+      "specialization": "أدب عربي حديث ومعاصر",
+      "course_nature": "محاضرة",
+      "old_teacher_id": 38,
+      "level_names": [
+        "ماستر2 (أدب عربي حديث ومعاصر)"
+      ]
+    },
+    {
+      "old_id": 211,
+      "name": "(ماستر2 أدب عربي حديث..) - الأدبية وقضايا النص [أم]",
+      "room_type": "عادية",
+      "division": "دراسات أدبية",
+      "specialization": "أدب عربي حديث ومعاصر",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 38,
+      "level_names": [
+        "ماستر2 (أدب عربي حديث ومعاصر)"
+      ]
+    },
+    {
+      "old_id": 212,
+      "name": "(ماستر2 أدب عربي حديث..) - النص المسرحي العربي [مح]",
+      "room_type": "عادية",
+      "division": "دراسات أدبية",
+      "specialization": "أدب عربي حديث ومعاصر",
+      "course_nature": "محاضرة",
+      "old_teacher_id": 41,
+      "level_names": [
+        "ماستر2 (أدب عربي حديث ومعاصر)"
+      ]
+    },
+    {
+      "old_id": 213,
+      "name": "(ماستر2 أدب عربي حديث..) - النص المسرحي العربي [أم]",
+      "room_type": "عادية",
+      "division": "دراسات أدبية",
+      "specialization": "أدب عربي حديث ومعاصر",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 41,
+      "level_names": [
+        "ماستر2 (أدب عربي حديث ومعاصر)"
+      ]
+    },
+    {
+      "old_id": 214,
+      "name": "(ماستر2 أدب عربي حديث..) - الشعر الجزائري المعاصر [مح]",
+      "room_type": "عادية",
+      "division": "دراسات أدبية",
+      "specialization": "أدب عربي حديث ومعاصر",
+      "course_nature": "محاضرة",
+      "old_teacher_id": 21,
+      "level_names": [
+        "ماستر2 (أدب عربي حديث ومعاصر)"
+      ]
+    },
+    {
+      "old_id": 215,
+      "name": "(ماستر2 أدب عربي حديث..) - الشعر الجزائري المعاصر [أم]",
+      "room_type": "عادية",
+      "division": "دراسات أدبية",
+      "specialization": "أدب عربي حديث ومعاصر",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 21,
+      "level_names": [
+        "ماستر2 (أدب عربي حديث ومعاصر)"
+      ]
+    },
+    {
+      "old_id": 216,
+      "name": "(ماستر2 أدب عربي حديث..) - أدب الطفل [مح]",
+      "room_type": "عادية",
+      "division": "دراسات أدبية",
+      "specialization": "أدب عربي حديث ومعاصر",
+      "course_nature": "محاضرة",
+      "old_teacher_id": 39,
+      "level_names": [
+        "ماستر2 (أدب عربي حديث ومعاصر)"
+      ]
+    },
+    {
+      "old_id": 217,
+      "name": "(ماستر2 أدب عربي حديث..) - أدب الطفل [أم]",
+      "room_type": "عادية",
+      "division": "دراسات أدبية",
+      "specialization": "أدب عربي حديث ومعاصر",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 39,
+      "level_names": [
+        "ماستر2 (أدب عربي حديث ومعاصر)"
+      ]
+    },
+    {
+      "old_id": 218,
+      "name": "(ماستر2 أدب عربي حديث..) - أدب السيرة [مح]",
+      "room_type": "عادية",
+      "division": "دراسات أدبية",
+      "specialization": "أدب عربي حديث ومعاصر",
+      "course_nature": "محاضرة",
+      "old_teacher_id": 28,
+      "level_names": [
+        "ماستر2 (أدب عربي حديث ومعاصر)"
+      ]
+    },
+    {
+      "old_id": 219,
+      "name": "(ماستر2 أدب عربي حديث..) - أدب السيرة [أم]",
+      "room_type": "عادية",
+      "division": "دراسات أدبية",
+      "specialization": "أدب عربي حديث ومعاصر",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 28,
+      "level_names": [
+        "ماستر2 (أدب عربي حديث ومعاصر)"
+      ]
+    },
+    {
+      "old_id": 220,
+      "name": "(ماستر2 أدب عربي حديث..) - الأدب الإسلامي [مح]",
+      "room_type": "عادية",
+      "division": "دراسات أدبية",
+      "specialization": "أدب عربي حديث ومعاصر",
+      "course_nature": "محاضرة",
+      "old_teacher_id": 27,
+      "level_names": [
+        "ماستر2 (أدب عربي حديث ومعاصر)"
+      ]
+    },
+    {
+      "old_id": 221,
+      "name": "(ماستر2 أدب عربي حديث..) - الأدب الإسلامي [أم]",
+      "room_type": "عادية",
+      "division": "دراسات أدبية",
+      "specialization": "أدب عربي حديث ومعاصر",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 27,
+      "level_names": [
+        "ماستر2 (أدب عربي حديث ومعاصر)"
+      ]
+    },
+    {
+      "old_id": 222,
+      "name": "(ماستر2 أدب عربي حديث..) - تحقيق المخطوطات [أم]",
+      "room_type": "عادية",
+      "division": "دراسات أدبية",
+      "specialization": "أدب عربي حديث ومعاصر",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 37,
+      "level_names": [
+        "ماستر2 (أدب عربي حديث ومعاصر)"
+      ]
+    },
+    {
+      "old_id": 223,
+      "name": "(ماستر2 أدب عربي حديث..) - الأدب النسوي [أم]",
+      "room_type": "عادية",
+      "division": "دراسات أدبية",
+      "specialization": "أدب عربي حديث ومعاصر",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 42,
+      "level_names": [
+        "ماستر2 (أدب عربي حديث ومعاصر)"
+      ]
+    },
+    {
+      "old_id": 224,
+      "name": "(ماستر2 أدب عربي حديث..) - الأدب الإفريقي [أم]",
+      "room_type": "عادية",
+      "division": "دراسات أدبية",
+      "specialization": "أدب عربي حديث ومعاصر",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 37,
+      "level_names": [
+        "ماستر2 (أدب عربي حديث ومعاصر)"
+      ]
+    },
+    {
+      "old_id": 225,
+      "name": "(ماستر2 نقد عربي قديم) - مسارات النقد في الدراسات الأدبية العربية [مح]",
+      "room_type": "عادية",
+      "division": "دراسات نقدية",
+      "specialization": "نقد عربي قديم",
+      "course_nature": "محاضرة",
+      "old_teacher_id": 42,
+      "level_names": [
+        "ماستر2 (نقد عربي قديم)"
+      ]
+    },
+    {
+      "old_id": 226,
+      "name": "(ماستر2 نقد عربي قديم) - مسارات النقد في الدراسات الأدبية العربية [أم]",
+      "room_type": "عادية",
+      "division": "دراسات نقدية",
+      "specialization": "نقد عربي قديم",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 42,
+      "level_names": [
+        "ماستر2 (نقد عربي قديم)"
+      ]
+    },
+    {
+      "old_id": 227,
+      "name": "(ماستر2 نقد عربي قديم) - نظرية النظم [مح]",
+      "room_type": "عادية",
+      "division": "دراسات نقدية",
+      "specialization": "نقد عربي قديم",
+      "course_nature": "محاضرة",
+      "old_teacher_id": 43,
+      "level_names": [
+        "ماستر2 (نقد عربي قديم)"
+      ]
+    },
+    {
+      "old_id": 228,
+      "name": "(ماستر2 نقد عربي قديم) - نظرية النظم [أم]",
+      "room_type": "عادية",
+      "division": "دراسات نقدية",
+      "specialization": "نقد عربي قديم",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 43,
+      "level_names": [
+        "ماستر2 (نقد عربي قديم)"
+      ]
+    },
+    {
+      "old_id": 229,
+      "name": "(ماستر2 نقد عربي قديم) - النقد العربي القديم والمثاقفة2 [مح]",
+      "room_type": "عادية",
+      "division": "دراسات نقدية",
+      "specialization": "نقد عربي قديم",
+      "course_nature": "محاضرة",
+      "old_teacher_id": 43,
+      "level_names": [
+        "ماستر2 (نقد عربي قديم)"
+      ]
+    },
+    {
+      "old_id": 230,
+      "name": "(ماستر2 نقد عربي قديم) - النقد العربي القديم والمثاقفة2 [أم]",
+      "room_type": "عادية",
+      "division": "دراسات نقدية",
+      "specialization": "نقد عربي قديم",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 43,
+      "level_names": [
+        "ماستر2 (نقد عربي قديم)"
+      ]
+    },
+    {
+      "old_id": 231,
+      "name": "(ماستر2 نقد عربي قديم) - مظاهر التطور والتجديد في الشعر العباسي2 [مح]",
+      "room_type": "عادية",
+      "division": "دراسات نقدية",
+      "specialization": "نقد عربي قديم",
+      "course_nature": "محاضرة",
+      "old_teacher_id": 42,
+      "level_names": [
+        "ماستر2 (نقد عربي قديم)"
+      ]
+    },
+    {
+      "old_id": 232,
+      "name": "(ماستر2 نقد عربي قديم) - مظاهر التطور والتجديد في الشعر العباسي2 [أم]",
+      "room_type": "عادية",
+      "division": "دراسات نقدية",
+      "specialization": "نقد عربي قديم",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 42,
+      "level_names": [
+        "ماستر2 (نقد عربي قديم)"
+      ]
+    },
+    {
+      "old_id": 233,
+      "name": "(ماستر2 نقد عربي قديم) - المناهج النقدية وعلاقتها بالنص الأدبي2 [مح]",
+      "room_type": "عادية",
+      "division": "دراسات نقدية",
+      "specialization": "نقد عربي قديم",
+      "course_nature": "محاضرة",
+      "old_teacher_id": 34,
+      "level_names": [
+        "ماستر2 (نقد عربي قديم)"
+      ]
+    },
+    {
+      "old_id": 234,
+      "name": "(ماستر2 نقد عربي قديم) - المناهج النقدية وعلاقتها بالنص الأدبي2 [أم]",
+      "room_type": "عادية",
+      "division": "دراسات نقدية",
+      "specialization": "نقد عربي قديم",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 34,
+      "level_names": [
+        "ماستر2 (نقد عربي قديم)"
+      ]
+    },
+    {
+      "old_id": 235,
+      "name": "(ماستر2 نقد عربي قديم) - نظرية الأدب [مح]",
+      "room_type": "عادية",
+      "division": "دراسات نقدية",
+      "specialization": "نقد عربي قديم",
+      "course_nature": "محاضرة",
+      "old_teacher_id": 1,
+      "level_names": [
+        "ماستر2 (نقد عربي قديم)"
+      ]
+    },
+    {
+      "old_id": 236,
+      "name": "(ماستر2 نقد عربي قديم) - نظرية الأدب [أم]",
+      "room_type": "عادية",
+      "division": "دراسات نقدية",
+      "specialization": "نقد عربي قديم",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 1,
+      "level_names": [
+        "ماستر2 (نقد عربي قديم)"
+      ]
+    },
+    {
+      "old_id": 237,
+      "name": "(ماستر2 نقد عربي قديم) - فقه اللغة [أم]",
+      "room_type": "عادية",
+      "division": "دراسات نقدية",
+      "specialization": "نقد عربي قديم",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 37,
+      "level_names": [
+        "ماستر2 (نقد عربي قديم)"
+      ]
+    },
+    {
+      "old_id": 238,
+      "name": "(ماستر2 نقد عربي قديم) - بيداغوجيا [أم]",
+      "room_type": "عادية",
+      "division": "دراسات نقدية",
+      "specialization": "نقد عربي قديم",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 31,
+      "level_names": [
+        "ماستر2 (نقد عربي قديم)"
+      ]
+    },
+    {
+      "old_id": 239,
+      "name": "(ماستر2 نقد عربي قديم) - الأجناس الأدبية [أم]",
+      "room_type": "عادية",
+      "division": "دراسات نقدية",
+      "specialization": "نقد عربي قديم",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 15,
+      "level_names": [
+        "ماستر2 (نقد عربي قديم)"
+      ]
+    },
+    {
+      "old_id": 240,
+      "name": "(ماستر2 كل التخصصات) - أخلاقيات المهنة [مح]",
+      "room_type": "مدرج",
+      "division": "كل الشعب",
+      "specialization": "كل التخصصات",
+      "course_nature": "محاضرة",
+      "old_teacher_id": 37,
+      "level_names": [
+        "ماستر2 (لسانيات عامة)",
+        "ماستر2 (أدب عربي حديث ومعاصر)",
+        "ماستر2 (نقد عربي قديم)"
+      ]
+    },
+    {
+      "old_id": 241,
+      "name": "(ماستر1 أدب عربي حديث..) - الرواية المغاربية الحديثة [مح]",
+      "room_type": "عادية",
+      "division": "دراسات أدبية",
+      "specialization": "أدب عربي حديث ومعاصر",
+      "course_nature": "محاضرة",
+      "old_teacher_id": 40,
+      "level_names": [
+        "ماستر1 (أدب عربي حديث ومعاصر)"
+      ]
+    },
+    {
+      "old_id": 242,
+      "name": "(ماستر1 أدب عربي حديث..) - الرواية المغاربية الحديثة [أم]",
+      "room_type": "عادية",
+      "division": "دراسات أدبية",
+      "specialization": "أدب عربي حديث ومعاصر",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 40,
+      "level_names": [
+        "ماستر1 (أدب عربي حديث ومعاصر)"
+      ]
+    },
+    {
+      "old_id": 243,
+      "name": "(ماستر1 أدب عربي حديث..) - القصة العربية القصيرة [مح]",
+      "room_type": "عادية",
+      "division": "دراسات أدبية",
+      "specialization": "أدب عربي حديث ومعاصر",
+      "course_nature": "محاضرة",
+      "old_teacher_id": 19,
+      "level_names": [
+        "ماستر1 (أدب عربي حديث ومعاصر)"
+      ]
+    },
+    {
+      "old_id": 244,
+      "name": "(ماستر1 أدب عربي حديث..) - القصة العربية القصيرة [أم]",
+      "room_type": "عادية",
+      "division": "دراسات أدبية",
+      "specialization": "أدب عربي حديث ومعاصر",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 19,
+      "level_names": [
+        "ماستر1 (أدب عربي حديث ومعاصر)"
+      ]
+    },
+    {
+      "old_id": 245,
+      "name": "(ماستر1 أدب عربي حديث..) - نثر عربي حديث ومعاصر [مح]",
+      "room_type": "عادية",
+      "division": "دراسات أدبية",
+      "specialization": "أدب عربي حديث ومعاصر",
+      "course_nature": "محاضرة",
+      "old_teacher_id": 12,
+      "level_names": [
+        "ماستر1 (أدب عربي حديث ومعاصر)"
+      ]
+    },
+    {
+      "old_id": 246,
+      "name": "(ماستر1 أدب عربي حديث..) - نثر عربي حديث ومعاصر [أم]",
+      "room_type": "عادية",
+      "division": "دراسات أدبية",
+      "specialization": "أدب عربي حديث ومعاصر",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 12,
+      "level_names": [
+        "ماستر1 (أدب عربي حديث ومعاصر)"
+      ]
+    },
+    {
+      "old_id": 247,
+      "name": "(ماستر1 أدب عربي حديث..) - الحداثة العربية [مح]",
+      "room_type": "عادية",
+      "division": "دراسات أدبية",
+      "specialization": "أدب عربي حديث ومعاصر",
+      "course_nature": "محاضرة",
+      "old_teacher_id": 10,
+      "level_names": [
+        "ماستر1 (أدب عربي حديث ومعاصر)"
+      ]
+    },
+    {
+      "old_id": 248,
+      "name": "(ماستر1 أدب عربي حديث..) - الحداثة العربية [أم]",
+      "room_type": "عادية",
+      "division": "دراسات أدبية",
+      "specialization": "أدب عربي حديث ومعاصر",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 10,
+      "level_names": [
+        "ماستر1 (أدب عربي حديث ومعاصر)"
+      ]
+    },
+    {
+      "old_id": 249,
+      "name": "(ماستر1 أدب عربي حديث..) - شعر عربي معاصر [مح]",
+      "room_type": "عادية",
+      "division": "دراسات أدبية",
+      "specialization": "أدب عربي حديث ومعاصر",
+      "course_nature": "محاضرة",
+      "old_teacher_id": 35,
+      "level_names": [
+        "ماستر1 (أدب عربي حديث ومعاصر)"
+      ]
+    },
+    {
+      "old_id": 250,
+      "name": "(ماستر1 أدب عربي حديث..) - شعر عربي معاصر [أم]",
+      "room_type": "عادية",
+      "division": "دراسات أدبية",
+      "specialization": "أدب عربي حديث ومعاصر",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 35,
+      "level_names": [
+        "ماستر1 (أدب عربي حديث ومعاصر)"
+      ]
+    },
+    {
+      "old_id": 251,
+      "name": "(ماستر1 أدب عربي حديث..) - منهجية البحث [مح]",
+      "room_type": "عادية",
+      "division": "دراسات أدبية",
+      "specialization": "أدب عربي حديث ومعاصر",
+      "course_nature": "محاضرة",
+      "old_teacher_id": 38,
+      "level_names": [
+        "ماستر1 (أدب عربي حديث ومعاصر)"
+      ]
+    },
+    {
+      "old_id": 252,
+      "name": "(ماستر1 أدب عربي حديث..) - منهجية البحث [أم]",
+      "room_type": "عادية",
+      "division": "دراسات أدبية",
+      "specialization": "أدب عربي حديث ومعاصر",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 38,
+      "level_names": [
+        "ماستر1 (أدب عربي حديث ومعاصر)"
+      ]
+    },
+    {
+      "old_id": 253,
+      "name": "(ماستر1 أدب عربي حديث..) - مناهج النقد الأدبي الحديث [أم]",
+      "room_type": "عادية",
+      "division": "دراسات أدبية",
+      "specialization": "أدب عربي حديث ومعاصر",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 33,
+      "level_names": [
+        "ماستر1 (أدب عربي حديث ومعاصر)"
+      ]
+    },
+    {
+      "old_id": 254,
+      "name": "(ماستر1 أدب عربي حديث..) - النظرية الأدبية المعاصرة [أم]",
+      "room_type": "عادية",
+      "division": "دراسات أدبية",
+      "specialization": "أدب عربي حديث ومعاصر",
+      "course_nature": "أعمال موجهة",
+      "old_teacher_id": 38,
+      "level_names": [
+        "ماستر1 (أدب عربي حديث ومعاصر)"
+      ]
+    }
+  ],
+  "teacher_requests": []
+}

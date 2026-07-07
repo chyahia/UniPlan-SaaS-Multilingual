@@ -1,0 +1,300 @@
+/* الإعدادات العامة للصفحة */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f0f2f5;
+    color: #333;
+    margin: 0;
+    padding: 20px;
+    direction: rtl; 
+}
+main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px 40px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+h1 { text-align: center; color: #1a237e; border-bottom: 2px solid #3f51b5; padding-bottom: 10px; margin-bottom: 30px; }
+h2 { color: #3f51b5; border-bottom: 1px solid #e0e0e0; padding-bottom: 8px; margin-top: 10px; }
+
+/* تنسيقات الهيدر والأزرار */
+/* تنسيقات الهيدر والأزرار */
+.app-header {
+    position: relative;
+    margin-bottom: 20px;
+}
+.header-buttons {
+    /* تم حذف position: absolute و top: 0 لحل مشكلة الالتصاق */
+    display: flex;
+    gap: 10px;
+    align-items: center; /* لضمان التوسيط العمودي دائماً */
+}
+.header-btn {
+    background-color: #fff;
+    color: #3f51b5;
+    border: 1px solid #3f51b5;
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.3s;
+    /* ضمان عدم وجود مسافات علوية غير مرغوب فيها */
+    margin: 0; 
+}
+.header-btn:hover {
+    background-color: #3f51b5;
+    color: #fff;
+}
+
+/* --- تنسيقات شريط التبويبات الجديد --- */
+.tabs-container {
+    display: flex;
+    justify-content: center;
+    background-color: #3f51b5; 
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    
+    /* ❌ قم بحذف أسطر الـ position و top و z-index من هنا لأن الغلاف الجديد يتكفل بها */
+}
+
+.tab-link {
+    background-color: inherit;
+    color: white;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 14px 10px;
+    transition: 0.3s;
+    font-size: 15px;
+    font-weight: bold;
+    flex-grow: 1;
+}
+
+.tab-link:hover {
+    background-color: #5c6bc0;
+}
+
+.tab-link.active {
+    background-color: #283593;
+    border-bottom: 4px solid #ffeb3b; /* خط أصفر تحت التبويب النشط */
+}
+
+.tab-content {
+    display: none;
+    animation: fadeEffect 0.5s;
+    padding: 20px;
+    background-color: #fafafa;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    min-height: 400px;
+}
+
+.active-tab {
+    display: block;
+}
+
+@keyframes fadeEffect {
+    from {opacity: 0; transform: translateY(10px);}
+    to {opacity: 1; transform: translateY(0);}
+}
+
+/* منطقة الإشعارات */
+#notification-area {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    padding: 15px;
+    border-radius: 5px;
+    color: white;
+    opacity: 0;
+    transition: opacity 0.5s;
+    z-index: 1000;
+}
+#notification-area.success { background-color: #28a745; }
+#notification-area.error { background-color: #dc3545; }
+#notification-area.show { opacity: 1; }
+
+/* تنسيقات جداول إدارة البيانات */
+table th, table td { padding: 10px; border-bottom: 1px solid #ddd; }
+table tbody tr:hover { background-color: #f9f9f9; }
+.btn-edit { background-color: #ffc107; color: #000; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; margin-left: 5px;}
+.btn-delete { background-color: #dc3545; color: #fff; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; }
+.btn-edit:hover { background-color: #e0a800; }
+.btn-delete:hover { background-color: #c82333; }
+
+/* تنسيقات المرحلة 3: القوائم التفاعلية */
+.interactive-list { border: 1px solid #ccc; border-radius: 5px; height: 350px; overflow-y: auto; background: #fff; padding: 5px; }
+.list-item { padding: 10px; border-bottom: 1px solid #eee; cursor: pointer; transition: 0.2s; display: flex; flex-direction: column; }
+.list-item:hover { background-color: #f1f1f1; }
+.list-item.selected { background-color: #cce5ff; border-right: 4px solid #007bff; }
+.list-item.assigned-prof { background-color: #e8f5e9; color: #1b5e20; font-weight: bold; }
+.list-item.assigned-subj { background-color: #fff3cd; color: #856404; font-weight: bold; }
+.toggle-icon { cursor: pointer; color: #555; font-size: 12px; padding: 0 5px; }
+.toggle-icon:hover { color: #000; }
+
+/* تنسيقات المرحلة 4 (الأيام والفترات) */
+.exam-day { border: 1px solid #ccc; border-radius: 6px; padding: 15px; background-color: #f9f9f9; box-shadow: inset 0 0 5px rgba(0,0,0,0.02); }
+.exam-day-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ddd; padding-bottom: 10px; margin-bottom: 15px; }
+.exam-day-header h4 { margin: 0; color: #333; }
+.exam-day-header input[type="date"] { border: 1px solid #ccc; padding: 8px; border-radius: 4px; font-family: inherit; }
+.duplicate-day-btn, .remove-day-btn { background: none; border: none; cursor: pointer; font-size: 20px; transition: transform 0.2s; }
+.duplicate-day-btn:hover { transform: scale(1.2) rotate(90deg); color: #007bff; }
+.remove-day-btn { color: #dc3545; font-weight: bold; }
+.remove-day-btn:hover { transform: scale(1.2); }
+.time-slot { display: flex; align-items: flex-start; gap: 15px; padding: 15px; border: 1px dashed #bbb; border-radius: 4px; margin-bottom: 10px; background: #fff; }
+.time-slot-inputs { display: flex; flex-direction: column; gap: 10px; }
+.time-slot-inputs input, .time-slot-inputs select { padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+.levels-checkbox-group { flex: 1; border: 1px solid #eee; border-radius: 4px; padding: 10px; background-color: #fafafa; display: flex; flex-wrap: wrap; gap: 10px; }
+.levels-checkbox-group label { display: flex; align-items: center; gap: 5px; cursor: pointer; font-size: 14px; background: #fff; padding: 5px 10px; border: 1px solid #ddd; border-radius: 4px; }
+.remove-timeslot-btn { background: none; border: none; color: #dc3545; font-size: 24px; cursor: pointer; padding: 0 10px; }
+.remove-timeslot-btn:hover { transform: scale(1.2); }
+
+/* تنسيق شاشة السجلات (لضمان نزول السطر) */
+#live-log-box {
+    white-space: pre-wrap; /* هذا السطر يجبر النص على النزول لسطر جديد عند كل \n */
+}
+
+/* تنسيقات جداول المرحلة 6 (التصميم الشبكي) */
+.results-grid-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    table-layout: fixed; /* يجعل عرض الأعمدة متساوياً */
+}
+
+.results-grid-table th, .results-grid-table td {
+    border: 1px solid #ddd;
+    text-align: right;
+}
+
+.level-schedule-container {
+    border: 1px solid #3f51b5;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.stat-card {
+    background: #f8f9fa;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 15px;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+.stat-card h4 { margin-top: 0; color: #555; font-size: 14px; }
+.stat-card p { font-size: 24px; font-weight: bold; color: #3f51b5; margin: 10px 0; }
+.stat-card .sub-stat { font-size: 12px; color: #777; }
+.stat-card ul { text-align: right; padding-right: 20px; margin: 0; font-size: 13px; }
+.stat-card.shortage-report { background: #fff3cd; border-color: #ffeeba; text-align: right; }
+.stat-card.shortage-report h4 { color: #856404; font-weight: bold; }
+
+/* ==========================================
+   🔔 تنسيقات الإشعارات المنبثقة
+   ========================================= */
+#notification-area {
+    position: fixed;
+    bottom: 20px;
+    left: 20px; /* يظهر في الزاوية اليسرى السفلية */
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 9999; /* لضمان ظهوره فوق كل شيء */
+}
+
+.notification {
+    background: #333;
+    color: white;
+    padding: 15px 25px;
+    border-radius: 4px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.3s ease;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.notification.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* ألوان الحالات المختلفة */
+.notification.success {
+    background-color: #28a745;
+    border-right: 5px solid #1e7e34; /* خط جمالي أخضر داكن */
+}
+
+.notification.error {
+    background-color: #dc3545;
+    border-right: 5px solid #bd2130; /* خط جمالي أحمر داكن */
+}
+
+.notification.warning {
+    background-color: #ffc107;
+    color: #333;
+    border-right: 5px solid #d39e00; /* خط جمالي برتقالي */
+}
+
+/* ==========================================
+   🪟 تنسيقات النافذة المنبثقة المخصصة (Modal)
+   ========================================= */
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 3000;
+    display: none; /* مخفية افتراضياً */
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(3px); /* تأثير ضبابي جميل للخلفية */
+}
+
+.modal-content {
+    background: #fff;
+    width: 90%;
+    max-width: 550px;
+    border-radius: 10px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    animation: slideDown 0.3s ease-out forwards;
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    border-bottom: 1px solid #eee;
+    background: #f8f9fa;
+    border-radius: 10px 10px 0 0;
+}
+
+.close-modal-btn {
+    background: none; border: none;
+    font-size: 28px; color: #888;
+    cursor: pointer; transition: 0.2s;
+    line-height: 1; padding: 0;
+}
+
+.close-modal-btn:hover { color: #dc3545; transform: scale(1.1); }
+
+.modal-body {
+    padding: 20px;
+    font-size: 15px;
+    line-height: 1.6;
+    color: #333;
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-30px); }
+    to { opacity: 1; transform: translateY(0); }
+}

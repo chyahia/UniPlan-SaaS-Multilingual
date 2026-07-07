@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>موزع الجداول الجامعية الذكي</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+    <style>
+        /* تنسيقات مبدئية سريعة للشريط والتبويبات */
+        .global-header { display: flex; justify-content: space-between; padding: 10px 20px; background: #2c3e50; color: white; }
+        .tabs-nav { 
+            display: flex; 
+            background: #ecf0f1; 
+            border-bottom: 2px solid #bdc3c7; 
+            position: sticky;
+            top: 75px; 
+            z-index: 998; 
+            /* ✨ السطران التاليان يجعلان شريط التبويبات قابلاً للسحب بالإصبع في الهاتف ✨ */
+            overflow-x: auto;
+            white-space: nowrap;
+            -webkit-overflow-scrolling: touch;
+        }
+        /* منع تقلص أزرار التبويبات */
+        .tab-btn { padding: 12px 20px; border: none; background: none; cursor: pointer; font-size: 16px; font-weight: bold; flex-shrink: 0; }
+        .tab-btn.active { background: #3498db; color: white; border-bottom: 3px solid #2980b9; }
+        .tab-content { display: none; padding: 20px; }
+        .tab-content.active { display: block; }
+
+        /* ✨ قواعد التجاوب (Media Queries) الخاصة بالهواتف ✨ */
+        @media (max-width: 768px) {
+            #main-admin-header {
+                flex-direction: column !important;
+                position: static !important; /* نلغي التثبيت في الهاتف لنوفر مساحة للشاشة */
+                text-align: center;
+                padding: 15px 10px !important;
+                gap: 15px;
+            }
+            #admin-header-btns {
+                flex-wrap: wrap !important;
+                justify-content: center !important;
+            }
+            .tabs-nav { 
+                top: 0 !important; /* تلتصق التبويبات بأعلى الشاشة بدلا من الهيدر في الهاتف */
+            }
+            .tabs-extra-btns { flex-shrink: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <header id="main-admin-header" style="background-color: #2c3e50; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 1000;">
+        <div style="display: flex; align-items: center; justify-content: center; gap: 15px;">
+            <img src="{{ url_for('static', filename='images/chy_logo.png') }}" 
+                alt="شعار المؤسسة" 
+                style="height: 45px; width: auto; object-fit: contain;">
+            <h1 style="margin: 0; font-size: 28px; font-weight: 900; letter-spacing: 1px;">📅 موزع الجداول الجامعية الذكي</h1>
+        </div>
+        
+        <div id="admin-header-btns" style="display: flex; gap: 10px;">
+            <button id="btn-about" style="background-color: #16a085; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-size: 15px; font-weight: bold; transition: 0.2s;" onmouseover="this.style.backgroundColor='#1abc9c'" onmouseout="this.style.backgroundColor='#16a085'">ℹ️ عن البرنامج</button>
+
+            <button id="btn-save-settings" style="background-color: #27ae60; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-size: 15px; font-weight: bold; transition: 0.2s;" onmouseover="this.style.backgroundColor='#2ecc71'" onmouseout="this.style.backgroundColor='#27ae60'">💾 حفظ الإعدادات</button>
+            
+            <button id="btn-save-as" style="background-color: #2980b9; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-size: 15px; font-weight: bold; transition: 0.2s;" onmouseover="this.style.backgroundColor='#3498db'" onmouseout="this.style.backgroundColor='#2980b9'">📁 حفظ باسم...</button>
+            
+            <button id="btn-restore" style="background-color: #8e44ad; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-size: 15px; font-weight: bold; transition: 0.2s;" onmouseover="this.style.backgroundColor='#9b59b6'" onmouseout="this.style.backgroundColor='#8e44ad'">🔄 استعادة</button>
+
+            <button id="btn-delete-profile" style="background-color: #e67e22; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-size: 15px; font-weight: bold; transition: 0.2s;" onmouseover="this.style.backgroundColor='#d35400'" onmouseout="this.style.backgroundColor='#e67e22'">🗑️ حذف إعدادات</button>
+            
+            
+        </div>
+    </header>
+
+    <div id="aboutModal" style="display: none; position: fixed; z-index: 10001; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px);">
+        <div style="background-color: #fff; margin: 10% auto; padding: 30px; width: 350px; border-radius: 12px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3); position: relative; color: #333; direction: rtl;">
+            <span id="closeAboutBtn" style="position: absolute; top: 10px; left: 15px; font-size: 28px; font-weight: bold; color: #aaa; cursor: pointer;" onmouseover="this.style.color='#e74c3c'" onmouseout="this.style.color='#aaa'">&times;</span>
+            <h3 style="color: #2c3e50; margin-top: 0; margin-bottom: 10px; font-size: 22px;">موزع الجداول الجامعية الذكي</h3>
+            <p style="font-size: 15px; color: #7f8c8d; margin: 0;">الإصدار 2.0</p>
+            <hr style="border-top: 1px solid #ecf0f1; margin: 20px 0;">
+            <p style="font-size: 16px; margin-bottom: 5px;">تم تصميم وتطوير هذا النظام بواسطة:</p>
+            <p style="font-size: 24px; font-weight: bold; color: #2980b9; margin: 0;">الدكتور شعيب يحيى</p>
+            <p style="font-size: 13px; color: #95a5a6; margin-top: 25px; margin-bottom: 0;">جميع الحقوق محفوظة &copy; 2026</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var modal = document.getElementById("aboutModal");
+            var btn = document.getElementById("btn-about");
+            var span = document.getElementById("closeAboutBtn");
+            btn.onclick = function() {
+                modal.style.display = "block";
+                modal.querySelector('div').style.animation = "fadeInDown 0.3s ease-out";
+            }
+            span.onclick = function() { modal.style.display = "none"; }
+            window.onclick = function(event) { if (event.target == modal) { modal.style.display = "none"; } }
+        });
+    </script>
+
+    <style>
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+
+    <nav class="tabs-nav">
+        <button class="tab-btn active" onclick="openTab('tab-1', this)">1. البيانات الأساسية</button>
+        <button class="tab-btn" onclick="openTab('tab-2', this)">2. إدارة البيانات</button>
+        <button class="tab-btn" onclick="openTab('tab-3', this)">3. إسناد المواد</button>
+        <button class="tab-btn" onclick="openTab('tab-4', this)">4. هيكل الجدول</button>
+        <button class="tab-btn" onclick="openTab('tab-5', this)">5. القيود والشروط</button>
+        <button class="tab-btn" onclick="openTab('tab-6', this)">6. إنشاء الجداول</button>
+        <button class="tab-btn" onclick="openTab('tab-7', this)">7. النسخ الاحتياطي</button>
+
+        <div class="tabs-extra-btns" style="margin-right: auto; display: flex;">
+            <button onclick="openRequestsModal()" style="background-color: #e67e22; color: white; padding: 0 20px; border: none; cursor: pointer; font-weight: bold; font-family: inherit; font-size: 16px; transition: 0.2s;" onmouseover="this.style.backgroundColor='#d35400'" onmouseout="this.style.backgroundColor='#e67e22'">
+                📥 مراجعة الرغبات
+            </button>
+            <button onclick="openAdminSettingsModal()" style="background-color: #f39c12; color: white; padding: 0 20px; border: none; cursor: pointer; font-weight: bold; font-family: inherit; font-size: 16px; transition: 0.2s; border-right: 1px solid rgba(255,255,255,0.2);" onmouseover="this.style.backgroundColor='#f1c40f'" onmouseout="this.style.backgroundColor='#f39c12'">
+                ⚙️ حساب المدير
+            </button>
+        </div>
+    </nav>
+
+    <main class="content-area">
+        {% block content %}{% endblock %}
+    </main>
+
+    <script>
+        function openTab(tabId, element) {
+            // إخفاء كل التبويبات
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            // إزالة اللون من كل الأزرار
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            
+            // إظهار التبويب المطلوب وتلوين الزر
+            document.getElementById(tabId).classList.add('active');
+            element.classList.add('active');
+
+            // السطر الجديد: إذا تم فتح التبويب الثاني، قم بتحديث بيانات الجداول
+            if(tabId === 'tab-2' && typeof loadManageTables === 'function') {
+                loadManageTables();
+            }
+            // السطر الجديد للمرحلة 3:
+            if(tabId === 'tab-3' && typeof loadAssignmentsData === 'function') {
+                loadAssignmentsData();
+            }
+            // السطر الجديد للمرحلة 4:
+            if(tabId === 'tab-4' && typeof initStructureData === 'function') {
+                initStructureData();
+            }
+            // السطر الجديد للمرحلة 5:
+            if(tabId === 'tab-5' && typeof initConditionsData === 'function') {
+                initConditionsData();
+            }
+        }
+    </script>
+    <script>
+        // 1. إصلاح زر الإيقاف (btn-shutdown)
+        const btnShutdown = document.getElementById('btn-shutdown');
+        if (btnShutdown) {
+            btnShutdown.addEventListener('click', function() {
+                if (confirm("هل أنت متأكد أنك تريد إيقاف البرنامج والخروج؟")) {
+                    fetch('/shutdown', {
+                        method: 'POST'
+                    }).then(response => {
+                        document.body.innerHTML = "<h2 style='text-align:center; margin-top:20%; color:#2c3e50;'>تم إيقاف البرنامج بنجاح. يمكنك إغلاق هذه الصفحة.</h2>";
+                    }).catch(error => {
+                        console.error('Error:', error);
+                    });
+                }
+            });
+        }
+    </script>
+    <script>
+        function shutdownServer() {
+            if (confirm("هل أنت متأكد أنك تريد إيقاف الخادم وإغلاق النظام؟")) {
+                fetch('/shutdown', { method: 'POST' })
+                .then(() => {
+                    alert("تم إيقاف الخادم بنجاح. يمكنك الآن إغلاق هذه النافذة.");
+                    window.close(); // يحاول إغلاق التبويب تلقائياً
+                })
+                .catch(err => alert("تم إرسال أمر الإيقاف."));
+            }
+        }
+    </script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/manage.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/assignments.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/structure.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/conditions.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/generation.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/backup.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/chart.js') }}"></script>
+
+    <div id="admin-settings-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 9999; justify-content: center; align-items: center;">
+        <div style="background: white; padding: 25px; border-radius: 8px; width: 350px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+            <h3 style="margin-top: 0; color: #2c3e50; border-bottom: 2px solid #f39c12; padding-bottom: 10px;">⚙️ إعدادات حساب المدير</h3>
+            <p style="font-size: 13px; color: #7f8c8d; margin-bottom: 15px;">أدخل معلومات الدخول الجديدة التي ترغب باستخدامها مستقبلاً.</p>
+
+            <input type="text" id="admin-new-username" placeholder="اسم المستخدم الجديد..." style="width: 90%; padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px; font-family: inherit; font-size: 14px;">
+            <input type="password" id="admin-new-password" placeholder="كلمة المرور الجديدة..." style="width: 90%; padding: 10px; margin-bottom: 20px; border: 1px solid #ccc; border-radius: 4px; font-family: inherit; font-size: 14px;">
+
+            <div style="display: flex; gap: 10px; justify-content: center;">
+                <button onclick="document.getElementById('admin-settings-modal').style.display='none'" style="padding: 8px 15px; background: #95a5a6; color: white; border: none; border-radius: 4px; cursor: pointer; font-family: inherit;">إلغاء</button>
+                <button onclick="saveAdminCredentials()" style="padding: 8px 15px; background: #27ae60; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-family: inherit;">💾 حفظ التغييرات</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openAdminSettingsModal() {
+            document.getElementById('admin-new-username').value = '';
+            document.getElementById('admin-new-password').value = '';
+            document.getElementById('admin-settings-modal').style.display = 'flex';
+        }
+
+        function saveAdminCredentials() {
+            const user = document.getElementById('admin-new-username').value;
+            const pass = document.getElementById('admin-new-password').value;
+            if(!user || !pass) return alert("يرجى ملء جميع الحقول!");
+
+            fetch('/api/admin/credentials', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({username: user, password: pass})
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.success) {
+                    alert(data.message);
+                    document.getElementById('admin-settings-modal').style.display = 'none';
+                } else {
+                    alert("خطأ: " + data.error);
+                }
+            });
+        }
+    </script>
+
+</body>
+</html>

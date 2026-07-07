@@ -1,0 +1,166 @@
+document.addEventListener('DOMContentLoaded', () => {
+    // تحديث الجداول فور تحميل الصفحة
+    refreshAllManageTables();
+});
+
+function refreshAllManageTables() {
+    loadManageProfessors();
+    loadManageHalls();
+    loadManageLevels();
+    loadManageSubjects();
+}
+
+// ==========================================
+// 📥 دوال جلب ورسم البيانات في الجداول
+// ==========================================
+function loadManageProfessors() {
+    fetch('/exams/api/get-professors').then(res => res.json()).then(data => {
+        const tbody = document.getElementById('manage-professors-tbody');
+        tbody.innerHTML = '';
+        data.forEach(item => {
+            tbody.innerHTML += `
+                <tr>
+                    <td>${item.name}</td>
+                    <td style="text-align: center;">
+                        <button class="btn-edit" onclick="editEntity('professor', ${item.id}, '${item.name}')">تعديل</button>
+                        <button class="btn-delete" onclick="deleteEntity('professor', ${item.id})">حذف</button>
+                    </td>
+                </tr>`;
+        });
+    });
+}
+
+function loadManageHalls() {
+    fetch('/exams/api/get-halls').then(res => res.json()).then(data => {
+        const tbody = document.getElementById('manage-halls-tbody');
+        tbody.innerHTML = '';
+        data.forEach(item => {
+            tbody.innerHTML += `
+                <tr>
+                    <td>${item.name}</td>
+                    <td><span style="background: #e9ecef; padding: 3px 8px; border-radius: 10px; font-size: 12px;">${item.type}</span></td>
+                    <td style="text-align: center;">
+                        <button class="btn-edit" onclick="editHall(${item.id}, '${item.name}', '${item.type}')">تعديل</button>
+                        <button class="btn-delete" onclick="deleteEntity('hall', ${item.id})">حذف</button>
+                    </td>
+                </tr>`;
+        });
+    });
+}
+
+function loadManageLevels() {
+    fetch('/exams/api/get-levels').then(res => res.json()).then(data => {
+        const tbody = document.getElementById('manage-levels-tbody');
+        tbody.innerHTML = '';
+        data.forEach(item => {
+            tbody.innerHTML += `
+                <tr>
+                    <td>${item.name}</td>
+                    <td style="text-align: center;">
+                        <button class="btn-edit" onclick="editEntity('level', ${item.id}, '${item.name}')">تعديل</button>
+                        <button class="btn-delete" onclick="deleteEntity('level', ${item.id})">حذف</button>
+                    </td>
+                </tr>`;
+        });
+    });
+}
+
+function loadManageSubjects() {
+    fetch('/exams/api/get-subjects').then(res => res.json()).then(data => {
+        const tbody = document.getElementById('manage-subjects-tbody');
+        tbody.innerHTML = '';
+        data.forEach(item => {
+            tbody.innerHTML += `
+                <tr>
+                    <td>${item.name}</td>
+                    <td>${item.level_name}</td>
+                    <td style="text-align: center;">
+                        <button class="btn-edit" onclick="editEntity('subject', ${item.id}, '${item.name}')">تعديل</button>
+                        <button class="btn-delete" onclick="deleteEntity('subject', ${item.id})">حذف</button>
+                    </td>
+                </tr>`;
+        });
+    });
+}
+
+// ==========================================
+// 🗑️ دالة الحذف الشاملة
+// ==========================================
+function deleteEntity(entityType, id) {
+    if (!confirm('هل أنت متأكد من حذف هذا العنصر؟ (قد يؤدي هذا لحذف البيانات المرتبطة به)')) return;
+
+    fetch(`/exams/api/delete-${entityType}/${id}`, { method: 'DELETE' })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('تم الحذف بنجاح', 'success');
+            // تحديث جداول المرحلة 2
+            refreshAllManageTables();
+            
+            // 🔄 التزامن السحري: تحديث قوائم المعاينة في المرحلة 1 فوراً
+            if(entityType === 'professor' && typeof refreshProfessorPreview === 'function') refreshProfessorPreview();
+            if(entityType === 'hall' && typeof refreshHallPreview === 'function') refreshHallPreview();
+            if(entityType === 'level' && typeof refreshLevelPreview === 'function') { refreshLevelPreview(); refreshSubjectPreview(); }
+            if(entityType === 'subject' && typeof refreshSubjectPreview === 'function') refreshSubjectPreview();
+        } else {
+            showNotification('فشل الحذف: ' + data.message, 'error');
+        }
+    }).catch(err => showNotification('خطأ في الاتصال بالخادم', 'error'));
+}
+
+// ==========================================
+// ✏️ دوال التعديل
+// ==========================================
+function editEntity(entityType, id, oldName) {
+    const newName = prompt(`أدخل الاسم الجديد:`, oldName);
+    if (!newName || newName === oldName || newName.trim() === '') return;
+
+    fetch(`/exams/api/edit-${entityType}/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: newName.trim() })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('تم التعديل بنجاح', 'success');
+            refreshAllManageTables();
+            
+            // 🔄 تزامن مع المرحلة 1
+            if(entityType === 'professor') refreshProfessorPreview();
+            if(entityType === 'level') { refreshLevelPreview(); refreshSubjectPreview(); }
+            if(entityType === 'subject') refreshSubjectPreview();
+        } else {
+            showNotification(data.message, 'error');
+        }
+    });
+}
+
+// القاعات لها دالة خاصة لأنها تحتوي على "النوع" بالإضافة للاسم
+function editHall(id, oldName, oldType) {
+    const newName = prompt('أدخل الاسم الجديد للقاعة:', oldName);
+    if (!newName || newName.trim() === '') return;
+    
+    const newType = prompt('أدخل نوع القاعة (صغيرة، متوسطة، كبيرة):', oldType);
+    if (!['صغيرة', 'متوسطة', 'كبيرة'].includes(newType)) {
+        return alert('نوع القاعة غير صالح! يجب أن يكون: صغيرة أو متوسطة أو كبيرة');
+    }
+
+    if (newName === oldName && newType === oldType) return;
+
+    fetch(`/exams/api/edit-hall/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: newName.trim(), type: newType })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('تم تعديل القاعة بنجاح', 'success');
+            refreshAllManageTables();
+            if(typeof refreshHallPreview === 'function') refreshHallPreview();
+        } else {
+            showNotification(data.message, 'error');
+        }
+    });
+}

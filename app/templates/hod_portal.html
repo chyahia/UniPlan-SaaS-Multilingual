@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بوابة رئيس القسم - UniPlan</title>
+    <style>
+        :root {
+            --primary-teaching: #f39c12;
+            --hover-teaching: #e67e22;
+            --primary-exams: #3f51b5;
+            --hover-exams: #303f9f;
+            --bg-color: #f4f7f6;
+            --text-main: #2c3e50;
+            --text-muted: #7f8c8d;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .portal-container {
+            text-align: center;
+            max-width: 1000px;
+            width: 100%;
+            padding: 20px;
+        }
+
+        .header {
+            margin-bottom: 50px;
+        }
+
+        .header h1 {
+            color: var(--text-main);
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: var(--text-muted);
+            font-size: 18px;
+            margin-top: 0;
+        }
+
+        .cards-wrapper {
+            display: flex;
+            gap: 40px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .system-card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 40px 30px;
+            width: 350px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease;
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border-top: 6px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .system-card:hover {
+            transform: translateY(-15px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+
+        /* تنسيق بطاقة التدريس */
+        .system-card.teaching {
+            border-top-color: var(--primary-teaching);
+        }
+        .system-card.teaching .card-icon {
+            background: rgba(243, 156, 18, 0.1);
+            color: var(--primary-teaching);
+        }
+        .system-card.teaching .card-btn {
+            background: var(--primary-teaching);
+        }
+        .system-card.teaching:hover .card-btn {
+            background: var(--hover-teaching);
+            transform: scale(1.05);
+        }
+
+        /* تنسيق بطاقة الامتحانات */
+        .system-card.exams {
+            border-top-color: var(--primary-exams);
+        }
+        .system-card.exams .card-icon {
+            background: rgba(63, 81, 181, 0.1);
+            color: var(--primary-exams);
+        }
+        .system-card.exams .card-btn {
+            background: var(--primary-exams);
+        }
+        .system-card.exams:hover .card-btn {
+            background: var(--hover-exams);
+            transform: scale(1.05);
+        }
+
+        .card-icon {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 45px;
+            margin-bottom: 25px;
+            transition: all 0.3s ease;
+        }
+
+        .card-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: var(--text-main);
+        }
+
+        .card-desc {
+            font-size: 15px;
+            color: var(--text-muted);
+            line-height: 1.6;
+            margin-bottom: 30px;
+            flex-grow: 1;
+        }
+
+        .card-btn {
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-weight: bold;
+            color: #fff;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-size: 16px;
+            width: 80%;
+        }
+
+        .logout-wrapper {
+            margin-top: 60px;
+        }
+
+        .logout-btn {
+            color: #e74c3c;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 16px;
+            border: 2px solid #e74c3c;
+            padding: 10px 25px;
+            border-radius: 8px;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .logout-btn:hover {
+            background: #e74c3c;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="portal-container">
+        <div class="header">
+            <div style="font-size: 60px; margin-bottom: 10px;">🏛️</div>
+            <h1>مرحباً بك في منصة UniPlan السحابية</h1>
+            <p>بوابة رئيس القسم - يرجى اختيار النظام لإدارة العمليات الأكاديمية</p>
+        </div>
+
+        <div class="cards-wrapper">
+            
+            {% if tenant.has_teaching %}
+            <a href="/teaching" class="system-card teaching">
+                <div class="card-icon">🗓️</div>
+                <div class="card-title">نظام الجداول الدراسية</div>
+                <div class="card-desc">إدارة أساتذة ومواد التدريس، توزيع القاعات، وتوليد جداول الحصص الأسبوعية باستخدام الخوارزميات الذكية.</div>
+                <div class="card-btn">الدخول للنظام</div>
+            </a>
+            {% else %}
+            <div class="system-card" style="opacity: 0.6; filter: grayscale(100%); cursor: not-allowed; border-top-color: #95a5a6;">
+                <div class="card-icon" style="background: #ecf0f1; color: #7f8c8d;">🔒</div>
+                <div class="card-title" style="color: #7f8c8d;">نظام الجداول الدراسية</div>
+                <div class="card-desc">هذا النظام غير مفعل لقسمك حالياً. يرجى التواصل مع الإدارة المركزية لتفعيله.</div>
+                <div class="card-btn" style="background: #95a5a6;">غير مصرح</div>
+            </div>
+            {% endif %}
+
+            {% if tenant.has_exams %}
+            <a href="/exams" class="system-card exams">
+                <div class="card-icon">🎓</div>
+                <div class="card-title">نظام حراسة الامتحانات</div>
+                <div class="card-desc">سحب الأساتذة من التدريس، توزيع الحراسات، تحقيق التوازن العادل، وتوليد جداول الامتحانات النهائية.</div>
+                <div class="card-btn">الدخول للنظام</div>
+            </a>
+            {% else %}
+            <div class="system-card" style="opacity: 0.6; filter: grayscale(100%); cursor: not-allowed; border-top-color: #95a5a6;">
+                <div class="card-icon" style="background: #ecf0f1; color: #7f8c8d;">🔒</div>
+                <div class="card-title" style="color: #7f8c8d;">نظام حراسة الامتحانات</div>
+                <div class="card-desc">هذا النظام غير مفعل لقسمك حالياً. يرجى التواصل مع الإدارة المركزية لتفعيله.</div>
+                <div class="card-btn" style="background: #95a5a6;">غير مصرح</div>
+            </div>
+            {% endif %}
+
+        </div>
+
+        <div class="logout-wrapper">
+            <a href="/logout" class="logout-btn">
+                <span>تسجيل الخروج</span> 🚪
+            </a>
+        </div>
+    </div>
+
+</body>
+</html>

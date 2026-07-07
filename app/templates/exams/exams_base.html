@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>موزع حراسة الامتحانات الذكي</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/exams_style.css') }}">
+</head>
+<body>
+    <main>
+        <div style="position: sticky; top: 0; z-index: 1000; margin: -20px -40px 20px -40px; background-color: #3f51b5; border-radius: 8px 8px 0 0; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
+            
+            <header class="app-header" style="display: flex; justify-content: space-between; align-items: center; min-height: 60px; padding: 15px 40px; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 0;">
+                
+                <div class="header-title" style="display: flex; align-items: center;">
+                    <img src="{{ url_for('static', filename='images/chy_logo.png') }}" 
+                         alt="شعار المؤسسة" 
+                         style="height: 45px; margin-left: 15px; width: auto; object-fit: contain;">
+                    <h1 style="margin: 0; font-size: 24px; color: #ffffff; border-bottom: none; padding-bottom: 0;">🎓 موزع حراسة الامتحانات الذكي</h1>
+                </div>
+
+                <div class="header-actions" style="display: flex; gap: 10px; align-items: center;">
+                    <button id="about-button" class="header-btn" style="background-color: rgba(255,255,255,0.2); color: white; border: 1px solid white;">عن البرنامج</button>
+                    <button id="help-button" class="header-btn" style="background-color: rgba(255,255,255,0.2); color: white; border: 1px solid white;">المساعدة</button>
+                    <button id="save-settings-btn" style="background: #27ae60; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; font-family: inherit; font-size: 14px; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">💾 حفظ الإعدادات</button>
+                    
+                    <a href="/" style="background: #f39c12; color: white; padding: 8px 15px; border-radius: 4px; text-decoration: none; font-weight: bold; font-family: inherit; font-size: 14px; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">🗓️ العودة لنظام التدريس</a>
+                    <a href="/logout" style="background: #e74c3c; color: white; padding: 8px 15px; border-radius: 4px; text-decoration: none; font-weight: bold; font-size: 14px; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">تسجيل الخروج</a>
+                </div>
+                
+            </header>
+
+            <div class="tabs-container" style="margin-bottom: 0; border-radius: 0; box-shadow: none; background-color: transparent;">
+                <button class="tab-link active" onclick="openTab(event, 'tab1')">المرحلة 1: البيانات الأساسية</button>
+                <button class="tab-link" onclick="openTab(event, 'tab2')">المرحلة 2: إدارة البيانات</button>
+                <button class="tab-link" onclick="openTab(event, 'tab3')">المرحلة 3: الإسناد والقاعات</button>
+                <button class="tab-link" onclick="openTab(event, 'tab4')">المرحلة 4: الأيام والأوقات</button>
+                <button class="tab-link" onclick="openTab(event, 'tab5')">المرحلة 5: القيود والشروط</button>
+                <button class="tab-link" onclick="openTab(event, 'tab6')">المرحلة 6: التوليد والتصدير</button>
+                <button class="tab-link" onclick="openTab(event, 'tab7')">المرحلة 7: النسخ الاحتياطي</button>
+            </div>
+            
+        </div> <div class="content-container">
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <div id="custom-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title" style="margin: 0; color: #3f51b5;">العنوان</h3>
+                <button class="close-modal-btn" onclick="closeCustomModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="modal-body">
+                </div>
+        </div>
+    </div>
+
+    <div id="notification-area"></div>
+
+    <script src="{{ url_for('static', filename='js/exams/main.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/exams/basic_data.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/exams/manage_data.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/exams/assignments.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/exams/times.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/exams/conditions.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/exams/generation.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/exams/system.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/exams/backup.js') }}"></script>
+    
+    <script src="{{ url_for('static', filename='js/exams/chart.min.js') }}"></script>
+</body>
+</html>
