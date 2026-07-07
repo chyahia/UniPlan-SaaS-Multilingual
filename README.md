@@ -49,14 +49,14 @@
 
 تشغيل خادم العمليات الخلفية (Celery):
 
-    ```bash
-    celery -A celery_worker.celery_app worker --loglevel=info
+   ```bash
+   celery -A celery_worker.celery_app worker --loglevel=info
 
 
 تشغيل تطبيق Flask:
 
-    ```bash
-    flask run
+   ```bash
+   flask run
 
 
 تم تطوير هذه المنصة لتحديث ورقمنة العمليات الأكاديمية الجامعية وتقليل الجهد الإداري.
