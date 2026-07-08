@@ -1066,73 +1066,7 @@ def calculate_schedule_cost(
     validation_failures = validate_teacher_constraints_in_solution(teacher_schedule_map, special_constraints, teacher_constraints, lectures_by_teacher_map, distribution_rule_type, saturday_teachers, teacher_pairs, day_to_idx, last_slot_restrictions, len(slots), constraint_severities, max_sessions_per_day=max_sessions_per_day, non_sharing_teacher_pairs=non_sharing_teacher_pairs)
     conflicts_list.extend(validation_failures) 
 
-    penalty_morning = SEVERITY_PENALTIES.get(constraint_severities.get('prefer_morning', 'low'), 1)
-    
-    # --- الخطوة 6: تطبيق عقوبات تفضيل الفترات المبكرة (ديناميكي ومع المنطق الكامل) ---
-    if prefer_morning_slots and len(slots) > 1:
-        penalty = 100 if constraint_severities.get('prefer_morning') == 'hard' else penalty_morning
-        room_schedule_map = defaultdict(set)
-        for day_grid in schedule.values():
-            for day_idx, day_slots in enumerate(day_grid):
-                for slot_idx, lectures_in_slot in enumerate(day_slots):
-                    for lec in lectures_in_slot:
-                        if lec.get('room'): room_schedule_map[(day_idx, slot_idx)].add(lec.get('room'))
-
-        # ✨ تم إرجاع هذا المنطق من النسخة الأصلية
-        first_work_day_map = {
-            t: min(d for d, s in slots)
-            for t, slots in teacher_schedule_map.items() if slots
-        }
-        
-        last_slot_index = len(slots) - 1
-        earlier_slots_indices = range(last_slot_index)
-
-        for level, day_grid in schedule.items():
-            for day_idx, day_slots in enumerate(day_grid):
-                lectures_in_last_slot = day_slots[last_slot_index]
-
-                for lecture in lectures_in_last_slot:
-                    teacher = lecture.get('teacher_name')
-                    if not teacher: continue
-
-                    missed_earlier_opportunity = False
-                    for earlier_slot_idx in earlier_slots_indices:
-                        # إذا كان الأستاذ يعمل بالفعل في هذه الفترة المبكرة، فهي ليست فرصة
-                        if (day_idx, earlier_slot_idx) in teacher_schedule_map.get(teacher, set()):
-                            continue
-
-                        # ✨ تم إرجاع هذا المنطق التفصيلي من النسخة الأصلية
-                        prof_constraints = special_constraints.get(teacher, {})
-                        first_day = first_work_day_map.get(teacher)
-                        is_first_day = (first_day is not None and day_idx == first_day)
-                        
-                        if is_first_day:
-                            if prof_constraints.get('start_d1_s2') and earlier_slot_idx < 1:
-                                continue # تخطى هذه الفترة لأنها تخالف قيد الأستاذ
-                            if prof_constraints.get('start_d1_s3') and earlier_slot_idx < 2:
-                                continue # تخطى هذه الفترة لأنها تخالف قيد الأستاذ
-
-                        # إرجاع الحرية: قيد ضغط الحصص يخص المدرجات فقط
-                        if any(lec.get('room_type') == 'كبيرة' for lec in schedule[level][day_idx][earlier_slot_idx]):
-                            continue
-                        
-                        # تحقق مما إذا كانت هناك قاعة متاحة من نفس النوع المطلوب
-                        room_type_needed = lecture.get('room_type')
-                        all_rooms_of_type = {r['name'] for r in rooms_data if r.get('type') == room_type_needed}
-                        occupied_rooms_in_earlier_slot = room_schedule_map.get((day_idx, earlier_slot_idx), set())
-
-                        if all_rooms_of_type - occupied_rooms_in_earlier_slot:
-                            missed_earlier_opportunity = True
-                            break
-                    
-                    if missed_earlier_opportunity:
-                        conflicts_list.append({
-                            "course_name": "قيد ضغط الحصص",
-                            "teacher_name": teacher,
-                            "reason": f"توجد حصة في آخر فترة ({last_slot_index + 1}) مع وجود فرصة لوضعها في وقت أبكر.",
-                            "penalty": penalty,
-                            "involved_lectures": [lecture]
-                        })
+    # --- الخطوة 6: (تم إيقاف قيد ضغط الحصص نهائياً بناءً على طلبك) ---
 
     # --- الخطوة 6.5: التحقق من قيد منع تتابع المحاضرات (بيداغوجي للمستوى) ---
     limit = constraint_severities.get('max_consecutive_lectures_limit')
@@ -1248,11 +1182,6 @@ def calculate_slot_fitness(teacher_name, day_idx, slot_idx, teacher_schedule, sp
     if prof_constraints.get('end_s4') and slot_idx > 3:
         fitness -= 100  # عقوبة إضافية لوضعها بعد الحصة الرابعة
     # --- نهاية الإضافة الجديدة ---
-    
-    # --- الإضافة الجديدة: مكافأة للفترات الصباحية ---
-    # إذا كانت الحصة من الثلاثة الأوائل (0, 1, 2)
-    if prefer_morning_slots and slot_idx <= 2:
-        fitness += 25 # مكافأة كبيرة لتشجيع اختيار الفترات الصباحية
             
     return fitness
 
@@ -2458,21 +2387,9 @@ def run_greedy_search_for_best_result(
 
 def _calculate_end_of_day_penalty(teacher_slots, num_slots):
     """
-    تحسب درجة العقوبة بناءً على وجود حصص في الفترات الأخيرة.
+    تم تصفير العقوبة نهائياً لمنع الخوارزمية من ضغط الجدول.
     """
-    if not teacher_slots or num_slots < 2:
-        return 0
-    
-    last_slot_index = num_slots - 1
-    second_last_slot_index = num_slots - 2
-    
-    penalty = 0
-    for _, slot_idx in teacher_slots:
-        if slot_idx == last_slot_index:
-            penalty += 100  # عقوبة كبيرة للحصة الأخيرة
-        elif slot_idx == second_last_slot_index:
-            penalty += 1   # عقوبة صغيرة للحصة قبل الأخيرة
-    return penalty
+    return 0
 
 # ==============================================================================
 # === خوارزميات التحسين والضغط (Refinement & Compaction) ===
@@ -2480,21 +2397,9 @@ def _calculate_end_of_day_penalty(teacher_slots, num_slots):
 
 def _calculate_end_of_day_penalty(teacher_slots, num_slots):
     """
-    تحسب درجة العقوبة بناءً على وجود حصص في الفترات الأخيرة.
+    تم تصفير العقوبة نهائياً لمنع الخوارزمية من ضغط الجدول.
     """
-    if not teacher_slots or num_slots < 2:
-        return 0
-    
-    last_slot_index = num_slots - 1
-    second_last_slot_index = num_slots - 2
-    
-    penalty = 0
-    for _, slot_idx in teacher_slots:
-        if slot_idx == last_slot_index:
-            penalty += 100  # عقوبة كبيرة للحصة الأخيرة
-        elif slot_idx == second_last_slot_index:
-            penalty += 1   # عقوبة صغيرة للحصة قبل الأخيرة
-    return penalty
+    return 0
 
 # ==============================================================================
 # === ✨✨ النسخة النهائية والموصى بها (تجمع كل الإصلاحات) ✨✨ ===
