@@ -1,5 +1,6 @@
 from app import create_app
 from app.celery_setup import celery_app
+import app.resit_tasks
 
 # 1. تشغيل بيئة Flask كاملة ليتعرف Celery على قاعدة البيانات وإعداداتها
 app = create_app()

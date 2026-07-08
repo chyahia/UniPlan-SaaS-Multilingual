@@ -1,0 +1,93 @@
+{% extends 'resit_exams/base.html' %}
+
+{% block content %}
+<div class="row mb-4 mt-2">
+    <div class="col-12 text-center">
+        <h2 class="text-primary fw-bold mb-3">مرحباً بك في نظام الامتحانات الاستدراكية</h2>
+        <p class="lead text-muted">الواجهة الرئيسية للتحكم وإدارة جداول الامتحانات بكل سهولة واحترافية.</p>
+    </div>
+</div>
+
+<div class="row g-4 mb-5 text-center">
+    <div class="col-md-3 col-sm-6">
+        <div class="card shadow-sm border-primary h-100 item-box">
+            <div class="card-body">
+                <h1 class="display-4 text-primary mb-2">👨‍🏫</h1>
+                <h2 class="fw-bold">{{ db.teachers | length }}</h2>
+                <p class="text-muted mb-0 fw-bold">أستاذ مسجل</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 col-sm-6">
+        <div class="card shadow-sm border-success h-100 item-box">
+            <div class="card-body">
+                <h1 class="display-4 text-success mb-2">🏫</h1>
+                <h2 class="fw-bold">{{ db.rooms | length }}</h2>
+                <p class="text-muted mb-0 fw-bold">قاعة متاحة</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 col-sm-6">
+        <div class="card shadow-sm border-warning h-100 item-box">
+            <div class="card-body">
+                <h1 class="display-4 text-warning mb-2">📚</h1>
+                <h2 class="fw-bold">{{ db.levels | length }}</h2>
+                <p class="text-muted mb-0 fw-bold">مستوى دراسي</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 col-sm-6">
+        <div class="card shadow-sm border-danger h-100 item-box">
+            <div class="card-body">
+                <h1 class="display-4 text-danger mb-2">📖</h1>
+                <h2 class="fw-bold">{{ db.subjects | length }}</h2>
+                <p class="text-muted mb-0 fw-bold">مادة مسجلة</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm border-secondary mb-5">
+    <div class="card-header bg-secondary text-white fs-5 fw-bold">
+        💡 دليل الاستخدام وخطوات العمل
+    </div>
+    <div class="card-body p-4">
+        <div class="row g-4">
+            
+            <div class="col-md-4">
+                <div class="p-3 border border-2 rounded bg-light h-100 text-center">
+                    <h3 class="text-primary mb-3">1️⃣</h3>
+                    <h5 class="text-dark fw-bold border-bottom pb-2">تجهيز البيانات</h5>
+                    <p class="text-muted small mt-2">ابدأ بإدخال أسماء الأساتذة، القاعات، المستويات، والمواد من خلال شاشة الإدخال لتأسيس قاعدة البيانات.</p>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="p-3 border border-2 rounded bg-light h-100 text-center">
+                    <h3 class="text-primary mb-3">2️⃣</h3>
+                    <h5 class="text-dark fw-bold border-bottom pb-2">الإسناد والتخصيص</h5>
+                    <p class="text-muted small mt-2">قم بإسناد المواد لأساتذتها، ثم خصص القاعات لكل مستوى دراسي لتجهيز البنية التحتية للامتحان.</p>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="p-3 border border-2 rounded bg-light h-100 text-center">
+                    <h3 class="text-primary mb-3">3️⃣</h3>
+                    <h5 class="text-dark fw-bold border-bottom pb-2">الأوقات والتوزيع</h5>
+                    <p class="text-muted small mt-2">حدد أيام وفترات الامتحان، أضف القيود والشروط الأكاديمية، ثم أطلق خوارزمية التوزيع الذكي.</p>
+                </div>
+            </div>
+            
+        </div>
+        
+        <div class="text-center mt-5">
+            <a href="{{ url_for('resit_exams.manage_data') }}" class="btn btn-primary btn-lg fw-bold shadow-sm px-5" style="border-radius: 10px;">
+                🚀 ابدأ العمل الآن
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

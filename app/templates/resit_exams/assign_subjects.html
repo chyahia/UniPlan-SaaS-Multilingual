@@ -1,0 +1,208 @@
+{% extends 'resit_exams/base.html' %}
+
+{% block content %}
+<style>
+    /* تنسيقات حركية للمربعات */
+    .item-box { cursor: pointer; transition: all 0.2s ease-in-out; user-select: none; }
+    .item-box:hover { filter: brightness(0.95); transform: translateY(-1px); }
+    
+    /* لون التظليل عند الاختيار المؤقت (للتخصيص) */
+    .selected-target { border: 2px solid #0d6efd !important; background-color: #e7f1ff !important; box-shadow: 0 0 8px rgba(13,110,253,0.3); }
+    
+    /* لون الأساتذة والمواد المسندة (النهائي) */
+    .is-assigned-teacher { background-color: #d1e7dd !important; border-color: #badbcc !important; color: #0f5132 !important; font-weight: bold;}
+    .is-assigned-subject { background-color: #fff3cd !important; border-color: #ffecb5 !important; color: #664d03 !important; }
+</style>
+
+<h2 class="text-center text-primary mb-4 border border-primary p-3 rounded bg-light">
+    إسناد المواد للأساتذة
+</h2>
+
+<div class="row g-4 mb-5">
+    
+    <div class="col-md-5">
+        <div class="card shadow-sm border-primary h-100">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <span>👨‍🏫 الأساتذة</span>
+                <small>(نقرة مزدوجة لإلغاء مواده)</small>
+            </div>
+            <div class="card-body p-2">
+                <input type="text" id="teacherSearch" class="form-control mb-2" placeholder="🔍 بحث عن أستاذ..." onkeyup="filterList('teacherSearch', 'teacherList')">
+                
+                <div class="list-group" id="teacherList" style="max-height: 500px; overflow-y: auto;">
+                    {% for teacher in db.teachers %}
+                        {% set assigned_subs = db.teacher_subjects.get(teacher, []) %}
+                        
+                        <div class="list-group-item p-0 mb-1 border rounded">
+                            <div class="d-flex justify-content-between align-items-center p-2 item-box {{ 'is-assigned-teacher' if assigned_subs else '' }}"
+                                 id="t_box_{{ loop.index }}"
+                                 onclick="selectTeacher('{{ teacher }}', 't_box_{{ loop.index }}')"
+                                 ondblclick="unassignTeacher('{{ teacher }}')"
+                                 title="انقر للتحديد، انقر مرتين لإلغاء مواده">
+                                 
+                                <span>{{ teacher }}</span>
+                                
+                                {% if assigned_subs %}
+                                <button class="btn btn-sm btn-outline-success border-0" onclick="toggleCollapse(event, 'subs_for_{{ loop.index }}')">
+                                    ▼ ({{ assigned_subs|length }})
+                                </button>
+                                {% endif %}
+                            </div>
+                            
+                            {% if assigned_subs %}
+                            <div id="subs_for_{{ loop.index }}" class="collapse bg-white px-3 py-2 border-top">
+                                <ul class="mb-0 small text-success">
+                                    {% for s in assigned_subs %}
+                                        <li>{{ s }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                            {% endif %}
+                        </div>
+                    {% else %}
+                        <div class="alert alert-secondary">لا يوجد أساتذة مسجلين.</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-7">
+        <div class="card shadow-sm border-primary h-100">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <span>📚 المواد</span>
+                <small>(نقرة مزدوجة لإلغاء المادة)</small>
+            </div>
+            <div class="card-body p-2">
+                
+                <div class="d-flex mb-2 gap-2">
+                    <input type="text" id="subjectSearch" class="form-control" placeholder="🔍 بحث عن مادة..." onkeyup="filterList('subjectSearch', 'subjectList')">
+                    <button class="btn btn-primary fw-bold" onclick="submitAssignment()" style="min-width: 150px;">💾 تخصيص</button>
+                </div>
+                
+                <div id="subjectList" class="p-1" style="max-height: 500px; overflow-y: auto;">
+                    {% for sub in db.subjects %}
+                        {% set full_name = sub.name ~ ' (' ~ sub.level ~ ')' %}
+                        {% set assigned_teacher = subject_to_teacher.get(full_name) %}
+                        
+                        <div class="list-group-item mb-1 border rounded item-box {{ 'is-assigned-subject' if assigned_teacher else '' }}"
+                             id="s_box_{{ loop.index }}"
+                             onclick="toggleSubject('{{ full_name }}', 's_box_{{ loop.index }}')"
+                             ondblclick="unassignSubject('{{ full_name }}')"
+                             title="انقر لتحديد المادة، انقر مرتين لإلغاء إسنادها">
+                             
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>{{ sub.name }}</strong> 
+                                    <small class="text-muted">({{ sub.level }})</small>
+                                </div>
+                                {% if assigned_teacher %}
+                                    <span class="badge bg-success shadow-sm">{{ assigned_teacher }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-secondary">لا توجد مواد مسجلة.</div>
+                    {% endfor %}
+                </div>
+                
+            </div>
+        </div>
+    </div>
+</div>
+
+<form id="form_assign" method="POST" style="display: none;">
+    <input type="hidden" name="action" value="assign_selected">
+    <input type="hidden" name="teacher_name" id="assign_t_name">
+    <input type="hidden" name="subjects_list" id="assign_s_list">
+</form>
+
+<form id="form_unassign_teacher" method="POST" style="display: none;">
+    <input type="hidden" name="action" value="unassign_teacher">
+    <input type="hidden" name="teacher_name" id="unassign_t_name">
+</form>
+
+<form id="form_unassign_subject" method="POST" style="display: none;">
+    <input type="hidden" name="action" value="unassign_subject">
+    <input type="hidden" name="subject_name" id="unassign_s_name">
+</form>
+
+<script>
+let selectedTeacher = "";
+let selectedSubjects = [];
+
+// دالة تظليل الأستاذ
+function selectTeacher(tName, boxId) {
+    document.querySelectorAll('[id^="t_box_"]').forEach(el => el.classList.remove('selected-target'));
+    selectedTeacher = tName;
+    document.getElementById(boxId).classList.add('selected-target');
+}
+
+// دالة تظليل المواد
+function toggleSubject(sName, boxId) {
+    let el = document.getElementById(boxId);
+    let idx = selectedSubjects.indexOf(sName);
+    
+    if (idx > -1) {
+        selectedSubjects.splice(idx, 1);
+        el.classList.remove('selected-target');
+    } else {
+        selectedSubjects.push(sName);
+        el.classList.add('selected-target');
+    }
+}
+
+// دالة إظهار/إخفاء القائمة المنسدلة (المثلث)
+function toggleCollapse(e, targetId) {
+    e.stopPropagation();
+    let target = document.getElementById(targetId);
+    if(target.classList.contains('show')) {
+        target.classList.remove('show');
+    } else {
+        target.classList.add('show');
+    }
+}
+
+// دالة إرسال التخصيص
+function submitAssignment() {
+    if (!selectedTeacher) { alert("⚠️ الرجاء تحديد أستاذ من القائمة اليمنى أولاً."); return; }
+    if (selectedSubjects.length === 0) { alert("⚠️ الرجاء تحديد مادة واحدة على الأقل من القائمة اليسرى."); return; }
+
+    document.getElementById('assign_t_name').value = selectedTeacher;
+    document.getElementById('assign_s_list').value = JSON.stringify(selectedSubjects);
+    document.getElementById('form_assign').submit();
+}
+
+// دالة النقر المزدوج (الأستاذ)
+function unassignTeacher(tName) {
+    if(confirm('هل أنت متأكد من إفراغ جميع مواد الأستاذ ' + tName + '؟')) {
+        document.getElementById('unassign_t_name').value = tName;
+        document.getElementById('form_unassign_teacher').submit();
+    }
+}
+
+// دالة النقر المزدوج (المادة)
+function unassignSubject(sName) {
+    if(confirm('هل أنت متأكد من إلغاء إسناد هذه المادة؟')) {
+        document.getElementById('unassign_s_name').value = sName;
+        document.getElementById('form_unassign_subject').submit();
+    }
+}
+
+// دالة البحث (تعمل على القائمتين)
+function filterList(inputId, listId) {
+    let input = document.getElementById(inputId).value.toLowerCase();
+    let listContainer = document.getElementById(listId);
+    let items = listContainer.children;
+
+    for (let i = 0; i < items.length; i++) {
+        let text = items[i].textContent || items[i].innerText;
+        if (text.toLowerCase().indexOf(input) > -1) {
+            items[i].style.display = "";
+        } else {
+            items[i].style.display = "none";
+        }
+    }
+}
+</script>
+{% endblock %}

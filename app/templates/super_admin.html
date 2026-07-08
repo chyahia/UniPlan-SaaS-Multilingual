@@ -161,8 +161,11 @@
 
                             <td><span style="background: #27ae60; color: white; padding: 3px 10px; border-radius: 12px; font-size: 12px;">نشط</span></td>
                             <td>
-                                <button onclick="resetPassword(${t.id}, '${t.name}')" style="background: #f39c12; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-family: inherit; font-size: 12px;">🔑 تغيير المرور</button>
-                                <button onclick="deleteTenant(${t.id}, '${t.name}')" style="background: #c0392b; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-family: inherit; font-size: 12px;">🗑️ حذف</button>
+                                <div style="display: flex; gap: 5px; flex-direction: column;">
+                                    <button onclick="editTenantName(${t.id}, '${t.name}')" style="background: #3498db; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-family: inherit; font-size: 12px;">✏️ تعديل الاسم</button>
+                                    <button onclick="resetPassword(${t.id}, '${t.name}')" style="background: #f39c12; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-family: inherit; font-size: 12px;">🔑 تغيير المرور</button>
+                                    <button onclick="deleteTenant(${t.id}, '${t.name}')" style="background: #c0392b; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-family: inherit; font-size: 12px;">🗑️ حذف</button>
+                                </div>
                             </td>
                         </tr>
                         `;
@@ -278,6 +281,31 @@
                 } else {
                     alert("❌ خطأ: " + data.error);
                 }
+            });
+        }
+
+        function editTenantName(tenantId, currentName) {
+            const newName = prompt(`أدخل الاسم الجديد للقسم بدلاً من "${currentName}":`, currentName);
+            
+            // التحقق من أن المستخدم لم يضغط "إلغاء" وأن الاسم ليس فارغاً ولم يبقَ كما هو
+            if (!newName || newName.trim() === "" || newName.trim() === currentName) return;
+
+            fetch(`/api/super_admin/tenant/${tenantId}/edit_name`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ new_name: newName.trim() })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.success) {
+                    alert("✅ " + data.message);
+                    loadSuperAdminData(); // إعادة تحميل الجدول لإظهار الاسم الجديد
+                } else {
+                    alert("❌ خطأ: " + data.error);
+                }
+            })
+            .catch(err => {
+                alert("حدث خطأ في الاتصال بالخادم");
             });
         }
 

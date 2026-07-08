@@ -3,15 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>نظام حراسة الامتحانات</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/exams_style.css') }}">
-    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+    <title>{% block title %}نظام الامتحانات الاستدراكية{% endblock %}</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css">
+    
     <style>
-        /* ✨ تحييد ملف exams_style.css بالكامل عن هذه العناصر ✨ */
-        body { margin: 0 !important; padding: 0 !important; background-color: #f8f9fa !important; }
+        /* ✨ تصفير الهوامش ليلتصق الشريط العلوي تماماً ✨ */
+        body { 
+            font-family: 'Tajawal', sans-serif !important; 
+            background-color: #f8f9fa !important; 
+            margin: 0 !important; 
+            padding: 0 !important; 
+        }
+
+        /* ✨ التنسيقات المنسوخة من البرنامج الأول (الشريط والتبويبات) ✨ */
+        #main-admin-header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1060; /* أعلى من مكونات البوتستراب */
+        }
         
-        /* التنسيقات المنسوخة من البرنامج الأول (الشريط والتبويبات) */
-        .global-header { display: flex; justify-content: space-between; padding: 10px 20px; background: #2c3e50; color: white; }
         .tabs-nav { 
             display: flex; 
             background: #ecf0f1; 
@@ -23,8 +42,8 @@
             white-space: nowrap;
             -webkit-overflow-scrolling: touch;
         }
-        
-        /* ✨ إجبار التبويبات على أخذ شكل البرنامج الأول وتجاهل الخط الأصفر ✨ */
+
+        /* أزرار التبويبات (تم تحويلها لتدعم الروابط a) */
         .tab-btn { 
             padding: 12px 20px !important; 
             border: none !important; 
@@ -36,6 +55,8 @@
             color: #2c3e50 !important; 
             border-radius: 0 !important; 
             outline: none !important;
+            text-decoration: none !important;
+            display: inline-block;
         }
         .tab-btn.active { 
             background: #3498db !important; 
@@ -51,7 +72,6 @@
         .header-btn {
             padding: 8px 15px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: bold; font-family: inherit; transition: 0.2s; color: white !important; text-decoration: none; display: inline-block; box-sizing: border-box; margin: 0 !important;
         }
-        .btn-green { background-color: #27ae60 !important; } .btn-green:hover { background-color: #2ecc71 !important; }
         .btn-blue { background-color: #2980b9 !important; } .btn-blue:hover { background-color: #3498db !important; }
         .btn-red { background-color: #e74c3c !important; } .btn-red:hover { background-color: #c0392b !important; }
 
@@ -67,7 +87,7 @@
         .dropdown-item {
             width: 100%; text-align: right; background: none; border: none; color: #2c3e50; 
             padding: 12px 16px; font-size: 14px; font-weight: bold; font-family: inherit; 
-            cursor: pointer; transition: background 0.2s; display: block;
+            cursor: pointer; transition: background 0.2s; display: block; text-decoration: none;
         }
         .dropdown-item:hover { background-color: #f1f2f6; color: #2980b9; }
         .show-dropdown { display: block; }
@@ -99,37 +119,33 @@
 </head>
 <body>
 
-    <header id="main-admin-header" style="background-color: #2c3e50; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 1000;">
+    <header id="main-admin-header">
         <div style="display: flex; align-items: center; justify-content: center; gap: 15px;">
             <img src="{{ url_for('static', filename='images/chy_logo.png') }}" 
                 alt="شعار المؤسسة" 
                 style="height: 45px; width: auto; object-fit: contain;">
-            <h1 style="margin: 0 !important; padding: 0 !important; font-size: 28px !important; font-weight: 900 !important; letter-spacing: 1px !important; color: #ffffff !important; line-height: 1.2 !important; border: none !important;">🎓 نظام حراسة الامتحانات</h1>
+            <h1 style="margin: 0 !important; padding: 0 !important; font-size: 28px !important; font-weight: 900 !important; letter-spacing: 1px !important; color: #ffffff !important; line-height: 1.2 !important; border: none !important;">📋 نظام الامتحانات الاستدراكية</h1>
         </div>
         
         <div id="admin-header-btns" style="display: flex; gap: 10px; align-items: center;">
-            
-            <button id="save-settings-btn" class="header-btn btn-green">💾 حفظ الإعدادات</button>
-            <button onclick="window.location.href='/'" class="header-btn btn-blue">🏠 العودة للبوابة</button>
-            <button onclick="window.location.href='/logout'" class="header-btn btn-red">🚪 خروج</button>
+            <a href="/" class="header-btn btn-blue">🏠 العودة للبوابة</a>
+            <a href="/logout" class="header-btn btn-red">🚪 خروج</a>
             
             <div class="dropdown">
                 <button class="dropbtn" onclick="toggleDropdown()" title="خيارات إضافية">⋮</button>
                 <div id="myDropdown" class="dropdown-content">
                     <button id="help-button" class="dropdown-item">❓ المساعدة ودليل الاستخدام</button>
                     <div style="border-top: 1px solid #ecf0f1; margin: 5px 0;"></div>
-                    <button id="unique-about-btn" class="dropdown-item">ℹ️ عن البرنامج</button>
-                    <span id="about-button" style="display: none;"></span>
+                    <button id="about-button" class="dropdown-item">ℹ️ عن البرنامج</button>
                 </div>
             </div>
-            
         </div>
     </header>
 
     <div id="aboutModal" style="display: none; position: fixed; z-index: 10001; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px);">
         <div style="background-color: #fff; margin: 10% auto; padding: 30px; width: 350px; border-radius: 12px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3); position: relative; color: #333; direction: rtl;">
             <span id="closeAboutBtn" style="position: absolute; top: 10px; left: 15px; font-size: 28px; font-weight: bold; color: #aaa; cursor: pointer;" onmouseover="this.style.color='#e74c3c'" onmouseout="this.style.color='#aaa'">&times;</span>
-            <h3 style="color: #2c3e50; margin-top: 0; margin-bottom: 10px; font-size: 22px;">نظام حراسة الامتحانات</h3>
+            <h3 style="color: #2c3e50; margin-top: 0; margin-bottom: 10px; font-size: 22px;">نظام الامتحانات الاستدراكية</h3>
             <p style="font-size: 15px; color: #7f8c8d; margin: 0;">الإصدار 2.0 (النسخة السحابية)</p>
             <hr style="border-top: 1px solid #ecf0f1; margin: 20px 0;">
             <p style="font-size: 16px; margin-bottom: 5px;">تم تصميم وتطوير هذا النظام بواسطة:</p>
@@ -139,46 +155,34 @@
     </div>
 
     <nav class="tabs-nav">
-        <button class="tab-btn tab-link active" onclick="openTab(event, 'tab1')">1. البيانات الأساسية</button>
-        <button class="tab-btn tab-link" onclick="openTab(event, 'tab2')">2. إدارة البيانات</button>
-        <button class="tab-btn tab-link" onclick="openTab(event, 'tab3')">3. الإسناد والقاعات</button>
-        <button class="tab-btn tab-link" onclick="openTab(event, 'tab4')">4. الأيام والأوقات</button>
-        <button class="tab-btn tab-link" onclick="openTab(event, 'tab5')">5. القيود والشروط</button>
-        <button class="tab-btn tab-link" onclick="openTab(event, 'tab6')">6. التوليد والتصدير</button>
-        <button class="tab-btn tab-link" onclick="openTab(event, 'tab7')">7. النسخ الاحتياطي</button>
+        <a href="{{ url_for('resit_exams.index') }}" class="tab-btn {% if request.endpoint == 'resit_exams.index' %}active{% endif %}">الرئيسية</a>
+        <a href="{{ url_for('resit_exams.manage_data') }}" class="tab-btn {% if request.endpoint == 'resit_exams.manage_data' %}active{% endif %}">1. إدخال البيانات</a>
+        <a href="{{ url_for('resit_exams.assign_subjects') }}" class="tab-btn {% if request.endpoint == 'resit_exams.assign_subjects' %}active{% endif %}">2. إسناد المواد</a>
+        <a href="{{ url_for('resit_exams.assign_rooms') }}" class="tab-btn {% if request.endpoint == 'resit_exams.assign_rooms' %}active{% endif %}">3. تخصيص القاعات</a>
+        <a href="{{ url_for('resit_exams.manage_schedule') }}" class="tab-btn {% if request.endpoint == 'resit_exams.manage_schedule' %}active{% endif %}">4. الأيام والأوقات</a>
+        <a href="{{ url_for('resit_exams.manage_constraints') }}" class="tab-btn {% if request.endpoint == 'resit_exams.manage_constraints' %}active{% endif %}">5. القيود والشروط</a>
+        <a href="{{ url_for('resit_exams.generate_schedule') }}" class="tab-btn {% if request.endpoint == 'resit_exams.generate_schedule' %}active{% endif %}">6. التوزيع والتصدير</a>
     </nav>
 
-    <main class="content-area" style="box-shadow: none !important; margin-top: 20px !important;">
-        <div class="content-container">
-            {% block content %}{% endblock %}
-        </div>
-    </main>
+    <div class="container mt-4">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show shadow-sm" role="alert">
+                        <strong>{{ message }}</strong>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
 
-    <div id="custom-modal" class="modal-overlay">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="modal-title" style="margin: 0; color: #3f51b5;">العنوان</h3>
-                <button class="close-modal-btn" onclick="closeCustomModal()">&times;</button>
-            </div>
-            <div class="modal-body" id="modal-body"></div>
-        </div>
+        {% block content %}
+        {% endblock %}
     </div>
 
-    <div id="notification-area"></div>
-
-    <script src="{{ url_for('static', filename='js/exams/main.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/exams/basic_data.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/exams/manage_data.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/exams/assignments.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/exams/times.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/exams/conditions.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/exams/generation.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/exams/system.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/exams/backup.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/exams/chart.min.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-        // دالة القائمة المنسدلة
         function toggleDropdown() {
             document.getElementById("myDropdown").classList.toggle("show-dropdown");
         }
@@ -186,7 +190,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             // تفعيل نافذة (عن البرنامج)
             var modal = document.getElementById("aboutModal");
-            var btn = document.getElementById("unique-about-btn");
+            var btn = document.getElementById("about-button");
             var span = document.getElementById("closeAboutBtn");
             
             if(btn && modal && span) {
@@ -212,40 +216,13 @@
                     }
                 }
             });
-
-            // ✨ فتح التبويب الأول تلقائياً عند الدخول للصفحة ✨
-            var activeBtn = document.querySelector(".tab-link.active");
-            if(activeBtn) { activeBtn.click(); }
-        });
-
-        // 🌟 الدالة المصححة للتبويبات (تتحكم في المحتوى والألوان معاً) 🌟
-        function openTab(evt, tabName) {
-            // 1. إخفاء محتوى جميع التبويبات
-            var tabcontents = document.getElementsByClassName("tab-content");
-            for (var i = 0; i < tabcontents.length; i++) {
-                tabcontents[i].style.display = "none";
-                tabcontents[i].classList.remove("active-tab");
-            }
             
-            // 2. إزالة لون التفعيل (active) من جميع الأزرار
-            var tablinks = document.getElementsByClassName("tab-link");
-            for (var i = 0; i < tablinks.length; i++) {
-                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            // تمرير شريط التبويبات تلقائياً ليظهر التبويب النشط في المنتصف للهواتف
+            var activeTab = document.querySelector('.tab-btn.active');
+            if (activeTab) {
+                activeTab.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
             }
-
-            // 3. إظهار محتوى التبويب الذي تم النقر عليه
-            var currentTab = document.getElementById(tabName);
-            if (currentTab) {
-                currentTab.style.display = "block";
-                currentTab.classList.add("active-tab");
-            }
-
-            // 4. تلوين الزر الذي تم النقر عليه
-            if (evt && evt.currentTarget) {
-                evt.currentTarget.className += " active";
-            }
-        }
+        });
     </script>
-
 </body>
 </html>

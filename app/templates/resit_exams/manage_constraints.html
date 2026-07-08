@@ -1,0 +1,259 @@
+{% extends 'resit_exams/base.html' %}
+
+{% block content %}
+<h2 class="text-center text-primary mb-4 border border-primary p-3 rounded bg-light">
+    القيود والشروط (الاستدراكية)
+</h2>
+
+<div class="alert alert-info shadow-sm mb-4">
+    💡 <strong>تنبيه:</strong> الخوارزمية تعطي الأولوية المطلقة لعدم تعارض المستويات (قيد صارم)، ثم لتجميع مواد الأساتذة ذوي الأولوية في أقل عدد من الأيام (أقوى قيد مرن).
+</div>
+
+<div class="row g-4 mb-5">
+    
+    <div class="col-md-6">
+        <div class="card border-danger shadow-sm h-100">
+            <div class="card-header bg-danger text-white fw-bold">❌ تعارض المستويات (قيد صارم)</div>
+            <div class="card-body">
+                <form method="POST" class="mb-3">
+                    <input type="hidden" name="action" value="add_incompatible">
+                    <div class="d-flex gap-2 mb-2">
+                        <select class="form-select" name="level1" required>
+                            <option value="">المستوى الأول...</option>
+                            {% for l in db.levels %}<option value="{{ l }}">{{ l }}</option>{% endfor %}
+                        </select>
+                        <select class="form-select" name="level2" required>
+                            <option value="">المستوى الثاني...</option>
+                            {% for l in db.levels %}<option value="{{ l }}">{{ l }}</option>{% endfor %}
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-outline-danger w-100 fw-bold">➕ إضافة قيد تعارض</button>
+                </form>
+                <hr>
+                <ul class="list-group">
+                    {% for pair in c_db.incompatible_levels %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>{{ pair[0] }} <strong>ضد</strong> {{ pair[1] }}</span>
+                        <form method="POST" class="m-0">
+                            <input type="hidden" name="action" value="del_incompatible">
+                            <input type="hidden" name="idx" value="{{ loop.index0 }}">
+                            <button type="submit" class="btn btn-sm btn-danger border-0">حذف</button>
+                        </form>
+                    </li>
+                    {% else %}<li class="list-group-item text-muted text-center">لا توجد قيود مسجلة</li>{% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card border-success shadow-sm h-100">
+            <div class="card-header bg-success text-white fw-bold">🌟 أساتذة ذوو أولوية (تجميع الأيام)</div>
+            <div class="card-body">
+                <div class="d-flex flex-column gap-2 mb-3">
+                    <form method="POST" class="d-flex gap-2 m-0 w-100">
+                        <input type="hidden" name="action" value="add_prioritized">
+                        <select class="form-select" name="teacher" required>
+                            <option value="">اختر أستاذاً...</option>
+                            {% for t in db.teachers %}
+                                {% if t not in c_db.prioritized_teachers %}
+                                    <option value="{{ t }}">{{ t }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                        <button type="submit" class="btn btn-outline-success fw-bold text-nowrap">➕ إضافة</button>
+                    </form>
+                    
+                    <form method="POST" class="m-0 w-100">
+                        <input type="hidden" name="action" value="add_all_prioritized">
+                        <button type="submit" class="btn btn-sm btn-success fw-bold w-100 py-1" onclick="return confirm('هل أنت متأكد من إضافة جميع الأساتذة المتبقين إلى قائمة الأولوية دفعة واحدة؟');">
+                            ✨ إضافة كل الأساتذة المتبقين دفعة واحدة
+                        </button>
+                    </form>
+                </div>
+                <hr>
+                
+                <div style="max-height: 250px; overflow-y: auto; scrollbar-width: thin;" class="border rounded p-2 bg-light shadow-inner">
+                    <ul class="list-group">
+                        {% for t in c_db.prioritized_teachers %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center mb-1 border">
+                            <span class="fw-bold">{{ t }}</span>
+                            <form method="POST" class="m-0">
+                                <input type="hidden" name="action" value="del_prioritized">
+                                <input type="hidden" name="teacher" value="{{ t }}">
+                                <button type="submit" class="btn btn-sm btn-danger border-0 shadow-sm">حذف</button>
+                            </form>
+                        </li>
+                        {% else %}
+                        <li class="list-group-item text-muted text-center bg-transparent border-0">لا توجد قيود مسجلة</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card border-primary shadow-sm h-100">
+            <div class="card-header bg-primary text-white fw-bold">🚗 المرافقة (سيارة واحدة)</div>
+            <div class="card-body">
+                <form method="POST" class="mb-3">
+                    <input type="hidden" name="action" value="add_carpool">
+                    <div class="d-flex gap-2 mb-2">
+                        <select class="form-select" name="t1" required>
+                            <option value="">الأستاذ الأول...</option>
+                            {% for t in db.teachers %}<option value="{{ t }}">{{ t }}</option>{% endfor %}
+                        </select>
+                        <select class="form-select" name="t2" required>
+                            <option value="">الأستاذ الثاني...</option>
+                            {% for t in db.teachers %}<option value="{{ t }}">{{ t }}</option>{% endfor %}
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-outline-primary w-100 fw-bold">➕ إضافة قيد مرافقة</button>
+                </form>
+                <hr>
+                <ul class="list-group">
+                    {% for pair in c_db.carpool_pairs %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>{{ pair[0] }} <strong>مع</strong> {{ pair[1] }}</span>
+                        <form method="POST" class="m-0">
+                            <input type="hidden" name="action" value="del_carpool">
+                            <input type="hidden" name="idx" value="{{ loop.index0 }}">
+                            <button type="submit" class="btn btn-sm btn-danger border-0">حذف</button>
+                        </form>
+                    </li>
+                    {% else %}<li class="list-group-item text-muted text-center">لا توجد قيود مسجلة</li>{% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card border-secondary shadow-sm h-100">
+            <div class="card-header bg-secondary text-white fw-bold">⚡ قيد الانفصال (لا يشتركان في يوم)</div>
+            <div class="card-body">
+                <form method="POST" class="mb-3">
+                    <input type="hidden" name="action" value="add_conflict">
+                    <div class="d-flex gap-2 mb-2">
+                        <select class="form-select" name="t1" required>
+                            <option value="">الأستاذ الأول...</option>
+                            {% for t in db.teachers %}<option value="{{ t }}">{{ t }}</option>{% endfor %}
+                        </select>
+                        <select class="form-select" name="t2" required>
+                            <option value="">الأستاذ الثاني...</option>
+                            {% for t in db.teachers %}<option value="{{ t }}">{{ t }}</option>{% endfor %}
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-outline-secondary w-100 fw-bold">➕ إضافة قيد انفصال</button>
+                </form>
+                <hr>
+                <ul class="list-group">
+                    {% for pair in c_db.conflict_pairs %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>{{ pair[0] }} <strong>عكس</strong> {{ pair[1] }}</span>
+                        <form method="POST" class="m-0">
+                            <input type="hidden" name="action" value="del_conflict">
+                            <input type="hidden" name="idx" value="{{ loop.index0 }}">
+                            <button type="submit" class="btn btn-sm btn-danger border-0">حذف</button>
+                        </form>
+                    </li>
+                    {% else %}<li class="list-group-item text-muted text-center">لا توجد قيود مسجلة</li>{% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-12">
+        <div class="card border-warning shadow-sm h-100">
+            <div class="card-header bg-warning text-dark fw-bold">😴 إعفاء من الحصة الأولى في كل الأيام</div>
+            <div class="card-body">
+                <form method="POST" class="mb-3 d-flex gap-2">
+                    <input type="hidden" name="action" value="add_no_first">
+                    <select class="form-select w-50" name="teacher" required>
+                        <option value="">اختر أستاذاً للإعفاء...</option>
+                        {% for t in db.teachers %}<option value="{{ t }}">{{ t }}</option>{% endfor %}
+                    </select>
+                    <button type="submit" class="btn btn-outline-warning text-dark fw-bold text-nowrap">➕ إضافة إعفاء</button>
+                </form>
+                <hr>
+                <div class="d-flex flex-wrap gap-2">
+                    {% for t in c_db.no_first_slot_teachers %}
+                    <div class="badge bg-light text-dark border p-2 d-flex align-items-center gap-2" style="font-size: 15px;">
+                        {{ t }}
+                        <form method="POST" class="m-0">
+                            <input type="hidden" name="action" value="del_no_first">
+                            <input type="hidden" name="teacher" value="{{ t }}">
+                            <button type="submit" class="btn btn-sm text-danger p-0 m-0 border-0 bg-transparent" title="إلغاء الإعفاء">❌</button>
+                        </form>
+                    </div>
+                    {% else %}<div class="text-muted text-center w-100">لا توجد إعفاءات مسجلة</div>{% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 mt-4">
+        <div class="card border-dark shadow-lg">
+            <div class="card-header bg-dark text-white fw-bold fs-5">
+                🛡️ إدارة مجموعات العزل (تشفير الفترات الاحتياطية)
+            </div>
+            <div class="card-body bg-light">
+                <div class="alert alert-secondary border-secondary shadow-sm">
+                    <strong>💡 القاعدة الذهبية:</strong> أي مستوى تضعه في مجموعة سيقوم باحتكار فترته الاحتياطية لمجموعته فقط. <br>
+                    <strong>🃏 المستوى الجوكر:</strong> المستويات التي لا تنتمي لأي مجموعة (حرة) يمكنها دخول أي فترة احتياطية لأي مجموعة دون أن تطرد أحداً.
+                </div>
+                
+                <form method="POST" class="mb-4 border border-secondary p-3 bg-white rounded shadow-sm">
+                    <input type="hidden" name="action" value="add_isolation_group">
+                    <div class="row align-items-center">
+                        <div class="col-md-3 mb-2 mb-md-0">
+                            <input type="text" class="form-control border-dark" name="group_name" placeholder="اسم المجموعة (مثال: مجموعة 1)" required>
+                        </div>
+                        <div class="col-md-7 mb-2 mb-md-0">
+                            <div class="d-flex flex-wrap gap-2">
+                                {% for l in db.levels %}
+                                <div class="form-check border border-secondary bg-light px-2 py-1 rounded" style="cursor: pointer;">
+                                    <input class="form-check-input ms-1 border-dark" type="checkbox" name="group_levels" value="{{ l }}" id="ig_{{ loop.index }}">
+                                    <label class="form-check-label fw-bold" for="ig_{{ loop.index }}" style="cursor: pointer;">{{ l }}</label>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-dark w-100 fw-bold">➕ إنشاء المجموعة</button>
+                        </div>
+                    </div>
+                </form>
+
+                <h5 class="fw-bold mb-3 border-bottom pb-2">المجموعات المعزولة حالياً:</h5>
+                <div class="row g-3">
+                    {% for g_name, g_levels in c_db.get('isolation_groups', {}).items() %}
+                    <div class="col-md-4">
+                        <div class="card border-dark h-100 shadow-sm">
+                            <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center py-2">
+                                <span class="fw-bold fs-6">{{ g_name }}</span>
+                                <form method="POST" class="m-0" onsubmit="return confirm('هل أنت متأكد من حذف هذه المجموعة؟ ستصبح مستوياتها حرة.');">
+                                    <input type="hidden" name="action" value="del_isolation_group">
+                                    <input type="hidden" name="group_name" value="{{ g_name }}">
+                                    <button type="submit" class="btn btn-sm text-white p-0 m-0 border-0 bg-transparent" title="فك العزل وحذف المجموعة">❌</button>
+                                </form>
+                            </div>
+                            <div class="card-body py-3">
+                                <div class="d-flex flex-wrap gap-2">
+                                    {% for l in g_levels %}
+                                    <span class="badge bg-dark fs-6">{{ l }}</span>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="text-center text-muted fw-bold w-100 py-3">لا توجد مجموعات عزل مسجلة حالياً. (جميع المستويات عبارة عن "جوكر" حرة).</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

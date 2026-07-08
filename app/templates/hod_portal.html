@@ -10,6 +10,8 @@
             --hover-teaching: #e67e22;
             --primary-exams: #3f51b5;
             --hover-exams: #303f9f;
+            --primary-resit: #27ae60;   /* 🌟 لون البطاقة الثالثة (أخضر زمردي) */
+            --hover-resit: #2ecc71;
             --bg-color: #f4f7f6;
             --text-main: #2c3e50;
             --text-muted: #7f8c8d;
@@ -28,7 +30,7 @@
 
         .portal-container {
             text-align: center;
-            max-width: 1000px;
+            max-width: 1200px; /* تم التوسيع ليتسع لـ 3 بطاقات بأريحية */
             width: 100%;
             padding: 20px;
         }
@@ -51,7 +53,7 @@
 
         .cards-wrapper {
             display: flex;
-            gap: 40px;
+            gap: 30px;
             justify-content: center;
             flex-wrap: wrap;
         }
@@ -60,7 +62,7 @@
             background: #fff;
             border-radius: 16px;
             padding: 40px 30px;
-            width: 350px;
+            width: 320px; /* تم تصغير العرض قليلاً ليتناسق مع 3 بطاقات */
             box-shadow: 0 10px 30px rgba(0,0,0,0.08);
             transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease;
             text-decoration: none;
@@ -79,58 +81,44 @@
         }
 
         /* تنسيق بطاقة التدريس */
-        .system-card.teaching {
-            border-top-color: var(--primary-teaching);
-        }
-        .system-card.teaching .card-icon {
-            background: rgba(243, 156, 18, 0.1);
-            color: var(--primary-teaching);
-        }
-        .system-card.teaching .card-btn {
-            background: var(--primary-teaching);
-        }
-        .system-card.teaching:hover .card-btn {
-            background: var(--hover-teaching);
-            transform: scale(1.05);
-        }
+        .system-card.teaching { border-top-color: var(--primary-teaching); }
+        .system-card.teaching .card-icon { background: rgba(243, 156, 18, 0.1); color: var(--primary-teaching); }
+        .system-card.teaching .card-btn { background: var(--primary-teaching); }
+        .system-card.teaching:hover .card-btn { background: var(--hover-teaching); transform: scale(1.05); }
 
-        /* تنسيق بطاقة الامتحانات */
-        .system-card.exams {
-            border-top-color: var(--primary-exams);
-        }
-        .system-card.exams .card-icon {
-            background: rgba(63, 81, 181, 0.1);
-            color: var(--primary-exams);
-        }
-        .system-card.exams .card-btn {
-            background: var(--primary-exams);
-        }
-        .system-card.exams:hover .card-btn {
-            background: var(--hover-exams);
-            transform: scale(1.05);
-        }
+        /* تنسيق بطاقة الامتحانات السداسية */
+        .system-card.exams { border-top-color: var(--primary-exams); }
+        .system-card.exams .card-icon { background: rgba(63, 81, 181, 0.1); color: var(--primary-exams); }
+        .system-card.exams .card-btn { background: var(--primary-exams); }
+        .system-card.exams:hover .card-btn { background: var(--hover-exams); transform: scale(1.05); }
+
+        /* تنسيق بطاقة الامتحانات الاستدراكية */
+        .system-card.resit { border-top-color: var(--primary-resit); }
+        .system-card.resit .card-icon { background: rgba(39, 174, 96, 0.1); color: var(--primary-resit); }
+        .system-card.resit .card-btn { background: var(--primary-resit); }
+        .system-card.resit:hover .card-btn { background: var(--hover-resit); transform: scale(1.05); }
 
         .card-icon {
-            width: 90px;
-            height: 90px;
+            width: 80px;
+            height: 80px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 45px;
-            margin-bottom: 25px;
+            font-size: 40px;
+            margin-bottom: 20px;
             transition: all 0.3s ease;
         }
 
         .card-title {
-            font-size: 24px;
+            font-size: 22px;
             font-weight: bold;
             margin-bottom: 15px;
             color: var(--text-main);
         }
 
         .card-desc {
-            font-size: 15px;
+            font-size: 14px;
             color: var(--text-muted);
             line-height: 1.6;
             margin-bottom: 30px;
@@ -144,12 +132,12 @@
             color: #fff;
             text-decoration: none;
             transition: all 0.3s ease;
-            font-size: 16px;
+            font-size: 15px;
             width: 80%;
         }
 
         .logout-wrapper {
-            margin-top: 60px;
+            margin-top: 50px;
         }
 
         .logout-btn {
@@ -202,14 +190,30 @@
             {% if tenant.has_exams %}
             <a href="/exams" class="system-card exams">
                 <div class="card-icon">🎓</div>
-                <div class="card-title">نظام حراسة الامتحانات</div>
+                <div class="card-title">حراسة الامتحانات (السداسية)</div>
                 <div class="card-desc">سحب الأساتذة من التدريس، توزيع الحراسات، تحقيق التوازن العادل، وتوليد جداول الامتحانات النهائية.</div>
                 <div class="card-btn">الدخول للنظام</div>
             </a>
             {% else %}
             <div class="system-card" style="opacity: 0.6; filter: grayscale(100%); cursor: not-allowed; border-top-color: #95a5a6;">
                 <div class="card-icon" style="background: #ecf0f1; color: #7f8c8d;">🔒</div>
-                <div class="card-title" style="color: #7f8c8d;">نظام حراسة الامتحانات</div>
+                <div class="card-title" style="color: #7f8c8d;">حراسة الامتحانات (السداسية)</div>
+                <div class="card-desc">هذا النظام غير مفعل لقسمك حالياً. يرجى التواصل مع الإدارة المركزية لتفعيله.</div>
+                <div class="card-btn" style="background: #95a5a6;">غير مصرح</div>
+            </div>
+            {% endif %}
+
+            {% if tenant.has_exams %}
+            <a href="/resit_exams/" class="system-card resit">
+                <div class="card-icon">♻️</div>
+                <div class="card-title">الامتحانات الاستدراكية</div>
+                <div class="card-desc">إدارة حراسات الاستدراكي مع استيراد سريع للبيانات المشتركة، وتوزيع مخصص يتناسب مع معايير الأولوية للأساتذة.</div>
+                <div class="card-btn">الدخول للنظام</div>
+            </a>
+            {% else %}
+            <div class="system-card" style="opacity: 0.6; filter: grayscale(100%); cursor: not-allowed; border-top-color: #95a5a6;">
+                <div class="card-icon" style="background: #ecf0f1; color: #7f8c8d;">🔒</div>
+                <div class="card-title" style="color: #7f8c8d;">الامتحانات الاستدراكية</div>
                 <div class="card-desc">هذا النظام غير مفعل لقسمك حالياً. يرجى التواصل مع الإدارة المركزية لتفعيله.</div>
                 <div class="card-btn" style="background: #95a5a6;">غير مصرح</div>
             </div>
@@ -243,7 +247,7 @@
                     }
                 })
                 .catch(err => {
-                    // في حال انقطع الاتصال فوراً بسبب استجابة الخادم السريعة
+                    // في حال انقطع الاتصال فوراً بسبب استجابة الخادم السريعة للإغلاق
                     document.body.innerHTML = "<h2 style='text-align:center; margin-top:20%; color:#2c3e50;'>تم إيقاف النظام بنجاح. يمكنك الآن إغلاق هذه النافذة بأمان.</h2>";
                 });
             }

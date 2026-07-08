@@ -46,13 +46,16 @@ def create_app():
         if "Program Files" in base_dir or "ProgramFiles" in base_dir:
             # توجيه قاعدة البيانات إلى مجلد AppData/Roaming الآمن
             appdata = os.environ.get('APPDATA')
-            db_dir = os.path.join(appdata, 'UniPlanSaaS') # سيتم إنشاء مجلد بهذا الاسم
+            db_dir = os.path.join(appdata, 'UniPlanSaaS') 
             if not os.path.exists(db_dir):
                 os.makedirs(db_dir)
             return os.path.join(db_dir, 'saas_database.db')
         else:
-            # إنشاء قاعدة البيانات بجوار الملف التنفيذي مباشرة
-            return os.path.join(base_dir, 'saas_database.db')
+            # ✨ التعديل هنا: توجيه المسار إلى مجلد instance كما كان في السابق
+            instance_dir = os.path.join(base_dir, 'instance')
+            if not os.path.exists(instance_dir):
+                os.makedirs(instance_dir)
+            return os.path.join(instance_dir, 'saas_database.db')
             
     # توليد المسار النهائي
     db_path = get_db_path()
@@ -153,7 +156,13 @@ def create_app():
     app.register_blueprint(exams_export_bp)
 
     # ==========================================
-    # 🌟 مسار الإغلاق الآمن للنظام (يعمل فقط في وضع سطح المكتب)
+    # 🌟 تسجيل مسارات برنامج الامتحانات الاستدراكية
+    # ==========================================
+    from .routes.resit_exams_routes import resit_exams_bp
+    app.register_blueprint(resit_exams_bp)
+
+    # ==========================================
+    # 🌟 مسار الإغلاق الآمن للنظام (يعمل في وضع سطح المكتب و VS Code)
     # ==========================================
     @app.route('/shutdown', methods=['POST'])
     def shutdown():
@@ -161,12 +170,20 @@ def create_app():
         import subprocess
         import threading
         
-        # التحقق من أن النظام يعمل في بيئة سطح المكتب
+        # التحقق من أن النظام يعمل في بيئة سطح المكتب أو التطوير المحلي
         if app.config.get('APP_MODE') == 'desktop':
             
-            # دالة الإغلاق الشامل لشجرة العمليات (البرنامج الرئيسي + السيليري)
-            def terminate_process_tree():
-                # استخدام أمر الويندوز لقتل العملية وأبنائها بشكل نظيف ومخفي
+            # دالة الإغلاق الشامل
+            def terminate_all_processes():
+                # 1. قنص وإغلاق خادم المهام (Celery) بالاسم أينما كان
+                subprocess.run(
+                    ['taskkill', '/F', '/IM', 'celery.exe'],
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                    creationflags=subprocess.CREATE_NO_WINDOW
+                )
+                
+                # 2. إغلاق البرنامج الرئيسي (Flask) وشجرة عملياته
                 subprocess.run(
                     ['taskkill', '/F', '/T', '/PID', str(os.getpid())],
                     stdout=subprocess.DEVNULL,
@@ -174,14 +191,13 @@ def create_app():
                     creationflags=subprocess.CREATE_NO_WINDOW
                 )
 
-            # نضبط مؤقت زمني لثانية واحدة:
-            # لكي نعطي فرصة للخادم ليرد على المتصفح بـ (success: True) أولاً
-            # ثم يقوم بالانتحار وإغلاق كل شيء.
-            threading.Timer(1.0, terminate_process_tree).start()
+            # نضبط مؤقت زمني لثانية واحدة لكي يرد الخادم على المتصفح أولاً
+            threading.Timer(1.0, terminate_all_processes).start()
             
             return jsonify({"success": True})
         
         # إذا كان على استضافة حقيقية، نرفض طلب الإغلاق
         return jsonify({"success": False, "error": "ميزة الإغلاق معطلة في النسخة السحابية الحية."}), 403
 
+    
     return app

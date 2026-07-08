@@ -1,0 +1,232 @@
+{% extends 'resit_exams/base.html' %}
+
+{% block content %}
+<h2 class="text-center text-primary mb-4 border border-primary p-3 rounded bg-light">
+    التوزيع الذكي والتصدير
+</h2>
+
+<div class="card shadow-sm border-primary mb-5">
+    <div class="card-body p-4">
+        <form id="solverForm">
+            {% set c_dict = db.get('constraints', {}) %}
+            {% set saved_algo = c_dict.get('algo_choice', 'lns') %}
+            {% set saved_strategy = c_dict.get('strategy', 'teacher') %}
+            
+            <h5 class="fw-bold mb-3">🧠 اختر نوع الخوارزمية:</h5>
+            <div class="d-flex gap-4 mb-3">
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="algo_choice" id="algo_single" value="single" onchange="toggleLnsSettings()" {% if saved_algo == 'single' %}checked{% endif %}>
+                    <label class="form-check-label" for="algo_single">
+                        المسار الواحد (سريعة جداً)
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="algo_choice" id="algo_lns" value="lns" onchange="toggleLnsSettings()" {% if saved_algo == 'lns' %}checked{% endif %}>
+                    <label class="form-check-label fw-bold text-success" for="algo_lns">
+                        LNS للبحث العميق (موصى به)
+                    </label>
+                </div>
+            </div>
+
+            <div id="lnsSettings" class="alert alert-success border-success mb-4 p-3" {% if saved_algo == 'lns' %}style="display: block;"{% else %}style="display: none;"{% endif %}>
+                <h6 class="fw-bold mb-3">⚙️ إعدادات خوارزمية LNS (البحث العميق):</h6>
+                <div class="row align-items-center">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label text-dark fw-bold">⏳ مدة البحث الأقصى (ثواني):</label>
+                        <input type="number" class="form-control" id="lns_duration" name="lns_duration" value="{{ c_dict.get('duration', 10) }}" min="1" max="300" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label text-dark fw-bold">💥 نسبة التدمير (%):</label>
+                        <input type="number" class="form-control" id="lns_destruction" name="lns_destruction" value="{{ c_dict.get('destruction_rate', 20) }}" min="1" max="99" required>
+                    </div>
+                    <div class="col-12">
+                        <small class="text-muted d-block">
+                            📌 <strong>تلميح:</strong> نسبة التدمير تحدد حجم "تخريب" الجدول في كل محاولة لإعادة بنائه بشكل أفضل (ينصح بقيمة بين 15% و 30%).
+                        </small>
+                    </div>
+                </div>
+            </div>
+
+            <h5 class="fw-bold mb-3 mt-4">🎯 استراتيجية التوزيع:</h5>
+            <div class="d-flex flex-column gap-2 mb-4">
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="strategy" id="strat_teacher" value="teacher" {% if saved_strategy == 'teacher' %}checked{% endif %}>
+                    <label class="form-check-label" for="strat_teacher">👨‍🏫 تفضيل تجميع مواد الأستاذ</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="strategy" id="strat_student" value="student" {% if saved_strategy == 'student' %}checked{% endif %}>
+                    <label class="form-check-label" for="strat_student">🎓 تفضيل تفادي تشتت الطلبة</label>
+                </div>
+            </div>
+
+            <button type="button" class="btn btn-primary btn-lg w-100 fw-bold shadow-sm" onclick="startSolver()" id="btnStart">
+                🚀 بدء التوزيع وسجل المتابعة الحي
+            </button>
+        </form>
+    </div>
+</div>
+
+<div class="card shadow-lg border-warning mb-5" id="progressSection" style="display: none;">
+    <div class="card-header bg-warning text-dark fs-5 fw-bold text-center">
+        ⏳ سجل المتابعة الحي لعملية التوزيع...
+    </div>
+    <div class="card-body p-4 bg-light">
+        
+        <div class="mb-2 fw-bold text-dark text-start">🖥️ شاشة المتابعة الحية لمحرك البحث (Terminal View):</div>
+        <div id="terminal_box" class="p-3 rounded mb-4 shadow-sm" style="height: 200px; overflow-y: auto; background-color: #0a0e14 !important; color: #39ff14 !important; font-family: 'Courier New', Courier, monospace; font-size: 13px; text-align: right; direction: rtl; border: 2px solid #1a2332;">
+            <div id="terminal_content"></div>
+        </div>
+
+        <div class="progress mb-4 shadow-sm" style="height: 25px;">
+            <div id="progressBar" class="progress-bar progress-bar-striped progress-bar-animated bg-success" role="progressbar" style="width: 0%; font-size: 16px; font-weight: bold;">0%</div>
+        </div>
+        
+        <div class="row text-center mt-2">
+            <div class="col-4 border-end">
+                <h6 class="text-danger fw-bold">❌ نقص (مواد غير مبرمجة)</h6>
+                <h3 id="unassignedCount" class="text-danger">0</h3>
+            </div>
+            <div class="col-4 border-end">
+                <h6 class="text-danger fw-bold">❌ تعارضات (قيود صارمة)</h6>
+                <h3 id="hardCount" class="text-danger">0</h3>
+            </div>
+            <div class="col-4">
+                <h6 class="text-warning fw-bold">⚠️ تشتت (قيود مرنة)</h6>
+                <h3 id="softCount" class="text-warning">0</h3>
+            </div>
+        </div>
+        <p class="text-center text-muted mt-3 mb-0 fw-bold" id="timeLog">الوقت المنقضي: 0.0 ثانية</p>
+    </div>
+</div>
+
+{% if app_state and app_state.get('is_generated') %}
+    <div class="card shadow-lg border-success mb-5" id="resultsSection">
+        <div class="card-header bg-success text-white fs-4 fw-bold text-center">🎉 اكتمل التوزيع بنجاح!</div>
+        <div class="card-body p-4">
+            {% set violations = app_state.get('violations', []) %}
+            {% if violations %}
+                <div class="alert alert-warning shadow-sm">
+                    <h5 class="fw-bold">⚠️ انتهى التوزيع مع وجود ({{ violations|length }}) قيود لم تتحقق:</h5>
+                    <ul class="mb-0 mt-2">{% for v in violations %}<li>{{ v }}</li>{% endfor %}</ul>
+                </div>
+            {% else %}
+                <div class="alert alert-success shadow-sm text-center">
+                    <h5 class="fw-bold m-0">✨ اكتمل التوزيع بمثالية! 100% من القيود محققة.</h5>
+                </div>
+            {% endif %}
+
+            <hr class="my-4">
+            <h4 class="mb-4 text-center text-secondary fw-bold">📥 تصدير الجداول</h4>
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <a href="{{ url_for('resit_exams.download_doc', doc_type='levels') }}" class="btn btn-outline-primary btn-lg w-100 fw-bold">📄 جداول المستويات</a>
+                </div>
+                <div class="col-md-6">
+                    <a href="{{ url_for('resit_exams.download_doc', doc_type='teachers') }}" class="btn btn-outline-success btn-lg w-100 fw-bold">👨‍🏫 جداول الأساتذة</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });</script>
+{% endif %}
+
+<script>
+    function toggleLnsSettings() {
+        const isLns = document.getElementById('algo_lns').checked;
+        document.getElementById('lnsSettings').style.display = isLns ? 'block' : 'none';
+    }
+
+    let pollInterval;
+    let lastUnassigned = -1, lastHard = -1, lastSoft = -1, lastElapsed = -1;
+    let isStartedPrinted = false;
+
+    function startSolver() {
+        document.getElementById('btnStart').disabled = true;
+        document.getElementById('progressSection').style.display = 'block';
+        if(document.getElementById('resultsSection')) {
+            document.getElementById('resultsSection').style.display = 'none';
+        }
+
+        lastUnassigned = -1; lastHard = -1; lastSoft = -1; lastElapsed = -1;
+        isStartedPrinted = false;
+        let terminal = document.getElementById('terminal_content');
+        if (terminal) {
+            terminal.innerHTML = `<div>&gt; [SYSTEM] النظام في حالة جاهزية كاملة...</div><div>&gt; [SYSTEM] بانتظار إطلاق الخوارزمية لبدء معالجة التعارضات وتجميع الإسناد...</div>`;
+        }
+
+        const data = {
+            algo_choice: document.getElementById('algo_lns').checked ? 'lns' : 'single',
+            strategy: document.getElementById('strat_teacher').checked ? 'teacher' : 'student',
+            duration: parseInt(document.getElementById('lns_duration').value),
+            destruction_rate: parseInt(document.getElementById('lns_destruction').value)
+        };
+
+        // 🌟 تم تحديث مسار الـ fetch ليستخدم url_for 🌟
+        fetch('{{ url_for("resit_exams.start_solver") }}', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        }).then(response => {
+            pollInterval = setInterval(() => {
+                // 🌟 تم تحديث مسار التتبع ليستخدم url_for 🌟
+                fetch('{{ url_for("resit_exams.get_solver_progress") }}')
+                .then(r => r.json())
+                .then(prog => {
+                    let pct = 0;
+                    if(prog.duration > 0) {
+                        pct = Math.min(100, Math.round((prog.elapsed / prog.duration) * 100));
+                    }
+                    document.getElementById('progressBar').style.width = pct + '%';
+                    document.getElementById('progressBar').innerText = pct + '%';
+                    
+                    document.getElementById('unassignedCount').innerText = prog.unassigned;
+                    document.getElementById('hardCount').innerText = prog.hard;
+                    document.getElementById('softCount').innerText = prog.soft;
+                    document.getElementById('timeLog').innerText = `الوقت المنقضي: ${prog.elapsed.toFixed(1)} / ${prog.duration} ثانية`;
+
+                    if (terminal) {
+                        if (prog.elapsed > 0 && !isStartedPrinted) {
+                            terminal.innerHTML += `<div style="color: #00ffff; margin-top: 5px;">&gt; [START] تم إطلاق خوارزمية LNS بنجاح... جاري بناء الحل الأولي...</div>`;
+                            isStartedPrinted = true;
+                        }
+
+                        if (prog.elapsed !== lastElapsed || prog.unassigned !== lastUnassigned || prog.hard !== lastHard || prog.soft !== lastSoft) {
+                            let minutes = Math.floor(prog.elapsed / 60).toString().padStart(2, '0');
+                            let seconds = Math.floor(prog.elapsed % 60).toString().padStart(2, '0');
+                            let timeStr = `${minutes}:${seconds}`;
+
+                            if (prog.elapsed > 0 && !prog.done) {
+                                let logLine = `&gt; [توقيت ${timeStr}] 🤖 جاري التحسين واختزال الأخطاء &gt;&gt; نقص: <span class="text-danger fw-bold">${prog.unassigned}</span> | صارم: <span class="text-danger fw-bold">${prog.hard}</span> | مرن: <span style="color: #ffc107;">${prog.soft}</span>`;
+                                terminal.innerHTML += `<div>${logLine}</div>`;
+                            }
+
+                            if (prog.done) {
+                                let finalLine = `<div style="color: #ffff00; font-weight: bold; margin-top: 5px;">&gt; [SUCCESS] [توقيت ${timeStr}] 🎉 اكتملت عملية التوزيع بنجاح تام! تم حفظ الجدول.</div>`;
+                                terminal.innerHTML += finalLine;
+                            }
+
+                            let terminalBox = document.getElementById('terminal_box');
+                            if (terminalBox) terminalBox.scrollTop = terminalBox.scrollHeight;
+
+                            lastUnassigned = prog.unassigned;
+                            lastHard = prog.hard;
+                            lastSoft = prog.soft;
+                            lastElapsed = prog.elapsed;
+                        }
+                    }
+
+                    if (prog.done) {
+                        clearInterval(pollInterval);
+                        if(prog.error) {
+                            alert("حدث خطأ: " + prog.error);
+                            document.getElementById('btnStart').disabled = false;
+                        } else {
+                            setTimeout(() => { window.location.reload(); }, 1500); 
+                        }
+                    }
+                });
+            }, 500);
+        });
+    }
+</script>
+{% endblock %}

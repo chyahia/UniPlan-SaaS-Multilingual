@@ -135,7 +135,40 @@ def reset_tenant_password(tenant_id):
         db.session.rollback()
         return jsonify({"error": str(e)}), 500
     
-# 5. مسار تغيير بيانات دخول المدير العام (Super Admin)
+# 5. مسار تعديل اسم القسم
+@super_admin_bp.route('/api/super_admin/tenant/<int:tenant_id>/edit_name', methods=['POST'])
+def edit_tenant_name(tenant_id):
+    if session.get('role') != 'super_admin':
+        return jsonify({"error": "غير مصرح"}), 403
+        
+    data = request.json
+    new_name = data.get('new_name')
+    
+    if not new_name or not new_name.strip():
+        return jsonify({"error": "اسم القسم مطلوب"}), 400
+        
+    new_name = new_name.strip()
+    
+    try:
+        # التأكد من أن الاسم الجديد غير محجوز لقسم آخر
+        existing_tenant = Tenant.query.filter_by(name=new_name).first()
+        if existing_tenant and existing_tenant.id != tenant_id:
+            return jsonify({"error": "اسم القسم هذا موجود مسبقاً، يرجى اختيار اسم آخر."}), 400
+            
+        tenant = Tenant.query.get(tenant_id)
+        if not tenant:
+            return jsonify({"error": "القسم غير موجود"}), 404
+            
+        # تحديث الاسم
+        tenant.name = new_name
+        db.session.commit()
+        
+        return jsonify({"success": True, "message": "تم تعديل اسم القسم بنجاح."})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+
+# 6. مسار تغيير بيانات دخول المدير العام (Super Admin)
 @super_admin_bp.route('/api/super_admin/change_credentials', methods=['POST'])
 def change_super_admin_credentials():
     if session.get('role') != 'super_admin':

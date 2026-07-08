@@ -167,3 +167,10 @@ class ExamSetting(db.Model):
     tenant_id = db.Column(db.Integer, db.ForeignKey('tenants.id'), nullable=False)
     key = db.Column(db.String(50), nullable=False)
     value = db.Column(db.Text, nullable=True)
+
+class ResitExamData(db.Model):
+    __tablename__ = 'resit_exam_data'
+    id = db.Column(db.Integer, primary_key=True)
+    tenant_id = db.Column(db.Integer, db.ForeignKey('tenants.id'), nullable=False, unique=True)
+    # هذا العمود السحري سيحفظ كل (الأساتذة، القاعات، المستويات، القيود) في حزمة واحدة!
+    db_dict = db.Column(db.JSON, nullable=False)
