@@ -218,7 +218,7 @@
             if(activeBtn) { activeBtn.click(); }
         });
 
-        // 🌟 الدالة المصححة للتبويبات (تتحكم في المحتوى والألوان معاً) 🌟
+        // 🌟 الدالة المصححة للتبويبات (تتحكم في المحتوى، الألوان، والتزامن الديناميكي) 🌟
         function openTab(evt, tabName) {
             // 1. إخفاء محتوى جميع التبويبات
             var tabcontents = document.getElementsByClassName("tab-content");
@@ -243,6 +243,20 @@
             // 4. تلوين الزر الذي تم النقر عليه
             if (evt && evt.currentTarget) {
                 evt.currentTarget.className += " active";
+            }
+
+            // 5. 🔄 التزامن السحري: تحديث البيانات فور فتح التبويب من الخادم 🔄
+            if (tabName === 'tab2' && typeof refreshAllManageTables === 'function') {
+                refreshAllManageTables(); // تحديث قاعات وأساتذة المرحلة 2
+            }
+            if (tabName === 'tab3' && typeof refreshAssignmentData === 'function') {
+                refreshAssignmentData(); // تحديث الإسناد في المرحلة 3
+            }
+            if (tabName === 'tab4' && typeof loadInitialScheduleData === 'function') {
+                loadInitialScheduleData(); // تحديث الأيام في المرحلة 4
+            }
+            if (tabName === 'tab5' && typeof loadConditionsData === 'function') {
+                loadConditionsData(); // تحديث القيود في المرحلة 5
             }
         }
     </script>
