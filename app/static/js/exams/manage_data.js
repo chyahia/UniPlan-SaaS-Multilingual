@@ -164,3 +164,28 @@ function editHall(id, oldName, oldType) {
         }
     });
 }
+
+// ==========================================
+// 🔄 دالة التحديث اليدوي مع التأثيرات البصرية
+// ==========================================
+function manualRefreshData(btnElement) {
+    // 1. تغيير شكل الزر لإشعار المستخدم ببدء العملية
+    const originalText = btnElement.innerHTML;
+    btnElement.innerHTML = "⏳ جاري التحديث...";
+    btnElement.disabled = true;
+    btnElement.style.opacity = "0.7";
+    
+    // 2. استدعاء الدالة الأصلية لجلب البيانات ورسم الجداول
+    refreshAllManageTables();
+    
+    // 3. تأخير شكلي (نصف ثانية) لتوضيح حدوث عملية اتصال، ثم إرجاع الزر لحالته وإظهار إشعار
+    setTimeout(() => {
+        btnElement.innerHTML = originalText;
+        btnElement.disabled = false;
+        btnElement.style.opacity = "1";
+        
+        if (typeof showNotification === 'function') {
+            showNotification('✅ تم تحديث الجداول وجلب أحدث البيانات!', 'success');
+        }
+    }, 500);
+}
