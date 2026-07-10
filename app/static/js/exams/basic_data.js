@@ -76,30 +76,31 @@ function refreshHallPreview() {
 
 function refreshLevelPreview() {
     fetch('/exams/api/get-levels')
-        .then(res => res.json())
-        .then(levels => {
-            // 1. تحديث قائمة المعاينة المدخلة
-            renderPreviewList('levels-preview-list', levels, 'name');
+    .then(res => res.json())
+    .then(data => {
+        // تحديث القائمة الجانبية للمعاينة
+        if (typeof renderPreviewList === 'function') {
+            renderPreviewList('levels-preview-list', data, 'name');
+        }
+        
+        // 🌟 توليد مربعات التأشير بدلاً من الخيارات القديمة
+        const checkboxContainer = document.getElementById('subject-levels-checkboxes');
+        if (checkboxContainer) {
+            checkboxContainer.innerHTML = ''; // مسح المحتوى القديم
             
-            // 2. تحديث القائمة المنسدلة (Dropdown) في صندوق المواد
-            const select = document.getElementById('subject-level-id-select');
-            select.innerHTML = ''; // مسح القديم
-            
-            const defaultOption = document.createElement('option');
-            defaultOption.value = '';
-            defaultOption.textContent = '-- اختر المستوى أولاً --';
-            select.appendChild(defaultOption);
-            
-            levels.forEach(level => {
-                const option = document.createElement('option');
-                option.value = level.id;
-                option.textContent = level.name;
-                select.appendChild(option);
-            });
-            
-            // التأكد من مسح قائمة معاينة المواد لأن القائمة المنسدلة فارغة
-            refreshSubjectPreview();
-        }).catch(err => console.error(err));
+            if (data.length === 0) {
+                checkboxContainer.innerHTML = '<span style="color: #999; font-size: 13px;">لا توجد مستويات، أضف مستويات أولاً.</span>';
+            } else {
+                data.forEach(lvl => {
+                    checkboxContainer.innerHTML += `
+                        <label style="display: flex; align-items: center; cursor: pointer; padding: 6px 10px; background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 4px; transition: 0.2s;">
+                            <input type="checkbox" class="level-cb-input" value="${lvl.id}" style="margin-left: 10px; transform: scale(1.2); cursor: pointer;">
+                            <span style="font-size: 15px; font-weight: bold; color: #2c3e50;">${lvl.name}</span>
+                        </label>`;
+                });
+            }
+        }
+    }).catch(err => console.error("Error fetching levels:", err));
 }
 
 // جلب وعرض المواد مجمعة حسب المستويات
@@ -208,24 +209,32 @@ function handleAddLevels(e) {
 
 function handleAddSubjects(e) {
     e.preventDefault();
-    const levelId = document.getElementById('subject-level-id-select').value;
+    
+    // 🌟 سحب أرقام المستويات من مربعات التأشير المحددة فقط
+    const checkboxes = document.querySelectorAll('.level-cb-input:checked');
+    const levelIds = Array.from(checkboxes).map(cb => cb.value);
+    
+    if (levelIds.length === 0) return showNotification('الرجاء اختيار مستوى واحد على الأقل.', 'error');
+    
     const text = document.getElementById('subjects-input').value;
     const subjects = text.split('\n').map(s => s.trim()).filter(s => s !== '');
-    
-    if (!levelId) return showNotification('لا بد من تحديد المستوى أولاً من القائمة.', 'error');
     if (subjects.length === 0) return showNotification('الرجاء إدخال مادة واحدة على الأقل.', 'error');
 
     fetch('/exams/api/add-subjects', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ level_id: levelId, subjects })
+        body: JSON.stringify({ level_ids: levelIds, subjects: subjects })
     })
     .then(res => res.json())
     .then(data => {
         if (data.success) {
             showNotification(`تم الإضافة بنجاح! مضاف: ${data.added}، مكرر: ${data.duplicates}`, 'success');
-            document.getElementById('subjects-input').value = ''; // مسح المدخلات
-            refreshSubjectPreview(); // 🔄 تحديث المعاينة فورياً للمستوى الحالي
+            document.getElementById('subjects-input').value = ''; 
+            
+            // 🧹 إزالة التأشير عن المربعات بعد النجاح لتجهيز الإدخال القادم
+            checkboxes.forEach(cb => cb.checked = false);
+            
+            refreshSubjectPreview(); 
         } else {
              showNotification(data.message || 'حدث خطأ أثناء الإضافة', 'error');
         }

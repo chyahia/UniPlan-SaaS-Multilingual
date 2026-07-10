@@ -135,15 +135,24 @@ function assignSelected() {
     if (!selectedProfId) return showNotification('الرجاء تظليل أستاذ أولاً', 'error');
     if (selectedSubjIds.size === 0) return showNotification('الرجاء تظليل مادة واحدة على الأقل', 'error');
 
-    // إرسال طلبات الإضافة لكل مادة محددة بشكل متوازي وسريع
-    let promises = Array.from(selectedSubjIds).map(subjId => 
-        fetch(`/exams/api/assignments/professors/${selectedProfId}/${subjId}`, { method: 'POST' })
-    );
-
-    Promise.all(promises).then(() => {
-        showNotification('تم التخصيص بنجاح!', 'success');
-        selectedSubjIds.clear(); // مسح التظليل بعد التخصيص
-        loadAssignDataA(); // إعادة تحميل القوائم
+    // 🛑 التعديل: إرسال البيانات مجمعة عبر المسار الصحيح
+    fetch('/exams/api/assignments/assign', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            prof_id: selectedProfId,
+            subj_ids: Array.from(selectedSubjIds)
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('تم التخصيص بنجاح!', 'success');
+            selectedSubjIds.clear(); 
+            loadAssignDataA(); 
+        } else {
+            showNotification(data.message || 'حدث خطأ', 'error');
+        }
     });
 }
 
@@ -151,36 +160,45 @@ function unassignSelected() {
     if (!selectedProfId) return showNotification('الرجاء تظليل أستاذ أولاً لإلغاء إسناده', 'error');
     if (selectedSubjIds.size === 0) return showNotification('الرجاء تظليل المواد المراد إلغاء إسنادها', 'error');
 
-    // إرسال طلبات حذف لكل مادة مظللة
-    let promises = Array.from(selectedSubjIds).map(subjId => 
-        fetch(`/exams/api/assignments/professors/${selectedProfId}/${subjId}`, { method: 'DELETE' })
-    );
-
-    Promise.all(promises).then(() => {
-        showNotification('تم إلغاء التخصيص بنجاح!', 'success');
-        selectedSubjIds.clear();
-        loadAssignDataA();
+    fetch('/exams/api/assignments/unassign', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            prof_id: selectedProfId,
+            subj_ids: Array.from(selectedSubjIds)
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('تم إلغاء التخصيص بنجاح!', 'success');
+            selectedSubjIds.clear();
+            loadAssignDataA();
+        }
     });
 }
 
-// دوال النقر المزدوج السريعة
 function unassignAllFromProf(profId, profName) {
     if (!confirm(`هل أنت متأكد من إلغاء إسناد جميع المواد للأستاذ "${profName}"؟`)) return;
     
-    // استخدام مسار الـ Bulk بذكاء لمسح المواد عبر إرسال مصفوفة فارغة
-    const payload = {};
-    payload[profId] = [];
+    const assignment = profAssignments.find(a => a.prof_id === profId);
+    if (!assignment || assignment.subjects.length === 0) return;
 
-    fetch(`/exams/api/assignments/professors/bulk`, { 
+    const allSubjIds = assignment.subjects.map(s => s.subj_id);
+
+    fetch('/exams/api/assignments/unassign', { 
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+        body: JSON.stringify({
+            prof_id: profId,
+            subj_ids: allSubjIds
+        })
     })
     .then(res => res.json())
     .then(data => {
         if (data.success) {
             showNotification('تم إلغاء إسناد جميع المواد بنجاح!', 'success');
-            loadAssignDataA(); // تحديث القوائم فوراً
+            loadAssignDataA(); 
         }
     });
 }
@@ -188,20 +206,26 @@ function unassignAllFromProf(profId, profName) {
 function unassignSubject(subjId, subjName) {
     if (!confirm(`هل أنت متأكد من إلغاء إسناد المادة "${subjName}"؟`)) return;
     
-    // البحث عن كل الأساتذة المرتبطين بهذه المادة لفك ارتباطهم
     let teachingProfsIds = [];
     profAssignments.forEach(pa => {
         if(pa.subjects.some(sub => sub.subj_id === subjId)) teachingProfsIds.push(pa.prof_id);
     });
 
     let promises = teachingProfsIds.map(profId => 
-        fetch(`/exams/api/assignments/professors/${profId}/${subjId}`, { method: 'DELETE' })
+        fetch('/exams/api/assignments/unassign', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                prof_id: profId,
+                subj_ids: [subjId]
+            })
+        }).then(r => r.json())
     );
     
     Promise.all(promises).then(() => {
         showNotification('تم إلغاء إسناد المادة بنجاح!', 'success');
-        selectedSubjIds.delete(subjId); // إزالة التظليل إن وُجد
-        loadAssignDataA(); // تحديث القوائم فوراً
+        selectedSubjIds.delete(subjId); 
+        loadAssignDataA(); 
     });
 }
 
@@ -226,10 +250,13 @@ function renderLevelHallsTable() {
     const tbody = document.getElementById('level-halls-table-body');
     tbody.innerHTML = '';
 
+    // 🛑 التعديل 1: الدخول إلى المصفوفة الصحيحة داخل الكائن القادم من الخادم
+    const levelDataArray = levelAssignments.levels || [];
+
     allLevels.forEach(level => {
-        // التحقق من القاعات المخصصة مسبقاً لهذا المستوى
-        const assignment = levelAssignments.find(a => a.level_id === level.id);
-        const assignedHallIds = assignment ? assignment.halls.map(h => h.hall_id) : [];
+        // 🛑 التعديل 2: تصحيح أسماء المفاتيح (id و assigned_halls) لتطابق الباك إند
+        const assignment = levelDataArray.find(a => a.id === level.id);
+        const assignedHallIds = assignment ? assignment.assigned_halls.map(h => h.id) : [];
 
         // توليد مربعات الاختيار لكل قاعة
         let hallsHtml = '<div style="display: flex; flex-wrap: wrap; gap: 15px;">';

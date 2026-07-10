@@ -170,12 +170,17 @@ def clean_string_for_matching(s):
 
 def _run_initial_subject_placement(settings, all_subjects, all_levels_list, subject_owners, all_halls):
     """
-    توزيع المواد في الخانات الزمنية (الأساسية ثم الاحتياطية).
+    توزيع المواد في الخانات الزمنية (الأساسية ثم الاحتياطية) مع دعم (المستويات المتعددة للمادة).
     """
     base_subject_schedule = defaultdict(lambda: defaultdict(list))
     exam_schedule_settings = settings.get('examSchedule', {})
     
-    all_subjects_to_schedule = {(clean_string_for_matching(s['name']), clean_string_for_matching(s['level'])) for s in all_subjects}
+    # 1: قراءة المادة وتخزين مستوياتها كـ (قائمة - Tuple) بعد التنظيف
+    all_subjects_to_schedule = set()
+    for s in all_subjects:
+        levels_tuple = tuple(sorted([clean_string_for_matching(l) for l in s.get('levels', [])]))
+        all_subjects_to_schedule.add((clean_string_for_matching(s.get('name')), levels_tuple))
+        
     group_mappings = {}
     primary_slots_by_group = defaultdict(list)
     reserve_slots = []
@@ -187,30 +192,67 @@ def _run_initial_subject_placement(settings, all_subjects, all_levels_list, subj
             slot_time, slot_type = s.get('time'), s.get('type')
             if slot_type == 'primary':
                 primary_slots_by_group[slot_time].append(slot_with_date)
-                for level in s.get('levels', []): group_mappings[level] = slot_time
-            elif slot_type == 'reserve': reserve_slots.append(slot_with_date)
+                # 🛑 تنظيف مفتاح الجروب ليتطابق مع البحث لاحقاً
+                for level in s.get('levels', []): 
+                    group_mappings[clean_string_for_matching(level)] = slot_time
+            elif slot_type == 'reserve': 
+                reserve_slots.append(slot_with_date)
     
     subjects_by_group = defaultdict(set)
     for subject in all_subjects_to_schedule:
-        group_id = group_mappings.get(subject[1])
-        if group_id: subjects_by_group[group_id].add(subject)
+        # 2: تحديد الجروب الزمني المبدئي بناءً على مستويات المادة المشتركة
+        levels_tuple = subject[1]
+        group_id = None
+        for lvl in levels_tuple:
+            if group_mappings.get(lvl):
+                group_id = group_mappings.get(lvl)
+                break
+        
+        if group_id:
+            subjects_by_group[group_id].add(subject)
+        else:
+            subjects_by_group["unassigned"].add(subject)
     
     leftovers_by_group = defaultdict(set)
     available_halls_by_slot = defaultdict(lambda: {h['name'] for h in all_halls})
     level_hall_assignments = settings.get('levelHallAssignments', {})
 
     def schedule_exam_internal(subject, date, time, available_halls):
-        subject_name, level_key = subject
-        level_name_found = next((lvl for lvl in all_levels_list if clean_string_for_matching(lvl) == level_key), level_key)
-        halls_for_level = set(level_hall_assignments.get(level_name_found, []))
+        subject_name, levels_tuple = subject
         
-        if not halls_for_level or not halls_for_level.issubset(available_halls): return False
+        # 3: جمع القاعات المخصصة لجميع مستويات هذه المادة المشتركة معاً + استرجاع الاسم الجميل
+        halls_for_all_levels = set()
+        original_level_names = []
         
-        halls_details = [h for h in all_halls if h['name'] in halls_for_level]
-        exam = {"date": date, "time": time, "subject": subject_name, "level": level_name_found, "professor": subject_owners.get(subject, "غير محدد"), "halls": halls_details, "guards": []}
+        for level_key in levels_tuple:
+            # استرجاع الاسم الأصلي للمستوى (بالفراغات والهمزات) لاستخدامه في العرض والتقارير
+            level_name_found = next((lvl for lvl in all_levels_list if clean_string_for_matching(lvl) == level_key), level_key)
+            original_level_names.append(level_name_found)
+            
+            halls_for_level = set(level_hall_assignments.get(level_name_found, []))
+            halls_for_all_levels.update(halls_for_level)
+        
+        # التأكد من توفر جميع القاعات اللازمة لكل المستويات المشتركة في هذه الفترة
+        if not halls_for_all_levels or not halls_for_all_levels.issubset(available_halls): return False
+        
+        halls_details = [h for h in all_halls if h['name'] in halls_for_all_levels]
+        
+        # 🛑 دمج الأسماء الأصلية لكي يتطابق تماماً مع unscheduled_subjects في الملف الآخر
+        combined_level_name = " + ".join(original_level_names) if original_level_names else "غير محدد"
+        
+        exam = {
+            "date": date, 
+            "time": time, 
+            "subject": subject_name, 
+            "level": combined_level_name, 
+            "levels_list": list(levels_tuple), 
+            "professor": subject_owners.get(subject, "غير محدد"), 
+            "halls": halls_details, 
+            "guards": []
+        }
         base_subject_schedule[date][time].append(exam)
         
-        for hall_name in halls_for_level: available_halls.remove(hall_name)
+        for hall_name in halls_for_all_levels: available_halls.remove(hall_name)
         return True
 
     for group_id, subjects_pool in subjects_by_group.items():
@@ -218,7 +260,11 @@ def _run_initial_subject_placement(settings, all_subjects, all_levels_list, subj
         current_leftovers = set(subjects_pool)
         for subject in sorted(list(current_leftovers)):
             for slot in slots_pool:
-                if subject[1] in slot.get('levels', []):
+                # 🛑 تنظيف مستويات الخانة الزمنية قبل إجراء المقارنة
+                cleaned_slot_levels = [clean_string_for_matching(lvl) for lvl in slot.get('levels', [])]
+                valid_for_slot = any(lvl in cleaned_slot_levels for lvl in subject[1])
+                
+                if valid_for_slot:
                     if schedule_exam_internal(subject, slot['date'], slot['time'], available_halls_by_slot[(slot['date'], slot['time'])]):
                         current_leftovers.remove(subject)
                         break
@@ -240,7 +286,6 @@ def _run_initial_subject_placement(settings, all_subjects, all_levels_list, subj
                         break
             leftovers_by_group[group_id] -= subjects_to_remove
             
-    # إرجاع الجدول و group_mappings لنحتاجها في المرحلة 1.5
     return base_subject_schedule, group_mappings
 
 

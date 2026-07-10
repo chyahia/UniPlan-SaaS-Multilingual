@@ -7,7 +7,7 @@ from collections import defaultdict
 # استدعاء نماذج قاعدة البيانات السحابية الخاصة بالامتحانات
 from app.database import db, ExamSetting, ExamTeacher, ExamSubject, ExamLevel, ExamRoom, ExamDay
 
-# 🌟 استدعاء خوارزميات الامتحانات (تأكد من تغيير اسم الملف إلى exams_algorithms.py في مجلد services)
+# 🌟 استدعاء خوارزميات الامتحانات
 from app.services.exams_algorithms import (
     _run_initial_subject_placement, run_subject_optimization_phase, clean_string_for_matching,
     complete_schedule_with_guards, run_unified_lns_optimizer,
@@ -131,15 +131,68 @@ def generate_schedule():
     algorithm_choices = data.get('algorithms', ['lns']) 
     algo_params = data.get('params', {})
     
-    # تهيئة الشاشة السوداء في السحابة
     log_q.clear_logs()
     log_q.set_running(True)
     log_q.set_stop_flag(False)
         
-    # 🌟 إرسال المهمة للطباخ (Celery)
     background_exam_generation_task.delay(tenant_id, algorithm_choices, algo_params)
     
     return jsonify({'success': True, 'message': 'بدأت عملية التوليد المتسلسل في السحابة.'})
+
+# ==============================================================
+# 📢 مسار نشر جدول الحراسة لحسابات الأساتذة
+# ==============================================================
+@exams_generation_bp.route('/exams/api/publish', methods=['POST'])
+def publish_exam_schedule():
+    tenant_id = session.get('tenant_id')
+    if not tenant_id: return jsonify({'error': 'غير مصرح'}), 403
+
+    schedule_data = request.json
+    if not schedule_data: return jsonify({'error': 'لا توجد بيانات لجدول الامتحانات'}), 400
+
+    try:
+        # حفظ الجدول النهائي كجدول معتمد
+        setting_sched = ExamSetting.query.filter_by(key='published_exam_schedule', tenant_id=tenant_id).first()
+        value_str = json.dumps(schedule_data)
+        if setting_sched:
+            setting_sched.value = value_str
+        else:
+            db.session.add(ExamSetting(key='published_exam_schedule', value=value_str, tenant_id=tenant_id))
+
+        # رفع راية "تم النشر"
+        setting_pub = ExamSetting.query.filter_by(key='is_exam_published', tenant_id=tenant_id).first()
+        if setting_pub:
+            setting_pub.value = '1'
+        else:
+            db.session.add(ExamSetting(key='is_exam_published', value='1', tenant_id=tenant_id))
+
+        db.session.commit()
+        return jsonify({'success': True, 'message': '📢 تم نشر جدول الامتحانات في حسابات الأساتذة بنجاح!'})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)})
+
+# ==============================================================
+# 🚫 مسار سحب / إلغاء نشر جدول الحراسة من حسابات الأساتذة
+# ==============================================================
+@exams_generation_bp.route('/exams/api/unpublish', methods=['POST'])
+def unpublish_exam_schedule():
+    tenant_id = session.get('tenant_id')
+    if not tenant_id: return jsonify({'error': 'غير مصرح'}), 403
+
+    try:
+        # إطفاء راية "تم النشر" بجعل قيمتها 0
+        setting_pub = ExamSetting.query.filter_by(key='is_exam_published', tenant_id=tenant_id).first()
+        if setting_pub:
+            setting_pub.value = '0'
+        else:
+            db.session.add(ExamSetting(key='is_exam_published', value='0', tenant_id=tenant_id))
+
+        db.session.commit()
+        return jsonify({'success': True, 'message': '🚫 تم سحب الجداول، ولن تظهر في حسابات الأساتذة بعد الآن.'})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)})
 
 # ==============================================================
 # ⚙️ مهمة الخلفية الثقيلة (Celery Task)
@@ -177,22 +230,24 @@ def background_exam_generation_task(tenant_id, algorithm_choices, algo_params):
                 log_queue.put("DONE:{\"success\": false, \"message\": \"الرجاء إعداد جدول الامتحانات في المرحلة 4 أولاً.\"}")
                 return
 
-            # 2. جلب البيانات الأساسية من SQLAlchemy وتحويلها لصيغة القواميس القديمة التي تفهمها الخوارزمية
             all_professors = [p.name for p in ExamTeacher.query.filter_by(tenant_id=tenant_id).all()]
             all_levels_list = [l.name for l in ExamLevel.query.filter_by(tenant_id=tenant_id).all()]
             all_halls_list = [{'id': h.id, 'name': h.name, 'type': h.type} for h in ExamRoom.query.filter_by(tenant_id=tenant_id).all()]
             
-            # جلب المواد وإسناداتها
+            # ✨ التعديل 1: جلب المواد ومستوياتها كقائمة وتنسيق الاسم المدمج
             all_subjects_list = []
             assignments = defaultdict(list)
             for p in ExamTeacher.query.filter_by(tenant_id=tenant_id).all():
                 for s in p.subjects:
-                    assignments[p.name].append({'subj_name': s.name, 'level_name': s.level.name if s.level else "بدون مستوى"})
+                    levels_list = sorted([l.name for l in s.levels]) if hasattr(s, 'levels') and s.levels else []
+                    combined_level = " + ".join(levels_list) if levels_list else "غير محدد"
+                    assignments[p.name].append({'subj_name': s.name, 'levels': levels_list, 'level_name': combined_level})
             
             for s in ExamSubject.query.filter_by(tenant_id=tenant_id).all():
-                all_subjects_list.append({'subj_id': s.id, 'subj_name': s.name, 'level_name': s.level.name if s.level else "بدون مستوى"})
+                levels_list = sorted([l.name for l in s.levels]) if hasattr(s, 'levels') and s.levels else []
+                combined_level = " + ".join(levels_list) if levels_list else "غير محدد"
+                all_subjects_list.append({'subj_id': s.id, 'subj_name': s.name, 'levels': levels_list, 'level_name': combined_level})
                 
-            # جلب القاعات المرتبطة بالمستويات
             level_halls = []
             for l in ExamLevel.query.filter_by(tenant_id=tenant_id).all():
                 for r in l.rooms:
@@ -215,12 +270,15 @@ def background_exam_generation_task(tenant_id, algorithm_choices, algo_params):
                 level_hall_assignments[lh['level_name']].append(halls_map[lh['hall_id']])
         settings_for_placement['levelHallAssignments'] = dict(level_hall_assignments)
         
-        formatted_subjects = [{'name': s['subj_name'], 'level': s['level_name']} for s in all_subjects_list]
+        # ✨ التعديل 2: إرسال مصفوفة المستويات للخوارزمية
+        formatted_subjects = [{'name': s['subj_name'], 'levels': s['levels']} for s in all_subjects_list]
         
         subject_owners = {}
         for prof, subjs in assignments.items():
             for subj in subjs:
-                subject_owners[(clean_string_for_matching(subj['subj_name']), clean_string_for_matching(subj['level_name']))] = prof
+                # ✨ التعديل 3: بناء مفتاح المادة باستخدام (Tuple) للمستويات ليطابق الخوارزمية تماماً
+                levels_tuple = tuple(sorted([clean_string_for_matching(l) for l in subj['levels']]))
+                subject_owners[(clean_string_for_matching(subj['subj_name']), levels_tuple)] = prof
                 
         formatted_halls = [{'name': h['name'], 'type': h['type']} for h in all_halls_list]
 
@@ -371,6 +429,7 @@ def background_exam_generation_task(tenant_id, algorithm_choices, algo_params):
 
             balance_report_data = generate_balance_report(prof_stats, prof_targets_map)
 
+            # ✨ التعديل 4: فحص المواد غير المبرمجة بالاعتماد على الاسم المدمج
             scheduled_subject_keys = {(exam['subject'], exam['level']) for day in best_schedule.values() for slot in day.values() for exam in slot}
             unscheduled_subjects = []
             for subj in all_subjects_list:

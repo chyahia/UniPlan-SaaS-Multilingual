@@ -93,15 +93,31 @@
             <div class="card-header bg-primary text-white text-center fw-bold">إضافة مواد</div>
             <div class="card-body">
                 {% if db.levels %}
-                <form method="POST">
+                <form method="POST" onsubmit="
+                    const checkboxes = document.querySelectorAll('input[name=\'level_names\']:checked');
+                    if(checkboxes.length === 0) {
+                        alert('الرجاء تأشير مستوى واحد على الأقل.');
+                        return false;
+                    }
+                    return true;
+                ">
                     <input type="hidden" name="action" value="add_subject">
-                    <select class="form-select mb-2" name="subject_level" required>
-                        {% for level in db.levels %}
-                            <option value="{{ level }}">{{ level }}</option>
-                        {% endfor %}
-                    </select>
-                    <textarea class="form-control mb-3" name="subjects_input" rows="2" placeholder="اسم في كل سطر..." required></textarea>
-                    <button type="submit" class="btn btn-primary w-100">إضافة</button>
+                    
+                    <div class="mb-2">
+                        <small class="d-block text-muted fw-bold mb-1">أشّر على مستوى أو أكثر:</small>
+                        <div class="border rounded p-2 bg-white" style="max-height: 100px; overflow-y: auto; border-color: #ced4da; display: flex; flex-direction: column; gap: 6px;">
+                            {% for l in db.levels %}
+                            <label class="d-flex align-items-center m-0" style="cursor: pointer;" for="lvl_chk_{{ loop.index }}">
+                                <input class="form-check-input m-0 ms-2" type="checkbox" name="level_names" value="{{ l }}" id="lvl_chk_{{ loop.index }}">
+                                <span class="small fw-bold text-dark">{{ l }}</span>
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <textarea class="form-control mb-3" name="subject_names" rows="2" placeholder="اسم في كل سطر..." required></textarea>
+                    
+                    <button type="submit" class="btn btn-warning w-100 fw-bold text-dark shadow-sm">إضافة</button>
                 </form>
                 {% else %}
                 <div class="alert alert-warning text-center p-2" style="font-size: 14px;">أضف المستويات أولاً.</div>

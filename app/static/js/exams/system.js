@@ -213,3 +213,96 @@ document.addEventListener('DOMContentLoaded', async () => {
         openCustomModal('❓ مساعدة ودليل الاستخدام', helpContent);
     });
 });
+
+// =========================================================
+// 🚀 أزرار المرحلة 7 (تصدير واستيراد الجدول النهائي إكسل)
+// =========================================================
+document.addEventListener('DOMContentLoaded', () => {
+    
+    // 1. تصدير الجدول النهائي
+    const exportFinalExcelBtn = document.getElementById('export-final-excel-btn');
+    if (exportFinalExcelBtn) {
+        exportFinalExcelBtn.addEventListener('click', () => {
+            // المتغير lastGeneratedSchedule يتم تعريفه في generation.js
+            if (typeof lastGeneratedSchedule === 'undefined' || !lastGeneratedSchedule) {
+                showNotification("لا يوجد جدول جاهز للتصدير. الرجاء توليد الجدول في المرحلة 6 أولاً.", "error");
+                return;
+            }
+            
+            const originalText = exportFinalExcelBtn.textContent;
+            exportFinalExcelBtn.disabled = true;
+            exportFinalExcelBtn.textContent = '⏳ جاري التصدير...';
+
+            fetch('/exams/api/export-final-excel', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(lastGeneratedSchedule)
+            })
+            .then(res => {
+                if (!res.ok) throw new Error("فشل التصدير");
+                return res.blob();
+            })
+            .then(blob => {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'الجدول_النهائي_للحراسة.xlsx';
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                showNotification("تم تصدير الجدول بنجاح", 'success');
+            })
+            .catch(err => showNotification("حدث خطأ أثناء تصدير الجدول", "error"))
+            .finally(() => {
+                exportFinalExcelBtn.disabled = false;
+                exportFinalExcelBtn.textContent = originalText;
+            });
+        });
+    }
+
+    // 2. استيراد الجدول النهائي ونشره
+    const importFinalExcelBtn = document.getElementById('import-final-excel-btn');
+    const importFinalExcelInput = document.getElementById('import-final-excel-file');
+    
+    if (importFinalExcelBtn && importFinalExcelInput) {
+        importFinalExcelBtn.addEventListener('click', () => {
+            const file = importFinalExcelInput.files[0];
+            if (!file) {
+                showNotification("الرجاء اختيار ملف إكسل أولاً.", "error");
+                return;
+            }
+            
+            if (!confirm("هل أنت متأكد؟ سيتم استيراد هذا الجدول واعتماده ونشره فوراً للأساتذة.")) return;
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            const originalText = importFinalExcelBtn.textContent;
+            importFinalExcelBtn.disabled = true;
+            importFinalExcelBtn.textContent = '⏳ جاري الاستيراد والنشر...';
+
+            fetch('/exams/api/import-final-excel', {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification(data.message, 'success');
+                    // تحديث الجدول في الذاكرة لتتطابق الواجهة مع ما تم رفعه
+                    if (typeof lastGeneratedSchedule !== 'undefined') {
+                        lastGeneratedSchedule = data.schedule; 
+                    }
+                } else {
+                    showNotification(data.error || "حدث خطأ أثناء الاستيراد", "error");
+                }
+            })
+            .catch(err => showNotification("خطأ في الاتصال بالخادم", "error"))
+            .finally(() => {
+                importFinalExcelBtn.disabled = false;
+                importFinalExcelBtn.textContent = originalText;
+                importFinalExcelInput.value = ''; // تفريغ الحقل
+            });
+        });
+    }
+});

@@ -48,18 +48,22 @@ def get_levels():
 
 @exams_basic_data_bp.route('/exams/api/get-subjects', methods=['GET'])
 def get_subjects():
-    """جلب قائمة كل المواد مع ربطها باسم مستواها بذكاء"""
+    """جلب قائمة كل المواد مع دمج أسماء مستوياتها بذكاء"""
     tenant_id = session.get('tenant_id')
     if not tenant_id: return jsonify([])
     
-    # استخدام العلاقة (Relationship) لجلب المستويات مع المواد والترتيب أبجدياً
-    subjects = ExamSubject.query.filter_by(tenant_id=tenant_id).join(ExamLevel).order_by(ExamLevel.name, ExamSubject.name).all()
+    subjects = ExamSubject.query.filter_by(tenant_id=tenant_id).order_by(ExamSubject.name).all()
     
-    return jsonify([{
-        "id": s.id, 
-        "name": s.name, 
-        "level_name": s.level.name if s.level else "بدون مستوى"
-    } for s in subjects])
+    data = []
+    for s in subjects:
+        # ✨ التعديل: جلب كل المستويات ودمجها بعلامة +
+        level_names = " + ".join([l.name for l in s.levels]) if hasattr(s, 'levels') and s.levels else "غير محدد"
+        data.append({
+            "id": s.id, 
+            "name": s.name, 
+            "level_name": level_names
+        })
+    return jsonify(data)
 
 # ==========================================
 # ➕ دوال الإضافة المتعددة (Bulk Add)
@@ -130,33 +134,45 @@ def add_levels():
 
 @exams_basic_data_bp.route('/exams/api/add-subjects', methods=['POST'])
 def add_subjects():
-    """إضافة عدة مواد وربطها بمستوى معين"""
+    """إضافة عدة مواد وربطها بعدة مستويات"""
     tenant_id = session.get('tenant_id')
     data = request.json
-    level_id = data.get('level_id')
+    # ✨ التعديل: استقبال قائمة المستويات بدلاً من مستوى واحد
+    level_ids = data.get('level_ids', [])
     subjects = data.get('subjects', [])
     
-    if not level_id:
-        return jsonify({'success': False, 'message': 'لا بد من تحديد المستوى أولاً من القائمة'})
+    if not level_ids:
+        return jsonify({'success': False, 'message': 'لا بد من تحديد مستوى واحد على الأقل من القائمة'})
         
+    levels = ExamLevel.query.filter(ExamLevel.id.in_(level_ids), ExamLevel.tenant_id == tenant_id).all()
+    if not levels: 
+        return jsonify({'success': False, 'message': 'المستويات المحددة غير موجودة'})
+
     added, duplicates = 0, 0
     
     for subj_name in subjects:
         subj_name = subj_name.strip()
         if subj_name:
-            # هنا نفحص إذا كانت المادة مكررة في *نفس المستوى* داخل *نفس القسم*
-            exists = ExamSubject.query.filter_by(name=subj_name, level_id=level_id, tenant_id=tenant_id).first()
-            if not exists:
-                db.session.add(ExamSubject(name=subj_name, level_id=level_id, tenant_id=tenant_id))
-                added += 1
-            else:
+            # البحث عن المادة في القسم بأكمله
+            existing_subject = ExamSubject.query.filter_by(name=subj_name, tenant_id=tenant_id).first()
+            if existing_subject:
+                # إذا كانت موجودة، نقوم بإضافة المستويات الجديدة لها
+                for lvl in levels:
+                    if lvl not in existing_subject.levels:
+                        existing_subject.levels.append(lvl)
                 duplicates += 1
+            else:
+                # إنشاء مادة جديدة وربطها بالمستويات المحددة
+                new_subject = ExamSubject(name=subj_name, tenant_id=tenant_id)
+                new_subject.levels.extend(levels)
+                db.session.add(new_subject)
+                added += 1
                 
     db.session.commit()
     return jsonify({'success': True, 'added': added, 'duplicates': duplicates})
 
 # ==========================================
-# 🔄 مسار سحب البيانات المشتركة من نظام التدريس (محدث ليدعم الإسناد عبر المفتاح)
+# 🔄 مسار سحب البيانات المشتركة من نظام التدريس (محدث ومحافظ على المنطق الخاص بك)
 # ==========================================
 @exams_basic_data_bp.route('/exams/api/sync-from-teaching', methods=['POST'])
 def sync_from_teaching():
@@ -168,7 +184,7 @@ def sync_from_teaching():
     try:
         from app.database import Teacher, Level, Course, Setting
         
-        # جلب الرموز لاستبعاد الأعمال الموجهة والتطبيقية
+        # ✨ تم الحفاظ على: جلب الرموز لاستبعاد الأعمال الموجهة والتطبيقية
         td_setting = Setting.query.filter_by(key='symbol_td', tenant_id=tenant_id).first()
         tp_setting = Setting.query.filter_by(key='symbol_tp', tenant_id=tenant_id).first()
         sym_td = td_setting.value if td_setting and td_setting.value else "[أم]"
@@ -190,32 +206,43 @@ def sync_from_teaching():
 
         # 3. استيراد المواد (المحاضرات فقط) + 4. استيراد الإسناد
         for tc in Course.query.filter_by(tenant_id=tenant_id).all():
+            # ✨ تم الحفاظ على: فلترة وتجاهل أعمال التوجيه والتطبيق
             if sym_td in tc.name or sym_tp in tc.name:
                 continue 
 
-            # ✨ التعديل الجذري: جلب الأستاذ عبر الحقل teacher_id مباشرة من قاعدة البيانات
+            # ✨ تم الحفاظ على: جلب الأستاذ عبر الحقل teacher_id مباشرة من قاعدة البيانات
             course_teachers = []
             if tc.teacher_id:
                 teacher = Teacher.query.get(tc.teacher_id)
                 if teacher:
                     course_teachers.append(teacher)
 
+            # ✨ التعديل الجديد (Many-to-Many): جمع المستويات الخاصة بهذه المادة
+            exam_levels_for_this_subject = []
             for tl in tc.levels:
                 exam_level = ExamLevel.query.filter_by(name=tl.name, tenant_id=tenant_id).first()
                 if exam_level:
-                    # إضافة المادة
-                    exam_subject = ExamSubject.query.filter_by(name=tc.name, level_id=exam_level.id, tenant_id=tenant_id).first()
-                    if not exam_subject:
-                        exam_subject = ExamSubject(name=tc.name, level_id=exam_level.id, tenant_id=tenant_id)
-                        db.session.add(exam_subject)
-                        added_subjects += 1
-                    
-                    # إسناد المادة لأساتذتها فوراً
-                    for tp in course_teachers:
-                        exam_teacher = ExamTeacher.query.filter_by(name=tp.name, tenant_id=tenant_id).first()
-                        if exam_teacher and exam_subject not in exam_teacher.subjects:
-                            exam_teacher.subjects.append(exam_subject)
-                            added_assignments += 1
+                    exam_levels_for_this_subject.append(exam_level)
+            
+            if exam_levels_for_this_subject:
+                # البحث عن المادة
+                exam_subject = ExamSubject.query.filter_by(name=tc.name, tenant_id=tenant_id).first()
+                if not exam_subject:
+                    exam_subject = ExamSubject(name=tc.name, tenant_id=tenant_id)
+                    db.session.add(exam_subject)
+                    added_subjects += 1
+                
+                # ربط المادة بمستوياتها
+                for lvl in exam_levels_for_this_subject:
+                    if lvl not in exam_subject.levels:
+                        exam_subject.levels.append(lvl)
+                
+                # إسناد المادة لأساتذتها فوراً
+                for tp in course_teachers:
+                    exam_teacher = ExamTeacher.query.filter_by(name=tp.name, tenant_id=tenant_id).first()
+                    if exam_teacher and exam_subject not in exam_teacher.subjects:
+                        exam_teacher.subjects.append(exam_subject)
+                        added_assignments += 1
                             
         db.session.commit()
         return jsonify({

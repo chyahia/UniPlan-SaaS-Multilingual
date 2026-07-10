@@ -3,6 +3,7 @@ import os
 import sys
 from dotenv import load_dotenv
 from app.database import db  # استيراد db من الهيكلة الجديدة
+from flask_migrate import Migrate
 
 # استيراد المسارات (نفسها دون تغيير)
 from app.routes.basic_data import basic_data_bp
@@ -66,6 +67,8 @@ def create_app():
 
     # 3. ربط قاعدة البيانات بالتطبيق
     db.init_app(app)
+    # ✨ تهيئة Flask-Migrate مع تفعيل ميزة Batch لكي تقبل SQLite حذف الأعمدة
+    migrate = Migrate(app, db, render_as_batch=True)
 
     # 4. إنشاء الجداول تلقائياً
     with app.app_context():

@@ -23,73 +23,99 @@ def get_professor_assignments():
         }
         # بفضل SQLAlchemy يمكننا الوصول للمواد المرتبطة مباشرة كقائمة (List)
         for s in t.subjects:
+            # ✨ التعديل: قراءة قائمة المستويات ودمجها بدلاً من مستوى واحد
+            level_names = " + ".join([l.name for l in s.levels]) if hasattr(s, 'levels') and s.levels else "غير محدد"
             data[t.id]['subjects'].append({
                 'subj_id': s.id,
                 'subj_name': s.name,
-                'level_name': s.level.name if s.level else "غير محدد"
+                'level_name': level_names
             })
             
     # إرجاع القيم كقائمة (Array) ليتعرف عليها متصفح المستخدم
     return jsonify(list(data.values()))
 
-@exams_assignments_bp.route('/exams/api/assignments/professors/<int:prof_id>/<int:subj_id>', methods=['POST'])
-def assign_professor_subject(prof_id, subj_id):
+@exams_assignments_bp.route('/exams/api/assignments/unassigned-subjects', methods=['GET'])
+def get_unassigned_subjects():
     tenant_id = session.get('tenant_id')
-    teacher = ExamTeacher.query.filter_by(id=prof_id, tenant_id=tenant_id).first()
-    subject = ExamSubject.query.filter_by(id=subj_id, tenant_id=tenant_id).first()
-    
-    if teacher and subject and subject not in teacher.subjects:
-        teacher.subjects.append(subject) # إضافة المادة للأستاذ بكلمة واحدة!
-        db.session.commit()
-        return jsonify({'success': True})
-    return jsonify({'success': False, 'message': 'تعذر الإسناد أو أن المادة مسندة مسبقاً'})
+    if not tenant_id: return jsonify({"error": "غير مصرح"}), 403
 
-@exams_assignments_bp.route('/exams/api/assignments/professors/<int:prof_id>/<int:subj_id>', methods=['DELETE'])
-def remove_professor_subject(prof_id, subj_id):
-    tenant_id = session.get('tenant_id')
-    teacher = ExamTeacher.query.filter_by(id=prof_id, tenant_id=tenant_id).first()
-    subject = ExamSubject.query.filter_by(id=subj_id, tenant_id=tenant_id).first()
+    all_subjects = ExamSubject.query.filter_by(tenant_id=tenant_id).all()
+    unassigned_subjects = [s for s in all_subjects if not s.teachers]
     
-    if teacher and subject in teacher.subjects:
-        teacher.subjects.remove(subject) # حذف المادة من الأستاذ بكلمة واحدة!
-        db.session.commit()
-        return jsonify({'success': True})
-    return jsonify({'success': False})
+    data = []
+    for s in unassigned_subjects:
+        # ✨ التعديل: قراءة قائمة المستويات ودمجها
+        level_names = " + ".join([l.name for l in s.levels]) if hasattr(s, 'levels') and s.levels else "غير محدد"
+        data.append({
+            'subj_id': s.id,
+            'subj_name': s.name,
+            'level_name': level_names
+        })
+    return jsonify(data)
 
-@exams_assignments_bp.route('/exams/api/assignments/professors/bulk', methods=['POST'])
-def bulk_update_professor_subjects():
+@exams_assignments_bp.route('/exams/api/assignments/assign', methods=['POST'])
+def assign_subject_to_professor():
     tenant_id = session.get('tenant_id')
-    data = request.json # تستقبل: { "prof_id": [subj_id1, subj_id2] }
+    data = request.json
+    prof_id = data.get('prof_id')
+    subj_ids = data.get('subj_ids', []) # يدعم تعيين عدة مواد دفعة واحدة
     
-    for prof_id_str, subj_ids in data.items():
-        teacher = ExamTeacher.query.filter_by(id=int(prof_id_str), tenant_id=tenant_id).first()
-        if teacher:
-            # جلب المواد الجديدة
-            subjects = ExamSubject.query.filter(ExamSubject.id.in_(subj_ids), ExamSubject.tenant_id == tenant_id).all()
-            # استبدال القديم بالجديد، والمحرك سيتكفل بحذف وتنظيف العلاقات القديمة!
-            teacher.subjects = subjects 
+    teacher = ExamTeacher.query.filter_by(id=prof_id, tenant_id=tenant_id).first()
+    if not teacher: return jsonify({'success': False, 'message': 'الأستاذ غير موجود'})
+
+    added = 0
+    for subj_id in subj_ids:
+        subject = ExamSubject.query.filter_by(id=subj_id, tenant_id=tenant_id).first()
+        if subject and subject not in teacher.subjects:
+            teacher.subjects.append(subject)
+            added += 1
             
     db.session.commit()
-    return jsonify({'success': True, 'message': 'تم حفظ الإسنادات بنجاح'})
+    return jsonify({'success': True, 'added': added})
+
+@exams_assignments_bp.route('/exams/api/assignments/unassign', methods=['POST'])
+def unassign_subject_from_professor():
+    tenant_id = session.get('tenant_id')
+    data = request.json
+    prof_id = data.get('prof_id')
+    subj_ids = data.get('subj_ids', [])
+    
+    teacher = ExamTeacher.query.filter_by(id=prof_id, tenant_id=tenant_id).first()
+    if not teacher: return jsonify({'success': False})
+
+    removed = 0
+    for subj_id in subj_ids:
+        subject = ExamSubject.query.filter_by(id=subj_id, tenant_id=tenant_id).first()
+        if subject and subject in teacher.subjects:
+            teacher.subjects.remove(subject)
+            removed += 1
+            
+    db.session.commit()
+    return jsonify({'success': True, 'removed': removed})
 
 # ==========================================
-# 🏢 ب. إسناد القاعات للمستويات (للامتحانات)
+# 🏫 ب. إسناد القاعات للمستويات
 # ==========================================
 
 @exams_assignments_bp.route('/exams/api/assignments/levels', methods=['GET'])
-def get_level_assignments():
+def get_level_halls():
     tenant_id = session.get('tenant_id')
     levels = ExamLevel.query.filter_by(tenant_id=tenant_id).all()
+    halls = ExamRoom.query.filter_by(tenant_id=tenant_id).order_by(ExamRoom.type, ExamRoom.name).all()
     
-    data = {}
+    data = {
+        'levels': [],
+        'all_halls': [{'id': h.id, 'name': h.name, 'type': h.type} for h in halls]
+    }
+    
     for l in levels:
-        data[l.id] = {
-            'level_id': l.id,
-            'level_name': l.name,
-            'halls': [{'hall_id': r.id, 'hall_name': r.name, 'hall_type': r.type} for r in l.rooms]
-        }
+        data['levels'].append({
+            'id': l.id,
+            'name': l.name,
+            'assigned_halls': [{'id': h.id, 'name': h.name, 'type': h.type} for h in l.rooms]
+        })
         
-    return jsonify(list(data.values()))
+    return jsonify(data)
 
 @exams_assignments_bp.route('/exams/api/assignments/levels/<int:level_id>/<int:hall_id>', methods=['POST'])
 def assign_level_hall(level_id, hall_id):
@@ -121,10 +147,14 @@ def bulk_update_level_halls():
     data = request.json # تستقبل: { "level_id": [hall_id1, hall_id2] }
     
     for level_id_str, hall_ids in data.items():
-        level = ExamLevel.query.filter_by(id=int(level_id_str), tenant_id=tenant_id).first()
-        if level:
-            rooms = ExamRoom.query.filter(ExamRoom.id.in_(hall_ids), ExamRoom.tenant_id == tenant_id).all()
-            level.rooms = rooms
-            
+        level_id = int(level_id_str)
+        level = ExamLevel.query.filter_by(id=level_id, tenant_id=tenant_id).first()
+        if not level: continue
+        
+        level.rooms.clear()
+        
+        rooms = ExamRoom.query.filter(ExamRoom.id.in_(hall_ids), ExamRoom.tenant_id == tenant_id).all()
+        level.rooms.extend(rooms)
+        
     db.session.commit()
-    return jsonify({'success': True, 'message': 'تم حفظ قاعات المستويات بنجاح'})
+    return jsonify({'success': True})

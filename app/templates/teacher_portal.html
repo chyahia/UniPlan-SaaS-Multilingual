@@ -112,6 +112,38 @@
         </div>
     </div>
 
+    <div id="exam-schedule-section" style="display: none; margin-top: 30px;">
+        <div style="background: #e67e22; color: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center; box-shadow: 0 4px 10px rgba(230, 126, 34, 0.3);">
+            <h2 style="margin: 0;">📋 جدول مهام الحراسة للامتحانات</h2>
+            <p style="margin: 5px 0 0 0; font-size: 14px;">تم نشر المهام الموكلة إليك من إدارة القسم للامتحانات القادمة.</p>
+        </div>
+        <div style="overflow-x: auto; background: white; padding: 15px; border-radius: 8px; border: 1px solid #ddd; box-shadow: inset 0 0 10px rgba(0,0,0,0.02);">
+            <table id="teacher-exam-timetable" style="width: 100%; border-collapse: collapse; text-align: center; min-width: 600px;">
+                <thead style="background: #34495e; color: white;">
+                    <tr id="exam-table-header">
+                        </tr>
+                </thead>
+                <tbody id="exam-table-body">
+                    </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="resit-schedule-section" style="display: none; margin-top: 30px;">
+        <div style="background: #8e44ad; color: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center; box-shadow: 0 4px 10px rgba(142, 68, 173, 0.3);">
+            <h2 style="margin: 0;">⚠️ جدول الامتحانات الاستدراكية</h2>
+            <p style="margin: 5px 0 0 0; font-size: 14px;">تم نشر مهامك للامتحانات الاستدراكية للموسم الحالي.</p>
+        </div>
+        <div style="overflow-x: auto; background: white; padding: 15px; border-radius: 8px; border: 1px solid #ddd; box-shadow: inset 0 0 10px rgba(0,0,0,0.02);">
+            <table id="teacher-resit-timetable" style="width: 100%; border-collapse: collapse; text-align: center; min-width: 600px;">
+                <thead style="background: #2c3e50; color: white;">
+                    <tr id="resit-table-header"></tr>
+                </thead>
+                <tbody id="resit-table-body"></tbody>
+            </table>
+        </div>
+    </div>
+
     <script>
         let allCourses = [];
         
@@ -157,6 +189,30 @@
                 if(data.request.has_submitted && statusContainer) {
                     statusContainer.style.display = 'block';
                 }
+            }
+
+            // 🌟 رسم جدول الامتحانات إذا كان منشوراً 🌟
+            const examSection = document.getElementById('exam-schedule-section');
+            if (data.is_exam_published) {
+                if (examSection) {
+                    examSection.style.display = 'block';
+                    // تمرير المتغيرات الجديدة لرسم الشبكة
+                    renderMyExamTimetable(data.my_exam_schedule, data.exam_dates, data.exam_times);
+                }
+            } else {
+                if (examSection) examSection.style.display = 'none';
+            }
+
+            // 🌟 رسم الجدول الاستدراكي إذا كان منشوراً 🌟
+            const resitSection = document.getElementById('resit-schedule-section');
+            if (data.is_resit_published) {
+                if (resitSection) {
+                    resitSection.style.display = 'block';
+                    // نستخدم نفس دالة الرسم التي صممناها سابقاً لأنها تدعم نفس الهيكل
+                    renderMyExamTimetable(data.my_resit_schedule, data.resit_dates, data.resit_times, 'resit-table-header', 'resit-table-body');
+                }
+            } else {
+                if (resitSection) resitSection.style.display = 'none';
             }
 
             // رسم الأيام
@@ -320,6 +376,65 @@
                 });
                 bodyHtml += `</tr>`;
             }
+            tbody.innerHTML = bodyHtml;
+        }
+        
+        // دالة رسم جدول حراسة الامتحانات (بشكل شبكي)
+        function renderMyExamTimetable(exams, examDates, examTimes, headId = 'exam-table-header', bodyId = 'exam-table-body') {
+            const theadTr = document.getElementById(headId);
+            const tbody = document.getElementById(bodyId);
+
+            if (!examDates || examDates.length === 0) {
+                theadTr.innerHTML = '<th>رسالة</th>';
+                tbody.innerHTML = '<tr><td style="padding: 20px; color: #7f8c8d; font-weight: bold;">لا توجد بيانات متاحة لجدول الامتحانات.</td></tr>';
+                return;
+            }
+
+            // 1. بناء رأس الجدول (التواريخ)
+            let headerHtml = `<th style="padding: 12px; border: 1px solid #2c3e50; width: 120px; background: #2c3e50; color: white;">الفترة \\ التاريخ</th>`;
+            examDates.forEach(date => {
+                headerHtml += `<th style="padding: 12px; border: 1px solid #2c3e50; background: #34495e; color: white; direction: ltr;">${date}</th>`;
+            });
+            theadTr.innerHTML = headerHtml;
+
+            // 2. بناء جسم الجدول (الصفوف والأعمدة)
+            let bodyHtml = '';
+            examTimes.forEach(time => {
+                bodyHtml += `<tr>`;
+                // العمود الأول: الفترة
+                bodyHtml += `<td style="padding: 12px; border: 1px solid #bdc3c7; background: #ecf0f1; font-weight: bold;">${time}</td>`;
+
+                // باقي الأعمدة: التواريخ
+                examDates.forEach(date => {
+                    // جلب أي مهام للأستاذ في هذا اليوم وهذه الفترة
+                    const slotExams = exams.filter(ex => ex.date === date && ex.time === time);
+
+                    if (slotExams.length === 0) {
+                        // خلية فارغة
+                        bodyHtml += `<td style="padding: 12px; border: 1px solid #bdc3c7; color: #ccc; background: #fdfdfd;">-</td>`;
+                    } else {
+                        // تطبيق القواعد التي طلبتها
+                        let cellContents = slotExams.map(ex => {
+                            if (ex.role === "حارس") {
+                                // القاعدة 1: حراسة فقط -> عبارة "تكليف بالحراسة" بدون اسم مادة أو قاعة
+                                return `<span style="display:inline-block; padding: 6px 12px; background: #fadbd8; color: #c0392b; border-radius: 4px; font-weight: bold; font-size: 14px;">تكليف بالحراسة</span>`;
+                            } else if (ex.role === "حارس + أستاذ المادة") {
+                                // القاعدة 2: يدرس ويحرس -> اسم المادة + "تكليف بالحراسة"
+                                return `<strong style="color:#2c3e50; font-size: 15px;">${ex.subject}</strong><br><span style="display:inline-block; margin-top:5px; padding: 4px 8px; background: #fadbd8; color: #c0392b; border-radius: 4px; font-weight: bold; font-size: 13px;">تكليف بالحراسة</span>`;
+                            } else if (ex.role === "أستاذ المادة") {
+                                // القاعدة 3: يدرس ولا يحرس -> اسم المادة + "دون حراسة"
+                                return `<strong style="color:#2c3e50; font-size: 15px;">${ex.subject}</strong><br><span style="display:inline-block; margin-top:5px; padding: 4px 8px; background: #fcf3cf; color: #d4ac0d; border-radius: 4px; font-weight: bold; font-size: 13px;">دون حراسة</span>`;
+                            }
+                            return '';
+                        });
+
+                        // دمج الخلايا في حال تواجد مهمتين في نفس الفترة (نادر ولكن محتمل)
+                        bodyHtml += `<td style="padding: 12px; border: 1px solid #bdc3c7; vertical-align: middle; background: white;">${cellContents.join('<hr style="border-top: 1px dashed #ecf0f1; margin: 8px 0;">')}</td>`;
+                    }
+                });
+                bodyHtml += `</tr>`;
+            });
+
             tbody.innerHTML = bodyHtml;
         }
     </script>

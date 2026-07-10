@@ -641,3 +641,75 @@ function toggleAlgoSettings(algoId) {
         settingsDiv.style.display = isChecked ? 'block' : 'none';
     }
 }
+
+// ==========================================
+// 📢 نشر جدول الحراسة لحسابات الأساتذة
+// ==========================================
+function publishExamSchedule() {
+    if (!lastGeneratedSchedule) {
+        showNotification("لا يوجد جدول جاهز لنشره. الرجاء توليد الجدول أولاً.", "error");
+        return;
+    }
+    
+    if (!confirm("⚠️ هل أنت متأكد من نشر هذا الجدول؟ سيظهر فوراً في حسابات جميع الأساتذة.")) return;
+
+    const btn = document.getElementById('publish-schedule-button');
+    const originalText = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = '⏳ جاري النشر...';
+
+    fetch('/exams/api/publish', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(lastGeneratedSchedule)
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            showNotification(data.message, 'success');
+        } else {
+            showNotification(data.error || 'حدث خطأ أثناء النشر', 'error');
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        showNotification('حدث خطأ في الاتصال', 'error');
+    })
+    .finally(() => {
+        btn.disabled = false;
+        btn.textContent = originalText;
+    });
+}
+
+// ==========================================
+// 🚫 سحب وإلغاء جدول الحراسة من حسابات الأساتذة
+// ==========================================
+function unpublishExamSchedule() {
+    if (!confirm("⚠️ هل أنت متأكد من سحب الجدول؟ سيختفي الجدول فوراً من حسابات جميع الأساتذة، ولن يروه حتى تقوم بنشره من جديد.")) return;
+
+    const btn = document.getElementById('unpublish-schedule-button');
+    const originalText = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = '⏳ جاري السحب...';
+
+    fetch('/exams/api/unpublish', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            showNotification(data.message, 'success');
+        } else {
+            showNotification(data.error || 'حدث خطأ أثناء السحب', 'error');
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        showNotification('حدث خطأ في الاتصال بالخادم', 'error');
+    })
+    .finally(() => {
+        btn.disabled = false;
+        btn.textContent = originalText;
+    });
+}

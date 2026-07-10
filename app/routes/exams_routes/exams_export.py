@@ -13,7 +13,6 @@ from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 
 import pandas as pd
-# ملاحظة: تأكدنا من تغيير المسار إلى exams_algorithms
 from app.services.exams_algorithms import _run_initial_subject_placement, clean_string_for_matching
 from openpyxl.utils import get_column_letter
 from openpyxl.styles import Alignment
@@ -83,13 +82,15 @@ def export_exams_word():
     schedule_data = request.get_json()
     if not schedule_data: return jsonify({"error": "No schedule data provided"}), 400
     
-    # بناء قائمة الإسنادات
+    # بناء قائمة الإسنادات باستخدام هيكل Many-to-Many الجديد
     assignments_rows = []
     for t in ExamTeacher.query.filter_by(tenant_id=tenant_id).all():
         for s in t.subjects:
+            levels_list = sorted([l.name for l in s.levels]) if hasattr(s, 'levels') and s.levels else []
+            combined_level = " + ".join(levels_list) if levels_list else "بدون مستوى"
             assignments_rows.append({
                 'subj_name': s.name, 
-                'level_name': s.level.name if s.level else "", 
+                'level_name': combined_level, 
                 'prof_name': t.name
             })
             
@@ -173,7 +174,9 @@ def export_profs_word():
     prof_owned_subjects = defaultdict(set)
     for t in ExamTeacher.query.filter_by(tenant_id=tenant_id).all():
         for s in t.subjects:
-            if s.level: prof_owned_subjects[t.name].add((s.name, s.level.name))
+            levels_list = sorted([l.name for l in s.levels]) if hasattr(s, 'levels') and s.levels else []
+            combined_level = " + ".join(levels_list) if levels_list else "بدون مستوى"
+            prof_owned_subjects[t.name].add((s.name, combined_level))
 
     doc = Document()
     section = doc.sections[0]
@@ -286,7 +289,9 @@ def export_profs_anonymous_word():
     prof_owned_subjects = defaultdict(set)
     for t in ExamTeacher.query.filter_by(tenant_id=tenant_id).all():
         for s in t.subjects:
-            if s.level: prof_owned_subjects[t.name].add((s.name, s.level.name))
+            levels_list = sorted([l.name for l in s.levels]) if hasattr(s, 'levels') and s.levels else []
+            combined_level = " + ".join(levels_list) if levels_list else "بدون مستوى"
+            prof_owned_subjects[t.name].add((s.name, combined_level))
 
     doc = Document()
     section = doc.sections[0]
@@ -405,22 +410,32 @@ def export_manual_distribution_template():
             return jsonify({"error": "الرجاء حفظ جدول الأيام والفترات في المرحلة 4 أولاً لتتمكن من تصدير المخطط."}), 400
 
         all_levels_list = [l.name for l in ExamLevel.query.filter_by(tenant_id=tenant_id).all()]
+        
         all_subjects = []
+        original_subject_map = {} 
         for s in ExamSubject.query.filter_by(tenant_id=tenant_id).all():
-            all_subjects.append({'name': s.name, 'level': s.level.name if s.level else ""})
+            levels_list = sorted([l.name for l in s.levels]) if hasattr(s, 'levels') and s.levels else []
+            combined_level = " + ".join(levels_list) if levels_list else "بدون مستوى"
+            all_subjects.append({'name': s.name, 'level': combined_level, 'levels': levels_list})
+            
+            c_name = clean_string_for_matching(s.name)
+            c_levels = tuple(sorted([clean_string_for_matching(l) for l in levels_list]))
+            original_subject_map[(c_name, c_levels)] = s.name
             
         all_halls = [{'name': h.name, 'type': h.type} for h in ExamRoom.query.filter_by(tenant_id=tenant_id).all()]
         
         subject_owners = {}
         for t in ExamTeacher.query.filter_by(tenant_id=tenant_id).all():
             for s in t.subjects:
-                if s.level:
-                    subject_owners[(clean_string_for_matching(s.name), clean_string_for_matching(s.level.name))] = clean_string_for_matching(t.name)
+                levels_list = sorted([l.name for l in s.levels]) if hasattr(s, 'levels') and s.levels else []
+                if levels_list:
+                    levels_tuple = tuple(sorted([clean_string_for_matching(l) for l in levels_list]))
+                    subject_owners[(clean_string_for_matching(s.name), levels_tuple)] = t.name
 
         level_hall_assignments = defaultdict(list)
         for l in ExamLevel.query.filter_by(tenant_id=tenant_id).all():
             for r in l.rooms:
-                level_hall_assignments[l.name].append({'name': r.name, 'type': r.type})
+                level_hall_assignments[l.name].append(r.name)
 
         settings_for_placement = {
             'examSchedule': exam_schedule,
@@ -431,59 +446,87 @@ def export_manual_distribution_template():
 
         output = io.BytesIO()
         writer = pd.ExcelWriter(output, engine='openpyxl')
+        import re 
         
+        if not all_levels_list:
+            df_empty = pd.DataFrame(["لا توجد مستويات مدخلة بعد"])
+            df_empty.to_excel(writer, sheet_name="فارغ")
+            
         for level_name in sorted(all_levels_list):
             df_level = pd.DataFrame(index=all_times, columns=all_dates)
             df_level.index.name = "الفترة"
+            c_level_name = clean_string_for_matching(level_name)
             
             for date, slots in initial_schedule.items():
                 for time, exams in slots.items():
                     for exam in exams:
-                        if exam['level'] == level_name:
-                            cell_content = f"{exam['subject']} ::: {exam['professor']} ::: {exam['level']}"
-                            df_level.at[time, date] = cell_content
+                        if c_level_name in exam.get('levels_list', []):
+                            exam_c_name = exam['subject']
+                            exam_c_levels = tuple(sorted(exam.get('levels_list', [])))
+                            orig_subj_name = original_subject_map.get((exam_c_name, exam_c_levels), exam_c_name)
+                            
+                            # ✨ التعديل: كل عنصر في سطر جديد
+                            cell_content = f"{orig_subj_name}\n::: {exam['professor']}\n::: {exam['level']}"
+                            
+                            existing = df_level.at[time, date]
+                            if pd.notna(existing) and str(existing).strip() != '':
+                                # ✨ فاصل مميز في حال وجود امتحانين لنفس المستوى في نفس الخانة
+                                df_level.at[time, date] = str(existing) + "\n\n====================\n\n" + cell_content
+                            else:
+                                df_level.at[time, date] = cell_content
             
-            unplaced_subjects = [s for s in all_subjects if s['level'] == level_name and not any(e['subject'] == s['name'] and e['level'] == s['level'] for d in initial_schedule.values() for t in d.values() for e in t)]
+            unplaced_subjects = []
+            for s in all_subjects:
+                if level_name in s.get('levels', []):
+                    is_placed = False
+                    c_s_name = clean_string_for_matching(s['name'])
+                    c_s_level = clean_string_for_matching(s['level'])
+                    for d in initial_schedule.values():
+                        for t in d.values():
+                            for e in t:
+                                if e['subject'] == c_s_name and clean_string_for_matching(e['level']) == c_s_level:
+                                    is_placed = True
+                    if not is_placed:
+                        unplaced_subjects.append(s)
+
             if unplaced_subjects:
                 unplaced_row_name = "--- مواد غير موزعة ---"
                 df_level.loc[unplaced_row_name] = ''
-                cell_texts = [f"{s['name']} ::: {subject_owners.get((s['name'], s['level']), 'غير محدد')} ::: {s['level']}" for s in unplaced_subjects]
+                cell_texts = []
+                for s in unplaced_subjects:
+                    s_tuple = tuple(sorted([clean_string_for_matching(l) for l in s.get('levels', [])]))
+                    owner = subject_owners.get((clean_string_for_matching(s['name']), s_tuple), 'غير محدد')
+                    cell_texts.append(f"{s['name']}\n::: {owner}\n::: {s['level']}")
                 if all_dates:
-                    df_level.at[unplaced_row_name, all_dates[0]] = "\n".join(cell_texts)
+                    df_level.at[unplaced_row_name, all_dates[0]] = "\n\n====================\n\n".join(cell_texts)
 
-            safe_sheet_name = level_name[:31]
+            safe_sheet_name = re.sub(r'[\\*?:/\[\]]', '-', level_name)[:31]
             df_level.to_excel(writer, sheet_name=safe_sheet_name)
             worksheet = writer.sheets[safe_sheet_name]
 
             worksheet.sheet_view.rightToLeft = True
-            
             worksheet.column_dimensions['A'].width = 18
             for i in range(2, len(all_dates) + 2):
-                worksheet.column_dimensions[get_column_letter(i)].width = 18
+                worksheet.column_dimensions[get_column_letter(i)].width = 25
                 
-            wrap_alignment = Alignment(wrap_text=True, horizontal='right', vertical='center')
+            # ✨ التعديل 1: إضافة readingOrder=2 لجبر الإكسل على اتجاه كتابة (يمين-يسار)
+            wrap_alignment = Alignment(wrap_text=True, horizontal='right', vertical='center', readingOrder=2)
             for row in worksheet.iter_rows():
-                worksheet.row_dimensions[row[0].row].height = 80
+                if row[0].row == 1:
+                    worksheet.row_dimensions[row[0].row].height = 35 
+                else:
+                    # ✨ التعديل 2: تحديد الارتفاع كـ None ليتقلص ويتمدد الإكسل تلقائياً
+                    worksheet.row_dimensions[row[0].row].height = None
+                
                 for cell in row:
                     cell.alignment = wrap_alignment
 
         writer.close()
-        
-        excel_data = output.getvalue()
-        final_output = io.BytesIO(excel_data)
-        
-        return send_file(
-            final_output, 
-            as_attachment=True, 
-            download_name='مخطط_توزيع_المواد_للتعديل.xlsx', 
-            mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-        )
-
+        return send_file(io.BytesIO(output.getvalue()), as_attachment=True, download_name='مخطط_توزيع_المواد_للتعديل.xlsx', mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     except Exception as e:
-        import traceback
-        traceback.print_exc()
+        import traceback; traceback.print_exc()
         return jsonify({"error": str(e)}), 500
-    
+
 # ==============================================================
 # 5. استيراد المخطط اليدوي المُعدل
 # ==============================================================
@@ -497,11 +540,9 @@ def import_manual_distribution():
     try:
         xls = pd.read_excel(file, sheet_name=None, index_col=0, dtype=str)
         pinned_schedule = defaultdict(lambda: defaultdict(list))
-        
         level_hall_assignments = defaultdict(list)
         for l in ExamLevel.query.filter_by(tenant_id=tenant_id).all():
-            for r in l.rooms:
-                level_hall_assignments[l.name].append({'name': r.name, 'type': r.type})
+            for r in l.rooms: level_hall_assignments[l.name].append({'name': r.name, 'type': r.type})
 
         pinned_count = 0
         for sheet_name, df in xls.items():
@@ -509,37 +550,41 @@ def import_manual_distribution():
                 for time in df.index:
                     cell_value = df.at[time, date]
                     if pd.notna(cell_value):
-                        subjects_in_cell = cell_value.strip().split('\n')
-                        for subject_line in subjects_in_cell:
-                            if ':::' in subject_line:
-                                try:
-                                    subject_name, professor_name, level_name = [part.strip() for part in subject_line.split(' ::: ')]
-                                    if not date or not time or "مواد غير موزعة" in time: continue
+                        cell_str = str(cell_value).strip()
+                        # ✨ التعديل: ذكاء اصطناعي لقراءة المربعات المنسقة أو القديمة
+                        if "====================" in cell_str:
+                            exams_in_cell = cell_str.split('\n\n====================\n\n')
+                        elif "\n:::" in cell_str:
+                            exams_in_cell = [cell_str]
+                        else:
+                            exams_in_cell = cell_str.split('\n')
 
-                                    halls_details = level_hall_assignments.get(level_name, [])
-                                    exam = {
-                                        "date": date.strip(), "time": time.strip(),
-                                        "subject": subject_name, "level": level_name,
-                                        "professor": professor_name, "halls": halls_details,
-                                        "guards": []
-                                    }
-                                    pinned_schedule[exam['date']][exam['time']].append(exam)
-                                    pinned_count += 1
-                                except ValueError:
-                                    continue
+                        for exam_block in exams_in_cell:
+                            clean_block = exam_block.replace('\n', ' ')
+                            if ':::' in clean_block:
+                                try:
+                                    parts = [part.strip() for part in clean_block.split(':::')]
+                                    if len(parts) >= 3 and date and time and "مواد غير موزعة" not in time:
+                                        subject_name, professor_name, level_name = parts[0], parts[1], parts[2]
+                                        halls_details = level_hall_assignments.get(level_name, [])
+                                        levels_list = level_name.split(' + ') if ' + ' in level_name else [level_name]
+                                        exam = {
+                                            "date": date.strip(), "time": time.strip(),
+                                            "subject": subject_name, "level": level_name,
+                                            "levels_list": [clean_string_for_matching(l) for l in levels_list],
+                                            "professor": professor_name, "halls": halls_details, "guards": []
+                                        }
+                                        pinned_schedule[exam['date']][exam['time']].append(exam)
+                                        pinned_count += 1
+                                except ValueError: continue
         
         setting = ExamSetting.query.filter_by(key='pinned_subject_schedule', tenant_id=tenant_id).first()
         value_str = json.dumps(pinned_schedule)
-        if setting:
-            setting.value = value_str
-        else:
-            new_setting = ExamSetting(key='pinned_subject_schedule', value=value_str, tenant_id=tenant_id)
-            db.session.add(new_setting)
-            
+        if setting: setting.value = value_str
+        else: db.session.add(ExamSetting(key='pinned_subject_schedule', value=value_str, tenant_id=tenant_id))
         db.session.commit()
         return jsonify({"success": True, "message": f"تم استيراد وتثبيت {pinned_count} مادة بنجاح."})
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+    except Exception as e: return jsonify({"error": str(e)}), 500
 
 # ==============================================================
 # 6. مسح المخطط اليدوي
@@ -555,6 +600,130 @@ def clear_manual_distribution():
             db.session.delete(setting)
             db.session.commit()
         return jsonify({"success": True, "message": "تم مسح الجدول اليدوي. سيعتمد التشغيل القادم على التوزيع التلقائي."})
+    except Exception as e: db.session.rollback(); return jsonify({"error": str(e)}), 500
+
+# ==============================================================
+# 7. تصدير الجدول النهائي (مع الحراس) للإكسل
+# ==============================================================
+@exams_export_bp.route('/exams/api/export-final-excel', methods=['POST'])
+def export_final_excel():
+    tenant_id = session.get('tenant_id')
+    if not tenant_id: return jsonify({"error": "غير مصرح"}), 403
+
+    schedule_data = request.json
+    if not schedule_data: return jsonify({"error": "لا توجد بيانات للجدول. قم بالتوليد أولاً."}), 400
+
+    try:
+        output = io.BytesIO()
+        writer = pd.ExcelWriter(output, engine='openpyxl')
+        
+        all_dates = sorted(schedule_data.keys())
+        all_times = sorted({time for date_slots in schedule_data.values() for time in date_slots})
+        all_levels = sorted({exam['level'] for slots in schedule_data.values() for exams in slots.values() for exam in exams})
+        
+        import re
+        for level_name in all_levels:
+            df_level = pd.DataFrame(index=all_times, columns=all_dates)
+            df_level.index.name = "الفترة"
+            
+            for date, slots in schedule_data.items():
+                for time, exams in slots.items():
+                    for exam in exams:
+                        if exam['level'] == level_name:
+                            halls_str = "، ".join([h['name'] for h in exam.get('halls', [])])
+                            guards_str = "، ".join([g for g in exam.get('guards', [])])
+                            
+                            # ✨ التعديل: كل عنصر في سطر جديد لسهولة القراءة
+                            cell_content = f"{exam['subject']}\n::: {exam['professor']}\n::: {exam['level']}\n::: {halls_str}\n::: {guards_str}"
+                            
+                            existing = df_level.at[time, date]
+                            if pd.notna(existing) and str(existing).strip() != '':
+                                df_level.at[time, date] = str(existing) + "\n\n====================\n\n" + cell_content
+                            else:
+                                df_level.at[time, date] = cell_content
+            
+            safe_sheet_name = re.sub(r'[\\*?:/\[\]]', '-', level_name)[:31]
+            df_level.to_excel(writer, sheet_name=safe_sheet_name)
+            
+            worksheet = writer.sheets[safe_sheet_name]
+            worksheet.sheet_view.rightToLeft = True
+            worksheet.column_dimensions['A'].width = 18
+            for i in range(2, len(all_dates) + 2):
+                worksheet.column_dimensions[get_column_letter(i)].width = 30
+                
+            # ✨ التعديل 1: اتجاه النص يمين-يسار
+            wrap_alignment = Alignment(wrap_text=True, horizontal='right', vertical='center', readingOrder=2)
+            for row in worksheet.iter_rows():
+                if row[0].row == 1:
+                    worksheet.row_dimensions[row[0].row].height = 35
+                else:
+                    # ✨ التعديل 2: احتواء تلقائي لارتفاع الصف
+                    worksheet.row_dimensions[row[0].row].height = None
+                
+                for cell in row:
+                    cell.alignment = wrap_alignment
+
+        writer.close()
+        return send_file(io.BytesIO(output.getvalue()), as_attachment=True, download_name='الجدول_النهائي_للحراسة.xlsx', mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     except Exception as e:
-        db.session.rollback()
+        import traceback; traceback.print_exc()
+        return jsonify({"error": str(e)}), 500
+
+# ==============================================================
+# 8. استيراد الجدول النهائي المُعدل ونشره
+# ==============================================================
+@exams_export_bp.route('/exams/api/import-final-excel', methods=['POST'])
+def import_final_excel():
+    tenant_id = session.get('tenant_id')
+    if not tenant_id: return jsonify({"error": "غير مصرح"}), 403
+
+    if 'file' not in request.files: return jsonify({"error": "لم يتم العثور على ملف."}), 400
+    file = request.files['file']
+    
+    try:
+        xls = pd.read_excel(file, sheet_name=None, index_col=0, dtype=str)
+        final_schedule = defaultdict(lambda: defaultdict(list))
+        
+        for sheet_name, df in xls.items():
+            for date in df.columns:
+                for time in df.index:
+                    cell_value = df.at[time, date]
+                    if pd.notna(cell_value):
+                        cell_str = str(cell_value).strip()
+                        # ✨ التعديل: استيراد ذكي للتنسيق الجديد (أسطر متعددة) والتنسيق القديم معاً
+                        if "====================" in cell_str:
+                            exams_in_cell = cell_str.split('\n\n====================\n\n')
+                        elif "\n:::" in cell_str:
+                            exams_in_cell = [cell_str]
+                        else:
+                            exams_in_cell = cell_str.split('\n')
+                            
+                        for exam_block in exams_in_cell:
+                            clean_block = exam_block.replace('\n', ' ')
+                            if ':::' in clean_block:
+                                parts = [part.strip() for part in clean_block.split(':::')]
+                                if len(parts) >= 5:
+                                    exam = {
+                                        "date": date.strip(), "time": time.strip(),
+                                        "subject": parts[0], "level": parts[2],
+                                        "levels_list": [clean_string_for_matching(l) for l in (parts[2].split(' + ') if ' + ' in parts[2] else [parts[2]])],
+                                        "professor": parts[1], 
+                                        "halls": [{'name': h.strip(), 'type': 'غير محدد'} for h in parts[3].split('،') if h.strip()],
+                                        "guards": [g.strip() for g in parts[4].split('،') if g.strip()]
+                                    }
+                                    final_schedule[exam['date']][exam['time']].append(exam)
+        
+        setting_sched = ExamSetting.query.filter_by(key='published_exam_schedule', tenant_id=tenant_id).first()
+        value_str = json.dumps(final_schedule)
+        if setting_sched: setting_sched.value = value_str
+        else: db.session.add(ExamSetting(key='published_exam_schedule', value=value_str, tenant_id=tenant_id))
+
+        setting_pub = ExamSetting.query.filter_by(key='is_exam_published', tenant_id=tenant_id).first()
+        if setting_pub: setting_pub.value = '1'
+        else: db.session.add(ExamSetting(key='is_exam_published', value='1', tenant_id=tenant_id))
+
+        db.session.commit()
+        return jsonify({"success": True, "message": "تم استيراد الجدول النهائي ونشره للأساتذة بنجاح!", "schedule": final_schedule})
+    except Exception as e:
+        import traceback; traceback.print_exc()
         return jsonify({"error": str(e)}), 500

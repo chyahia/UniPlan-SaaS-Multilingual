@@ -29,6 +29,14 @@
                     </div>
                     <button type="submit" class="btn btn-outline-danger w-100 fw-bold">➕ إضافة قيد تعارض</button>
                 </form>
+                <!-- 🌟 بداية الزر الآلي الجديد -->
+                <form method="POST" class="mb-3 mt-2">
+                    <input type="hidden" name="action" value="auto_extract_incompatible">
+                    <button type="submit" class="btn btn-danger w-100 fw-bold shadow-sm" onclick="return confirm('هل أنت متأكد؟ سيقوم النظام بالبحث عن أي مستوى يحتوي على علامة (+) وإضافة قيد تعارض بينه وبين مستوياته الفرعية آلياً.');">
+                        🤖 استخراج آلي للمستويات المشتركة
+                    </button>
+                </form>
+                <!-- 🌟 نهاية الزر الآلي -->
                 <hr>
                 <ul class="list-group">
                     {% for pair in c_db.incompatible_levels %}

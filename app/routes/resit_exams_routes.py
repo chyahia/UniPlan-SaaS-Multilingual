@@ -74,12 +74,29 @@ def manage_data():
                 flash(f"تم إضافة {len(new_l)} مستوى بنجاح.", "success")
                 
         elif action == 'add_subject':
-            s_level = request.form.get('subject_level')
-            s_input = request.form.get('subjects_input')
-            if s_input and s_level:
-                new_s = list(dict.fromkeys([n.strip() for n in s_input.split('\n') if n.strip()]))
-                for sub in new_s: add_subject(sub, s_level)
-                flash(f"تم إضافة {len(new_s)} مادة بنجاح.", "success")
+            level_names = request.form.getlist('level_names')
+            subject_names = request.form.get('subject_names', '')
+            
+            if not level_names:
+                flash("الرجاء اختيار مستوى واحد على الأقل.", "danger")
+            else:
+                # دمج المستويات المحددة بفاصل (+)
+                combined_level = " + ".join(sorted(level_names))
+                
+                # 🌟 جلب قاعدة البيانات للتحقق من وجود المستوى المدمج
+                db_dict = load_full_db()
+                
+                # إضافة المستوى المدمج كـ "مستوى جديد" إذا لم يكن موجوداً
+                if combined_level not in db_dict.get('levels', []):
+                    add_level(combined_level)
+                
+                # إضافة المواد وربطها بالمستوى المدمج
+                for s in subject_names.split('\n'):
+                    s = s.strip()
+                    if s:
+                        add_subject(s, combined_level)
+                        
+                flash("تم إضافة المواد وربطها بالمستويات بنجاح.", "success")
 
         # --- الحذف (مع التنظيف) ---
         elif action == 'delete_teacher':
@@ -254,6 +271,14 @@ ARABIC_DAYS = {6: "الأحد", 0: "الإثنين", 1: "الثلاثاء", 2: "
 def manage_schedule():
     db_dict = load_full_db()
     schedule = db_dict.get('schedule', {})
+    
+    # 🌟 التعديل الأول: ترتيب الأيام القديمة (إذا كان لديك أيام غير مرتبة محفوظة مسبقاً)
+    if schedule:
+        sorted_schedule = {k: schedule[k] for k in sorted(schedule.keys(), key=lambda x: x.split('(')[1].strip(')') if '(' in x else x)}
+        if list(schedule.keys()) != list(sorted_schedule.keys()):
+            schedule = sorted_schedule
+            update_complex_state('schedule', schedule)
+            db_dict['schedule'] = schedule
         
     if request.method == 'POST':
         action = request.form.get('action')
@@ -266,6 +291,10 @@ def manage_schedule():
                 new_day = f"{day_name} ({date_str})"
                 if new_day not in schedule:
                     schedule[new_day] = []
+                    
+                    # 🌟 التعديل الثاني: إعادة الترتيب فور إضافة يوم جديد
+                    schedule = {k: schedule[k] for k in sorted(schedule.keys(), key=lambda x: x.split('(')[1].strip(')') if '(' in x else x)}
+                    
                     update_complex_state('schedule', schedule)
                     flash(f"تم إضافة يوم {new_day}.", "success")
                     
@@ -307,7 +336,27 @@ def manage_schedule():
                     slot['reserve_levels'] = request.form.getlist(f"reserve_levels_{idx}")
                 update_complex_state('schedule', schedule)
                 flash("تم تحديث المستويات في الفترات.", "success")
+
+        # 🌟 مسار تكرار/نسخ اليوم 🌟
+        elif action == 'duplicate_day':
+            source_day = request.form.get('source_day')
+            target_date_str = request.form.get('target_date')
+            
+            if source_day and target_date_str:
+                import copy
+                date_obj = datetime.datetime.strptime(target_date_str, '%Y-%m-%d')
+                day_name = ARABIC_DAYS[date_obj.weekday()]
+                target_day_key = f"{day_name} ({target_date_str})"
                 
+                if source_day in schedule:
+                    schedule[target_day_key] = copy.deepcopy(schedule[source_day])
+                    
+                    # 🌟 التعديل الثالث: إعادة الترتيب فور استنساخ يوم جديد
+                    schedule = {k: schedule[k] for k in sorted(schedule.keys(), key=lambda x: x.split('(')[1].strip(')') if '(' in x else x)}
+                    
+                    update_complex_state('schedule', schedule)
+                    flash(f"✅ تم نسخ فترات ومستويات يوم [{source_day}] إلى [{target_day_key}] بنجاح.", "success")
+
         return redirect(url_for('resit_exams.manage_schedule'))
         
     return render_template('resit_exams/manage_schedule.html', db=db_dict)
@@ -349,6 +398,31 @@ def manage_constraints():
             update_complex_state('constraints', c_db)
             flash("تم حذف القيد.", "danger")
             
+        # 🌟 المسار الجديد: التوليد الآلي لتعارضات المستويات المشتركة
+        elif action == 'auto_extract_incompatible':
+            levels = db_dict.get('levels', [])
+            added_count = 0
+            
+            for complex_level in levels:
+                if '+' in complex_level:
+                    # تفكيك المستوى المدمج إلى أجزائه
+                    sub_levels = [part.strip() for part in complex_level.split('+')]
+                    
+                    for sub in sub_levels:
+                        # التحقق من أن الجزء الفرعي موجود فعلاً كـ "مستوى" في النظام
+                        if sub in levels:
+                            pair = sorted([complex_level, sub])
+                            # إضافته فقط إذا لم يكن موجوداً مسبقاً
+                            if pair not in c_db['incompatible_levels']:
+                                c_db['incompatible_levels'].append(pair)
+                                added_count += 1
+                                
+            if added_count > 0:
+                update_complex_state('constraints', c_db)
+                flash(f"🤖 تم مسح المستويات وتوليد ({added_count}) قيد تعارض آلياً بنجاح!", "success")
+            else:
+                flash("لم يتم العثور على تعارضات جديدة لإضافتها. (ربما تم توليدها مسبقاً أو لا توجد مستويات مشتركة).", "info")
+        
         # 2. الأساتذة ذوو الأولوية
         elif action == 'add_prioritized':
             teacher = request.form.get('teacher')
@@ -480,26 +554,38 @@ def import_from_exams():
         # أ. الأساتذة
         resit_db['teachers'] = [t.name for t in exams_teachers]
         
-        # ب. القاعات (تحويل إلى قاموس: الاسم -> النوع)
+        # ب. القاعات
         resit_db['rooms'] = {r.name: r.type for r in exams_rooms}
         
-        # ج. المستويات
-        resit_db['levels'] = [l.name for l in exams_levels]
+        # ج. المستويات الأساسية
+        levels_set = set([l.name for l in exams_levels])
         
-        # د. المواد (تحويل إلى قائمة قواميس)
-        resit_db['subjects'] = [
-            {"name": s.name, "level": s.level.name if s.level else "بدون مستوى"}
-            for s in exams_subjects
-        ]
+        # د. المواد (هنا التعديل الذكي لدمج المستويات)
+        resit_db['subjects'] = []
+        for s in exams_subjects:
+            # قراءة المستويات المتعددة بالهيكل الجديد ودمجها
+            levels_list = sorted([l.name for l in s.levels]) if hasattr(s, 'levels') and s.levels else []
+            combined_level = " + ".join(levels_list) if levels_list else "بدون مستوى"
+            
+            # تسجيل المستوى المدمج كـ "مستوى جديد" في النظام
+            if combined_level != "بدون مستوى":
+                levels_set.add(combined_level)
+                
+            resit_db['subjects'].append({
+                "name": s.name, 
+                "level": combined_level
+            })
+            
+        resit_db['levels'] = sorted(list(levels_set))
         
-        # هـ. الإسناد (استخراج مواد كل أستاذ بذكاء)
+        # هـ. الإسناد (استخراج مواد كل أستاذ بنفس الهيكل المدمج)
         teacher_subjects_dict = {}
         for t in exams_teachers:
             assigned_subs = []
             for s in t.subjects:
-                level_name = s.level.name if s.level else "بدون مستوى"
-                # تنسيق اسم المادة ليتوافق مع نظام الاستدراكي: "اسم المادة (المستوى)"
-                assigned_subs.append(f"{s.name} ({level_name})")
+                levels_list = sorted([l.name for l in s.levels]) if hasattr(s, 'levels') and s.levels else []
+                combined_level = " + ".join(levels_list) if levels_list else "بدون مستوى"
+                assigned_subs.append(f"{s.name} ({combined_level})")
             
             if assigned_subs:
                 teacher_subjects_dict[t.name] = assigned_subs
@@ -512,6 +598,8 @@ def import_from_exams():
         flash(f"✅ تم سحب البيانات بنجاح! استُورِد: ({len(resit_db['teachers'])}) أستاذ، ({len(resit_db['rooms'])}) قاعة، و({len(resit_db['subjects'])}) مادة.", "success")
         
     except Exception as e:
+        import traceback
+        traceback.print_exc() # لطباعة الخطأ بدقة في الطرفية إذا حدث
         flash(f"❌ خطأ في الاستيراد: {str(e)}", "danger")
         
     return redirect(url_for('resit_exams.manage_data'))
@@ -631,7 +719,11 @@ def get_solver_progress():
             "soft": task.info.get('soft', 0)
         }
     elif task.state == 'SUCCESS':
-        response = {"is_running": False, "done": True}
+        response = {
+            "is_running": False, 
+            "done": True,
+            "violations": task.info.get('violations', []) if isinstance(task.info, dict) else []
+        }
     else:
         response = {"is_running": False, "done": True, "error": str(task.info)}
         
@@ -665,3 +757,219 @@ def download_doc(doc_type):
         download_name=filename, 
         mimetype='application/vnd.openxmlformats-officedocument.wordprocessingml.document'
     )
+
+# ==========================================
+# 🌟 المرحلة 7: التصدير للإكسل، الاستيراد، والنشر للأساتذة
+# ==========================================
+@resit_exams_bp.route('/phase7', methods=['GET'])
+def phase7():
+    db_dict = load_full_db()
+    final_schedule = db_dict.get('final_schedule', {})
+    
+    # التحقق من حالة النشر الحالية
+    tenant_id = session.get('tenant_id')
+    from app.database import ExamSetting
+    pub_setting = ExamSetting.query.filter_by(key='is_resit_published', tenant_id=tenant_id).first()
+    is_published = pub_setting.value == '1' if pub_setting else False
+    
+    return render_template('resit_exams/phase7.html', db=db_dict, has_schedule=bool(final_schedule), is_published=is_published)
+
+# ==========================================
+# 🌟 التصدير للإكسل (بنفس طريقة الامتحانات العادية - Matrix)
+# ==========================================
+@resit_exams_bp.route('/export_excel')
+def export_excel():
+    db_dict = load_full_db()
+    final_schedule = db_dict.get('final_schedule', {})
+    if not final_schedule:
+        flash("لا يوجد جدول لتصديره.", "danger")
+        return redirect(url_for('resit_exams.phase7'))
+
+    import pandas as pd
+    import io
+    import re
+    from openpyxl.utils import get_column_letter
+    from openpyxl.styles import Alignment
+
+    # استخراج جميع الأيام، الفترات، والمستويات
+    all_days = sorted(list(final_schedule.keys()))
+    all_times = set()
+    all_levels = set()
+
+    for day, times in final_schedule.items():
+        for time_val, levels in times.items():
+            all_times.add(time_val)
+            for level in levels.keys():
+                all_levels.add(level)
+
+    all_times = sorted(list(all_times))
+    all_levels = sorted(list(all_levels))
+
+    output = io.BytesIO()
+    writer = pd.ExcelWriter(output, engine='openpyxl')
+
+    # بناء الجداول بحيث يكون كل مستوى في Sheet مستقل
+    for level_name in all_levels:
+        df_level = pd.DataFrame(index=all_times, columns=all_days)
+        df_level.index.name = "الفترة"
+
+        for day in all_days:
+            for time_val in all_times:
+                if day in final_schedule and time_val in final_schedule[day]:
+                    levels_dict = final_schedule[day][time_val]
+                    if level_name in levels_dict:
+                        data = levels_dict[level_name]
+                        subject = data.get("subject", "")
+                        teachers = "، ".join(data.get("subject_teachers", []))
+                        rooms = data.get("rooms", {})
+
+                        halls_list = list(rooms.keys())
+                        halls_str = "، ".join(halls_list)
+
+                        # تنسيق الحراس لربطهم بقاعاتهم بشكل مقروء للتعديل
+                        guards_details = []
+                        for r_name, g_list in rooms.items():
+                            g_str = "، ".join(g_list) if g_list else "بدون حراس"
+                            guards_details.append(f"{r_name}: {g_str}")
+                        guards_str = " | ".join(guards_details)
+
+                        # محاكاة نفس طريقة الامتحانات العادية تماماً
+                        cell_content = f"{subject}\n::: {teachers}\n::: {level_name}\n::: {halls_str}\n::: {guards_str}"
+
+                        existing = df_level.at[time_val, day]
+                        if pd.notna(existing) and str(existing).strip() != '':
+                            df_level.at[time_val, day] = str(existing) + "\n\n====================\n\n" + cell_content
+                        else:
+                            df_level.at[time_val, day] = cell_content
+
+        safe_sheet_name = re.sub(r'[\\*?:/\[\]]', '-', level_name)[:31]
+        df_level.to_excel(writer, sheet_name=safe_sheet_name)
+
+        # التنسيقات الجمالية والمطابقة تماماً لملف exams_export_bp
+        worksheet = writer.sheets[safe_sheet_name]
+        worksheet.sheet_view.rightToLeft = True
+        worksheet.column_dimensions['A'].width = 18
+        for i in range(2, len(all_days) + 2):
+            worksheet.column_dimensions[get_column_letter(i)].width = 30
+
+        wrap_alignment = Alignment(wrap_text=True, horizontal='right', vertical='center', readingOrder=2)
+        for row in worksheet.iter_rows():
+            if row[0].row == 1:
+                worksheet.row_dimensions[row[0].row].height = 35
+            else:
+                worksheet.row_dimensions[row[0].row].height = None
+
+            for cell in row:
+                cell.alignment = wrap_alignment
+
+    writer.close()
+    output.seek(0)
+    return send_file(
+        output,
+        as_attachment=True,
+        download_name="الجدول_الاستدراكي_للتعديل.xlsx",
+        mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+
+# ==========================================
+# 🌟 استيراد الجدول من الإكسل (فهم نفس الهيكل الذكي)
+# ==========================================
+@resit_exams_bp.route('/import_excel', methods=['POST'])
+def import_excel():
+    if 'excel_file' not in request.files:
+        return redirect(url_for('resit_exams.phase7'))
+
+    file = request.files['excel_file']
+    if file.filename.endswith('.xlsx'):
+        try:
+            import pandas as pd
+            db_dict = load_full_db()
+            new_schedule = {}
+
+            xls = pd.read_excel(file, sheet_name=None, index_col=0, dtype=str)
+
+            for sheet_name, df in xls.items():
+                for day in df.columns:
+                    for time_val in df.index:
+                        cell_value = df.at[time_val, day]
+                        if pd.notna(cell_value):
+                            cell_str = str(cell_value).strip()
+
+                            # التوافق مع الفواصل الذكية
+                            if "====================" in cell_str:
+                                exams_in_cell = cell_str.split('\n\n====================\n\n')
+                            elif "\n:::" in cell_str:
+                                exams_in_cell = [cell_str]
+                            else:
+                                exams_in_cell = cell_str.split('\n')
+
+                            for exam_block in exams_in_cell:
+                                clean_block = exam_block.replace('\n', ' ')
+                                if ':::' in clean_block:
+                                    parts = [part.strip() for part in clean_block.split(':::')]
+                                    if len(parts) >= 5:
+                                        subject = parts[0]
+                                        teachers = [t.strip() for t in parts[1].split('،') if t.strip()]
+                                        level = parts[2]
+                                        guards_part = parts[4]
+
+                                        if day not in new_schedule: new_schedule[day] = {}
+                                        if time_val not in new_schedule[day]: new_schedule[day][time_val] = {}
+                                        if level not in new_schedule[day][time_val]:
+                                            new_schedule[day][time_val][level] = {"subject": subject, "subject_teachers": teachers, "rooms": {}}
+
+                                        # إعادة قراءة القاعات وحراسها بدقة
+                                        room_blocks = guards_part.split('|')
+                                        for r_block in room_blocks:
+                                            if ':' in r_block:
+                                                r_name, r_guards = r_block.split(':', 1)
+                                                r_name = r_name.strip()
+                                                guards_list = [g.strip() for g in r_guards.split('،') if g.strip() and g.strip() != 'بدون حراس']
+                                                new_schedule[day][time_val][level]["rooms"][r_name] = guards_list
+
+            update_complex_state('final_schedule', new_schedule)
+            flash("✅ تم استيراد التعديلات من الإكسل بنجاح وتحديث النظام!", "success")
+
+        except Exception as e:
+            import traceback; traceback.print_exc()
+            flash(f"❌ خطأ في قراءة ملف الإكسل: التفاصيل: {str(e)}", "danger")
+    else:
+        flash("يرجى رفع ملف بصيغة .xlsx", "danger")
+
+    return redirect(url_for('resit_exams.phase7'))
+
+@resit_exams_bp.route('/publish_resit', methods=['POST'])
+def publish_resit():
+    tenant_id = session.get('tenant_id')
+    db_dict = load_full_db()
+    final_schedule = db_dict.get('final_schedule')
+    
+    if not final_schedule:
+        flash("لا يوجد جدول لنشره.", "danger")
+        return redirect(url_for('resit_exams.phase7'))
+
+    from app.database import ExamSetting, db
+    action = request.form.get('action')
+
+    # تجهيز متغيرات قاعدة البيانات
+    pub_setting = ExamSetting.query.filter_by(key='is_resit_published', tenant_id=tenant_id).first()
+    if not pub_setting:
+        pub_setting = ExamSetting(key='is_resit_published', value='0', tenant_id=tenant_id)
+        db.session.add(pub_setting)
+
+    sched_setting = ExamSetting.query.filter_by(key='published_resit_schedule', tenant_id=tenant_id).first()
+    if not sched_setting:
+        sched_setting = ExamSetting(key='published_resit_schedule', value='{}', tenant_id=tenant_id)
+        db.session.add(sched_setting)
+
+    if action == 'publish':
+        import json
+        pub_setting.value = '1'
+        sched_setting.value = json.dumps(final_schedule)
+        flash("✅ تم نشر الجدول الاستدراكي بنجاح! سيظهر الآن في بوابة الأساتذة.", "success")
+    else:
+        pub_setting.value = '0'
+        flash("⚠️ تم سحب وإخفاء الجدول الاستدراكي من بوابة الأساتذة.", "warning")
+
+    db.session.commit()
+    return redirect(url_for('resit_exams.phase7'))

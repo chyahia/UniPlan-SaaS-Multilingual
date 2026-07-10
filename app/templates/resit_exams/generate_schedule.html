@@ -99,36 +99,25 @@
     </div>
 </div>
 
-{% if app_state and app_state.get('is_generated') %}
-    <div class="card shadow-lg border-success mb-5" id="resultsSection">
-        <div class="card-header bg-success text-white fs-4 fw-bold text-center">🎉 اكتمل التوزيع بنجاح!</div>
-        <div class="card-body p-4">
-            {% set violations = app_state.get('violations', []) %}
-            {% if violations %}
-                <div class="alert alert-warning shadow-sm">
-                    <h5 class="fw-bold">⚠️ انتهى التوزيع مع وجود ({{ violations|length }}) قيود لم تتحقق:</h5>
-                    <ul class="mb-0 mt-2">{% for v in violations %}<li>{{ v }}</li>{% endfor %}</ul>
-                </div>
-            {% else %}
-                <div class="alert alert-success shadow-sm text-center">
-                    <h5 class="fw-bold m-0">✨ اكتمل التوزيع بمثالية! 100% من القيود محققة.</h5>
-                </div>
-            {% endif %}
+<div class="card shadow-lg border-success mb-5" id="resultsSection" style="display: none;">
+    <div class="card-header bg-success text-white fs-4 fw-bold text-center">🎉 اكتمل التوزيع بنجاح!</div>
+    <div class="card-body p-4">
+        
+        <!-- هنا سيتم حقن المخالفات ديناميكياً -->
+        <div id="violationsWrapper"></div>
 
-            <hr class="my-4">
-            <h4 class="mb-4 text-center text-secondary fw-bold">📥 تصدير الجداول</h4>
-            <div class="row g-4">
-                <div class="col-md-6">
-                    <a href="{{ url_for('resit_exams.download_doc', doc_type='levels') }}" class="btn btn-outline-primary btn-lg w-100 fw-bold">📄 جداول المستويات</a>
-                </div>
-                <div class="col-md-6">
-                    <a href="{{ url_for('resit_exams.download_doc', doc_type='teachers') }}" class="btn btn-outline-success btn-lg w-100 fw-bold">👨‍🏫 جداول الأساتذة</a>
-                </div>
+        <hr class="my-4">
+        <h4 class="mb-4 text-center text-secondary fw-bold">📥 تصدير الجداول</h4>
+        <div class="row g-4">
+            <div class="col-md-6">
+                <a href="{{ url_for('resit_exams.download_doc', doc_type='levels') }}" class="btn btn-outline-primary btn-lg w-100 fw-bold">📄 جداول المستويات</a>
+            </div>
+            <div class="col-md-6">
+                <a href="{{ url_for('resit_exams.download_doc', doc_type='teachers') }}" class="btn btn-outline-success btn-lg w-100 fw-bold">👨‍🏫 جداول الأساتذة</a>
             </div>
         </div>
     </div>
-    <script>document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });</script>
-{% endif %}
+</div>
 
 <script>
     function toggleLnsSettings() {
@@ -172,61 +161,114 @@
                 fetch('{{ url_for("resit_exams.get_solver_progress") }}')
                 .then(r => r.json())
                 .then(prog => {
-                    let pct = 0;
-                    if(prog.duration > 0) {
-                        pct = Math.min(100, Math.round((prog.elapsed / prog.duration) * 100));
-                    }
-                    document.getElementById('progressBar').style.width = pct + '%';
-                    document.getElementById('progressBar').innerText = pct + '%';
                     
-                    document.getElementById('unassignedCount').innerText = prog.unassigned;
-                    document.getElementById('hardCount').innerText = prog.hard;
-                    document.getElementById('softCount').innerText = prog.soft;
-                    document.getElementById('timeLog').innerText = `الوقت المنقضي: ${prog.elapsed.toFixed(1)} / ${prog.duration} ثانية`;
-
-                    if (terminal) {
-                        if (prog.elapsed > 0 && !isStartedPrinted) {
-                            terminal.innerHTML += `<div style="color: #00ffff; margin-top: 5px;">&gt; [START] تم إطلاق خوارزمية LNS بنجاح... جاري بناء الحل الأولي...</div>`;
-                            isStartedPrinted = true;
+                    // 🌟 حماية ذكية: لا تقم بتحديث الأرقام إذا كانت الخوارزمية انتهت ولم ترسلها
+                    if (prog.unassigned !== undefined) {
+                        let pct = 0;
+                        if(prog.duration > 0) {
+                            pct = Math.min(100, Math.round((prog.elapsed / prog.duration) * 100));
                         }
+                        document.getElementById('progressBar').style.width = pct + '%';
+                        document.getElementById('progressBar').innerText = pct + '%';
+                        
+                        document.getElementById('unassignedCount').innerText = prog.unassigned;
+                        document.getElementById('hardCount').innerText = prog.hard;
+                        document.getElementById('softCount').innerText = prog.soft;
+                        document.getElementById('timeLog').innerText = `الوقت المنقضي: ${prog.elapsed.toFixed(1)} / ${prog.duration} ثانية`;
 
-                        if (prog.elapsed !== lastElapsed || prog.unassigned !== lastUnassigned || prog.hard !== lastHard || prog.soft !== lastSoft) {
-                            let minutes = Math.floor(prog.elapsed / 60).toString().padStart(2, '0');
-                            let seconds = Math.floor(prog.elapsed % 60).toString().padStart(2, '0');
-                            let timeStr = `${minutes}:${seconds}`;
-
-                            if (prog.elapsed > 0 && !prog.done) {
-                                let logLine = `&gt; [توقيت ${timeStr}] 🤖 جاري التحسين واختزال الأخطاء &gt;&gt; نقص: <span class="text-danger fw-bold">${prog.unassigned}</span> | صارم: <span class="text-danger fw-bold">${prog.hard}</span> | مرن: <span style="color: #ffc107;">${prog.soft}</span>`;
-                                terminal.innerHTML += `<div>${logLine}</div>`;
+                        if (terminal) {
+                            if (prog.elapsed > 0 && !isStartedPrinted) {
+                                terminal.innerHTML += `<div style="color: #00ffff; margin-top: 5px;">&gt; [START] تم إطلاق خوارزمية LNS بنجاح... جاري بناء الحل الأولي...</div>`;
+                                isStartedPrinted = true;
                             }
 
-                            if (prog.done) {
-                                let finalLine = `<div style="color: #ffff00; font-weight: bold; margin-top: 5px;">&gt; [SUCCESS] [توقيت ${timeStr}] 🎉 اكتملت عملية التوزيع بنجاح تام! تم حفظ الجدول.</div>`;
-                                terminal.innerHTML += finalLine;
+                            // 🌟 إضافة المؤقت الحي (السطر المتحرك) لمنع التجميد البصري
+                            let activeLine = document.getElementById('active-progress');
+                            if (!activeLine) {
+                                activeLine = document.createElement('div');
+                                activeLine.id = 'active-progress';
+                                activeLine.style.color = '#00ff00';
+                                activeLine.style.fontWeight = 'bold';
+                                terminal.appendChild(activeLine);
                             }
+                            activeLine.innerHTML = `⏳ الوقت المنقضي: ${prog.elapsed.toFixed(1)} ثانية | الخوارزمية تعمل بقوة وتختبر آلاف الاحتمالات...`;
 
+                            // إضافة سطر جديد فقط إذا تحسنت النتيجة (تغيرت الأرقام)
+                            if (prog.elapsed !== lastElapsed || prog.unassigned !== lastUnassigned || prog.hard !== lastHard || prog.soft !== lastSoft) {
+                                let minutes = Math.floor(prog.elapsed / 60).toString().padStart(2, '0');
+                                let seconds = Math.floor(prog.elapsed % 60).toString().padStart(2, '0');
+                                let timeStr = `${minutes}:${seconds}`;
+
+                                if (prog.elapsed > 0 && !prog.done) {
+                                    let logLine = `&gt; [توقيت ${timeStr}] 🤖 جاري التحسين واختزال الأخطاء &gt;&gt; نقص: <span class="text-danger fw-bold">${prog.unassigned}</span> | صارم: <span class="text-danger fw-bold">${prog.hard}</span> | مرن: <span style="color: #ffc107;">${prog.soft}</span>`;
+                                    let div = document.createElement('div');
+                                    div.innerHTML = logLine;
+                                    terminal.insertBefore(div, activeLine); // نضعه فوق السطر المتحرك
+                                }
+
+                                lastUnassigned = prog.unassigned;
+                                lastHard = prog.hard;
+                                lastSoft = prog.soft;
+                                lastElapsed = prog.elapsed;
+                            }
+                            
                             let terminalBox = document.getElementById('terminal_box');
                             if (terminalBox) terminalBox.scrollTop = terminalBox.scrollHeight;
-
-                            lastUnassigned = prog.unassigned;
-                            lastHard = prog.hard;
-                            lastSoft = prog.soft;
-                            lastElapsed = prog.elapsed;
                         }
                     }
 
+                    // 🌟 عند انتهاء الخوارزمية بنجاح
                     if (prog.done) {
+                        document.getElementById('progressBar').style.width = '100%';
+                        document.getElementById('progressBar').innerText = '100%';
+                        
+                        if (terminal) {
+                            let activeLine = document.getElementById('active-progress');
+                            if (activeLine) activeLine.remove(); 
+                            terminal.innerHTML += `<div style="color: #ffff00; font-weight: bold; margin-top: 5px;">&gt; [SUCCESS] 🎉 اكتملت عملية التوزيع بنجاح تام!</div>`;
+                            terminal.scrollTop = terminal.scrollHeight;
+                        }
+
                         clearInterval(pollInterval);
                         if(prog.error) {
                             alert("حدث خطأ: " + prog.error);
                             document.getElementById('btnStart').disabled = false;
                         } else {
-                            setTimeout(() => { window.location.reload(); }, 1500); 
+                            // 🌟 התعديل السحري: إظهار النتيجة فورا بدون رعشة وحفظها في التبويبة فقط
+                            sessionStorage.setItem('resit_violations', JSON.stringify(prog.violations || []));
+                            displayResults(prog.violations || []);
+                            document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
+                            document.getElementById('btnStart').disabled = false;
                         }
                     }
                 });
             }, 500);
         });
     }
+
+    // دالة لعرض النتائج ديناميكياً بدون رعشة
+    function displayResults(violations) {
+        let resSec = document.getElementById('resultsSection');
+        let violWrap = document.getElementById('violationsWrapper');
+        
+        if (violations && violations.length > 0) {
+            let vHtml = '<div class="alert alert-warning shadow-sm"><h5 class="fw-bold">⚠️ انتهى التوزيع مع وجود (' + violations.length + ') قيود لم تتحقق:</h5><ul class="mb-0 mt-2">';
+            violations.forEach(v => { vHtml += '<li>' + v + '</li>'; });
+            vHtml += '</ul></div>';
+            violWrap.innerHTML = vHtml;
+        } else {
+            violWrap.innerHTML = '<div class="alert alert-success shadow-sm text-center"><h5 class="fw-bold m-0">✨ اكتمل التوزيع بمثالية! 100% من القيود محققة.</h5></div>';
+        }
+        
+        resSec.style.display = 'block';
+    }
+
+    // 🌟 السر هنا: قراءة النتيجة من الجلسة المؤقتة عند التبديل بين التبويبات
+    document.addEventListener("DOMContentLoaded", function() {
+        let savedViolations = sessionStorage.getItem('resit_violations');
+        if (savedViolations !== null) {
+            displayResults(JSON.parse(savedViolations));
+        }
+    });
 </script>
 {% endblock %}

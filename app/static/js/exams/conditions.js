@@ -121,7 +121,7 @@ function renderPairsList() {
     currentProfessorPartnerships.forEach((pair, idx) => {
         list.innerHTML += `
             <li style="padding:10px; border-bottom:1px solid #eee; display:flex; justify-content:space-between;">
-                <span>${pair[0]} 🤝 ${pair[1]}</span>
+                <span>${pair[0]} + ${pair[1]}</span>
                 <button onclick="removePair(${idx})" style="background:#dc3545; color:white; border:none; border-radius:3px; cursor:pointer;">حذف</button>
             </li>`;
     });
@@ -169,7 +169,7 @@ function renderExclusivePairsList() {
     currentExclusiveProfessors.forEach((pair, idx) => {
         list.innerHTML += `
             <li style="padding:10px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; background: #fff5f5;">
-                <span style="color: #dc3545; font-weight: bold;">${pair[0]} ❌ ${pair[1]}</span>
+                <span style="color: #dc3545; font-weight: bold;">${pair[0]} - ${pair[1]}</span>
                 <button onclick="removeExclusivePair(${idx})" style="background:#6c757d; color:white; border:none; border-radius:3px; cursor:pointer; padding: 4px 10px;">حذف</button>
             </li>`;
     });
@@ -231,63 +231,56 @@ function autofillCalculator() {
         const guardsPerMedium = parseInt(document.getElementById('guards-medium-hall').value) || 0;
         const guardsPerSmall = parseInt(document.getElementById('guards-small-hall').value) || 0;
 
-        // أ) حساب عدد المواد الفعلي لكل مستوى
-        const subjectsCountPerLevel = {};
-        subjects.forEach(subj => {
-            const lvl = subj.level_name; 
-            subjectsCountPerLevel[lvl] = (subjectsCountPerLevel[lvl] || 0) + 1;
-        });
-
-        // ب) حساب الفترات (الخانات الزمنية) المتاحة لكل مستوى في الجدول
-        const slotsCountPerLevel = {};
-        Object.values(schedule).forEach(daySlots => {
-            daySlots.forEach(slot => {
-                (slot.levels || []).forEach(lvl => {
-                    slotsCountPerLevel[lvl] = (slotsCountPerLevel[lvl] || 0) + 1;
-                });
-            });
-        });
-
-        // ج) خريطة القاعات المخصصة لكل مستوى
+        // أ) خريطة القاعات المخصصة لكل مستوى فردي (بالتنسيق الجديد للباك إند)
         const levelHallsMap = {};
-        levelAssignments.forEach(assignment => {
-            levelHallsMap[assignment.level_name] = assignment.halls;
+        const levelDataArray = levelAssignments.levels || [];
+        levelDataArray.forEach(assignment => {
+            levelHallsMap[assignment.name] = assignment.assigned_halls;
         });
 
         let totalLargeDuties = 0;
         let totalOtherDuties = 0;
 
-        // د) الحساب الدقيق والمطابق تماماً لعمل الخوارزمية
-        Object.keys(subjectsCountPerLevel).forEach(levelName => {
-            const subjCount = subjectsCountPerLevel[levelName] || 0;
-            const slotCount = slotsCountPerLevel[levelName] || 0;
+        // ب) الحساب الدقيق بناءً على المواد ومستوياتها المشتركة
+        subjects.forEach(subj => {
+            // تخطي المواد غير المسندة لأي مستوى
+            if (subj.level_name === 'بدون مستوى' || subj.level_name === 'غير محدد') return;
+
+            // تفكيك الاسم المدمج (مثال: "الأولى + الثانية" يصبح ["الأولى", "الثانية"])
+            const individualLevels = subj.level_name.split(' + ').map(l => l.trim());
             
-            // الخوارزمية ستجدول امتحانات بعدد المواد، أو بعدد الفترات المتاحة (أيهما أقل)
-            const actualExamsCount = Math.min(subjCount, slotCount);
-
-            if (actualExamsCount > 0) {
-                const assignedHalls = levelHallsMap[levelName] || [];
-                let largeGuardsPerExam = 0;
-                let otherGuardsPerExam = 0;
-
-                assignedHalls.forEach(hallInfo => {
-                    if (hallInfo.hall_type === 'كبيرة') {
-                        largeGuardsPerExam += guardsPerLarge;
-                    } else if (hallInfo.hall_type === 'متوسطة') {
-                        otherGuardsPerExam += guardsPerMedium;
-                    } else if (hallInfo.hall_type === 'صغيرة') {
-                        otherGuardsPerExam += guardsPerSmall;
-                    }
+            // جمع قاعات جميع المستويات المشتركة في هذه المادة (استخدام Map يمنع تكرار نفس القاعة)
+            const uniqueHalls = new Map();
+            individualLevels.forEach(lvl => {
+                const assignedHalls = levelHallsMap[lvl] || [];
+                assignedHalls.forEach(hall => {
+                    uniqueHalls.set(hall.id, hall.type);
                 });
+            });
 
-                totalLargeDuties += (actualExamsCount * largeGuardsPerExam);
-                totalOtherDuties += (actualExamsCount * otherGuardsPerExam);
-            }
+            // ج) إضافة عدد الحراس المطلوبين لهذه المادة بالتحديد
+            let largeGuardsForThisSubject = 0;
+            let otherGuardsForThisSubject = 0;
+
+            uniqueHalls.forEach((type, hallId) => {
+                if (type === 'كبيرة') {
+                    largeGuardsForThisSubject += guardsPerLarge;
+                } else if (type === 'متوسطة') {
+                    otherGuardsForThisSubject += guardsPerMedium;
+                } else if (type === 'صغيرة') {
+                    otherGuardsForThisSubject += guardsPerSmall;
+                }
+            });
+
+            totalLargeDuties += largeGuardsForThisSubject;
+            totalOtherDuties += otherGuardsForThisSubject;
         });
 
+        // د) عرض النتائج النهائية في الواجهة
         document.getElementById('calc-large').value = totalLargeDuties;
         document.getElementById('calc-other').value = totalOtherDuties;
-        showNotification("تم الحساب بدقة متناهية بناءً على الامتحانات الفعلية المستهدفة.", 'success');
+        showNotification("تم الحساب بدقة بناءً على المواد وقاعات مستوياتها المشتركة.", 'success');
+        
     }).catch(err => {
         console.error(err);
         showNotification("حدث خطأ أثناء الجلب التلقائي للبيانات.", 'error');

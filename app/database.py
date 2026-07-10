@@ -120,6 +120,12 @@ exam_level_room = db.Table('exam_level_room',
     db.Column('room_id', db.Integer, db.ForeignKey('exam_rooms.id'), primary_key=True)
 )
 
+# جدول وسيط لربط المادة (ExamSubject) بعدة مستويات (ExamLevel)
+exam_subject_level = db.Table('exam_subject_level',
+    db.Column('subject_id', db.Integer, db.ForeignKey('exam_subjects.id'), primary_key=True),
+    db.Column('level_id', db.Integer, db.ForeignKey('exam_levels.id'), primary_key=True)
+)
+
 # 2. الجداول الأساسية
 class ExamTeacher(db.Model):
     __tablename__ = 'exam_teachers'
@@ -148,9 +154,10 @@ class ExamSubject(db.Model):
     __tablename__ = 'exam_subjects'
     id = db.Column(db.Integer, primary_key=True)
     tenant_id = db.Column(db.Integer, db.ForeignKey('tenants.id'), nullable=False)
-    level_id = db.Column(db.Integer, db.ForeignKey('exam_levels.id'))
     name = db.Column(db.String(150), nullable=False)
-    level = db.relationship('ExamLevel', backref='subjects')
+    
+    # ✨ العلاقة الجديدة: ربط المادة بقائمة من المستويات عبر الجدول الوسيط ✨
+    levels = db.relationship('ExamLevel', secondary=exam_subject_level, backref='subjects')
 
 class ExamDay(db.Model):
     __tablename__ = 'exam_days'
