@@ -347,6 +347,28 @@ function exportPedagogicalLoad() {
     .catch(err => alert("خطأ في تصدير العبء البيداغوجي: " + err));
 }
 
+function exportComprehensiveList() {
+    if (!currentGenerationData || !currentGenerationData.schedule) { 
+        alert('لا توجد بيانات مصدرة. يرجى توليد الجدول أولاً.'); 
+        return; 
+    }
+    
+    const payload = {
+        schedule: currentGenerationData.schedule,
+        days: currentGenerationData.days,
+        slots: currentGenerationData.slots
+    };
+
+    fetch('/api/export/comprehensive-list', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+    })
+    .then(res => res.blob())
+    .then(blob => triggerDownload(blob, 'القائمة_الشاملة_للجداول.xlsx'))
+    .catch(err => alert("خطأ في تصدير القائمة الشاملة: " + err));
+}
+
 // دالة مساعدة لعملية تنزيل الملف فعلياً في المتصفح
 function triggerDownload(blob, fileName) {
     const downloadUrl = window.URL.createObjectURL(blob);

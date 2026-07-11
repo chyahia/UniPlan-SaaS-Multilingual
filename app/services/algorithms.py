@@ -1374,13 +1374,14 @@ def validate_teacher_constraints_in_solution(teacher_schedule, special_constrain
 
         involved_lectures = lectures_by_teacher_map.get(teacher_name, [])
 
-        if distribution_rule_type == 'required' and num_days != target_days:
+        # ✨ تعديل: توحيد الكلمة لتصبح strict بدلاً من required
+        if distribution_rule_type == 'strict' and num_days != target_days:
             failures.append({
                 "course_name": "قيد التوزيع (صارم)", "teacher_name": teacher_name,
                 "reason": f"يجب أن يعمل {target_days} أيام بالضبط (يعمل حالياً {num_days}).", "penalty": 100, # هذا يبقى صارم
                 "involved_lectures": involved_lectures
             })
-        elif distribution_rule_type == 'allowed' and num_days > target_days:
+        elif distribution_rule_type != 'strict' and num_days > target_days:
             failures.append({
                 "course_name": "قيد التوزيع (مرن)", "teacher_name": teacher_name,
                 "reason": f"يجب أن يعمل {target_days} أيام كحد أقصى (يعمل حالياً {num_days}).", "penalty": penalty,

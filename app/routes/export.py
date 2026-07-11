@@ -342,3 +342,96 @@ def export_teaching_load():
         import traceback
         traceback.print_exc()
         return jsonify({"error": f"فشل إنشاء الملف: {e}"}), 500
+    
+# =====================================================================
+# 5. تصدير القائمة الشاملة (Excel - Flat Table)
+# =====================================================================
+@export_bp.route('/api/export/comprehensive-list', methods=['POST'])
+def export_comprehensive_list():
+    # ✨ التعديل السحابي: التأكد من أن الطلب قادم من مستخدم مسجل الدخول
+    if 'tenant_id' not in session:
+        return jsonify({"error": "غير مصرح"}), 403
+
+    data = request.get_json()
+    schedule = data.get('schedule', {})
+    days = data.get('days', [])
+    slots = data.get('slots', [])
+    
+    if not all([schedule, days, slots]): 
+        return jsonify({"error": "بيانات التصدير غير كاملة"}), 400
+    
+    output = io.BytesIO()
+    with pd.ExcelWriter(output, engine='openpyxl') as writer:
+        if not schedule:
+            pd.DataFrame(["لا توجد بيانات"]).to_excel(writer, sheet_name="فارغ", index=False)
+        
+        for level, grid in schedule.items():
+            safe_title = str(level).replace("/", "-").replace("\\", "-").replace("*", "").replace("?", "")[:31]
+            flat_data = []
+            
+            for d_idx, day_name in enumerate(days):
+                for s_idx, slot_name in enumerate(slots):
+                    lectures = grid[d_idx][s_idx] if d_idx < len(grid) and s_idx < len(grid[d_idx]) else []
+                    
+                    for lec in lectures:
+                        course_name_full = lec.get('name', '')
+                        teacher_name = lec.get('teacher_name', 'بدون أستاذ')
+                        room_name = lec.get('room', 'بدون قاعة')
+                        
+                        course_type = 'أعمال موجهة' 
+                        if '[مح]' in course_name_full: 
+                            course_type = 'محاضرة'
+                        elif '[أت]' in course_name_full: 
+                            course_type = 'أعمال تطبيقية'
+                        
+                        clean_course_name = course_name_full.replace('[مح]', '').replace('[أم]', '').replace('[أت]', '').strip()
+                        if not clean_course_name:
+                            clean_course_name = course_name_full
+                        
+                        flat_data.append([day_name, slot_name, teacher_name, clean_course_name, course_type, room_name])
+            
+            if not flat_data:
+                flat_data = [["-", "-", "-", "-", "-", "-"]]
+                
+            headers = ['اليوم', 'الوقت', 'الأستاذ', 'المادة', 'طبيعة المادة', 'القاعة']
+            df = pd.DataFrame(flat_data, columns=headers)
+            
+            df.to_excel(writer, sheet_name=safe_title, index=False)
+            worksheet = writer.sheets[safe_title]
+            
+            # قلب اتجاه ورقة العمل (الأعمدة من اليمين لليسار)
+            worksheet.sheet_view.rightToLeft = True
+            
+            thin_border = Border(left=Side(style='thin'), right=Side(style='thin'), top=Side(style='thin'), bottom=Side(style='thin'))
+            header_font = Font(bold=True, color="FFFFFF")
+            header_fill = PatternFill(start_color="4F81BD", end_color="4F81BD", fill_type="solid")
+            
+            rtl_alignment = Alignment(horizontal='center', vertical='center', wrap_text=True, readingOrder=2)
+            
+            for cell in worksheet[1]:
+                cell.font = header_font
+                cell.fill = header_fill
+                cell.border = thin_border
+                cell.alignment = rtl_alignment
+            
+            for row in worksheet.iter_rows(min_row=2):
+                for cell in row:
+                    cell.border = thin_border
+                    cell.alignment = rtl_alignment
+            
+            worksheet.column_dimensions['A'].width = 15 
+            worksheet.column_dimensions['B'].width = 15 
+            worksheet.column_dimensions['C'].width = 25 
+            worksheet.column_dimensions['D'].width = 30 
+            worksheet.column_dimensions['E'].width = 18 
+            worksheet.column_dimensions['F'].width = 15 
+            
+            worksheet.auto_filter.ref = worksheet.dimensions
+            
+    output.seek(0)
+    return send_file(
+        output, 
+        mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 
+        as_attachment=True, 
+        download_name='القائمة_الشاملة_للجداول.xlsx'
+    )

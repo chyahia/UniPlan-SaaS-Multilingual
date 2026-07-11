@@ -381,7 +381,7 @@ def background_generation_task(tenant_id, strict_hierarchy, algorithms, algo_set
             if 'e3' in limits: s_const['end_s3'] = True
             if 'e4' in limits: s_const['end_s4'] = True
             if rule.get('rule') != 'unspecified':
-                rules_map = {'group2': 'يومان متتاليان', 'group3': 'ثلاثة أيام متتالية', 'sep2': 'يومان منفصلان', 'sep3': 'ثلاثة ايام منفصلة'}
+                rules_map = {'group2': 'يومان متتاليان', 'group3': 'ثلاثة أيام متتالية', 'sep2': 'يومان منفصلان', 'sep3': 'ثلاثة أيام منفصلة'}
                 s_const['distribution_rule'] = rules_map.get(rule['rule'], 'غير محدد')
             
             special_constraints[t_name] = s_const
@@ -393,7 +393,9 @@ def background_generation_task(tenant_id, strict_hierarchy, algorithms, algo_set
             if spec.get('prevent_last') == '1': last_slot_restrictions[t_name] = 'last_1'
             elif spec.get('prevent_last') == '2': last_slot_restrictions[t_name] = 'last_2'
 
-        distribution_rule_type = 'strict' if global_rules.get('days_interpretation') == 'strict' else 'allowed'
+        # ✨ تعديل: قراءة اسم المتغير الصحيح (days_rule) القادم من الواجهة
+        days_rule_val = global_rules.get('days_rule') or global_rules.get('days_interpretation')
+        distribution_rule_type = 'strict' if days_rule_val == 'strict' else 'allowed'
         max_sess = global_rules.get('max_slots')
         max_sessions_per_day = int(max_sess) if max_sess and max_sess.isdigit() else None
         consecutive_large_hall_rule = global_rules.get('consecutive_hall_ban', 'none')
@@ -754,7 +756,7 @@ def background_refinement_task(tenant_id, current_schedule, refinement_level, se
             if 's3' in limits: s_const['start_d1_s3'] = True
             if 'e3' in limits: s_const['end_s3'] = True
             if 'e4' in limits: s_const['end_s4'] = True
-            rules_map = {'group2': 'يومان متتاليان', 'group3': 'ثلاثة أيام متتالية', 'sep2': 'يومان منفصلان', 'sep3': 'ثلاثة ايام منفصلة'}
+            rules_map = {'group2': 'يومان متتاليان', 'group3': 'ثلاثة أيام متتالية', 'sep2': 'يومان منفصلان', 'sep3': 'ثلاثة أيام منفصلة'}
             if rule.get('rule') != 'unspecified': s_const['distribution_rule'] = rules_map.get(rule.get('rule'), 'غير محدد')
             special_constraints[t_name] = s_const
 
@@ -765,7 +767,9 @@ def background_refinement_task(tenant_id, current_schedule, refinement_level, se
             if spec.get('prevent_last') == '1': last_slot_restrictions[t_name] = 'last_1'
             elif spec.get('prevent_last') == '2': last_slot_restrictions[t_name] = 'last_2'
 
-        distribution_rule_type = 'strict' if global_rules.get('days_interpretation') == 'strict' else 'allowed'
+        # ✨ تعديل: قراءة اسم المتغير الصحيح (days_rule) القادم من الواجهة
+        days_rule_val = global_rules.get('days_rule') or global_rules.get('days_interpretation')
+        distribution_rule_type = 'strict' if days_rule_val == 'strict' else 'allowed'
         max_sess = global_rules.get('max_slots')
         max_sessions_per_day = int(max_sess) if max_sess and max_sess.isdigit() else None
         consecutive_large_hall_rule = global_rules.get('consecutive_hall_ban', 'none')
