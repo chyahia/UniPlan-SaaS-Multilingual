@@ -60,8 +60,11 @@ function renderProfs() {
             if (isAssigned) unassignAllFromProf(p.id, p.name); 
         };
 
+        // إضافة عداد المواد بين قوسين بلون مميز إذا كان الأستاذ يمتلك مواد مسندة
+        let countBadge = isAssigned ? ` <span style="color: #e74c3c; font-size: 14px; font-weight: bold;">(${assignment.subjects.length})</span>` : '';
+        
         let html = `<div style="display:flex; justify-content:space-between; align-items:center; width:100%;">
-                        <span>${p.name}</span>`;
+                        <span>${p.name}${countBadge}</span>`;
         
         if (isAssigned) {
             html += `<span class="toggle-icon" onclick="toggleProfDetails(event, ${p.id})">▼</span></div>`;

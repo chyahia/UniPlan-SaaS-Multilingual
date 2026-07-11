@@ -139,7 +139,11 @@
     </div>
 
     <nav class="tabs-nav">
-        <button class="tab-btn tab-link active" onclick="openTab(event, 'tab1')">1. البيانات الأساسية</button>
+        <!-- الزر الجديد للرئيسية -->
+        <button class="tab-btn tab-link active" onclick="openTab(event, 'tab-home')">🏠 الرئيسية</button>
+        
+        <!-- إزالة كلمة active من التبويب الأول -->
+        <button class="tab-btn tab-link" onclick="openTab(event, 'tab1')">1. البيانات الأساسية</button>
         <button class="tab-btn tab-link" onclick="openTab(event, 'tab2')">2. إدارة البيانات</button>
         <button class="tab-btn tab-link" onclick="openTab(event, 'tab3')">3. الإسناد والقاعات</button>
         <button class="tab-btn tab-link" onclick="openTab(event, 'tab4')">4. الأيام والأوقات</button>

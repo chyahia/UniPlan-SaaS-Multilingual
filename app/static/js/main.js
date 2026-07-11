@@ -20,6 +20,7 @@ function getLinesFromTextarea(textareaId) {
 function loadPreviews() {
     // 1. جلب الأساتذة
     fetch('/teachers').then(res => res.json()).then(data => {
+        if(document.getElementById('stat-prof-count')) document.getElementById('stat-prof-count').innerText = data.length;
         const box = document.getElementById('teachers-preview');
         if(data.length === 0) { box.innerHTML = '<i>لا يوجد أساتذة...</i>'; } 
         else { box.innerHTML = data.map(t => `<span class="data-tag">${t.name}</span>`).join(''); }
@@ -27,6 +28,7 @@ function loadPreviews() {
 
     // 2. جلب القاعات
     fetch('/rooms').then(res => res.json()).then(data => {
+        if(document.getElementById('stat-room-count')) document.getElementById('stat-room-count').innerText = data.length;
         const box = document.getElementById('rooms-preview');
         if(data.length === 0) { box.innerHTML = '<i>لا توجد قاعات...</i>'; } 
         else { box.innerHTML = data.map(r => `<span class="data-tag">${r.name} (${r.type})</span>`).join(''); }
@@ -34,6 +36,7 @@ function loadPreviews() {
 
     // 3. جلب المستويات وتحديث (صندوق المعاينة الرئيسي + مربعات التأشير للمواد)
     fetch('/api/levels').then(res => res.json()).then(data => {
+        if(document.getElementById('stat-level-count')) document.getElementById('stat-level-count').innerText = data.length;
         // [أ] تحديث صندوق المعاينة الرئيسي للمستويات (الموجود أسفل صندوق إدخال المستويات)
         const levelsPreviewBox = document.getElementById('levels-preview');
         if (levelsPreviewBox) {
@@ -62,6 +65,7 @@ function loadPreviews() {
 
     // 4. جلب المواد
     fetch('/api/courses').then(res => res.json()).then(data => {
+        if(document.getElementById('stat-course-count')) document.getElementById('stat-course-count').innerText = data.length;
         const box = document.getElementById('courses-preview');
         if(data.length === 0) { box.innerHTML = '<i>لا توجد مواد...</i>'; } 
         else { 

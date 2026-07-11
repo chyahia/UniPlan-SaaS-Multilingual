@@ -162,7 +162,11 @@
     </style>
 
     <nav class="tabs-nav">
-        <button class="tab-btn active" onclick="openTab('tab-1', this)">1. البيانات الأساسية</button>
+        <!-- 🌟 الزر الجديد للشاشة الرئيسية (أيقونة فقط) -->
+        <button class="tab-btn active" onclick="openTab('tab-home', this)" title="الشاشة الرئيسية">🏠</button>
+        
+        <!-- إزالة active من التبويب 1 -->
+        <button class="tab-btn" onclick="openTab('tab-1', this)">1. البيانات الأساسية</button>
         <button class="tab-btn" onclick="openTab('tab-2', this)">2. إدارة البيانات</button>
         <button class="tab-btn" onclick="openTab('tab-3', this)">3. إسناد المواد</button>
         <button class="tab-btn" onclick="openTab('tab-4', this)">4. هيكل الجدول</button>

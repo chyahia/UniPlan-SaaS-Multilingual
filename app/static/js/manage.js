@@ -4,6 +4,7 @@ let globalLevels = []; // متغير عام لحفظ المستويات واست
 function loadManageTables() {
     // 1. جدول الأساتذة
     fetch('/teachers').then(res => res.json()).then(data => {
+        document.getElementById('title-manage-profs').innerText = `👨‍🏫 قائمة الأساتذة (${data.length})`;
         const tbody = document.querySelector('#teachers-table tbody');
         tbody.innerHTML = data.map(t => `<tr><td>${t.name}</td><td>
             <button onclick="editItem('/api/teachers/${t.id}', '${t.name}')" class="btn-edit">تعديل</button>
@@ -15,6 +16,7 @@ function loadManageTables() {
     // 2. جدول المستويات
     fetch('/api/levels').then(res => res.json()).then(data => {
         globalLevels = data; // حفظ المستويات
+        document.getElementById('title-manage-levels').innerText = `🎓 قائمة المستويات (${data.length})`;
         const tbody = document.querySelector('#levels-table tbody');
         tbody.innerHTML = data.map(l => `<tr><td>${l}</td><td>
             <button onclick="editItem('/api/levels/${encodeURIComponent(l)}', '${l}')" class="btn-edit">تعديل</button>
@@ -24,6 +26,7 @@ function loadManageTables() {
 
     // 3. جدول القاعات (مصحح ليعتمد "عادية")
     fetch('/rooms').then(res => res.json()).then(data => {
+        document.getElementById('title-manage-rooms').innerText = `🚪 قائمة القاعات (${data.length})`;
         const tbody = document.querySelector('#rooms-table tbody');
         tbody.innerHTML = data.map(r => `<tr id="room-row-${r.id}">
             <td>${r.name}</td>
@@ -37,6 +40,7 @@ function loadManageTables() {
 
     // 4. جدول المواد 
     fetch('/api/courses').then(res => res.json()).then(data => {
+        document.getElementById('title-manage-courses').innerText = `📚 قائمة المواد (${data.length})`;
         const tbody = document.querySelector('#courses-table tbody');
         tbody.innerHTML = data.map(c => `<tr id="course-row-${c.id}">
             <td style="text-align: center;">

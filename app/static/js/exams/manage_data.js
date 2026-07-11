@@ -15,6 +15,7 @@ function refreshAllManageTables() {
 // ==========================================
 function loadManageProfessors() {
     fetch('/exams/api/get-professors').then(res => res.json()).then(data => {
+        document.getElementById('title-manage-profs').innerText = `👨‍🏫 قائمة الأساتذة (${data.length})`;
         const tbody = document.getElementById('manage-professors-tbody');
         tbody.innerHTML = '';
         data.forEach(item => {
@@ -32,6 +33,7 @@ function loadManageProfessors() {
 
 function loadManageHalls() {
     fetch('/exams/api/get-halls').then(res => res.json()).then(data => {
+        document.getElementById('title-manage-halls').innerText = `🏫 قائمة القاعات (${data.length})`;
         const tbody = document.getElementById('manage-halls-tbody');
         tbody.innerHTML = '';
         data.forEach(item => {
@@ -50,6 +52,7 @@ function loadManageHalls() {
 
 function loadManageLevels() {
     fetch('/exams/api/get-levels').then(res => res.json()).then(data => {
+        document.getElementById('title-manage-levels').innerText = `🏗️ قائمة المستويات الدراسية (${data.length})`;
         const tbody = document.getElementById('manage-levels-tbody');
         tbody.innerHTML = '';
         data.forEach(item => {
@@ -67,6 +70,7 @@ function loadManageLevels() {
 
 function loadManageSubjects() {
     fetch('/exams/api/get-subjects').then(res => res.json()).then(data => {
+        document.getElementById('title-manage-subjects').innerText = `📚 قائمة المواد (${data.length})`;
         const tbody = document.getElementById('manage-subjects-tbody');
         tbody.innerHTML = '';
         data.forEach(item => {

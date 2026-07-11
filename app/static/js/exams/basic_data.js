@@ -63,6 +63,7 @@ function refreshProfessorPreview() {
         .then(res => res.json())
         .then(professors => {
             renderPreviewList('professors-preview-list', professors, 'name');
+            document.getElementById('stat-prof-count').innerText = professors.length;
         }).catch(err => console.error(err));
 }
 
@@ -71,6 +72,7 @@ function refreshHallPreview() {
         .then(res => res.json())
         .then(halls => {
             renderPreviewList('halls-preview-list', halls, 'name', 'type');
+            document.getElementById('stat-hall-count').innerText = halls.length;
         }).catch(err => console.error(err));
 }
 
@@ -78,6 +80,7 @@ function refreshLevelPreview() {
     fetch('/exams/api/get-levels')
     .then(res => res.json())
     .then(data => {
+        document.getElementById('stat-level-count').innerText = data.length;
         // تحديث القائمة الجانبية للمعاينة
         if (typeof renderPreviewList === 'function') {
             renderPreviewList('levels-preview-list', data, 'name');
@@ -110,6 +113,7 @@ function refreshSubjectPreview() {
         .then(res => res.json())
         .then(subjects => {
             renderGroupedSubjects(subjects);
+            document.getElementById('stat-subject-count').innerText = subjects.length;
         }).catch(err => console.error(err));
 }
 

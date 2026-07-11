@@ -1,8 +1,39 @@
 {% extends 'base.html' %}
 
 {% block content %}
+
+    <section id="tab-home" class="tab-content active">
+        <h2 style="color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; margin-bottom: 20px;">لوحة المعلومات والإحصائيات</h2>
+        
+        <div style="display: flex; gap: 15px; margin-bottom: 25px; flex-wrap: wrap; text-align: center;">
+            <div style="flex: 1; min-width: 200px; background: #fff; padding: 20px; border-radius: 8px; border-bottom: 4px solid #3f51b5; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                <h1 id="stat-prof-count" style="margin: 0; color: #3f51b5; font-size: 36px;">0</h1>
+                <p style="margin: 5px 0 0 0; color: #555; font-weight: bold;">👨‍🏫 أستاذ مسجل</p>
+            </div>
+            <div style="flex: 1; min-width: 200px; background: #fff; padding: 20px; border-radius: 8px; border-bottom: 4px solid #2e7d32; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                <h1 id="stat-room-count" style="margin: 0; color: #2e7d32; font-size: 36px;">0</h1>
+                <p style="margin: 5px 0 0 0; color: #555; font-weight: bold;">🚪 قاعة متاحة</p>
+            </div>
+            <div style="flex: 1; min-width: 200px; background: #fff; padding: 20px; border-radius: 8px; border-bottom: 4px solid #9b59b6; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                <h1 id="stat-level-count" style="margin: 0; color: #9b59b6; font-size: 36px;">0</h1>
+                <p style="margin: 5px 0 0 0; color: #555; font-weight: bold;">🎓 مستوى دراسي</p>
+            </div>
+            <div style="flex: 1; min-width: 200px; background: #fff; padding: 20px; border-radius: 8px; border-bottom: 4px solid #e67e22; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                <h1 id="stat-course-count" style="margin: 0; color: #e67e22; font-size: 36px;">0</h1>
+                <p style="margin: 5px 0 0 0; color: #555; font-weight: bold;">📚 مادة مسجلة</p>
+            </div>
+        </div>
+
+        <div style="background: #e8f4f8; padding: 20px; border-radius: 8px; border-right: 5px solid #3498db; margin-top: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+            <h3 style="color: #2980b9; margin-top: 0;">مرحباً بك في نظام الجداول الدراسية 📅</h3>
+            <p style="color: #555; font-size: 15px; line-height: 1.8;">
+                هذا النظام مصمم لبناء جداول الحصص الأسبوعية بذكاء وكفاءة. <br>
+                للبدء، انتقل إلى تبويبة <b>"1. البيانات الأساسية"</b> وقم بإعداد مدخلاتك، ثم اتبع المراحل بالتسلسل لضمان الحصول على جدول مثالي.
+            </p>
+        </div>
+    </section>
     
-    <section id="tab-1" class="tab-content active">
+    <section id="tab-1" class="tab-content">
         <h2>المرحلة 1: إدخال البيانات الأساسية</h2>
         <p>قم بإدخال البيانات كل عنصر في سطر منفصل. اضغط باستمرار على Ctrl (أو Cmd) لاختيار أكثر من مستوى للمادة.</p>
 
@@ -153,7 +184,7 @@
         <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-top: 20px;">
             
             <div class="table-container">
-                <h3>👨‍🏫 قائمة الأساتذة</h3>
+                <h3 id="title-manage-profs">👨‍🏫 قائمة الأساتذة</h3>
                 <table class="manage-table" id="teachers-table">
                     <thead><tr><th>الاسم</th><th>إجراء</th></tr></thead>
                     <tbody></tbody>
@@ -161,7 +192,7 @@
             </div>
 
             <div class="table-container">
-                <h3>🚪 قائمة القاعات</h3>
+                <h3 id="title-manage-rooms">🚪 قائمة القاعات</h3>
                 <table class="manage-table" id="rooms-table">
                     <thead><tr><th>الاسم</th><th>النوع</th><th>إجراء</th></tr></thead>
                     <tbody></tbody>
@@ -169,7 +200,7 @@
             </div>
 
             <div class="table-container">
-                <h3>🎓 قائمة المستويات</h3>
+                <h3 id="title-manage-levels">🎓 قائمة المستويات</h3>
                 <table class="manage-table" id="levels-table">
                     <thead><tr><th>المستوى</th><th>إجراء</th></tr></thead>
                     <tbody></tbody>
@@ -178,7 +209,7 @@
 
             <div class="table-container" style="flex-basis: 100%;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                    <h3 style="margin: 0;">📚 قائمة المواد (المقررات)</h3>
+                    <h3 id="title-manage-courses" style="margin: 0;">📚 قائمة المواد (المقررات)</h3>
                 </div>
                 
                 <div id="bulk-edit-bar" style="display: none; position: sticky; top: -15px; z-index: 100; background: #e8f4f8; border: 1px solid #3498db; padding: 15px; border-radius: 8px; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); transition: 0.3s;">

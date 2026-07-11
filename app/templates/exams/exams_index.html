@@ -1,7 +1,40 @@
 {% extends 'exams/exams_base.html' %}
 
 {% block content %}
-    <div id="tab1" class="tab-content active-tab">
+    <div id="tab-home" class="tab-content active-tab">
+        <h2 style="color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; margin-bottom: 20px;">🏠 لوحة المعلومات والإحصائيات</h2>
+        
+        <!-- البطاقات الإحصائية (Dashboard) -->
+        <div style="display: flex; gap: 15px; margin-bottom: 25px; flex-wrap: wrap; text-align: center;">
+            <div style="flex: 1; min-width: 200px; background: #fff; padding: 20px; border-radius: 8px; border-bottom: 4px solid #3f51b5; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                <h1 id="stat-prof-count" style="margin: 0; color: #3f51b5; font-size: 36px;">0</h1>
+                <p style="margin: 5px 0 0 0; color: #555; font-weight: bold;">👨‍🏫 أستاذ مسجل</p>
+            </div>
+            <div style="flex: 1; min-width: 200px; background: #fff; padding: 20px; border-radius: 8px; border-bottom: 4px solid #2e7d32; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                <h1 id="stat-hall-count" style="margin: 0; color: #2e7d32; font-size: 36px;">0</h1>
+                <p style="margin: 5px 0 0 0; color: #555; font-weight: bold;">🏫 قاعة متاحة</p>
+            </div>
+            <div style="flex: 1; min-width: 200px; background: #fff; padding: 20px; border-radius: 8px; border-bottom: 4px solid #6a1b9a; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                <h1 id="stat-level-count" style="margin: 0; color: #6a1b9a; font-size: 36px;">0</h1>
+                <p style="margin: 5px 0 0 0; color: #555; font-weight: bold;">🏗️ مستوى دراسي</p>
+            </div>
+            <div style="flex: 1; min-width: 200px; background: #fff; padding: 20px; border-radius: 8px; border-bottom: 4px solid #ef6c00; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                <h1 id="stat-subject-count" style="margin: 0; color: #ef6c00; font-size: 36px;">0</h1>
+                <p style="margin: 5px 0 0 0; color: #555; font-weight: bold;">📚 مادة مسجلة</p>
+            </div>
+        </div>
+
+        <!-- رسالة ترحيبية وتوجيهية للمستخدم -->
+        <div style="background: #e8f4f8; padding: 20px; border-radius: 8px; border-right: 5px solid #3498db; margin-top: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+            <h3 style="color: #2980b9; margin-top: 0;">مرحباً بك في نظام حراسة الامتحانات 🎓</h3>
+            <p style="color: #555; font-size: 15px; line-height: 1.8;">
+                هذا النظام مصمم لتسهيل عملية توزيع حراسات الامتحانات على الأساتذة بعدالة تامة باستخدام خوارزميات الذكاء الاصطناعي. <br>
+                للبدء، يرجى الانتقال إلى تبويبة <b>"1. البيانات الأساسية"</b> لإدخال قوائم الأساتذة والقاعات والمواد، ثم اتبع المراحل بالتسلسل خطوة بخطوة حتى تصل إلى التوليد والتصدير النهائي.
+            </p>
+        </div>
+    </div>
+
+    <div id="tab1" class="tab-content">
         <div style="display: flex; justify-content: space-between; align-items: center; background: #e8f4f8; padding: 10px 20px; border-radius: 8px; border-right: 5px solid #3498db; margin-bottom: 20px;">
             <h2 style="margin: 0; color: #2c3e50;">المرحلة 1: إدخال البيانات الأساسية</h2>
             
@@ -87,7 +120,7 @@
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px;">
             
             <div class="data-table-container" style="background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-                <h3 style="background-color: #e3f2fd; color: #1565c0; padding: 10px 15px; border-radius: 5px; margin-top: 0; border-right: 5px solid #1976d2;">👨‍🏫 قائمة الأساتذة</h3>
+                <h3 id="title-manage-profs" style="background-color: #e3f2fd; color: #1565c0; padding: 10px 15px; border-radius: 5px; margin-top: 0; border-right: 5px solid #1976d2;">👨‍🏫 قائمة الأساتذة</h3>
                 <div style="max-height: 300px; overflow-y: auto;">
                     <table style="width: 100%; border-collapse: collapse; text-align: right;">
                         <thead style="background: #f1f1f1; position: sticky; top: 0;">
@@ -99,7 +132,7 @@
             </div>
 
             <div class="data-table-container" style="background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-                <h3 style="background-color: #e8f5e9; color: #2e7d32; padding: 10px 15px; border-radius: 5px; margin-top: 0; border-right: 5px solid #388e3c;">🏫 قائمة القاعات</h3>
+                <h3 id="title-manage-halls" style="background-color: #e8f5e9; color: #2e7d32; padding: 10px 15px; border-radius: 5px; margin-top: 0; border-right: 5px solid #388e3c;">🏫 قائمة القاعات</h3>
                 <div style="max-height: 300px; overflow-y: auto;">
                     <table style="width: 100%; border-collapse: collapse; text-align: right;">
                         <thead style="background: #f1f1f1; position: sticky; top: 0;">
@@ -111,7 +144,7 @@
             </div>
 
             <div class="data-table-container" style="background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-                <h3 style="background-color: #f3e5f5; color: #6a1b9a; padding: 10px 15px; border-radius: 5px; margin-top: 0; border-right: 5px solid #8e24aa;">🏗️ قائمة المستويات الدراسية</h3>
+                <h3 id="title-manage-levels" style="background-color: #f3e5f5; color: #6a1b9a; padding: 10px 15px; border-radius: 5px; margin-top: 0; border-right: 5px solid #8e24aa;">🏗️ قائمة المستويات الدراسية</h3>
                 <div style="max-height: 300px; overflow-y: auto;">
                     <table style="width: 100%; border-collapse: collapse; text-align: right;">
                         <thead style="background: #f1f1f1; position: sticky; top: 0;">
@@ -123,7 +156,7 @@
             </div>
 
             <div class="data-table-container" style="background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-                <h3 style="background-color: #fff3e0; color: #ef6c00; padding: 10px 15px; border-radius: 5px; margin-top: 0; border-right: 5px solid #f57c00;">📚 قائمة المواد</h3>
+                <h3 id="title-manage-subjects" style="background-color: #fff3e0; color: #ef6c00; padding: 10px 15px; border-radius: 5px; margin-top: 0; border-right: 5px solid #f57c00;">📚 قائمة المواد</h3>
                 <div style="max-height: 300px; overflow-y: auto;">
                     <table style="width: 100%; border-collapse: collapse; text-align: right;">
                         <thead style="background: #f1f1f1; position: sticky; top: 0;">

@@ -72,6 +72,7 @@
         .header-btn {
             padding: 8px 15px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: bold; font-family: inherit; transition: 0.2s; color: white !important; text-decoration: none; display: inline-block; box-sizing: border-box; margin: 0 !important;
         }
+        .btn-green { background-color: #27ae60 !important; color: white !important; } .btn-green:hover { background-color: #2ecc71 !important; }
         .btn-blue { background-color: #2980b9 !important; } .btn-blue:hover { background-color: #3498db !important; }
         .btn-red { background-color: #e74c3c !important; } .btn-red:hover { background-color: #c0392b !important; }
 
@@ -128,6 +129,7 @@
         </div>
         
         <div id="admin-header-btns" style="display: flex; gap: 10px; align-items: center;">
+            <button class="header-btn btn-green" onclick="confirmSave(this)">💾 حفظ الإعدادات</button>
             <a href="/" class="header-btn btn-blue">🏠 العودة للبوابة</a>
             <a href="/logout" class="header-btn btn-red">🚪 خروج</a>
             
@@ -154,6 +156,27 @@
         </div>
     </div>
 
+    <!-- نافذة المساعدة ودليل الاستخدام -->
+    <div id="helpModal" style="display: none; position: fixed; z-index: 10001; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px);">
+        <div style="background-color: #fff; margin: 5% auto; padding: 30px; width: 90%; max-width: 600px; max-height: 85vh; overflow-y: auto; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); position: relative; color: #333; direction: rtl; text-align: right;">
+            <span id="closeHelpBtn" style="position: absolute; top: 10px; left: 15px; font-size: 28px; font-weight: bold; color: #aaa; cursor: pointer;" onmouseover="this.style.color='#e74c3c'" onmouseout="this.style.color='#aaa'">&times;</span>
+            <h3 style="color: #2c3e50; margin-top: 0; margin-bottom: 20px; font-size: 22px; text-align: center; border-bottom: 2px solid #ecf0f1; padding-bottom: 10px;">❓ المساعدة ودليل الاستخدام</h3>
+            <p style="font-weight: bold; color: #3498db; margin-top: 0; font-size: 16px;">💡 مراحل العمل في نظام الاستدراكي:</p>
+            <ul style="padding-right: 20px; margin-bottom: 20px; list-style-type: none; font-size: 15px; line-height: 1.6;">
+                <li style="margin-bottom: 12px;"><b>1️⃣ المرحلة 1 (إدخال البيانات):</b> إضافة الأساتذة، القاعات، المستويات والمواد الأساسية.</li>
+                <li style="margin-bottom: 12px;"><b>2️⃣ المرحلة 2 (إسناد المواد):</b> ربط وتخصيص كل مادة بالأستاذ الذي يدرسها.</li>
+                <li style="margin-bottom: 12px;"><b>3️⃣ المرحلة 3 (تخصيص القاعات):</b> تحديد القاعات المخصصة لامتحان كل مستوى دراسي.</li>
+                <li style="margin-bottom: 12px;"><b>4️⃣ المرحلة 4 (الأيام والأوقات):</b> بناء الهيكل الزمني وجدولة أيام وفترات الامتحانات.</li>
+                <li style="margin-bottom: 12px;"><b>5️⃣ المرحلة 5 (القيود والشروط):</b> إدراج تعارضات المستويات (آلياً)، المرافقة، الإعفاءات، وتجميع الأيام.</li>
+                <li style="margin-bottom: 12px;"><b>6️⃣ المرحلة 6 (التوزيع والتصدير):</b> إطلاق الخوارزمية الذكية لتوليد الجدول وتصدير مسودات الوورد.</li>
+                <li style="margin-bottom: 12px;"><b>7️⃣ المرحلة 7 (الإدارة والنشر):</b> التعديل اليدوي الدقيق عبر الإكسل، والنشر الرسمي في بوابة الأساتذة.</li>
+            </ul>
+            <div style="background: #fff3cd; color: #856404; padding: 12px; border-radius: 5px; border: 1px solid #ffeeba; font-size: 14px; text-align: center;">
+                <b>⚠️ تلميح هام:</b> احرص على احترام تسلسل المراحل، وتأكد من اكتمال البيانات في كل مرحلة قبل الانتقال للتي تليها!
+            </div>
+        </div>
+    </div>
+
     <nav class="tabs-nav">
         <a href="{{ url_for('resit_exams.index') }}" class="tab-btn {% if request.endpoint == 'resit_exams.index' %}active{% endif %}">الرئيسية</a>
         <a href="{{ url_for('resit_exams.manage_data') }}" class="tab-btn {% if request.endpoint == 'resit_exams.manage_data' %}active{% endif %}">1. إدخال البيانات</a>
@@ -162,7 +185,7 @@
         <a href="{{ url_for('resit_exams.manage_schedule') }}" class="tab-btn {% if request.endpoint == 'resit_exams.manage_schedule' %}active{% endif %}">4. الأيام والأوقات</a>
         <a href="{{ url_for('resit_exams.manage_constraints') }}" class="tab-btn {% if request.endpoint == 'resit_exams.manage_constraints' %}active{% endif %}">5. القيود والشروط</a>
         <a href="{{ url_for('resit_exams.generate_schedule') }}" class="tab-btn {% if request.endpoint == 'resit_exams.generate_schedule' %}active{% endif %}">6. التوزيع والتصدير</a>
-        <a href="{{ url_for('resit_exams.phase7') }}" class="tab-btn {% if request.endpoint == 'resit_exams.phase7' %}active{% endif %}">7. النشر النهائي</a>
+        <a href="{{ url_for('resit_exams.phase7') }}" class="tab-btn {% if request.endpoint == 'resit_exams.phase7' %}active{% endif %}">7. الإدارة والنشر</a>
     </nav>
 
     <div class="container mt-4">
@@ -184,10 +207,38 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
+        // دالة زر الحفظ في الشريط العلوي
+        function confirmSave(btn) {
+            let originalText = btn.innerHTML;
+            btn.innerHTML = '✅ تم الحفظ!';
+            btn.style.setProperty('background-color', '#34495e', 'important'); // لون داكن عند النقر
+            
+            // إعادة الزر لشكله الطبيعي بعد ثانية ونصف
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.style.removeProperty('background-color');
+            }, 1500);
+        }
+
         function toggleDropdown() {
             document.getElementById("myDropdown").classList.toggle("show-dropdown");
         }
 
+        // دالة الزر الذكي لإعطاء تأكيد بصري بحفظ الإعدادات
+        function confirmSave(btn) {
+            let originalText = btn.innerHTML;
+            btn.innerHTML = '✅ تم حفظ الإعدادات بنجاح!';
+            btn.classList.remove('btn-success');
+            btn.classList.add('btn-dark');
+            
+            // إعادة الزر لشكله الطبيعي بعد ثانيتين
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.classList.remove('btn-dark');
+                btn.classList.add('btn-success');
+            }, 2000);
+        }
+        
         document.addEventListener('DOMContentLoaded', function() {
             // تفعيل نافذة (عن البرنامج)
             var modal = document.getElementById("aboutModal");
@@ -199,14 +250,41 @@
                     modal.style.display = "block";
                     modal.querySelector('div').style.animation = "fadeInDown 0.3s ease-out";
                     document.getElementById("myDropdown").classList.remove('show-dropdown');
+                    document.body.style.overflow = "hidden"; // 🌟 تجميد الخلفية
                 }
-                span.onclick = function() { modal.style.display = "none"; }
+                span.onclick = function() { 
+                    modal.style.display = "none"; 
+                    document.body.style.overflow = ""; // 🌟 تحرير الخلفية
+                }
+            }
+
+            // 🌟 تفعيل نافذة (المساعدة ودليل الاستخدام) الجديدة
+            var helpModal = document.getElementById("helpModal");
+            var helpBtn = document.getElementById("help-button");
+            var closeHelpBtn = document.getElementById("closeHelpBtn");
+            
+            if(helpBtn && helpModal && closeHelpBtn) {
+                helpBtn.onclick = function() {
+                    helpModal.style.display = "block";
+                    helpModal.querySelector('div').style.animation = "fadeInDown 0.3s ease-out";
+                    document.getElementById("myDropdown").classList.remove('show-dropdown');
+                    document.body.style.overflow = "hidden"; // 🌟 تجميد الخلفية
+                }
+                closeHelpBtn.onclick = function() { 
+                    helpModal.style.display = "none"; 
+                    document.body.style.overflow = ""; // 🌟 تحرير الخلفية
+                }
             }
 
             // إغلاق النوافذ عند النقر في الخارج
             window.addEventListener('click', function(event) {
                 if (modal && event.target == modal) { 
                     modal.style.display = "none"; 
+                    document.body.style.overflow = "";
+                }
+                if (helpModal && event.target == helpModal) { 
+                    helpModal.style.display = "none"; 
+                    document.body.style.overflow = "";
                 }
                 if (!event.target.matches('.dropbtn')) {
                     var dropdowns = document.getElementsByClassName("dropdown-content");
