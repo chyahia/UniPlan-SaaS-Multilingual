@@ -274,8 +274,8 @@ function applyBulkEdit() {
     
     if (!confirm(`هل أنت متأكد من تغيير البيانات لـ (${courseIds.length}) مواد دفعة واحدة؟`)) return;
     
-    fetch('/api/courses/bulk_update', {
-        method: 'PUT',
+    fetch('/api/courses/bulk-properties', {
+        method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({
             course_ids: courseIds,

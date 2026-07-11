@@ -132,3 +132,91 @@ def update_course_properties_bulk():
     except Exception as e:
         db.session.rollback()
         return jsonify({"success": False, "error": str(e)}), 500
+    
+# ==============================================================
+# ✏️ مسارات التعديل المباشر (PUT) الفردية (معزولة بـ tenant_id)
+# ==============================================================
+
+@manage_data_bp.route('/api/teachers/<int:id>', methods=['PUT'])
+def edit_teacher(id):
+    tenant_id = session.get('tenant_id')
+    data = request.get_json()
+    new_name = data.get('name')
+    
+    teacher = Teacher.query.filter_by(id=id, tenant_id=tenant_id).first()
+    if not teacher:
+        return jsonify({"success": False, "error": "الأستاذ غير موجود"}), 404
+        
+    if new_name:
+        teacher.name = new_name.strip()
+        db.session.commit()
+        return jsonify({"success": True})
+    return jsonify({"success": False, "error": "الاسم مطلوب"}), 400
+
+@manage_data_bp.route('/api/rooms/<int:id>', methods=['PUT'])
+def edit_room(id):
+    tenant_id = session.get('tenant_id')
+    data = request.get_json()
+    new_name = data.get('name')
+    new_type = data.get('type')
+    
+    room = Room.query.filter_by(id=id, tenant_id=tenant_id).first()
+    if not room:
+        return jsonify({"success": False, "error": "القاعة غير موجودة"}), 404
+        
+    if new_name:
+        room.name = new_name.strip()
+        if new_type:
+            room.type = new_type.strip()
+        db.session.commit()
+        return jsonify({"success": True})
+    return jsonify({"success": False, "error": "الاسم مطلوب"}), 400
+
+@manage_data_bp.route('/api/levels/<string:name>', methods=['PUT'])
+def edit_level(name):
+    tenant_id = session.get('tenant_id')
+    data = request.get_json()
+    new_name = data.get('name')
+    
+    level = Level.query.filter_by(name=name, tenant_id=tenant_id).first()
+    if not level:
+        return jsonify({"success": False, "error": "المستوى غير موجود"}), 404
+        
+    if new_name:
+        level.name = new_name.strip()
+        db.session.commit()
+        return jsonify({"success": True})
+    return jsonify({"success": False, "error": "الاسم مطلوب"}), 400
+
+@manage_data_bp.route('/api/courses/<int:id>', methods=['PUT'])
+def edit_course(id):
+    tenant_id = session.get('tenant_id')
+    data = request.get_json()
+    
+    course = Course.query.filter_by(id=id, tenant_id=tenant_id).first()
+    if not course:
+        return jsonify({"success": False, "error": "المادة غير موجودة"}), 404
+        
+    try:
+        if 'name' in data and data['name']: 
+            course.name = data['name'].strip()
+        if 'room_type' in data: 
+            course.room_type = data['room_type']
+        if 'division' in data: 
+            course.division = data['division']
+        if 'specialization' in data: 
+            course.specialization = data['specialization']
+        if 'course_nature' in data: 
+            course.course_nature = data['course_nature']
+        
+        # تحديث المستويات المرتبطة بالمادة (Many-to-Many)
+        if 'levels' in data and isinstance(data['levels'], list):
+            level_names = data['levels']
+            new_levels = Level.query.filter(Level.name.in_(level_names), Level.tenant_id == tenant_id).all()
+            course.levels = new_levels
+            
+        db.session.commit()
+        return jsonify({"success": True})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"success": False, "error": str(e)}), 500
