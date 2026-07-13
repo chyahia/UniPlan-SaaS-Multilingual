@@ -623,6 +623,20 @@
             <div class="small-scroll-box" id="optimization-teachers" style="margin-bottom: 10px; display: flex; flex-wrap: wrap; gap: 10px;"></div>
 
         </div>
+        {% if config.get('ENABLE_DOMINO_FEATURE') %}
+        <div class="cond-section" style="background: #fdfaf6; border-color: #8e44ad;">
+            <h3 style="color: #8e44ad;">🎲 أساتذة التوزيع المرن (خوارزمية الدومينو)</h3>
+            <p style="font-size:13px;">اختر الأساتذة الذين سيتم توزيع جدولهم على 3 أيام مع ترك "حصة يتيمة" قابلة للضغط لاحقاً إلى يومين.</p>
+            
+            <!-- ✨ أزرار التحديد والإلغاء الجديدة -->
+            <div style="margin-top: 10px; margin-bottom: 10px; display: flex; gap: 10px;">
+                <button type="button" onclick="toggleDominoTeachers(true)" style="background: #8e44ad; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-family: inherit; font-size: 13px; font-weight: bold;">☑️ تحديد الكل</button>
+                <button type="button" onclick="toggleDominoTeachers(false)" style="background: #c0392b; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-family: inherit; font-size: 13px; font-weight: bold;">⬜ إلغاء الكل</button>
+            </div>
+
+            <div class="small-scroll-box" id="domino-teachers-container" style="display: flex; flex-wrap: wrap; gap: 10px;"></div>
+        </div>
+        {% endif %}
         <button onclick="saveAllConditions()" style="background:#27ae60; color:white; padding:10px 20px; border:none; border-radius:4px; cursor:pointer; font-weight:bold; margin-bottom:15px; width:100%;">💾 حفظ جميع القيود</button>
     </section>
 
@@ -741,9 +755,55 @@
             <h4>🛠️ أدوات التحكم والتحسين المتقدمة</h4>
             
             <div>
-                <button id="btn-refine" class="btn-magic" onclick="refineSchedule()">
-                    ✨ ضغط وتحسين جداول الأساتذة (سد الفجوات)
-                </button>
+                <!-- ستايل تأثير الانزلاق الناعم -->
+                <style>
+                    .domino-slider {
+                        max-width: 0;
+                        opacity: 0;
+                        overflow: hidden;
+                        transition: max-width 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+                        display: flex;
+                    }
+                    .domino-slider.open {
+                        max-width: 300px; /* العرض الكافي لظهور الزرين */
+                        opacity: 1;
+                    }
+                    .domino-btn-action {
+                        border: none; color: white; padding: 0 15px; font-weight: bold; 
+                        cursor: pointer; font-size: 15px; white-space: nowrap; font-family: inherit;
+                    }
+                    .domino-btn-action:hover { filter: brightness(1.1); }
+                </style>
+
+                <!-- حاوية الأزرار المدمجة -->
+                <div style="display: flex; gap: 10px; align-items: stretch; height: 55px; margin-bottom: 10px;">
+                    
+                    <!-- زر التحسين الرئيسي (يأخذ المساحة الأكبر) -->
+                    <button id="btn-refine" class="btn-magic" onclick="refineSchedule()" style="flex: 1; margin: 0; height: 100%; font-size: 16px;">
+                        ✨ ضغط وتحسين جداول الأساتذة (سد الفجوات)
+                    </button>
+
+                    <!-- حاوية الدومينو الذكية -->
+                     {% if config.get('ENABLE_DOMINO_FEATURE') %}
+                    <div style="display: flex; background: #ecf0f1; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                        
+                        <!-- الأزرار المخفية التي تنزلق -->
+                        <div id="domino-actions-wrapper" class="domino-slider">
+                            <button id="btn-activate-domino" onclick="activateDominoSchedules()" class="domino-btn-action" style="background: #27ae60;">
+                                🟢 تفعيل
+                            </button>
+                            <button id="btn-compress-domino" onclick="compressDominoSchedules()" class="domino-btn-action" style="background: #2980b9;">
+                                🔵 تجميع
+                            </button>
+                        </div>
+
+                        <!-- زر قطعة الدومينو المربع (المفتاح) -->
+                        <button onclick="toggleDominoSlider()" style="background: #8e44ad; color: white; border: none; width: 60px; cursor: pointer; font-size: 26px; display: flex; align-items: center; justify-content: center; transition: 0.3s;" title="أدوات الدومينو الجراحية">
+                            🎲
+                        </button>
+                    </div>
+                    {% endif %}
+                </div>
                 
                 <div style="margin-top: 15px; padding: 12px 15px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 13px;">
                     <strong style="display: block; margin-bottom: 8px; color: #334155;">⚙️ حدد عمق خوارزمية الضغط:</strong>

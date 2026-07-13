@@ -572,6 +572,162 @@ function refineSchedule() {
     });
 }
 
+// ==========================================
+// 🟢 دالة تفعيل الدومينو (صناعة الحصص اليتيمة)
+// ==========================================
+function activateDominoSchedules() {
+    if (!currentGenerationData || !currentGenerationData.schedule) {
+        alert("يرجى توليد جدول أولاً!"); return;
+    }
+    
+    if (!confirm("هل أنت متأكد أنك تريد تفعيل الدومينو (صناعة حصص يتيمة) للأساتذة المؤشر عليهم؟")) return;
+
+    const logContainer = document.getElementById('live-log-container');
+    const logOutput = document.getElementById('log-output');
+    const resultsContainer = document.getElementById('schedule-results-container');
+    const btnActivate = document.getElementById('btn-activate-domino');
+    
+    resultsContainer.style.display = 'none';
+    logContainer.style.display = 'block';
+    logOutput.textContent = `🟢 جاري الاتصال بالخادم لتفعيل الدومينو (صناعة الحصص اليتيمة)...\n`;
+    
+    btnActivate.disabled = true;
+    btnActivate.innerText = '⏳ جاري التفعيل...';
+
+    fetch('/api/activate_domino', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ schedule: currentGenerationData.schedule })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.message) {
+            const refineEventSource = new EventSource('/stream-logs');
+            refineEventSource.onmessage = function(event) {
+                const message = event.data;
+                if (message.startsWith("DONE")) {
+                    refineEventSource.close();
+                    const jsonData = message.substring(4);
+                    try {
+                        const parsedData = JSON.parse(jsonData);
+                        currentGenerationData.schedule = parsedData.schedule;
+                        currentGenerationData.prof_schedules = parsedData.prof_schedules;
+                        currentGenerationData.free_rooms = parsedData.free_rooms; 
+                        logOutput.textContent += '\n--- 🟢 نجحت عملية صناعة الحصص اليتيمة! ---\n';
+                        btnActivate.disabled = false;
+                        btnActivate.innerText = '🟢 تفعيل الدومينو';
+                        resultsContainer.style.display = 'block';
+                        renderLevelSchedules(parsedData.schedule, parsedData.days, parsedData.slots);
+                        alert("🟢 تم تفعيل مسار الدومينو وصناعة الحصص اليتيمة بنجاح!");
+                    } catch(e) { console.error(e); }
+                } else if (!message.includes("PROGRESS:") && !message.startsWith("CHART_DATA:")) {
+                    logOutput.textContent += message + '\n';
+                    logOutput.scrollTop = logOutput.scrollHeight;
+                }
+            };
+            refineEventSource.onerror = function() {
+                refineEventSource.close();
+                btnActivate.disabled = false;
+                btnActivate.innerText = '🟢 تفعيل الدومينو';
+                resultsContainer.style.display = 'block'; 
+            };
+        } else {
+            alert("حدث خطأ: " + data.error);
+            btnActivate.disabled = false;
+            btnActivate.innerText = '🟢 تفعيل الدومينو';
+            resultsContainer.style.display = 'block';
+        }
+    })
+    .catch(err => {
+        alert("حدث خطأ في الاتصال.");
+        btnActivate.disabled = false;
+        btnActivate.innerText = '🟢 تفعيل الدومينو';
+        resultsContainer.style.display = 'block';
+    });
+}
+
+// ==========================================
+// 🔵 دالة تجميع الدومينو (ضغط الجداول)
+// ==========================================
+function compressDominoSchedules() {
+    if (!currentGenerationData || !currentGenerationData.schedule) {
+        alert("يرجى توليد جدول أولاً!"); return;
+    }
+    
+    if (!confirm("هل أنت متأكد من تجميع الدومينو وضغط جداول الأساتذة العالقين؟")) return;
+
+    const logContainer = document.getElementById('live-log-container');
+    const logOutput = document.getElementById('log-output');
+    const resultsContainer = document.getElementById('schedule-results-container');
+    const btnCompress = document.getElementById('btn-compress-domino');
+    
+    resultsContainer.style.display = 'none';
+    logContainer.style.display = 'block';
+    logOutput.textContent = `🔵 جاري الاتصال بالخادم وتجميع مسارات الدومينو لضغط الجداول...\n`;
+    
+    btnCompress.disabled = true;
+    btnCompress.innerText = '⏳ جاري التجميع...';
+
+    fetch('/api/compress_domino', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ schedule: currentGenerationData.schedule })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.message) {
+            const refineEventSource = new EventSource('/stream-logs');
+            refineEventSource.onmessage = function(event) {
+                const message = event.data;
+                if (message.startsWith("DONE")) {
+                    refineEventSource.close();
+                    const jsonData = message.substring(4);
+                    try {
+                        const parsedData = JSON.parse(jsonData);
+                        currentGenerationData.schedule = parsedData.schedule;
+                        currentGenerationData.prof_schedules = parsedData.prof_schedules;
+                        currentGenerationData.free_rooms = parsedData.free_rooms; 
+                        logOutput.textContent += '\n--- 🔵 نجحت عملية تجميع مسارات الدومينو! ---\n';
+                        btnCompress.disabled = false;
+                        btnCompress.innerText = '🔵 تجميع الدومينو';
+                        resultsContainer.style.display = 'block';
+                        renderLevelSchedules(parsedData.schedule, parsedData.days, parsedData.slots);
+                        alert("🔵 تم تجميع الحصص اليتيمة وضغط الجداول بنجاح!");
+                    } catch(e) { console.error(e); }
+                } else if (!message.includes("PROGRESS:") && !message.startsWith("CHART_DATA:")) {
+                    logOutput.textContent += message + '\n';
+                    logOutput.scrollTop = logOutput.scrollHeight;
+                }
+            };
+            refineEventSource.onerror = function() {
+                refineEventSource.close();
+                btnCompress.disabled = false;
+                btnCompress.innerText = '🔵 تجميع الدومينو';
+                resultsContainer.style.display = 'block'; 
+            };
+        } else {
+            alert("حدث خطأ: " + data.error);
+            btnCompress.disabled = false;
+            btnCompress.innerText = '🔵 تجميع الدومينو';
+            resultsContainer.style.display = 'block';
+        }
+    })
+    .catch(err => {
+        alert("حدث خطأ في الاتصال.");
+        btnCompress.disabled = false;
+        btnCompress.innerText = '🔵 تجميع الدومينو';
+        resultsContainer.style.display = 'block';
+    });
+}
+
+// ==========================================
+// 🎲 دالة فتح وإغلاق شريط الدومينو المنزلق
+// ==========================================
+function toggleDominoSlider() {
+    const slider = document.getElementById('domino-actions-wrapper');
+    slider.classList.toggle('open');
+}
+
 
 
 // ==================== محرك التعديل اليدوي الذكي (Interactive Swapping) ====================

@@ -216,6 +216,11 @@ function renderConditionsUI() {
     if(optContainer) {
         optContainer.innerHTML = condTeachers.map(t => `<label style="background:#fff; padding:5px; border:1px solid #ccc; border-radius:3px;"><input type="checkbox" class="opt-chk" value="${t.id}" checked> ${t.name}</label>`).join('');
     }
+
+    const dominoContainer = document.getElementById('domino-teachers-container');
+    if(dominoContainer) {
+        dominoContainer.innerHTML = condTeachers.map(t => `<label style="background:#fff; padding:5px; border:1px solid #ccc; border-radius:3px;"><input type="checkbox" class="domino-chk" value="${t.id}"> ${t.name}</label>`).join('');
+    }
 }
 
 function checkMasterLimit(tid) {
@@ -289,7 +294,8 @@ function saveAllConditions() {
         optimization: {
             level: document.querySelector('input[name="opt_level"]:checked')?.value || 'normal',
             teachers: Array.from(document.querySelectorAll('.opt-chk:checked')).map(c => c.value)
-        }
+        },
+        domino_teachers: Array.from(document.querySelectorAll('.domino-chk:checked')).map(c => c.value)
     };
 
     condLevels.forEach(lvl => {
@@ -504,6 +510,11 @@ function populateSavedConditions(data) {
             data.pairs.noshare.forEach(p => addPairRow('noshare-days-container', p[0], p[1]));
         }
     }
+
+    if(data.domino_teachers) {
+        const dominoChks = document.querySelectorAll('.domino-chk');
+        dominoChks.forEach(chk => { chk.checked = data.domino_teachers.includes(chk.value); });
+    }
 }
 
 // ================= أزرار التحديد الشامل في إعدادات التحسين =================
@@ -511,5 +522,15 @@ function toggleOptimizationTeachers(state) {
     const optCheckboxes = document.querySelectorAll('.opt-chk');
     optCheckboxes.forEach(chk => {
         chk.checked = state;
+    });
+}
+
+// ==========================================
+// 🎲 دالة تحديد/إلغاء الكل لأساتذة الدومينو
+// ==========================================
+function toggleDominoTeachers(selectAll) {
+    const checkboxes = document.querySelectorAll('.domino-chk');
+    checkboxes.forEach(chk => {
+        chk.checked = selectAll;
     });
 }

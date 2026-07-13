@@ -6,6 +6,8 @@ import copy
 import io
 import openpyxl
 from openpyxl.styles import Alignment, PatternFill, Font
+from flask import current_app
+import threading
 
 # استدعاء الخوارزميات (بدون المتغيرات العامة القديمة)
 from app.services.algorithms import (
@@ -483,6 +485,12 @@ def background_generation_task(tenant_id, strict_hierarchy, algorithms, algo_set
         lns_stagnation = int(algo_settings.get('lns_stagnation_threshold', 15))
         vns_stagnation = int(algo_settings.get('vns_stagnation_threshold', 15))
         tabu_stagnation = int(algo_settings.get('tabu_stagnation_threshold', 15))
+        # ✨ استخراج أساتذة الدومينو من الواجهة وترجمة أرقامهم لأسماء
+        domino_teachers_ids = conditions_data.get('domino_teachers', [])
+        domino_teacher_names = []
+        for t_id in domino_teachers_ids:
+            matched_name = next((t['name'] for t in teachers if str(t['id']) == str(t_id)), None)
+            if matched_name: domino_teacher_names.append(matched_name)
 
         primary_slots = []
         reserve_slots = []
@@ -910,3 +918,60 @@ def background_refinement_task(tenant_id, current_schedule, refinement_level, se
         log_q.put(traceback.format_exc())
     finally:
         log_q.set_running(False)
+
+
+
+
+@generation_bp.route('/api/activate_domino', methods=['POST'])
+def api_activate_domino():
+    tenant_id = session.get('tenant_id')
+    if not tenant_id: 
+        return jsonify({"error": "غير مصرح"}), 403
+        
+    # ✨ حماية المسار: التحقق من أن الميزة مفعلة مركزياً
+    if not current_app.config.get('ENABLE_DOMINO_FEATURE'):
+        return jsonify({"error": "ميزة خوارزمية الدومينو غير مفعلة في هذه النسخة."}), 403
+        
+    data = request.json or {}
+    current_schedule = data.get('schedule')
+    if not current_schedule:
+        return jsonify({"error": "الجدول غير موجود. يرجى التأكد من توليد الجدول أولاً."}), 400
+
+    from app.services.domino_algorithm import background_activate_domino_task
+    
+    app = current_app._get_current_object()
+    thread = threading.Thread(
+        target=background_activate_domino_task,
+        args=(app, tenant_id, current_schedule)
+    )
+    thread.daemon = True
+    thread.start()
+
+    return jsonify({"message": "تم بدء تفعيل الدومينو بنجاح"})
+
+@generation_bp.route('/api/compress_domino', methods=['POST'])
+def api_compress_domino():
+    tenant_id = session.get('tenant_id')
+    if not tenant_id: 
+        return jsonify({"error": "غير مصرح"}), 403
+        
+    # ✨ حماية المسار: التحقق من أن الميزة مفعلة مركزياً
+    if not current_app.config.get('ENABLE_DOMINO_FEATURE'):
+        return jsonify({"error": "ميزة خوارزمية الدومينو غير مفعلة في هذه النسخة."}), 403
+        
+    data = request.json or {}
+    current_schedule = data.get('schedule')
+    if not current_schedule:
+        return jsonify({"error": "الجدول غير موجود. يرجى التأكد من توليد الجدول أولاً."}), 400
+
+    from app.services.domino_algorithm import background_compress_domino_task
+    
+    app = current_app._get_current_object()
+    thread = threading.Thread(
+        target=background_compress_domino_task,
+        args=(app, tenant_id, current_schedule)
+    )
+    thread.daemon = True
+    thread.start()
+
+    return jsonify({"message": "تم بدء تجميع الدومينو بنجاح"})
