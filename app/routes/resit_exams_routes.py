@@ -670,15 +670,13 @@ def generate_schedule():
     return render_template('resit_exams/generate_schedule.html', db=db_dict, app_state=app_state)
 
 # ==========================================
-# 🌟 مسارات تشغيل الخوارزمية (SaaS)
+# 🌟 مسارات تشغيل الخوارزمية (SaaS & Desktop)
 # ==========================================
 @resit_exams_bp.route('/start_solver', methods=['POST'])
 def start_solver():
-    # ✨ الحل السحري: الاستيراد من داخل الدالة لكسر الدوامة الدائرية
     from app.resit_tasks import run_resit_distribution_task
     
     data = request.get_json(silent=True) or request.form or {}
-    
     algo_choice = data.get('algo_choice', 'lns')
     strategy = data.get('strategy', 'teacher')
     
@@ -688,52 +686,99 @@ def start_solver():
     except (ValueError, TypeError):
         duration, destruction_rate = 10, 20
         
-    # حفظ الإعدادات لتبقى للمرة القادمة
     db_dict = load_full_db()
     constraints = db_dict.get('constraints', {})
     constraints.update({'algo_choice': algo_choice, 'strategy': strategy, 'duration': duration, 'destruction_rate': destruction_rate})
     update_complex_state('constraints', constraints)
     
-    # 🚀 إرسال المهمة لخادم المهام (Celery)
     tenant_id = session.get('tenant_id')
-    task = run_resit_distribution_task.delay(tenant_id, algo_choice, duration, destruction_rate, strategy)
     
-    # حفظ رقم المهمة في الجلسة ليتمكن المتصفح من متابعتها
-    session['resit_task_id'] = task.id
+    # 🚀 المحول الذكي
+    from flask import current_app
+    import threading
+    mode = current_app.config.get('APP_MODE')
+    
+    if mode == 'desktop':
+        # تصفير الذاكرة الحية
+        from app.memory_logger import store
+        with store.lock:
+            store.status[f"running_{tenant_id}"] = True
+            store.status[f"done_{tenant_id}"] = None
+            store.status[f"progress_{tenant_id}"] = None
+            
+        app_obj = current_app._get_current_object()
+        def run_thread():
+            with app_obj.app_context():
+                from app.resit_tasks import execute_resit_distribution
+                execute_resit_distribution(tenant_id, algo_choice, duration, destruction_rate, strategy, celery_task=None)
+        threading.Thread(target=run_thread).start()
+    else:
+        # مسار السحابة المعتاد
+        task = run_resit_distribution_task.delay(tenant_id, algo_choice, duration, destruction_rate, strategy)
+        session['resit_task_id'] = task.id
     
     return jsonify({"status": "started", "duration_used": duration})
 
+
 @resit_exams_bp.route('/solver_progress')
 def get_solver_progress():
-    # ✨ الاستيراد هنا أيضاً
-    from app.resit_tasks import run_resit_distribution_task
+    tenant_id = session.get('tenant_id')
+    from flask import current_app
+    mode = current_app.config.get('APP_MODE')
     
-    task_id = session.get('resit_task_id')
-    if not task_id:
-        return jsonify({"is_running": False, "done": False})
-        
-    task = run_resit_distribution_task.AsyncResult(task_id)
-    if task.state == 'PENDING':
-        response = {"is_running": True, "elapsed": 0, "done": False}
-    elif task.state == 'PROGRESS':
-        response = {
-            "is_running": True, "done": False,
-            "elapsed": task.info.get('elapsed', 0),
-            "duration": task.info.get('duration', 10),
-            "unassigned": task.info.get('unassigned', 0),
-            "hard": task.info.get('hard', 0),
-            "soft": task.info.get('soft', 0)
-        }
-    elif task.state == 'SUCCESS':
-        response = {
-            "is_running": False, 
-            "done": True,
-            "violations": task.info.get('violations', []) if isinstance(task.info, dict) else []
-        }
+    if mode == 'desktop':
+        # جلب حالة التقدم من الذاكرة الحية (RAM)
+        from app.memory_logger import store
+        with store.lock:
+            is_running = store.status.get(f"running_{tenant_id}", False)
+            done_violations = store.status.get(f"done_{tenant_id}")
+            progress = store.status.get(f"progress_{tenant_id}")
+            
+        if done_violations is not None:
+            return jsonify({"is_running": False, "done": True, "violations": done_violations})
+        elif progress:
+            return jsonify({
+                "is_running": True, "done": False,
+                "elapsed": progress.get('elapsed', 0),
+                "duration": progress.get('duration', 10),
+                "unassigned": progress.get('unassigned', 0),
+                "hard": progress.get('hard', 0),
+                "soft": progress.get('soft', 0)
+            })
+        elif is_running:
+            return jsonify({"is_running": True, "elapsed": 0, "done": False})
+        else:
+            return jsonify({"is_running": False, "done": False})
+            
     else:
-        response = {"is_running": False, "done": True, "error": str(task.info)}
-        
-    return jsonify(response)
+        # جلب حالة التقدم من خادم Celery
+        from app.resit_tasks import run_resit_distribution_task
+        task_id = session.get('resit_task_id')
+        if not task_id:
+            return jsonify({"is_running": False, "done": False})
+            
+        task = run_resit_distribution_task.AsyncResult(task_id)
+        if task.state == 'PENDING':
+            response = {"is_running": True, "elapsed": 0, "done": False}
+        elif task.state == 'PROGRESS':
+            response = {
+                "is_running": True, "done": False,
+                "elapsed": task.info.get('elapsed', 0),
+                "duration": task.info.get('duration', 10),
+                "unassigned": task.info.get('unassigned', 0),
+                "hard": task.info.get('hard', 0),
+                "soft": task.info.get('soft', 0)
+            }
+        elif task.state == 'SUCCESS':
+            response = {
+                "is_running": False, 
+                "done": True,
+                "violations": task.info.get('violations', []) if isinstance(task.info, dict) else []
+            }
+        else:
+            response = {"is_running": False, "done": True, "error": str(task.info)}
+            
+        return jsonify(response)
 
 # ==========================================
 # 🌟 مسارات تحميل ملفات Word

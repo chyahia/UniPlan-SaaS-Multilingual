@@ -19,35 +19,57 @@ from app.database import db, Teacher, Room, Level, Course, Setting
 
 # ✨ استدعاء أدوات السحابة الجديدة
 from app.celery_setup import celery_app
-from app.redis_logger import RedisLogQueue, redis_client
+
 
 generation_bp = Blueprint('generation', __name__)
 
-# ✨ كائن ذكي (Proxy) يخدع الخوارزمية ويجعلها تقرأ أوامر التوقف والطفرة من Redis مباشرة!
+# ✨ الدالة الذكية (المحوّل) لاختيار مسار الذاكرة أو مسار السحابة
+def get_log_queue(tenant_id):
+    from flask import current_app
+    if current_app.config.get('APP_MODE') == 'desktop':
+        from app.memory_logger import MemoryLogQueue
+        return MemoryLogQueue(tenant_id)
+    else:
+        from app.redis_logger import RedisLogQueue
+        return RedisLogQueue(tenant_id)
+
+# ✨ كائن ذكي (Proxy) مطوّر ليعمل في البيئتين
 class SchedulingStateProxy:
     def __init__(self, tenant_id):
         self.tenant_id = tenant_id
-        self.log_q = RedisLogQueue(tenant_id)
-        self.redis = redis_client
+        self.log_q = get_log_queue(tenant_id)
+        from flask import current_app
+        self.mode = current_app.config.get('APP_MODE')
 
     def get(self, key, default=None):
         if key == 'should_stop': 
             return self.log_q.should_stop()
         if key == 'force_mutation': 
-            return self.redis.get(f"mutation:tenant_{self.tenant_id}") is not None
+            if self.mode == 'desktop': return self.log_q.get_mutation() is not None
+            from app.redis_logger import redis_client
+            return redis_client.get(f"mutation:tenant_{self.tenant_id}") is not None
         if key == 'mutation_intensity':
-            val = self.redis.get(f"mutation:tenant_{self.tenant_id}")
+            if self.mode == 'desktop':
+                val = self.log_q.get_mutation()
+                return int(val) if val else default
+            from app.redis_logger import redis_client
+            val = redis_client.get(f"mutation:tenant_{self.tenant_id}")
             return int(val) if val else default
         return default
 
     def __setitem__(self, key, value): 
-        # تستخدمه الخوارزمية لإطفاء زر الطفرة بعد استعمالها
         if key == 'force_mutation' and not value:
-            self.redis.delete(f"mutation:tenant_{self.tenant_id}")
+            if self.mode == 'desktop': self.log_q.clear_mutation()
+            else: 
+                from app.redis_logger import redis_client
+                redis_client.delete(f"mutation:tenant_{self.tenant_id}")
             
     def pop(self, key, default=None): 
         if key == 'mutation_intensity':
-            self.redis.delete(f"mutation:tenant_{self.tenant_id}")
+            if self.mode == 'desktop': self.log_q.clear_mutation()
+            else: 
+                from app.redis_logger import redis_client
+                redis_client.delete(f"mutation:tenant_{self.tenant_id}")
 
     def __contains__(self, key):
         return key in ['should_stop', 'force_mutation', 'mutation_intensity']
@@ -58,32 +80,37 @@ class SchedulingStateProxy:
 @generation_bp.route('/api/generate', methods=['POST'])
 def generate_schedule():
     tenant_id = session.get('tenant_id')
-    log_q = RedisLogQueue(tenant_id)
+    log_q = get_log_queue(tenant_id)
     
     if log_q.is_running():
         return jsonify({"success": False, "error": "عملية التوزيع تعمل حالياً في قسمك."}), 400
 
     data = request.json
-    # تهيئة الشاشة السوداء في Redis
     log_q.clear_logs()
     log_q.set_running(True)
     log_q.set_stop_flag(False)
-    redis_client.delete(f"mutation:tenant_{tenant_id}") # تنظيف أي طفرات سابقة
 
-    # ✨ إرسال المهمة للطباخ (Celery) للعمل في الخلفية باستخدام delay
-    background_generation_task.delay(
-        tenant_id, 
-        data.get('strict_hierarchy'), 
-        data.get('algorithms'), 
-        data.get('settings', {})
-    )
+    # 🚀 المحول الذكي
+    mode = current_app.config.get('APP_MODE')
+    if mode == 'desktop':
+        log_q.clear_mutation()
+        app_obj = current_app._get_current_object()
+        def run_thread():
+            with app_obj.app_context():
+                background_generation_task(tenant_id, data.get('strict_hierarchy'), data.get('algorithms'), data.get('settings', {}))
+        threading.Thread(target=run_thread).start()
+    else:
+        from app.redis_logger import redis_client
+        redis_client.delete(f"mutation:tenant_{tenant_id}") 
+        background_generation_task.delay(tenant_id, data.get('strict_hierarchy'), data.get('algorithms'), data.get('settings', {}))
+        
     return jsonify({"success": True})
 
 
 @generation_bp.route('/api/refine', methods=['POST'])
 def start_refinement():
     tenant_id = session.get('tenant_id')
-    log_q = RedisLogQueue(tenant_id)
+    log_q = get_log_queue(tenant_id)
     
     if log_q.is_running():
         return jsonify({"error": "هناك عملية قيد التشغيل بالفعل"}), 400
@@ -96,12 +123,17 @@ def start_refinement():
     log_q.set_running(True)
     log_q.set_stop_flag(False)
 
-    background_refinement_task.delay(
-        tenant_id, 
-        current_schedule, 
-        data.get('level', 'balanced'), 
-        data.get('teachers', [])
-    )
+    # 🚀 المحول الذكي
+    mode = current_app.config.get('APP_MODE')
+    if mode == 'desktop':
+        app_obj = current_app._get_current_object()
+        def run_thread():
+            with app_obj.app_context():
+                background_refinement_task(tenant_id, current_schedule, data.get('level', 'balanced'), data.get('teachers', []))
+        threading.Thread(target=run_thread).start()
+    else:
+        background_refinement_task.delay(tenant_id, current_schedule, data.get('level', 'balanced'), data.get('teachers', []))
+        
     return jsonify({"success": True})
 
 
@@ -109,7 +141,7 @@ def start_refinement():
 @generation_bp.route('/stream-logs', methods=['GET'])
 def stream_logs():
     tenant_id = session.get('tenant_id')
-    log_q = RedisLogQueue(tenant_id)
+    log_q = get_log_queue(tenant_id)
     
     def generate():
         last_idx = 0
@@ -129,7 +161,7 @@ def stream_logs():
 @generation_bp.route('/api/stop-generation', methods=['POST'])
 def stop_generation():
     tenant_id = session.get('tenant_id')
-    log_q = RedisLogQueue(tenant_id)
+    log_q = get_log_queue(tenant_id)
     log_q.set_stop_flag(True)
     return jsonify({"success": True})
 
@@ -139,15 +171,20 @@ def force_mutation_route():
     tenant_id = session.get('tenant_id')
     data = request.get_json() or {}
     intensity = data.get('intensity', 4) 
-    # إرسال أمر الطفرة عبر Redis
-    redis_client.set(f"mutation:tenant_{tenant_id}", intensity, ex=3600)
+    
+    mode = current_app.config.get('APP_MODE')
+    if mode == 'desktop':
+        get_log_queue(tenant_id).set_mutation(intensity)
+    else:
+        from app.redis_logger import redis_client
+        redis_client.set(f"mutation:tenant_{tenant_id}", intensity, ex=3600)
     return jsonify({"success": True})
 
 
 @generation_bp.route('/api/force_reset', methods=['POST'])
 def force_reset():
     tenant_id = session.get('tenant_id')
-    log_q = RedisLogQueue(tenant_id)
+    log_q = get_log_queue(tenant_id)
     log_q.set_running(False)
     log_q.set_stop_flag(True)
     log_q.put("🛑 تم فرض إيقاف الخادم وإعادة التهيئة يدوياً بواسطة المستخدم.")
@@ -280,7 +317,7 @@ def import_excel():
 
 @celery_app.task
 def background_generation_task(tenant_id, strict_hierarchy, algorithms, algo_settings):
-    log_q = RedisLogQueue(tenant_id)
+    log_q = get_log_queue(tenant_id)
     scheduling_state = SchedulingStateProxy(tenant_id)
     from flask import current_app as app 
     
@@ -668,7 +705,7 @@ def background_generation_task(tenant_id, strict_hierarchy, algorithms, algo_set
 
 @celery_app.task
 def background_refinement_task(tenant_id, current_schedule, refinement_level, selected_teachers):
-    log_q = RedisLogQueue(tenant_id)
+    log_q = get_log_queue(tenant_id)
     scheduling_state = SchedulingStateProxy(tenant_id)
     from flask import current_app as app
 

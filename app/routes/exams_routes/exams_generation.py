@@ -16,10 +16,21 @@ from app.services.exams_algorithms import (
 )
 
 # 🌟 استدعاء أدوات السحابة (Celery و Redis)
+# 🌟 استدعاء أدوات السحابة (Celery)
 from app.celery_setup import celery_app
-from app.redis_logger import RedisLogQueue
+import threading
 
 exams_generation_bp = Blueprint('exams_generation', __name__)
+
+# ✨ الدالة الذكية (المحوّل) لاختيار مسار الذاكرة أو مسار السحابة
+def get_log_queue(tenant_id):
+    from flask import current_app
+    if current_app.config.get('APP_MODE') == 'desktop':
+        from app.memory_logger import MemoryLogQueue
+        return MemoryLogQueue(tenant_id)
+    else:
+        from app.redis_logger import RedisLogQueue
+        return RedisLogQueue(tenant_id)
 
 # ==============================================================
 # 🛠️ دوال مساعدة لحساب التوازن (تبقى كما هي لأنها دوال رياضية)
@@ -78,7 +89,7 @@ def generate_balance_report(prof_stats, prof_targets):
 # ==============================================================
 class StopEventProxy:
     def __init__(self, tenant_id):
-        self.log_q = RedisLogQueue(tenant_id)
+        self.log_q = get_log_queue(tenant_id)
     def is_set(self):
         return self.log_q.should_stop()
     def set(self):
@@ -93,7 +104,7 @@ class StopEventProxy:
 @exams_generation_bp.route('/exams/api/stream-logs')
 def stream_logs():
     tenant_id = session.get('tenant_id')
-    log_q = RedisLogQueue(tenant_id)
+    log_q = get_log_queue(tenant_id)
     
     def generate():
         last_idx = 0
@@ -113,7 +124,7 @@ def stream_logs():
 @exams_generation_bp.route('/exams/api/stop-generation', methods=['POST'])
 def stop_algorithm():
     tenant_id = session.get('tenant_id')
-    log_q = RedisLogQueue(tenant_id)
+    log_q = get_log_queue(tenant_id)
     log_q.set_stop_flag(True)
     log_q.put("... تم إرسال إشارة إيقاف الخوارزمية، جاري إنهاء العمليات ...")
     return jsonify({'success': True})
@@ -123,7 +134,7 @@ def generate_schedule():
     tenant_id = session.get('tenant_id')
     if not tenant_id: return jsonify({'error': 'غير مصرح'}), 403
 
-    log_q = RedisLogQueue(tenant_id)
+    log_q = get_log_queue(tenant_id)
     if log_q.is_running():
         return jsonify({"success": False, "error": "عملية التوزيع تعمل حالياً في قسمك."}), 400
 
@@ -135,9 +146,19 @@ def generate_schedule():
     log_q.set_running(True)
     log_q.set_stop_flag(False)
         
-    background_exam_generation_task.delay(tenant_id, algorithm_choices, algo_params)
+    # 🚀 المحول الذكي
+    from flask import current_app
+    mode = current_app.config.get('APP_MODE')
+    if mode == 'desktop':
+        app_obj = current_app._get_current_object()
+        def run_thread():
+            with app_obj.app_context():
+                background_exam_generation_task(tenant_id, algorithm_choices, algo_params)
+        threading.Thread(target=run_thread).start()
+    else:
+        background_exam_generation_task.delay(tenant_id, algorithm_choices, algo_params)
     
-    return jsonify({'success': True, 'message': 'بدأت عملية التوليد المتسلسل في السحابة.'})
+    return jsonify({'success': True, 'message': 'بدأت عملية التوليد في الخلفية.'})
 
 # ==============================================================
 # 📢 مسار نشر جدول الحراسة لحسابات الأساتذة
@@ -200,7 +221,7 @@ def unpublish_exam_schedule():
 
 @celery_app.task
 def background_exam_generation_task(tenant_id, algorithm_choices, algo_params):
-    log_queue = RedisLogQueue(tenant_id)
+    log_queue = get_log_queue(tenant_id)
     stop_event = StopEventProxy(tenant_id)
     from flask import current_app as app 
     
