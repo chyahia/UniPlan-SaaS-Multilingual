@@ -3,25 +3,36 @@ let allProfsData = [];
 let currentProfessorPartnerships = [];
 let customTargetPatterns = [];
 let currentExclusiveProfessors = [];
+let currentIsolationGroups = {};
 
 document.addEventListener('DOMContentLoaded', () => {
     // سيتم استدعاء loadConditionsData بواسطة main.js عند فتح التبويب
 });
 
 function loadConditionsData() {
-    // جلب الأساتذة، أيام الامتحانات، والإعدادات المحفوظة من مسارات الامتحانات
     Promise.all([
         fetch('/exams/api/get-professors').then(r => r.json()),
         fetch('/exams/api/exam-schedule').then(r => r.json()),
-        fetch('/exams/api/settings').then(r => r.json())
-    ]).then(([profs, schedule, settings]) => {
+        fetch('/exams/api/settings').then(r => r.json()),
+        fetch('/exams/api/get-levels').then(r => r.json()) // ✨ جلب المستويات
+    ]).then(([profs, schedule, settings, levels]) => {
         allProfsData = profs;
         allExamDates = Object.keys(schedule).sort();
         
+        // ✨ تهيئة ورسم مستويات العزل
+        const container = document.getElementById('isolation-levels-container');
+        if (container) {
+            container.innerHTML = '';
+            levels.forEach(l => {
+                container.innerHTML += `<label style="background: #eee; padding: 5px 10px; border-radius: 4px; cursor: pointer; white-space: nowrap;"><input type="checkbox" value="${l.name}" class="iso-lvl-chk" style="margin-left: 5px;">${l.name}</label>`;
+            });
+        }
+        currentIsolationGroups = settings.isolation_groups || {};
+        renderIsolationGroupsList();
+
         renderProfConstraintsTable(settings);
         populatePairDropdowns();
         
-        // استرجاع الإعدادات العامة
         if(settings.assignOwnerAsGuard !== undefined) document.getElementById('assign-owner-as-guard-checkbox').checked = settings.assignOwnerAsGuard;
         if(settings.groupSubjects !== undefined) document.getElementById('group-subjects-checkbox').checked = settings.groupSubjects;
         if(settings.maxShifts !== undefined) document.getElementById('max-shifts-limit').value = settings.maxShifts;
@@ -33,16 +44,13 @@ function loadConditionsData() {
         if(settings.largeHallWeight !== undefined) document.getElementById('large-hall-weight').value = settings.largeHallWeight;
         if(settings.otherHallWeight !== undefined) document.getElementById('other-hall-weight').value = settings.otherHallWeight;
         
-        // الأزواج
         currentProfessorPartnerships = settings.professorPartnerships || [];
         renderPairsList();
 
-        // التنافر 
         currentExclusiveProfessors = settings.exclusiveProfessors || [];
         renderExclusivePairsList();
         populateExclusiveDropdowns();
 
-        // الأنماط المخصصة
         if(settings.enableCustomTargets !== undefined) {
             document.getElementById('enable-custom-targets-checkbox').checked = settings.enableCustomTargets;
             toggleCustomTargets();
@@ -202,12 +210,13 @@ function renderCustomTargetsTable() {
     customTargetPatterns.forEach((pat, idx) => {
         tbody.innerHTML += `
             <tr>
+                <td style="padding:8px; border:1px solid #eee; font-weight: bold; color: #1565c0;">${pat.count}</td>
                 <td style="padding:8px; border:1px solid #eee;">${pat.large} كبيرة + ${pat.other} أخرى</td>
-                <td style="padding:8px; border:1px solid #eee;">${pat.count}</td>
-                <td style="padding:8px; border:1px solid #eee;"><button onclick="removeCustomTarget(${idx})" style="color:red; background:none; border:none; font-size:18px; cursor:pointer;">×</button></td>
+                <td style="padding:8px; border:1px solid #eee;"><button onclick="removeCustomTarget(${idx})" style="color:red; background:none; border:none; font-size:18px; cursor:pointer;" title="حذف النمط">×</button></td>
             </tr>`;
     });
 }
+
 function removeCustomTarget(idx) {
     customTargetPatterns.splice(idx, 1);
     renderCustomTargetsTable();
@@ -436,6 +445,7 @@ async function saveAllConditions(showMsg = true) {
         settingsData.exclusiveProfessors = currentExclusiveProfessors;
         settingsData.enableCustomTargets = document.getElementById('enable-custom-targets-checkbox').checked;
         settingsData.customTargetPatterns = customTargetPatterns;
+        settingsData.isolation_groups = currentIsolationGroups;
 
         // 3. حفظ البيانات المدمجة
         const saveRes = await fetch('/exams/api/settings', {
@@ -451,4 +461,49 @@ async function saveAllConditions(showMsg = true) {
         console.error('خطأ في حفظ القيود:', e);
         if(showMsg) showNotification('حدث خطأ أثناء حفظ القيود.', 'error');
     }
+}
+
+// ==================== دوال العزل (تشفير الفترات الاحتياطية) ====================
+function addIsolationGroup() {
+    const nameInput = document.getElementById('isolation-group-name');
+    const name = nameInput.value.trim();
+    if(!name) return showNotification('الرجاء إدخال اسم للمجموعة', 'error');
+    
+    const selectedLvls = Array.from(document.querySelectorAll('.iso-lvl-chk:checked')).map(cb => cb.value);
+    if(selectedLvls.length === 0) return showNotification('يجب اختيار مستوى واحد على الأقل', 'error');
+
+    currentIsolationGroups[name] = selectedLvls;
+    nameInput.value = '';
+    document.querySelectorAll('.iso-lvl-chk').forEach(cb => cb.checked = false);
+    renderIsolationGroupsList();
+}
+
+function renderIsolationGroupsList() {
+    const container = document.getElementById('isolation-groups-list');
+    if(!container) return;
+    container.innerHTML = '';
+    
+    if (Object.keys(currentIsolationGroups).length === 0) {
+        container.innerHTML = '<span style="color: #999; font-size: 13px;">لا توجد مجموعات مسجلة. (جميع المستويات عبارة عن "جوكر" حرة).</span>';
+        return;
+    }
+
+    for (const [gName, gLevels] of Object.entries(currentIsolationGroups)) {
+        container.innerHTML += `
+            <div style="border: 1px solid #343a40; border-radius: 5px; overflow: hidden; min-width: 220px; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                <div style="background: #343a40; color: white; padding: 8px 12px; display: flex; justify-content: space-between; align-items: center;">
+                    <strong style="font-size: 14px;">${gName}</strong>
+                    <button onclick="removeIsolationGroup('${gName}')" title="حذف وفك العزل" style="background: none; border: none; color: #ff6b6b; cursor: pointer; font-size: 16px;">✖</button>
+                </div>
+                <div style="padding: 12px; background: #f8f9fa; font-size: 13px; line-height: 1.8;">
+                    ${gLevels.map(l => `<span style="background: #e9ecef; padding: 3px 8px; border-radius: 4px; border: 1px solid #ccc; display: inline-block; margin: 2px;">${l}</span>`).join('')}
+                </div>
+            </div>
+        `;
+    }
+}
+
+function removeIsolationGroup(name) {
+    delete currentIsolationGroups[name];
+    renderIsolationGroupsList();
 }

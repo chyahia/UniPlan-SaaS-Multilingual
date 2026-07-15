@@ -59,37 +59,74 @@
             <div class="card-header bg-success text-white fw-bold">🌟 أساتذة ذوو أولوية (تجميع الأيام)</div>
             <div class="card-body">
                 <div class="d-flex flex-column gap-2 mb-3">
-                    <form method="POST" class="d-flex gap-2 m-0 w-100">
+                    
+                    <!-- فورم 1: إضافة الأساتذة المحددين -->
+                    <form method="POST" class="w-100 mb-1">
                         <input type="hidden" name="action" value="add_prioritized">
-                        <select class="form-select" name="teacher" required>
-                            <option value="">اختر أستاذاً...</option>
+                        
+                        <small class="text-muted fw-bold mb-1 d-block">أشّر على أستاذ أو أكثر:</small>
+                        <div class="border rounded p-2 bg-white shadow-inner mb-2" style="max-height: 110px; overflow-y: auto; border-color: #ced4da; display: flex; flex-direction: column; gap: 6px;">
+                            {% set available_teachers = [] %}
                             {% for t in db.teachers %}
                                 {% if t not in c_db.prioritized_teachers %}
-                                    <option value="{{ t }}">{{ t }}</option>
+                                    <label class="d-flex align-items-center m-0" style="cursor: pointer;">
+                                        <input class="form-check-input m-0 ms-2 border-success" type="checkbox" name="teachers" value="{{ t }}">
+                                        <span class="small fw-bold text-dark">{{ t }}</span>
+                                    </label>
+                                    {% set _ = available_teachers.append(t) %}
                                 {% endif %}
                             {% endfor %}
-                        </select>
-                        <button type="submit" class="btn btn-outline-success fw-bold text-nowrap">➕ إضافة</button>
+                            
+                            {% if not available_teachers %}
+                                <div class="text-center text-muted small py-2">جميع الأساتذة في القائمة بالفعل.</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <select class="form-select" name="pref" style="max-width: 110px; font-weight: bold;">
+                                <option value="flexible">مرن</option>
+                                <option value="consecutive">تتابع</option>
+                                <option value="separated">انفصال</option>
+                            </select>
+                            <button type="submit" class="btn btn-outline-success fw-bold flex-grow-1" {% if not available_teachers %}disabled{% endif %}>
+                                ➕ إضافة المحددين
+                            </button>
+                        </div>
                     </form>
                     
-                    <form method="POST" class="m-0 w-100">
+                    <!-- فورم 2: إضافة جميع المتبقين دفعة واحدة -->
+                    <form method="POST" class="d-flex gap-2 m-0 w-100 border-top pt-2 mt-1">
                         <input type="hidden" name="action" value="add_all_prioritized">
-                        <button type="submit" class="btn btn-sm btn-success fw-bold w-100 py-1" onclick="return confirm('هل أنت متأكد من إضافة جميع الأساتذة المتبقين إلى قائمة الأولوية دفعة واحدة؟');">
-                            ✨ إضافة كل الأساتذة المتبقين دفعة واحدة
+                        <select class="form-select form-select-sm" name="pref" style="max-width: 110px; font-weight: bold;">
+                            <option value="flexible">مرن</option>
+                            <option value="consecutive">تتابع</option>
+                            <option value="separated">انفصال</option>
+                        </select>
+                        <button type="submit" class="btn btn-sm btn-success fw-bold flex-grow-1" onclick="return confirm('هل أنت متأكد من إضافة جميع الأساتذة المتبقين دفعة واحدة؟');" {% if not available_teachers %}disabled{% endif %}>
+                            ✨ إضافة البقية دفعة واحدة
                         </button>
                     </form>
                 </div>
                 <hr>
                 
-                <div style="max-height: 250px; overflow-y: auto; scrollbar-width: thin;" class="border rounded p-2 bg-light shadow-inner">
+                <div style="max-height: 200px; overflow-y: auto; scrollbar-width: thin;" class="border rounded p-2 bg-light shadow-inner">
                     <ul class="list-group">
-                        {% for t in c_db.prioritized_teachers %}
-                        <li class="list-group-item d-flex justify-content-between align-items-center mb-1 border">
-                            <span class="fw-bold">{{ t }}</span>
+                        {% for t, pref in c_db.prioritized_teachers.items() %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center mb-1 border py-1">
+                            <div>
+                                <span class="fw-bold" style="font-size: 14px;">{{ t }}</span>
+                                {% if pref == 'consecutive' %}
+                                    <span class="badge bg-primary ms-2 shadow-sm" style="font-size: 11px;">تتابع</span>
+                                {% elif pref == 'separated' %}
+                                    <span class="badge bg-warning text-dark ms-2 shadow-sm" style="font-size: 11px;">انفصال</span>
+                                {% else %}
+                                    <span class="badge bg-secondary ms-2 shadow-sm" style="font-size: 11px;">مرن</span>
+                                {% endif %}
+                            </div>
                             <form method="POST" class="m-0">
                                 <input type="hidden" name="action" value="del_prioritized">
                                 <input type="hidden" name="teacher" value="{{ t }}">
-                                <button type="submit" class="btn btn-sm btn-danger border-0 shadow-sm">حذف</button>
+                                <button type="submit" class="btn btn-sm text-danger border-0 p-0 shadow-none fs-5 bg-transparent" title="حذف">✖</button>
                             </form>
                         </li>
                         {% else %}
@@ -97,7 +134,7 @@
                         {% endfor %}
                     </ul>
                 </div>
-                </div>
+            </div>
         </div>
     </div>
 

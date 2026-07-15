@@ -370,15 +370,21 @@ def manage_constraints():
     db_dict = load_full_db()
     
     # تهيئة ذواكر القيود إذا لم تكن موجودة
+    # تهيئة ذواكر القيود إذا لم تكن موجودة
     if 'constraints' not in db_dict:
         db_dict['constraints'] = {}
         
     c_db = db_dict['constraints']
     if 'incompatible_levels' not in c_db: c_db['incompatible_levels'] = []
-    if 'prioritized_teachers' not in c_db: c_db['prioritized_teachers'] = []
     if 'carpool_pairs' not in c_db: c_db['carpool_pairs'] = []
     if 'conflict_pairs' not in c_db: c_db['conflict_pairs'] = []
     if 'no_first_slot_teachers' not in c_db: c_db['no_first_slot_teachers'] = []
+
+    # 🌟 الهجرة الآلية: تحويل القائمة القديمة إلى قاموس متقدم لدعم الأنماط
+    if 'prioritized_teachers' not in c_db: 
+        c_db['prioritized_teachers'] = {}
+    elif isinstance(c_db['prioritized_teachers'], list):
+        c_db['prioritized_teachers'] = {t: 'flexible' for t in c_db['prioritized_teachers']}
 
     if request.method == 'POST':
         action = request.form.get('action')
@@ -398,45 +404,49 @@ def manage_constraints():
             update_complex_state('constraints', c_db)
             flash("تم حذف القيد.", "danger")
             
-        # 🌟 المسار الجديد: التوليد الآلي لتعارضات المستويات المشتركة
         elif action == 'auto_extract_incompatible':
             levels = db_dict.get('levels', [])
             added_count = 0
-            
             for complex_level in levels:
                 if '+' in complex_level:
-                    # تفكيك المستوى المدمج إلى أجزائه
                     sub_levels = [part.strip() for part in complex_level.split('+')]
-                    
                     for sub in sub_levels:
-                        # التحقق من أن الجزء الفرعي موجود فعلاً كـ "مستوى" في النظام
                         if sub in levels:
                             pair = sorted([complex_level, sub])
-                            # إضافته فقط إذا لم يكن موجوداً مسبقاً
                             if pair not in c_db['incompatible_levels']:
                                 c_db['incompatible_levels'].append(pair)
                                 added_count += 1
-                                
             if added_count > 0:
                 update_complex_state('constraints', c_db)
                 flash(f"🤖 تم مسح المستويات وتوليد ({added_count}) قيد تعارض آلياً بنجاح!", "success")
             else:
-                flash("لم يتم العثور على تعارضات جديدة لإضافتها. (ربما تم توليدها مسبقاً أو لا توجد مستويات مشتركة).", "info")
+                flash("لم يتم العثور على تعارضات جديدة لإضافتها.", "info")
         
-        # 2. الأساتذة ذوو الأولوية
+        # 2. 🌟 الأساتذة ذوو الأولوية (بالتحديث الجديد - تحديد متعدد)
         elif action == 'add_prioritized':
-            teacher = request.form.get('teacher')
-            if teacher and teacher not in c_db['prioritized_teachers']:
-                c_db['prioritized_teachers'].append(teacher)
-                update_complex_state('constraints', c_db)
-                flash(f"تم إضافة الأستاذ [{teacher}] لقائمة الأولوية بنجاح.", "success")
+            selected_teachers = request.form.getlist('teachers')
+            pref = request.form.get('pref', 'flexible')
+            added_count = 0
+            
+            if selected_teachers:
+                for teacher in selected_teachers:
+                    if teacher not in c_db['prioritized_teachers']:
+                        c_db['prioritized_teachers'][teacher] = pref
+                        added_count += 1
+                        
+                if added_count > 0:
+                    update_complex_state('constraints', c_db)
+                    flash(f"تم إضافة ({added_count}) أساتذة لقائمة الأولوية بنمط ({pref}).", "success")
+            else:
+                flash("الرجاء تأشير أستاذ واحد على الأقل من القائمة.", "danger")
 
         elif action == 'add_all_prioritized':
+            pref = request.form.get('pref', 'flexible')
             all_teachers = db_dict.get('teachers', [])
             added_count = 0
             for t in all_teachers:
                 if t not in c_db['prioritized_teachers']:
-                    c_db['prioritized_teachers'].append(t)
+                    c_db['prioritized_teachers'][t] = pref
                     added_count += 1
             
             if added_count > 0:
@@ -447,12 +457,8 @@ def manage_constraints():
             
         elif action == 'del_prioritized':
             teacher = request.form.get('teacher')
-            if teacher and teacher in c_db.get('prioritized_teachers', []):
-                c_db['prioritized_teachers'].remove(teacher)
-            else:
-                idx = request.form.get('idx')
-                if idx is not None:
-                    c_db['prioritized_teachers'].pop(int(idx))
+            if teacher and teacher in c_db.get('prioritized_teachers', {}):
+                del c_db['prioritized_teachers'][teacher]
             update_complex_state('constraints', c_db)
             flash("تم حذف الأستاذ من قائمة الأولوية بنجاح.", "danger")
         

@@ -170,12 +170,19 @@ def clean_string_for_matching(s):
 
 def _run_initial_subject_placement(settings, all_subjects, all_levels_list, subject_owners, all_halls):
     """
-    توزيع المواد في الخانات الزمنية (الأساسية ثم الاحتياطية) مع دعم (المستويات المتعددة للمادة).
+    توزيع المواد في الخانات الزمنية (الأساسية ثم الاحتياطية) مع دعم (المستويات المتعددة للمادة)
+    والهيكلة الجديدة المتقدمة للفترات (أساسي واحتياطي في نفس الفترة).
     """
     base_subject_schedule = defaultdict(lambda: defaultdict(list))
     exam_schedule_settings = settings.get('examSchedule', {})
     
-    # 1: قراءة المادة وتخزين مستوياتها كـ (قائمة - Tuple) بعد التنظيف
+    # ✨ جلب خريطة مجموعات العزل
+    isolation_groups = settings.get('isolation_groups', {})
+    level_to_group = {} 
+    for g_name, g_lvls in isolation_groups.items():
+        for lvl in g_lvls:
+            level_to_group[clean_string_for_matching(lvl)] = g_name
+    
     all_subjects_to_schedule = set()
     for s in all_subjects:
         levels_tuple = tuple(sorted([clean_string_for_matching(l) for l in s.get('levels', [])]))
@@ -189,18 +196,26 @@ def _run_initial_subject_placement(settings, all_subjects, all_levels_list, subj
     for date in sorted_dates:
         for s in exam_schedule_settings.get(date, []):
             slot_with_date = s.copy(); slot_with_date['date'] = date
-            slot_time, slot_type = s.get('time'), s.get('type')
-            if slot_type == 'primary':
+            slot_time = s.get('time')
+            
+            # 🌟 دعم الهيكلة الجديدة مع التوافقية للملفات القديمة
+            pri_levels = s.get('primary_levels') or (s.get('levels', []) if s.get('type') == 'primary' else [])
+            res_levels = s.get('reserve_levels') or (s.get('levels', []) if s.get('type') == 'reserve' else [])
+            
+            # توحيد الهيكلة داخلياً
+            slot_with_date['primary_levels'] = pri_levels
+            slot_with_date['reserve_levels'] = res_levels
+
+            if pri_levels:
                 primary_slots_by_group[slot_time].append(slot_with_date)
-                # 🛑 تنظيف مفتاح الجروب ليتطابق مع البحث لاحقاً
-                for level in s.get('levels', []): 
+                for level in pri_levels: 
                     group_mappings[clean_string_for_matching(level)] = slot_time
-            elif slot_type == 'reserve': 
+                    
+            if res_levels:
                 reserve_slots.append(slot_with_date)
     
     subjects_by_group = defaultdict(set)
     for subject in all_subjects_to_schedule:
-        # 2: تحديد الجروب الزمني المبدئي بناءً على مستويات المادة المشتركة
         levels_tuple = subject[1]
         group_id = None
         for lvl in levels_tuple:
@@ -219,25 +234,18 @@ def _run_initial_subject_placement(settings, all_subjects, all_levels_list, subj
 
     def schedule_exam_internal(subject, date, time, available_halls):
         subject_name, levels_tuple = subject
-        
-        # 3: جمع القاعات المخصصة لجميع مستويات هذه المادة المشتركة معاً + استرجاع الاسم الجميل
         halls_for_all_levels = set()
         original_level_names = []
         
         for level_key in levels_tuple:
-            # استرجاع الاسم الأصلي للمستوى (بالفراغات والهمزات) لاستخدامه في العرض والتقارير
             level_name_found = next((lvl for lvl in all_levels_list if clean_string_for_matching(lvl) == level_key), level_key)
             original_level_names.append(level_name_found)
-            
             halls_for_level = set(level_hall_assignments.get(level_name_found, []))
             halls_for_all_levels.update(halls_for_level)
         
-        # التأكد من توفر جميع القاعات اللازمة لكل المستويات المشتركة في هذه الفترة
         if not halls_for_all_levels or not halls_for_all_levels.issubset(available_halls): return False
         
         halls_details = [h for h in all_halls if h['name'] in halls_for_all_levels]
-        
-        # 🛑 دمج الأسماء الأصلية لكي يتطابق تماماً مع unscheduled_subjects في الملف الآخر
         combined_level_name = " + ".join(original_level_names) if original_level_names else "غير محدد"
         
         exam = {
@@ -255,14 +263,15 @@ def _run_initial_subject_placement(settings, all_subjects, all_levels_list, subj
         for hall_name in halls_for_all_levels: available_halls.remove(hall_name)
         return True
 
+    # 1. التوزيع على الفترات الأساسية
     for group_id, subjects_pool in subjects_by_group.items():
         slots_pool = primary_slots_by_group.get(group_id, [])
         current_leftovers = set(subjects_pool)
         for subject in sorted(list(current_leftovers)):
             for slot in slots_pool:
-                # 🛑 تنظيف مستويات الخانة الزمنية قبل إجراء المقارنة
-                cleaned_slot_levels = [clean_string_for_matching(lvl) for lvl in slot.get('levels', [])]
-                valid_for_slot = any(lvl in cleaned_slot_levels for lvl in subject[1])
+                # 🌟 التحقق حصراً من المستويات الأساسية في هذه الفترة
+                cleaned_pri_levels = [clean_string_for_matching(lvl) for lvl in slot.get('primary_levels', [])]
+                valid_for_slot = any(lvl in cleaned_pri_levels for lvl in subject[1])
                 
                 if valid_for_slot:
                     if schedule_exam_internal(subject, slot['date'], slot['time'], available_halls_by_slot[(slot['date'], slot['time'])]):
@@ -270,20 +279,47 @@ def _run_initial_subject_placement(settings, all_subjects, all_levels_list, subj
                         break
         leftovers_by_group[group_id] = current_leftovers
 
+    # 2. التوزيع على الفترات الاحتياطية (للمواد المتبقية) مع تطبيق مجموعات العزل
     total_leftovers = sum(len(s) for s in leftovers_by_group.values())
     if total_leftovers > 0:
-        reserve_slot_claims = {}
+        reserve_slot_claims = {} # قاموس التشفير: (date, time) -> group_name
         for group_id, subjects_left_over in sorted(leftovers_by_group.items(), key=lambda item: len(item[1]), reverse=True):
             subjects_to_remove = set()
             for subject in sorted(list(subjects_left_over)):
+                
+                # 🌟 تحديد مجموعة العزل لهذه المادة
+                subject_isolation_group = None
+                for lvl in subject[1]:
+                    if level_to_group.get(lvl):
+                        subject_isolation_group = level_to_group.get(lvl)
+                        break # نكتفي بأول مستوى لتحديد مجموعة المادة
+                        
                 for slot in reserve_slots:
+                    # التحقق من أن المادة تنتمي للمستويات الاحتياطية لهذه الفترة
+                    cleaned_res_levels = [clean_string_for_matching(lvl) for lvl in slot.get('reserve_levels', [])]
+                    valid_for_reserve = any(lvl in cleaned_res_levels for lvl in subject[1])
+                    
+                    if not valid_for_reserve: continue
+                    
                     slot_key = (slot['date'], slot['time'])
                     claimed_by = reserve_slot_claims.get(slot_key)
-                    if claimed_by and claimed_by != group_id: continue
+                    
+                    # 🛡️ تطبيق القاعدة الذهبية للعزل والتشفير
+                    if subject_isolation_group is not None:
+                        # المادة تنتمي لمجموعة عزل: يجب ألا تكون الفترة محجوزة لمجموعة أخرى
+                        if claimed_by is not None and claimed_by != subject_isolation_group:
+                            continue # مطرود! الفترة مشفرة لمجموعة أخرى
+                    else:
+                        # المادة حرة (جوكر): تدخل أي فترة احتياطية ولا يهم إن كانت مشفرة
+                        pass
+                        
                     if schedule_exam_internal(subject, slot['date'], slot['time'], available_halls_by_slot[slot_key]):
                         subjects_to_remove.add(subject)
-                        if not claimed_by: reserve_slot_claims[slot_key] = group_id
+                        # تشفير الفترة باسم المجموعة (الجوكر لا يُشفّر الفترات)
+                        if not claimed_by and subject_isolation_group is not None:
+                            reserve_slot_claims[slot_key] = subject_isolation_group
                         break
+                        
             leftovers_by_group[group_id] -= subjects_to_remove
             
     return base_subject_schedule, group_mappings

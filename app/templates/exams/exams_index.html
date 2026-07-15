@@ -364,10 +364,10 @@
         <div class="section-block" style="background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 20px;">
             <h3 style="color: #3f51b5; border-bottom: 1px solid #eee; padding-bottom: 10px;">ج. اشتراك الأساتذة (للعمل في نفس الأيام)</h3>
             <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 15px;">
-                <select id="prof-pair-1" style="padding: 8px; border-radius: 4px; flex: 1;"></select>
-                <span style="font-weight: bold;">+</span>
-                <select id="prof-pair-2" style="padding: 8px; border-radius: 4px; flex: 1;"></select>
-                <button onclick="addProfPair()" style="background: #007bff; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer;">إضافة</button>
+                <select id="prof-pair-1" style="padding: 8px; border-radius: 4px; flex: 1; font-weight: bold; color: #1565c0; font-size: 15px; border: 2px solid #bbdefb; background-color: #f8fbff; outline: none;"></select>
+                <span style="font-weight: bold; font-size: 20px; color: #1565c0;">+</span>
+                <select id="prof-pair-2" style="padding: 8px; border-radius: 4px; flex: 1; font-weight: bold; color: #1565c0; font-size: 15px; border: 2px solid #bbdefb; background-color: #f8fbff; outline: none;"></select>
+                <button onclick="addProfPair()" style="background: #007bff; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 14px;">إضافة</button>
             </div>
             <ul id="prof-pairs-list" style="list-style: none; padding: 0; margin: 0; border: 1px solid #eee; border-radius: 4px;"></ul>
         </div>
@@ -377,17 +377,38 @@
             <h3 style="color: #dc3545; border-bottom: 1px solid #eee; padding-bottom: 10px;">د. عدم اشتراك الأساتذة (منع العمل في نفس الأيام)</h3>
             <p style="color: #666; font-size: 14px;">يضمن هذا القيد ألا يعمل هذان الأستاذان في نفس اليوم أبداً (مثال: للتناوب على مهام أخرى).</p>
             <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 15px;">
-                <select id="prof-exclusive-1" style="padding: 8px; border-radius: 4px; flex: 1;"></select>
-                <span style="font-weight: bold; color: #dc3545; font-size: 18px;">-</span>
-                <select id="prof-exclusive-2" style="padding: 8px; border-radius: 4px; flex: 1;"></select>
-                <button onclick="addExclusivePair()" style="background: #dc3545; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold;">إضافة</button>
+                <select id="prof-exclusive-1" style="padding: 8px; border-radius: 4px; flex: 1; font-weight: bold; color: #b71c1c; font-size: 15px; border: 2px solid #ffcdd2; background-color: #fffafa; outline: none;"></select>
+                <span style="font-weight: bold; color: #dc3545; font-size: 24px;">-</span>
+                <select id="prof-exclusive-2" style="padding: 8px; border-radius: 4px; flex: 1; font-weight: bold; color: #b71c1c; font-size: 15px; border: 2px solid #ffcdd2; background-color: #fffafa; outline: none;"></select>
+                <button onclick="addExclusivePair()" style="background: #dc3545; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 14px;">إضافة</button>
             </div>
             <ul id="prof-exclusive-list" style="list-style: none; padding: 0; margin: 0; border: 1px solid #eee; border-radius: 4px;"></ul>
         </div>
 
+        <!-- 6. إدارة مجموعات العزل (تشفير الفترات الاحتياطية) -->
+        <div class="section-block" style="background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 20px;">
+            <h3 style="color: #343a40; border-bottom: 1px solid #eee; padding-bottom: 10px;">هـ. إدارة مجموعات العزل (تشفير الفترات الاحتياطية)</h3>
+            
+            <div class="alert alert-secondary" style="background-color: #f8f9fa; border: 1px solid #ddd; padding: 10px; border-radius: 5px; margin-bottom: 15px;">
+                <strong>💡 القاعدة الذهبية:</strong> أي مستوى تضعه في مجموعة سيقوم باحتكار فترته الاحتياطية لمجموعته فقط، ولن يسمح للغرباء بالدخول.<br>
+                <strong>🃏 المستوى الجوكر:</strong> المستويات التي لا تنتمي لأي مجموعة (حرة) يمكنها الدخول كـ "جوكر" في أي فترة احتياطية لأي مجموعة دون أن تطرد أحداً.
+            </div>
+            
+            <div style="display: flex; gap: 10px; align-items: flex-start; margin-bottom: 20px; flex-wrap: wrap;">
+                <input type="text" id="isolation-group-name" placeholder="اسم المجموعة (مثال: مجموعة السنة الأولى)" style="padding: 12px; border-radius: 5px; border: 2px solid #343a40; flex: 1; min-width: 200px; font-weight: bold; color: #212529; font-size: 15px; outline: none; background-color: #f8f9fa;">
+                <div id="isolation-levels-container" style="flex: 3; border: 2px solid #dee2e6; padding: 10px; border-radius: 5px; max-height: 120px; overflow-y: auto; display: flex; flex-wrap: wrap; gap: 8px; background: #fff;">
+                    <!-- سيتم حقن مربعات المستويات هنا عبر JS -->
+                </div>
+                <button onclick="addIsolationGroup()" style="background: #343a40; color: white; border: none; padding: 12px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; font-family: inherit; font-size: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: 0.2s;">➕ إنشاء المجموعة</button>
+            </div>
+            
+            <h5 style="margin-bottom: 15px; color: #212529; font-weight: bold; font-size: 16px; border-bottom: 1px dashed #ced4da; padding-bottom: 8px;">🛡️ المجموعات المعزولة حالياً:</h5>
+            <div id="isolation-groups-list" style="display: flex; flex-wrap: wrap; gap: 15px;"></div>
+        </div>
+
         <!-- 5. أداة حساب التوزيع العادل والأنماط المخصصة -->
         <div class="section-block" style="background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 20px;">
-            <h3 style="color: #3f51b5; border-bottom: 1px solid #eee; padding-bottom: 10px;">هـ. أداة حساب التوزيع العادل والأنماط المخصصة</h3>
+            <h3 style="color: #3f51b5; border-bottom: 1px solid #eee; padding-bottom: 10px;">و. أداة حساب التوزيع العادل والأنماط المخصصة</h3>
             
             <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; border: 1px solid #dee2e6; margin-bottom: 20px;">
                 <h4 style="margin-top: 0;">📊 حاسبة التخطيط (محاكاة التوزيع)</h4>
@@ -418,7 +439,7 @@
                     </div>
                     <table style="width: 100%; border-collapse: collapse; margin-top: 15px; background: #fff; text-align: center;">
                         <thead style="background: #f1f1f1;">
-                            <tr><th>النمط</th><th>عدد الأساتذة</th><th>حذف</th></tr>
+                            <tr><th>عدد الأساتذة</th><th>النمط</th><th>حذف</th></tr>
                         </thead>
                         <tbody id="custom-targets-tbody"></tbody>
                     </table>

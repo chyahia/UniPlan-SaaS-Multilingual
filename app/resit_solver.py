@@ -32,9 +32,22 @@ def validate_schedule(db, final_dist):
                     if time_val == first_slots.get(day):
                         teacher_first_slots[t].add(day)
                         
-    for t in prioritized_teachers:
-        if len(teacher_days.get(t, set())) > 1:
-            violations.append(f"⚠️ [تجميع الأيام]: الأستاذ '{t}' تفرقت مواده على {len(teacher_days[t])} أيام.")
+    # 🌟 فحص مخالفات التجميع والتتابع والانفصال
+    day_list = list(schedule.keys())
+    prioritized_dict = prioritized_teachers if isinstance(prioritized_teachers, dict) else {t: 'flexible' for t in prioritized_teachers}
+    
+    for t, pref in prioritized_dict.items():
+        days = teacher_days.get(t, set())
+        if len(days) > 1:
+            day_indices = sorted([day_list.index(d) for d in days if d in day_list])
+            has_consecutive = any(day_indices[i] - day_indices[i-1] == 1 for i in range(1, len(day_indices)))
+            
+            if pref == 'consecutive' and not has_consecutive:
+                violations.append(f"⚠️ [الأولوية - تتابع]: الأستاذ '{t}' تفرقت مواده في أيام غير متتالية.")
+            elif pref == 'separated' and has_consecutive:
+                violations.append(f"⚠️ [الأولوية - انفصال]: الأستاذ '{t}' اجتمعت مواده في أيام متتالية (طلب انفصال).")
+            elif pref == 'flexible':
+                violations.append(f"⚠️ [تجميع الأيام - مرن]: الأستاذ '{t}' تفرقت مواده على {len(days)} أيام.")
             
     for pair in carpool_pairs:
         t1, t2 = pair[0], pair[1]
@@ -205,8 +218,19 @@ def build_teacher_focused_schedule(db, sub_info_list, randomize=False, destructi
                 else:
                     day_idx = day_list.index(day)
                     teacher_days_indices = [day_list.index(pd) for pd in teacher_placements[t]['days']]
-                    is_consecutive = any(abs(day_idx - idx) == 1 for idx in teacher_days_indices)
-                    if is_consecutive: score += (200 * bonus)
+                    if teacher_days_indices: # تفعيل فقط إذا كان له يوم سابق
+                        is_consecutive = any(abs(day_idx - idx) == 1 for idx in teacher_days_indices)
+                        
+                        pref = prioritized_teachers.get(t, 'flexible') if isinstance(prioritized_teachers, dict) else 'flexible'
+                        
+                        if pref == 'consecutive':
+                            if is_consecutive: score += (300 * bonus)
+                            else: score -= (300 * bonus)
+                        elif pref == 'separated':
+                            if is_consecutive: score -= (300 * bonus)
+                            else: score += (300 * bonus)
+                        else: # مرن
+                            if is_consecutive: score += (200 * bonus)
                     
                 if is_first_slot and t in no_first_slot: score -= 5000
                     
@@ -375,6 +399,22 @@ def build_student_focused_schedule(db, sub_info_list, randomize=False, destructi
                     score += (1000 * bonus)
                     if slot_key in teacher_placements[t]['times']:
                         score += (400 * bonus)
+                else: # ✨ الإضافة الجديدة لدعم التتابع والانفصال
+                    day_idx = day_list.index(day)
+                    teacher_days_indices = [day_list.index(pd) for pd in teacher_placements[t]['days']]
+                    if teacher_days_indices:
+                        is_consecutive = any(abs(day_idx - idx) == 1 for idx in teacher_days_indices)
+                        
+                        pref = prioritized_teachers.get(t, 'flexible') if isinstance(prioritized_teachers, dict) else 'flexible'
+                        
+                        if pref == 'consecutive':
+                            if is_consecutive: score += (300 * bonus)
+                            else: score -= (300 * bonus)
+                        elif pref == 'separated':
+                            if is_consecutive: score -= (300 * bonus)
+                            else: score += (300 * bonus)
+                        else: # مرن
+                            if is_consecutive: score += (200 * bonus)
                         
                 if is_first_slot and t in no_first_slot:
                     score -= 5000
@@ -433,8 +473,11 @@ def run_distribution(db, use_lns=True, duration=5, destruction_rate=25, progress
                 break
         sub_info.append({'name': sub['name'], 'level': sub['level'], 'teacher': teacher})
         
+    # 🌟 التوافقية لفرز المواد: نحتاج لقائمة المفاتيح (أسماء الأساتذة) 
+    prioritized_keys = list(prioritized_teachers.keys()) if isinstance(prioritized_teachers, dict) else prioritized_teachers
+    
     teacher_sub_counts = {t: sum(1 for s in sub_info if s['teacher'] == t) for t in teachers}
-    sub_info.sort(key=lambda s: (s['teacher'] in prioritized_teachers, teacher_sub_counts.get(s['teacher'], 0)), reverse=True)
+    sub_info.sort(key=lambda s: (s['teacher'] in prioritized_keys, teacher_sub_counts.get(s['teacher'], 0)), reverse=True)
 
     build_func = build_teacher_focused_schedule if is_teacher_focused else build_student_focused_schedule
 
