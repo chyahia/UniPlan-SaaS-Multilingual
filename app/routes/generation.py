@@ -119,9 +119,15 @@ def start_refinement():
     current_schedule = data.get('schedule')
     if not current_schedule: return jsonify({"error": "الجدول غير موجود أو فارغ."}), 400
         
+    # ✨ التعديل: قراءة المستوى بشكل ذكي (التقاط أي تسمية قد ترسلها الواجهة)
+    req_level = data.get('level') or data.get('refinement_level') or 'balanced'
+    
     log_q.clear_logs()
     log_q.set_running(True)
     log_q.set_stop_flag(False)
+    
+    # 🔍 طباعة المستوى في الشاشة السوداء للتأكيد
+    log_q.put(f"🔍 تم بدء عملية التحسين باختيار المستوى: [{req_level}]")
 
     # 🚀 المحول الذكي
     mode = current_app.config.get('APP_MODE')
@@ -129,10 +135,10 @@ def start_refinement():
         app_obj = current_app._get_current_object()
         def run_thread():
             with app_obj.app_context():
-                background_refinement_task(tenant_id, current_schedule, data.get('level', 'balanced'), data.get('teachers', []))
+                background_refinement_task(tenant_id, current_schedule, req_level, data.get('teachers', []))
         threading.Thread(target=run_thread).start()
     else:
-        background_refinement_task.delay(tenant_id, current_schedule, data.get('level', 'balanced'), data.get('teachers', []))
+        background_refinement_task.delay(tenant_id, current_schedule, req_level, data.get('teachers', []))
         
     return jsonify({"success": True})
 

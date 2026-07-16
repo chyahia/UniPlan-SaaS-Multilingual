@@ -459,8 +459,9 @@ function refineSchedule() {
     resultsContainer.style.display = 'none';
     logContainer.style.display = 'block';
     
-    // ترجمة اسم المستوى للغة العربية لطباعته في الشاشة السوداء
-    let levelNameAr = selectedLevel === 'simple' ? 'بسيط' : (selectedLevel === 'deep' ? 'عميق' : 'متوازن');
+    
+   // ترجمة اسم المستوى للغة العربية لطباعته في الشاشة السوداء
+    let levelNameAr = selectedLevel === 'simple_restricted' ? 'بسيط (مقيد)' : (selectedLevel === 'simple' ? 'بسيط (مفتوح)' : (selectedLevel === 'deep' ? 'عميق (تفريغ المساء)' : (selectedLevel === 'deep_balance' ? 'عميق (موازنة العبء)' : 'متوازن')));
     let teachersText = selectedTeachers.length > 0 ? `لعدد ${selectedTeachers.length} أساتذة` : 'لجميع الأساتذة';
     
     logOutput.textContent = `🚀 جاري الاتصال بالخادم لضغط وتحسين أوقات الأساتذة...\n`;

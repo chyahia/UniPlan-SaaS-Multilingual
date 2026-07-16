@@ -2437,8 +2437,14 @@ def refine_and_compact_schedule(
     log_q.put(f"⏳ بدء التحسين. تكلفة القيود: {violation_cost} | تكلفة الضغط: {compaction_cost}")
 
     continue_main_loop = True
-    max_passes = 30
+    # ✨ التعديل الديناميكي: سقف الدورات يتكيف مع عدد الأساتذة
+    # نعطي الخوارزمية دورات تساوي ضعف عدد الأساتذة المحددين (كحد أدنى 50 دورة) لضمان عدم توقفها مبكراً
+    max_passes = max(50, len(selected_teachers) * 2) 
     current_pass = 0
+
+    # ✨ التعديل السحري: نقلنا ذاكرة الأساتذة إلى خارج الحلقة
+    # لكي تتذكر الخوارزمية من هندست جدوله ولا تدور في حلقة مفرغة!
+    processed_teachers_deep = set()
 
     while continue_main_loop and current_pass < max_passes:
         current_pass += 1
@@ -2454,32 +2460,46 @@ def refine_and_compact_schedule(
                         if l.get('room'): room_schedule_map[l.get('room')].add((d_idx, s_idx))
         
         candidate_lectures = []
+        # تحديد الفهرس الخاص بالفترة الزمنية الأخيرة في اليوم
         last_slot_index = len(slots) - 1 if slots else -1
 
         if refinement_level in ['simple', 'simple_restricted']:
-            for level, day_grid in refined_schedule.items():
-                for day_idx, day_slots in enumerate(day_grid):
-                    if last_slot_index >= 0:
+            # ✨ استهداف "الفترة الأخيرة في اليوم" حصراً لسحبها إلى فترات أبكر
+            if last_slot_index > 0: # التأكد من وجود أكثر من فترة في اليوم
+                for level, day_grid in refined_schedule.items():
+                    for day_idx, day_slots in enumerate(day_grid):
+                        # نبحث فقط داخل الخانة الأخيرة من اليوم
                         for lecture in day_slots[last_slot_index]:
                             if lecture.get('teacher_name') in selected_teachers:
-                                # ✨ استخدام str() لمنع تكرار نفس الحصة في القائمة
+                                # استخدام str() لمنع تكرار نفس المادة
                                 if not any(str(item['lec'].get('id')) == str(lecture.get('id')) for item in candidate_lectures):
-                                    candidate_lectures.append({'lec': lecture, 'level': level, 'original_day': day_idx, 'original_slot': last_slot_index})
+                                    candidate_lectures.append({
+                                        'lec': lecture, 
+                                        'level': level, 
+                                        'original_day': day_idx, 
+                                        'original_slot': last_slot_index
+                                    })
         else:
+            # المستويات (متوازن / عميق): استهداف جميع الحصص عدا الحصة الأولى
             for level, day_grid in refined_schedule.items():
                 for day_idx, day_slots in enumerate(day_grid):
                     for slot_idx, lectures in enumerate(day_slots):
                         if slot_idx > 0:
                             for lecture in lectures:
                                 if lecture.get('teacher_name') in selected_teachers:
-                                    # ✨ استخدام str()
+                                    # استخدام str() لمنع التكرار
                                     if not any(str(item['lec'].get('id')) == str(lecture.get('id')) for item in candidate_lectures):
-                                        candidate_lectures.append({'lec': lecture, 'level': level, 'original_day': day_idx, 'original_slot': slot_idx})
+                                        candidate_lectures.append({
+                                            'lec': lecture, 
+                                            'level': level, 
+                                            'original_day': day_idx, 
+                                            'original_slot': slot_idx
+                                        })
         
         if not candidate_lectures:
             break
 
-        processed_teachers_deep = set()
+        
 
         for item in sorted(candidate_lectures, key=lambda x: x['original_slot'], reverse=True):
             lecture = item['lec']
@@ -2495,66 +2515,460 @@ def refine_and_compact_schedule(
                 teacher_work_days_indices = {d for d, s in current_teacher_slots}
                 slots_to_search_deep = [(d, s) for d in teacher_work_days_indices for s in range(len(slots))]
                 
-                old_penalty = _calculate_end_of_day_penalty(current_teacher_slots, len(slots))
-
                 lectures_for_teacher = lectures_by_teacher_map.get(teacher, [])
                 if not lectures_for_teacher: continue
-                
-                temp_schedule_deep = copy.deepcopy(refined_schedule)
-                # ✨ استخدام str() في المعرفات
-                teacher_lec_ids = {str(l.get('id')) for l in lectures_for_teacher}
-                for lvl_grid in temp_schedule_deep.values():
-                    for day_slots in lvl_grid:
-                        for slot_lectures in day_slots:
-                            slot_lectures[:] = [l for l in slot_lectures if str(l.get('id')) not in teacher_lec_ids]
 
-                temp_teacher_map = defaultdict(set)
-                temp_room_map = defaultdict(set)
-                for lvl_grid in temp_schedule_deep.values():
-                    for d, day in enumerate(lvl_grid):
-                        for s, lects in enumerate(day):
-                            for l in lects:
-                                if l.get('teacher_name'): temp_teacher_map[l.get('teacher_name')].add((d, s))
-                                if l.get('room'): temp_room_map[l.get('room')].add((d, s))
+                # --- 1. قاضي المنطقة الحمراء (تحديد آخر فترتين) ---
+                red_zone_start_idx = max(0, len(slots) - 2)
+                old_red_zone_count = sum(1 for d, s in current_teacher_slots if s >= red_zone_start_idx)
 
-                unplaced_in_rebuild = []
-                for lec_to_rebuild in lectures_for_teacher:
-                    success, _ = find_slot_for_single_lecture(
-                        lec_to_rebuild, temp_schedule_deep, temp_teacher_map, temp_room_map,
-                        days, slots, rules_grid, rooms_data, teacher_constraints, set(), special_constraints,
-                        [], slots_to_search_deep, identifiers_by_level, False, saturday_teachers, day_to_idx,
-                        level_specific_large_rooms, specific_small_room_assignments, consecutive_large_hall_rule, prefer_morning_slots=True
-                    )
-                    if not success: unplaced_in_rebuild.append(lec_to_rebuild)
-                
-                if unplaced_in_rebuild:
+                # إذا كان الأستاذ لا يملك أي حصة في المساء أساساً، نتجاوزه لتوفير وقت الخوارزمية
+                if old_red_zone_count == 0:
                     continue
 
-                newly_built_teacher_slots = temp_teacher_map.get(teacher, set())
-                new_penalty = _calculate_end_of_day_penalty(newly_built_teacher_slots, len(slots))
+                # --- 2. إطلاق خوارزمية (Mini-LNS) مخصصة لهذا الأستاذ ---
+                best_temp_schedule = None
+                best_violation_cost = violation_cost
+                best_compaction_cost = compaction_cost
+                found_better = False
                 
-                new_violations_deep = calculate_schedule_cost(temp_schedule_deep, **cost_args_violations, non_sharing_teacher_pairs=non_sharing_teacher_pairs)
-                new_violation_cost_deep = sum(f.get('penalty', 1) for f in new_violations_deep)
-
-                if new_penalty < old_penalty and new_violation_cost_deep <= violation_cost:
-                    new_total_deep = calculate_schedule_cost(temp_schedule_deep, **cost_args_compaction, non_sharing_teacher_pairs=non_sharing_teacher_pairs)
-                    new_compaction_cost_deep = sum(f.get('penalty', 1) for f in new_total_deep) - new_violation_cost_deep
+                mini_lns_iterations = 30 # إجراء 15 محاولة ذكية وسريعة
+                
+                for attempt in range(mini_lns_iterations):
+                    temp_schedule_deep = copy.deepcopy(refined_schedule)
+                    teacher_lec_ids = {str(l.get('id')) for l in lectures_for_teacher}
                     
-                    log_message_summary = f"إعادة بناء ناجحة لجدول الأستاذ '{teacher}' (عقوبة نهاية اليوم: {old_penalty} -> {new_penalty})"
-                    log_message_details = f"✅ تحسين عميق [ضغط: {compaction_cost} -> {new_compaction_cost_deep} | قيود: {violation_cost} -> {new_violation_cost_deep}]: {log_message_summary}"
+                    # تفريغ جدول الأستاذ
+                    for lvl_grid in temp_schedule_deep.values():
+                        for day_slots in lvl_grid:
+                            for slot_lectures in day_slots:
+                                slot_lectures[:] = [l for l in slot_lectures if str(l.get('id')) not in teacher_lec_ids]
+
+                    temp_teacher_map = defaultdict(set)
+                    temp_room_map = defaultdict(set)
+                    for lvl_grid in temp_schedule_deep.values():
+                        for d, day in enumerate(lvl_grid):
+                            for s, lects in enumerate(day):
+                                for l in lects:
+                                    if l.get('teacher_name'): temp_teacher_map[l.get('teacher_name')].add((d, s))
+                                    if l.get('room'): temp_room_map[l.get('room')].add((d, s))
+
+                    # خلط ترتيب الإدراج في كل محاولة لخلق فرص (Trade-offs) جديدة
+                    shuffled_lectures = list(lectures_for_teacher)
+                    random.shuffle(shuffled_lectures)
+                    
+                    unplaced_in_rebuild = []
+                    for lec_to_rebuild in shuffled_lectures:
+                        success, _ = find_slot_for_single_lecture(
+                            lec_to_rebuild, temp_schedule_deep, temp_teacher_map, temp_room_map,
+                            days, slots, rules_grid, rooms_data, teacher_constraints, 
+                            globally_unavailable_slots, special_constraints,
+                            [], slots_to_search_deep, identifiers_by_level, False, saturday_teachers, day_to_idx,
+                            level_specific_large_rooms, specific_small_room_assignments, consecutive_large_hall_rule, prefer_morning_slots=True
+                        )
+                        if not success: unplaced_in_rebuild.append(lec_to_rebuild)
+                    
+                    # إذا فشل التركيب في هذه المحاولة العشوائية، نتخطاها للمحاولة التالية
+                    if unplaced_in_rebuild:
+                        continue 
+
+                    # --- 3. حكم القاضي (المعيار الجديد) ---
+                    new_teacher_slots = temp_teacher_map.get(teacher, set())
+                    new_red_zone_count = sum(1 for d, s in new_teacher_slots if s >= red_zone_start_idx)
+                    
+                    new_violations_deep = calculate_schedule_cost(temp_schedule_deep, **cost_args_violations, non_sharing_teacher_pairs=non_sharing_teacher_pairs)
+                    new_violation_cost_deep = sum(f.get('penalty', 1) for f in new_violations_deep)
+
+                    # الشرط الذهبي: التعارضات الكلية لم تزدد + عدد حصص المنطقة الحمراء انخفض فعلياً!
+                    if new_violation_cost_deep <= violation_cost and new_red_zone_count < old_red_zone_count:
+                        new_total_deep = calculate_schedule_cost(temp_schedule_deep, **cost_args_compaction, non_sharing_teacher_pairs=non_sharing_teacher_pairs)
+                        new_compaction_cost_deep = sum(f.get('penalty', 1) for f in new_total_deep) - new_violation_cost_deep
+                        
+                        best_temp_schedule = temp_schedule_deep
+                        best_violation_cost = new_violation_cost_deep
+                        best_compaction_cost = new_compaction_cost_deep
+                        old_red_zone_count = new_red_zone_count # تحديث السقف للمحاولات القادمة
+                        found_better = True
+                        
+                        # إذا وصلنا للمثالية (صفر حصص مسائية)، لا داعي لإكمال باقي الـ 15 محاولة!
+                        if new_red_zone_count == 0:
+                            break 
+
+                # --- 4. الاعتماد النهائي إذا نجحت الـ Mini-LNS في إيجاد مخرج ---
+                if found_better:
+                    log_message_summary = f"إفراغ المساء لجدول الأستاذ '{teacher}' (باقي {old_red_zone_count} حصص في آخر فترتين)"
+                    log_message_details = f"✅ تحسين عميق [تفريغ المساء | قيود: {violation_cost} -> {best_violation_cost}]: {log_message_summary}"
                     
                     log_q.put(log_message_details)
                     refinement_log.append(f"  - {log_message_summary}")
 
-                    send_chart_data(log_q, new_violations_deep, False)
+                    # تحديث المخطط البياني الحي
+                    new_violations_for_chart = calculate_schedule_cost(best_temp_schedule, **cost_args_violations, non_sharing_teacher_pairs=non_sharing_teacher_pairs)
+                    send_chart_data(log_q, new_violations_for_chart, False)
 
-                    refined_schedule = temp_schedule_deep
-                    violation_cost = new_violation_cost_deep
-                    compaction_cost = new_compaction_cost_deep
+                    refined_schedule = best_temp_schedule
+                    violation_cost = best_violation_cost
+                    compaction_cost = best_compaction_cost
                     moves_made += 1
                     continue_main_loop = True
                     break
 
+            elif refinement_level == 'deep_balance':
+                if teacher in processed_teachers_deep: continue
+                processed_teachers_deep.add(teacher)
+
+                current_teacher_slots = teacher_schedule_map.get(teacher, set())
+                teacher_work_days_indices = {d for d, s in current_teacher_slots}
+                num_worked_days = len(teacher_work_days_indices)
+                
+                # 1. تخطي الأستاذ الذي يعمل يوماً واحداً فقط (لا يوجد عبء يومي لنوازنه)
+                if num_worked_days <= 1:
+                    continue
+                    
+                red_zone_start_idx = max(0, len(slots) - 2)
+                ideal_avg = len(current_teacher_slots) / num_worked_days
+                
+                # --- 2. القاضي المزدوج (التوازن + المساء) ---
+                def evaluate_balance_and_evening(slots_set):
+                    counts = {d: 0 for d in teacher_work_days_indices}
+                    red_zone_cnt = 0
+                    for d, s in slots_set:
+                        counts[d] += 1
+                        if s >= red_zone_start_idx:
+                            red_zone_cnt += 1
+                    
+                    # 5 نقاط لكل حصة انحراف عن المتوسط المثالي
+                    balance_penalty = sum(abs(counts[d] - ideal_avg) for d in counts) * 5
+                    # 10 نقاط لكل حصة تقع في المنطقة الحمراء (آخر فترتين)
+                    evening_penalty = red_zone_cnt * 10
+                    
+                    total_score = balance_penalty + evening_penalty
+                    return total_score, red_zone_cnt
+                
+                old_score, old_red_zone_count = evaluate_balance_and_evening(current_teacher_slots)
+                
+                # إذا كان الجدول القديم مثالياً تماماً (صفر عقوبات توازن وصفر مساء)، نتخطاه لتوفير الوقت!
+                if old_score == 0:
+                    continue
+
+                slots_to_search_deep = [(d, s) for d in teacher_work_days_indices for s in range(len(slots))]
+                lectures_for_teacher = lectures_by_teacher_map.get(teacher, [])
+                if not lectures_for_teacher: continue
+
+                # --- 3. إطلاق خوارزمية (Mini-LNS) ---
+                best_temp_schedule = None
+                best_violation_cost = violation_cost
+                best_compaction_cost = compaction_cost
+                found_better = False
+                
+                mini_lns_iterations = 50 # 20 محاولة لهندسة مسارات جديدة
+                
+                for attempt in range(mini_lns_iterations):
+                    temp_schedule_deep = copy.deepcopy(refined_schedule)
+                    teacher_lec_ids = {str(l.get('id')) for l in lectures_for_teacher}
+                    
+                    # تفريغ جدول الأستاذ بالكامل
+                    for lvl_grid in temp_schedule_deep.values():
+                        for day_slots in lvl_grid:
+                            for slot_lectures in day_slots:
+                                slot_lectures[:] = [l for l in slot_lectures if str(l.get('id')) not in teacher_lec_ids]
+
+                    temp_teacher_map = defaultdict(set)
+                    temp_room_map = defaultdict(set)
+                    for lvl_grid in temp_schedule_deep.values():
+                        for d, day in enumerate(lvl_grid):
+                            for s, lects in enumerate(day):
+                                for l in lects:
+                                    if l.get('teacher_name'): temp_teacher_map[l.get('teacher_name')].add((d, s))
+                                    if l.get('room'): temp_room_map[l.get('room')].add((d, s))
+
+                    # خلط ترتيب المحاضرات لخلق مسارات وبدائل جديدة في الخوارزمية الطماعة
+                    shuffled_lectures = list(lectures_for_teacher)
+                    random.shuffle(shuffled_lectures)
+                    
+                    unplaced_in_rebuild = []
+                    for lec_to_rebuild in shuffled_lectures:
+                        success, _ = find_slot_for_single_lecture(
+                            lec_to_rebuild, temp_schedule_deep, temp_teacher_map, temp_room_map,
+                            days, slots, rules_grid, rooms_data, teacher_constraints, 
+                            globally_unavailable_slots, special_constraints,
+                            [], slots_to_search_deep, identifiers_by_level, False, saturday_teachers, day_to_idx,
+                            level_specific_large_rooms, specific_small_room_assignments, consecutive_large_hall_rule, 
+                            prefer_morning_slots=True # الحشر في الصباح إجباري
+                        )
+                        if not success: unplaced_in_rebuild.append(lec_to_rebuild)
+                    
+                    if unplaced_in_rebuild:
+                        continue 
+
+                    # --- 4. الاحتكام للقاضي المزدوج ---
+                    new_teacher_slots = temp_teacher_map.get(teacher, set())
+                    new_score, new_red_zone_count = evaluate_balance_and_evening(new_teacher_slots)
+                    
+                    new_violations_deep = calculate_schedule_cost(temp_schedule_deep, **cost_args_violations, non_sharing_teacher_pairs=non_sharing_teacher_pairs)
+                    new_violation_cost_deep = sum(f.get('penalty', 1) for f in new_violations_deep)
+
+                    # هل حافظنا على القيود الكلية (لم نرتكب أخطاء جديدة)؟
+                    if new_violation_cost_deep <= violation_cost:
+                        is_accepted = False
+                        
+                        # البوابة الأولى: المجموع العقابي المدمج أصبح أصغر!
+                        if new_score < old_score:
+                            is_accepted = True
+                        # البوابة الثانية (كسر التعادل): المجموع متساوي، لكن أنقذناه من المساء!
+                        elif new_score == old_score and new_red_zone_count < old_red_zone_count:
+                            is_accepted = True
+
+                        if is_accepted:
+                            new_total_deep = calculate_schedule_cost(temp_schedule_deep, **cost_args_compaction, non_sharing_teacher_pairs=non_sharing_teacher_pairs)
+                            new_compaction_cost_deep = sum(f.get('penalty', 1) for f in new_total_deep) - new_violation_cost_deep
+                            
+                            best_temp_schedule = temp_schedule_deep
+                            best_violation_cost = new_violation_cost_deep
+                            best_compaction_cost = new_compaction_cost_deep
+                            old_score = new_score 
+                            old_red_zone_count = new_red_zone_count
+                            found_better = True
+                            
+                            # التوقف المبكر إذا وصلنا للمثالية المطلقة (توازن مثالي + صفر مساء)
+                            if new_score == 0:
+                                break 
+
+                # --- 5. الاعتماد النهائي وتوثيق النجاح ---
+                if found_better:
+                    log_message_summary = f"موازنة العبء اليومي وتفريغ المساء للأستاذ '{teacher}' (مؤشر العقوبة انخفض إلى: {old_score:.1f})"
+                    log_message_details = f"✅ تحسين عميق [موازنة يومية | قيود: {violation_cost} -> {best_violation_cost}]: {log_message_summary}"
+                    
+                    log_q.put(log_message_details)
+                    refinement_log.append(f"  - {log_message_summary}")
+
+                    new_violations_for_chart = calculate_schedule_cost(best_temp_schedule, **cost_args_violations, non_sharing_teacher_pairs=non_sharing_teacher_pairs)
+                    send_chart_data(log_q, new_violations_for_chart, False)
+
+                    refined_schedule = best_temp_schedule
+                    violation_cost = best_violation_cost
+                    compaction_cost = best_compaction_cost
+                    moves_made += 1
+                    continue_main_loop = True
+                    break
+            
+            # elif refinement_level == 'deep_surgical':
+            #     # --- شرط الأستاذ الواحد ---
+            #     if len(selected_teachers) != 1:
+            #         log_q.put("⚠️ [خطأ]: المستوى 'الجراحي' يتطلب تحديد أستاذ واحد فقط من القائمة! تم إيقاف التحسين.")
+            #         continue_main_loop = False
+            #         break
+                
+            #     vip_teacher = list(selected_teachers)[0]
+            #     if vip_teacher in processed_teachers_deep: continue
+            #     processed_teachers_deep.add(vip_teacher)
+
+            #     current_teacher_slots = teacher_schedule_map.get(vip_teacher, set())
+            #     red_zone_start_idx = max(0, len(slots) - 2)
+            #     red_zone_slots = [(d, s) for d, s in current_teacher_slots if s >= red_zone_start_idx]
+                
+            #     if not red_zone_slots:
+            #         log_q.put(f"✅ الأستاذ '{vip_teacher}' لا يملك أي حصص في المنطقة الحمراء (المساء).")
+            #         continue
+
+            #     lectures_for_teacher = lectures_by_teacher_map.get(vip_teacher, [])
+            #     if not lectures_for_teacher: continue
+
+            #     best_temp_schedule = None
+            #     best_violation_cost = violation_cost
+            #     best_compaction_cost = compaction_cost
+            #     found_better = False
+            #     old_red_zone_count = len(red_zone_slots)
+            #     best_victims_names = set()
+
+            #     # ==========================================
+            #     # ⚙️ الحد الأقصى لعمق السلسلة (عدد الضحايا المتتاليين)
+            #     # ==========================================
+            #     max_chain_depth = 50 # غير هذا الرقم لتحديد أقصى عدد للمطرودين في السلسلة الواحدة
+            #     # ==========================================
+
+            #     morning_slots = [(d, s) for d in range(len(days)) for s in range(red_zone_start_idx)]
+                
+            #     # --- الدالة التراجعية (Recursive Function) ---
+            #     def try_ejection_chain(lecture, depth, sched, t_map, r_map, allowed_slots, is_vip, current_chain_victims):
+            #         # 1. المرحلة السلمية: البحث عن فراغ (بين الفترات المسموحة)
+            #         success, _ = find_slot_for_single_lecture(
+            #             lecture, sched, t_map, r_map,
+            #             days, slots, rules_grid, rooms_data, teacher_constraints, 
+            #             globally_unavailable_slots, special_constraints,
+            #             [], allowed_slots, identifiers_by_level, False, saturday_teachers, day_to_idx,
+            #             level_specific_large_rooms, specific_small_room_assignments, consecutive_large_hall_rule, 
+            #             prefer_morning_slots=is_vip # הVIP يبحث صباحاً، الضحية يبحث في أي وقت من أيام عمله
+            #         )
+                    
+            #         if success:
+            #             return True, sched, t_map, r_map, [] # نجح السلم.. نعود منتصرين!
+
+            #         # إذا فشل السلم ووصلنا للعمق الأقصى، نعلن فشل هذا المسار
+            #         if depth >= max_chain_depth:
+            #             return False, sched, t_map, r_map, []
+
+            #         # 2. المرحلة الهجومية: إزاحة ضحية (التوغل في الشجرة)
+            #         lvl = lecture.get('level')
+            #         slots_to_attack = list(allowed_slots)
+            #         random.shuffle(slots_to_attack) # تنويع مسارات الهجوم
+                    
+            #         for d, s in slots_to_attack:
+            #             # استهداف خانة الفوج المشغولة
+            #             if lvl in sched and sched[lvl][d][s]:
+            #                 victims_in_slot = list(sched[lvl][d][s])
+                            
+            #                 # حماية ضد الحلقات المفرغة (لا تطرد الـ VIP ولا تطرد من طردته للتو)
+            #                 victim_names = [v.get('teacher_name') for v in victims_in_slot if v.get('teacher_name')]
+            #                 if any(vn in current_chain_victims for vn in victim_names) or vip_teacher in victim_names:
+            #                     continue
+                                
+            #                 # أخذ لقطة للحالة الحالية (للتراجع في حال الفشل)
+            #                 branch_sched = copy.deepcopy(sched)
+            #                 branch_t_map = copy.deepcopy(t_map)
+            #                 branch_r_map = copy.deepcopy(r_map)
+                            
+            #                 # إفراغ الخانة بقوة السلاح
+            #                 branch_sched[lvl][d][s] = []
+            #                 for v in victims_in_slot:
+            #                     if v.get('teacher_name'): branch_t_map[v.get('teacher_name')].discard((d, s))
+            #                     if v.get('room'): branch_r_map[v.get('room')].discard((d, s))
+                            
+            #                 # محاولة التمركز في الخانة المفرغة
+            #                 success_force, _ = find_slot_for_single_lecture(
+            #                     lecture, branch_sched, branch_t_map, branch_r_map,
+            #                     days, slots, rules_grid, rooms_data, teacher_constraints, 
+            #                     globally_unavailable_slots, special_constraints,
+            #                     [], [(d, s)], identifiers_by_level, False, saturday_teachers, day_to_idx,
+            #                     level_specific_large_rooms, specific_small_room_assignments, consecutive_large_hall_rule, 
+            #                     prefer_morning_slots=is_vip
+            #                 )
+                            
+            #                 if success_force:
+            #                     # التمركز نجح.. الآن يجب إنقاذ الضحايا المطرودين!
+            #                     all_victims_saved = True
+            #                     displaced_in_this_branch = []
+                                
+            #                     for v in victims_in_slot:
+            #                         v_name = v.get('teacher_name')
+            #                         # إجبار الضحية على البحث داخل أيام عمله "الأصلية" فقط
+            #                         v_work_days = {wd for wd, ws in teacher_schedule_map.get(v_name, set())}
+            #                         if not v_work_days: v_work_days = set(range(len(days))) # أمان
+                                    
+            #                         v_allowed_slots = [(wd, ws) for wd in v_work_days for ws in range(len(slots))]
+                                    
+            #                         # إرسال الضحية للشجرة ليبحث عن مكان (السلم أولاً ثم الهجوم)
+            #                         v_success, branch_sched, branch_t_map, branch_r_map, v_displaced = try_ejection_chain(
+            #                             v, depth + 1, branch_sched, branch_t_map, branch_r_map, 
+            #                             v_allowed_slots, False, current_chain_victims + victim_names
+            #                         )
+                                    
+            #                         if not v_success:
+            #                             all_victims_saved = False
+            #                             break # السلسلة انهارت، نتراجع عن هذا المسار فوراً!
+                                        
+            #                         if v_name: displaced_in_this_branch.append(v_name)
+            #                         displaced_in_this_branch.extend(v_displaced)
+                                    
+            #                     if all_victims_saved:
+            #                         return True, branch_sched, branch_t_map, branch_r_map, displaced_in_this_branch
+                                    
+            #         # إذا جربنا كل الهجومات الممكنة وفشلنا
+            #         return False, sched, t_map, r_map, []
+            #     # --- نهاية الدالة التراجعية ---
+
+            #     # قللنا عدد المحاولات الخارجية لأن الشجرة الداخلية ستقوم ببحث مهول وعميق جداً
+            #     attempts_limit = 15 
+                
+            #     for attempt in range(attempts_limit):
+            #         temp_schedule_deep = copy.deepcopy(refined_schedule)
+            #         vip_lec_ids = {str(l.get('id')) for l in lectures_for_teacher}
+                    
+            #         # 1. سحب الـ VIP من الجدول
+            #         for lvl_grid in temp_schedule_deep.values():
+            #             for day_slots in lvl_grid:
+            #                 for slot_lectures in day_slots:
+            #                     slot_lectures[:] = [l for l in slot_lectures if str(l.get('id')) not in vip_lec_ids]
+
+            #         temp_teacher_map = defaultdict(set)
+            #         temp_room_map = defaultdict(set)
+            #         for lvl_grid in temp_schedule_deep.values():
+            #             for d, day in enumerate(lvl_grid):
+            #                 for s, lects in enumerate(day):
+            #                     for l in lects:
+            #                         if l.get('teacher_name'): temp_teacher_map[l.get('teacher_name')].add((d, s))
+            #                         if l.get('room'): temp_room_map[l.get('room')].add((d, s))
+                    
+            #         shuffled_vip_lectures = list(lectures_for_teacher)
+            #         random.shuffle(shuffled_vip_lectures)
+                    
+            #         success_all_vip = True
+            #         current_attempt_victims = set()
+                    
+            #         # 2. إطلاق الشجرة التراجعية لإنقاذ الـ VIP
+            #         for lec in shuffled_vip_lectures:
+            #             success, temp_schedule_deep, temp_teacher_map, temp_room_map, displaced = try_ejection_chain(
+            #                 lec, 0, temp_schedule_deep, temp_teacher_map, temp_room_map, 
+            #                 morning_slots, True, list(current_attempt_victims)
+            #             )
+                        
+            #             if success:
+            #                 current_attempt_victims.update(displaced)
+            #             else:
+            #                 success_all_vip = False
+            #                 break
+                            
+            #         if not success_all_vip:
+            #             continue
+                        
+            #         # 3. حكم القاضي النهائي بعد نجاح السلاسل
+            #         new_vip_slots = temp_teacher_map.get(vip_teacher, set())
+            #         new_red_zone_count = sum(1 for d, s in new_vip_slots if s >= red_zone_start_idx)
+                    
+            #         new_violations_deep = calculate_schedule_cost(temp_schedule_deep, **cost_args_violations, non_sharing_teacher_pairs=non_sharing_teacher_pairs)
+            #         new_violation_cost_deep = sum(f.get('penalty', 1) for f in new_violations_deep)
+
+            #         if new_violation_cost_deep <= violation_cost and new_red_zone_count < old_red_zone_count:
+            #             new_total_deep = calculate_schedule_cost(temp_schedule_deep, **cost_args_compaction, non_sharing_teacher_pairs=non_sharing_teacher_pairs)
+            #             new_compaction_cost_deep = sum(f.get('penalty', 1) for f in new_total_deep) - new_violation_cost_deep
+                        
+            #             best_temp_schedule = temp_schedule_deep
+            #             best_violation_cost = new_violation_cost_deep
+            #             best_compaction_cost = new_compaction_cost_deep
+            #             old_red_zone_count = new_red_zone_count
+            #             best_victims_names = current_attempt_victims
+            #             found_better = True
+                        
+            #             if new_red_zone_count == 0:
+            #                 break 
+
+            #     # 4. التقرير النهائي
+            #     if found_better:
+            #         if best_victims_names:
+            #             victims_str = "، ".join(best_victims_names)
+            #             victims_msg = f"تمت الإزاحة بنجاح (سلسلة طرد): [{victims_str}]"
+            #         else:
+            #             victims_msg = "لم يتم إزاحة أحد (تم استغلال فراغات متاحة للـ VIP)"
+
+            #         log_msg = f"تفريغ المساء لـ '{vip_teacher}' (باقي {old_red_zone_count} حصص مساءً) | {victims_msg}"
+            #         log_q.put(f"✅ تحسين جراحي ناجح: {log_msg}")
+            #         refinement_log.append(f"  - {log_msg}")
+
+            #         send_chart_data(log_q, calculate_schedule_cost(best_temp_schedule, **cost_args_violations, non_sharing_teacher_pairs=non_sharing_teacher_pairs), False)
+
+            #         refined_schedule = best_temp_schedule
+            #         violation_cost = best_violation_cost
+            #         compaction_cost = best_compaction_cost
+            #         moves_made += 1
+            #         continue_main_loop = True
+            #         break
+            #     else:
+            #         msg = f"❌ مستحيل: فشلت سلاسل الطرد. إما أن الإزاحة وصلت للعمق الأقصى ({max_chain_depth} ضحايا) دون مخرج، أو تعارضت مع أيام العمل المحددة للضحايا."
+            #         log_q.put(msg)
+            #         refinement_log.append(f"  - {msg}")
+            #         continue_main_loop = False
+            #         break
+            
             else: 
                 # ✨ التعديل الذكي: تضييق مساحة البحث للمستوى المقيد
                 if refinement_level == 'simple_restricted':
@@ -2592,7 +3006,9 @@ def refine_and_compact_schedule(
                         
                         accept_move = False
                         if refinement_level in ['simple', 'simple_restricted']:
-                            if new_violation_cost < violation_cost or (new_violation_cost == violation_cost and new_compaction_cost < compaction_cost):
+                            # ✨ التعديل الجوهري: بما أن الخوارزمية تبحث حصراً في فترات أبكر
+                            # فإن مجرد العثور على مكان لا يزيد الأخطاء يعتبر نجاحاً، ويجب قبوله فوراً!
+                            if new_violation_cost <= violation_cost:
                                 accept_move = True
                         else: # 'balanced'
                             if new_violation_cost <= violation_cost and new_compaction_cost <= compaction_cost:
