@@ -11,7 +11,7 @@ from app.database import db, ExamSetting, ExamTeacher, ExamSubject, ExamLevel, E
 from app.services.exams_algorithms import (
     _run_initial_subject_placement, run_subject_optimization_phase, clean_string_for_matching,
     complete_schedule_with_guards, run_unified_lns_optimizer,
-    run_large_neighborhood_search, run_variable_neighborhood_search, run_tabu_search,
+    run_large_neighborhood_search, run_variable_neighborhood_search,
     desperation_repair_pass, calculate_cost, format_cost_tuple, generate_violation_report
 )
 
@@ -240,9 +240,7 @@ def background_exam_generation_task(tenant_id, algorithm_choices, algo_params):
                 main_settings['lnsDestroyFraction'] = float(algo_params.get('lnsDestroy', 0.2))
                 main_settings['vnsIterations'] = int(algo_params.get('vnsIter', 100))
                 main_settings['vnsMaxK'] = int(algo_params.get('vnsK', 25))
-                main_settings['tabuIterations'] = int(algo_params.get('tabuIter', 200))
-                main_settings['tabuNeighborhoodSize'] = int(algo_params.get('tabuSize', 100))
-                main_settings['tabuTenure'] = int(algo_params.get('tabuTenure', 20))
+                
             
             row_sched = ExamSetting.query.filter_by(key='exam_schedule', tenant_id=tenant_id).first()
             exam_schedule = json.loads(row_sched.value) if row_sched and row_sched.value else {}
@@ -375,8 +373,7 @@ def background_exam_generation_task(tenant_id, algorithm_choices, algo_params):
                 best_schedule, _, _, _ = run_large_neighborhood_search(best_schedule, main_settings, all_professors, duty_patterns, date_map, log_q=log_queue, locked_guards=locked_guards, stop_event=stop_event)
             elif algo == 'vns':
                 best_schedule, _, _, _ = run_variable_neighborhood_search(best_schedule, main_settings, all_professors, duty_patterns, date_map, log_q=log_queue, locked_guards=locked_guards, stop_event=stop_event)
-            elif algo == 'tabu':
-                best_schedule, _, _, _ = run_tabu_search(best_schedule, main_settings, all_professors, duty_patterns, date_map, log_q=log_queue, locked_guards=locked_guards, stop_event=stop_event)
+            
 
         if best_schedule and not stop_event.is_set():
             log_queue.put("\n✓ انتهت سلسلة الخوارزميات بالكامل. جاري حساب الإحصائيات النهائية...")

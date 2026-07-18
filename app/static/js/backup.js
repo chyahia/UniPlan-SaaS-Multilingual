@@ -18,9 +18,6 @@ function saveAlgorithmSettings() {
 
     const algoSettings = {
         selected_algorithms: selectedAlgorithms, // <-- السطر المضاف لحفظ المربعات
-        tabu_iterations: document.getElementById('tabu_iter')?.value || 1000,
-        tabu_tenure: document.getElementById('tabu_tenure')?.value || 10,
-        tabu_stagnation_threshold: document.getElementById('tabu_stagnation')?.value || 15,
         lns_iterations: document.getElementById('lns_iter')?.value || 500,
         lns_ruin_factor: document.getElementById('lns_ruin')?.value || 20,
         lns_stagnation_threshold: document.getElementById('lns_stagnation')?.value || 15,
@@ -53,9 +50,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             }
 
-            if(data.tabu_iterations && document.getElementById('tabu_iter')) document.getElementById('tabu_iter').value = data.tabu_iterations;
-            if(data.tabu_tenure && document.getElementById('tabu_tenure')) document.getElementById('tabu_tenure').value = data.tabu_tenure;
-            if(data.tabu_stagnation_threshold && document.getElementById('tabu_stagnation')) document.getElementById('tabu_stagnation').value = data.tabu_stagnation_threshold;
             if(data.lns_iterations && document.getElementById('lns_iter')) document.getElementById('lns_iter').value = data.lns_iterations;
             if(data.lns_ruin_factor && document.getElementById('lns_ruin')) document.getElementById('lns_ruin').value = data.lns_ruin_factor;
             if(data.lns_stagnation_threshold && document.getElementById('lns_stagnation')) document.getElementById('lns_stagnation').value = data.lns_stagnation_threshold;

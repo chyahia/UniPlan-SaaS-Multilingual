@@ -20,10 +20,6 @@ function startGeneration() {
     const selectedAlgorithms = Array.from(document.querySelectorAll('.algo-chk:checked')).map(cb => cb.value);
     const strictHierarchy = document.getElementById('strict-hierarchy-chk')?.checked || false;
     const algoSettings = {
-        tabu_iterations: document.getElementById('tabu_iter')?.value,
-        tabu_tenure: document.getElementById('tabu_tenure').value,
-        tabu_neighborhood: document.getElementById('tabu_neighborhood').value,
-        tabu_stagnation_threshold: document.getElementById('tabu_stagnation')?.value || 15,
         lns_iterations: document.getElementById('lns_iter').value,
         lns_ruin_factor: document.getElementById('lns_ruin').value,
         lns_stagnation_threshold: document.getElementById('lns_stagnation')?.value || 15,

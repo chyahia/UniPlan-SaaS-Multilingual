@@ -671,19 +671,6 @@
 
             <strong>اختر الخوارزميات المساعدة (التحسين):</strong><br><br>
             <div style="display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px;">
-                <div style="background: #f9f9f9; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
-                    <label style="cursor: pointer; font-weight: bold;">
-                        <input type="checkbox" class="algo-chk" value="tabu" checked onchange="document.getElementById('tabu-settings').style.display = this.checked ? 'block' : 'none'"> البحث المحظور (Tabu Search)
-                    </label>
-                    <div id="tabu-settings" style="margin-top: 10px; padding-right: 25px;">
-                        <label>التكرارات: <input type="number" id="tabu_iter" value="1000" style="width: 70px; margin-left:15px;"></label>
-                        <label>الذاكرة: <input type="number" id="tabu_tenure" value="10" style="width: 60px; margin-left:15px;"></label>
-                        
-                        <label title="عدد الجداول البديلة التي يتم فحصها في كل خطوة (القيمة الافتراضية 50)">الجوار: <input type="number" id="tabu_neighborhood" value="50" style="width: 60px; margin-left:15px;"></label>
-                        
-                        <label title="النسبة المئوية من التكرارات قبل إحداث طفرة عشوائية لتفادي الحلول المحلية">الركود: <input type="number" id="tabu_stagnation" value="15" min="1" max="99" style="width: 60px; margin-left:15px;"> %</label>
-                    </div>
-                </div>
 
                 <div style="background: #f9f9f9; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
                     <label style="cursor: pointer; font-weight: bold;">

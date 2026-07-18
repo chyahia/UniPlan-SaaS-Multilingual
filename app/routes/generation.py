@@ -11,7 +11,7 @@ import threading
 
 # استدعاء الخوارزميات (بدون المتغيرات العامة القديمة)
 from app.services.algorithms import (
-    run_tabu_search, run_large_neighborhood_search, run_variable_neighborhood_search, 
+    run_large_neighborhood_search, run_variable_neighborhood_search, 
     run_greedy_search_for_best_result, refine_and_compact_schedule
 )
 
@@ -521,16 +521,12 @@ def background_generation_task(tenant_id, strict_hierarchy, algorithms, algo_set
         log_q.put("✅ تمت قراءة ومعالجة جميع البيانات والقيود بنجاح!")
         time.sleep(0.5)
 
-        tabu_iterations = int(algo_settings.get('tabu_iterations', 1000))
-        tabu_tenure = int(algo_settings.get('tabu_tenure', 10))
-        tabu_neighborhood = int(algo_settings.get('tabu_neighborhood', 50))
         lns_iterations = int(algo_settings.get('lns_iterations', 500))
         lns_ruin_factor = float(algo_settings.get('lns_ruin_factor', 20)) / 100.0 
         vns_iterations = int(algo_settings.get('vns_iterations', 300))
         vns_k_max = int(algo_settings.get('vns_k_max', 5))
         lns_stagnation = int(algo_settings.get('lns_stagnation_threshold', 15))
         vns_stagnation = int(algo_settings.get('vns_stagnation_threshold', 15))
-        tabu_stagnation = int(algo_settings.get('tabu_stagnation_threshold', 15))
         # ✨ استخراج أساتذة الدومينو من الواجهة وترجمة أرقامهم لأسماء
         domino_teachers_ids = conditions_data.get('domino_teachers', [])
         domino_teacher_names = []
@@ -569,23 +565,6 @@ def background_generation_task(tenant_id, strict_hierarchy, algorithms, algo_set
         )
         
         log_q.put(f"✅ تم بناء الجدول المبدئي بنجاح! (باقي {len(final_failures)} أخطاء مرنة)")
-
-        if "tabu" in algorithms and not scheduling_state.get('should_stop'):
-            log_q.put(f"\n=== 🔍 بدء البحث المحظور (Tabu Search) بتكرارات: {tabu_iterations} وذاكرة: {tabu_tenure} ===")
-            current_solution, final_cost, final_failures = run_tabu_search(
-                log_q, all_lectures, days, slots, rooms_data, teachers, levels, 
-                identifiers_by_level, special_constraints, teacher_constraints, distribution_rule_type, 
-                lectures_by_teacher_map, globally_unavailable_slots, saturday_teachers, teacher_pairs, 
-                day_to_idx, rules_grid, scheduling_state, last_slot_restrictions, 
-                level_specific_large_rooms, specific_small_room_assignments, constraint_severities, 
-                mutation_hard_intensity=algo_settings.get('mutation_hard_intensity', 4), 
-                mutation_soft_probability=algo_settings.get('mutation_soft_probability', 0.5),
-                max_sessions_per_day=max_sessions_per_day, initial_solution=current_solution, 
-                max_iterations=tabu_iterations, tabu_tenure=tabu_tenure, neighborhood_size=tabu_neighborhood,
-                consecutive_large_hall_rule=consecutive_large_hall_rule, progress_channel=scheduling_state, 
-                prefer_morning_slots=prefer_morning_slots, use_strict_hierarchy=strict_hierarchy, non_sharing_teacher_pairs=non_sharing_teacher_pairs,
-                tabu_stagnation_threshold=tabu_stagnation
-            )
             
         if "lns" in algorithms and not scheduling_state.get('should_stop'):
             log_q.put(f"\n=== 🌪️ بدء البحث الجواري الواسع (LNS) بتكرارات: {lns_iterations} وتخريب: {lns_ruin_factor*100}% ===")

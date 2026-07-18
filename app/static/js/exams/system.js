@@ -12,9 +12,6 @@ document.addEventListener('DOMContentLoaded', async () => {
              if (settings.lnsDestroy) document.getElementById('lns-destroy').value = settings.lnsDestroy;
              if (settings.vnsIter) document.getElementById('vns-iter').value = settings.vnsIter;
              if (settings.vnsK) document.getElementById('vns-k').value = settings.vnsK;
-             if (settings.tabuIter) document.getElementById('tabu-iter').value = settings.tabuIter;
-             if (settings.tabuSize) document.getElementById('tabu-size').value = settings.tabuSize;
-             if (settings.tabuTenure) document.getElementById('tabu-tenure').value = settings.tabuTenure;
         }
     } catch (e) {
         console.error('لم يتم العثور على إعدادات محفوظة مسبقاً للخوارزميات:', e);
@@ -128,9 +125,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 currentSettings.lnsDestroy = document.getElementById('lns-destroy')?.value;
                 currentSettings.vnsIter = document.getElementById('vns-iter')?.value;
                 currentSettings.vnsK = document.getElementById('vns-k')?.value;
-                currentSettings.tabuIter = document.getElementById('tabu-iter')?.value;
-                currentSettings.tabuSize = document.getElementById('tabu-size')?.value;
-                currentSettings.tabuTenure = document.getElementById('tabu-tenure')?.value;
+                
 
                 // الخطوة 4: حفظ البيانات النهائية المكتملة السحابية
                 await fetch('/exams/api/settings', {

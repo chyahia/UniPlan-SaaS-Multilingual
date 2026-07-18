@@ -467,9 +467,6 @@
                 <label style="background: #fff3e0; padding: 10px 15px; border-radius: 5px; border: 1px solid #ffe0b2; cursor: pointer; font-weight: bold; flex: 1;">
                     <input type="checkbox" id="chk-vns" value="vns" onchange="toggleAlgoSettings('vns')"> البحث الجواري المتغير (VNS)
                 </label>
-                <label style="background: #f3e5f5; padding: 10px 15px; border-radius: 5px; border: 1px solid #e1bee7; cursor: pointer; font-weight: bold; flex: 1;">
-                    <input type="checkbox" id="chk-tabu" value="tabu" onchange="toggleAlgoSettings('tabu')"> البحث المحظور (Tabu Search)
-                </label>
             </div>
 
             <!-- إعدادات الخوارزميات (تظهر عند التأشير فقط) -->
@@ -489,12 +486,6 @@
                     <h4 style="margin: 0 0 10px 0; color: #ef6c00;">إعدادات VNS</h4>
                     <label style="display: block; margin-bottom: 5px; font-size: 13px;">الدورات: <input type="number" id="vns-iter" value="100" style="width: 60px; padding: 3px;"></label>
                     <label style="display: block; font-size: 13px;">حجم الجوار (K): <input type="number" id="vns-k" value="25" style="width: 60px; padding: 3px;"></label>
-                </div>
-                <div id="setting-tabu" style="display: none; background: #fff; padding: 10px; border-radius: 5px; border-right: 4px solid #9c27b0;">
-                    <h4 style="margin: 0 0 10px 0; color: #7b1fa2;">إعدادات Tabu Search</h4>
-                    <label style="display: block; margin-bottom: 5px; font-size: 13px;">الدورات: <input type="number" id="tabu-iter" value="200" style="width: 60px; padding: 3px;"></label>
-                    <label style="display: block; margin-bottom: 5px; font-size: 13px;">حجم الجوار: <input type="number" id="tabu-size" value="100" style="width: 60px; padding: 3px;"></label>
-                    <label style="display: block; font-size: 13px;">الذاكرة: <input type="number" id="tabu-tenure" value="20" style="width: 60px; padding: 3px;"></label>
                 </div>
             </div>
 

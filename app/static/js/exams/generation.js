@@ -8,7 +8,7 @@ function startGeneration() {
     if(document.getElementById('chk-unified').checked) selectedAlgos.push('unified');
     if(document.getElementById('chk-lns').checked) selectedAlgos.push('lns');
     if(document.getElementById('chk-vns').checked) selectedAlgos.push('vns');
-    if(document.getElementById('chk-tabu').checked) selectedAlgos.push('tabu');
+    
 
     if(selectedAlgos.length === 0) {
         showNotification('الرجاء اختيار خوارزمية واحدة على الأقل!', 'error');
@@ -28,10 +28,7 @@ function startGeneration() {
             lnsIter: document.getElementById('lns-iter').value,
             lnsDestroy: document.getElementById('lns-destroy').value,
             vnsIter: document.getElementById('vns-iter').value,
-            vnsK: document.getElementById('vns-k').value,
-            tabuIter: document.getElementById('tabu-iter').value,
-            tabuSize: document.getElementById('tabu-size').value,
-            tabuTenure: document.getElementById('tabu-tenure').value
+            vnsK: document.getElementById('vns-k').value
         }
     };
     
