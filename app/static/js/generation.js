@@ -729,6 +729,116 @@ function toggleDominoSlider() {
     slider.classList.toggle('open');
 }
 
+// ==========================================
+// 🎯 دوال أداة التدخل الجراحي
+// ==========================================
+function toggleSurgicalSlider() {
+    const slider = document.getElementById('surgical-actions-wrapper');
+    slider.classList.toggle('open');
+    
+    // جلب الأساتذة للقائمة المنسدلة تلقائياً في حال كانت فارغة
+    const select = document.getElementById('surgical-teacher-select');
+    if (select.options.length <= 1) {
+        fetch('/teachers')
+            .then(res => res.json())
+            .then(data => {
+                data.forEach(t => {
+                    const opt = document.createElement('option');
+                    opt.value = t.name;
+                    opt.textContent = t.name;
+                    select.appendChild(opt);
+                });
+            })
+            .catch(err => console.error("Error fetching teachers:", err));
+    }
+}
+
+function executeSurgicalStrike() {
+    if (!currentGenerationData || !currentGenerationData.schedule) {
+        alert("يرجى توليد جدول أولاً!"); return;
+    }
+    const teacherName = document.getElementById('surgical-teacher-select').value;
+    const maxVictims = document.getElementById('surgical-max-victims').value;
+    
+    if (!teacherName) {
+        alert("الرجاء اختيار الأستاذ الهدف من القائمة المنسدلة."); return;
+    }
+    
+    if (!confirm(`هل أنت متأكد من تنفيذ العملية الجراحية لرفع حصص الأستاذ [${teacherName}] نحو الصباح؟\n(ملاحظة: سيتم إزاحة أساتذة آخرين كضحايا بحد أقصى ${maxVictims}).`)) return;
+
+    const logContainer = document.getElementById('live-log-container');
+    const logOutput = document.getElementById('log-output');
+    const resultsContainer = document.getElementById('schedule-results-container');
+    const btnExecute = document.getElementById('btn-execute-surgical');
+    
+    resultsContainer.style.display = 'none';
+    logContainer.style.display = 'block';
+    logOutput.textContent = `🎯 جاري الاتصال بالخادم لتنفيذ التدخل الجراحي للأستاذ: [${teacherName}]...\n`;
+    
+    btnExecute.disabled = true;
+    btnExecute.innerText = '⏳ ...';
+
+    // نستخدم نفس المسار القوي الخاص بالتحسين (API/Refine)
+    fetch('/api/refine', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+            schedule: currentGenerationData.schedule,
+            level: 'deep_surgical',
+            teachers: [teacherName], 
+            max_victims: parseInt(maxVictims)
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            const sseSource = new EventSource('/stream-logs');
+            sseSource.onmessage = function(event) {
+                const message = event.data;
+                if (message.startsWith("DONE")) {
+                    sseSource.close();
+                    const jsonData = message.substring(4);
+                    try {
+                        const parsedData = JSON.parse(jsonData);
+                        currentGenerationData = parsedData; 
+                        logOutput.textContent += '\n--- 🎯 انتهت العملية الجراحية! ---\n';
+                        btnExecute.disabled = false;
+                        btnExecute.innerText = '🚀 تنفيذ';
+                        resultsContainer.style.display = 'block';
+                        renderLevelSchedules(parsedData.schedule, parsedData.days, parsedData.slots);
+                        alert("🎯 تمت العملية الجراحية، ويمكنك معاينة الجدول المحدث!");
+                    } catch(e) { console.error(e); }
+                } else if (!message.includes("PROGRESS:") && !message.startsWith("CHART_DATA:")) {
+                    logOutput.textContent += message + '\n';
+                    logOutput.scrollTop = logOutput.scrollHeight;
+                } else if (message.startsWith("CHART_DATA:")) {
+                    try {
+                        const chartJson = message.replace("CHART_DATA:", "");
+                        const parsedData = JSON.parse(chartJson);
+                        updateLiveChart(parsedData.labels, parsedData.data);
+                    } catch(e) {}
+                }
+            };
+            sseSource.onerror = function() {
+                sseSource.close();
+                btnExecute.disabled = false;
+                btnExecute.innerText = '🚀 تنفيذ';
+                resultsContainer.style.display = 'block'; 
+            };
+        } else {
+            alert("حدث خطأ: " + data.error);
+            btnExecute.disabled = false;
+            btnExecute.innerText = '🚀 تنفيذ';
+            resultsContainer.style.display = 'block';
+        }
+    })
+    .catch(err => {
+        alert("حدث خطأ في الاتصال بالخادم.");
+        btnExecute.disabled = false;
+        btnExecute.innerText = '🚀 تنفيذ';
+        resultsContainer.style.display = 'block';
+    });
+}
 
 
 // ==================== محرك التعديل اليدوي الذكي (Interactive Swapping) ====================

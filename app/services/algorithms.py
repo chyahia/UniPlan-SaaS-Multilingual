@@ -2414,7 +2414,7 @@ def refine_and_compact_schedule(
     day_to_idx, rules_grid, last_slot_restrictions, level_specific_large_rooms,
     specific_small_room_assignments, constraint_severities, max_sessions_per_day=None, 
     consecutive_large_hall_rule="none", prefer_morning_slots=False, non_sharing_teacher_pairs=None, 
-    refinement_level='balanced'
+    refinement_level='balanced', max_victims=4
 ):
     if non_sharing_teacher_pairs is None:
         non_sharing_teacher_pairs = []
@@ -2752,222 +2752,253 @@ def refine_and_compact_schedule(
                     continue_main_loop = True
                     break
             
-            # elif refinement_level == 'deep_surgical':
-            #     # --- شرط الأستاذ الواحد ---
-            #     if len(selected_teachers) != 1:
-            #         log_q.put("⚠️ [خطأ]: المستوى 'الجراحي' يتطلب تحديد أستاذ واحد فقط من القائمة! تم إيقاف التحسين.")
-            #         continue_main_loop = False
-            #         break
+            elif refinement_level == 'deep_surgical':
+                # --- 1. التحقق من الشروط ---
+                if len(selected_teachers) != 1:
+                    log_q.put("⚠️ [خطأ]: المستوى 'الجراحي' يتطلب تحديد أستاذ واحد فقط! تم إيقاف التحسين.")
+                    continue_main_loop = False
+                    break
+
+                vip_teacher = list(selected_teachers)[0]
+                if vip_teacher in processed_teachers_deep: continue
+                processed_teachers_deep.add(vip_teacher)
+
+                red_zone_start_idx = max(0, len(slots) - 2)
+                global_morning_slots = [(d, s) for d in range(len(days)) for s in range(red_zone_start_idx)]
+                global_evening_slots = [(d, s) for d in range(len(days)) for s in range(red_zone_start_idx, len(slots))]
                 
-            #     vip_teacher = list(selected_teachers)[0]
-            #     if vip_teacher in processed_teachers_deep: continue
-            #     processed_teachers_deep.add(vip_teacher)
-
-            #     current_teacher_slots = teacher_schedule_map.get(vip_teacher, set())
-            #     red_zone_start_idx = max(0, len(slots) - 2)
-            #     red_zone_slots = [(d, s) for d, s in current_teacher_slots if s >= red_zone_start_idx]
+                # --- 2. استخراج جميع حصص الـ VIP للمرحلة الأولى ---
+                vip_all_lectures = []
+                current_teacher_slots = teacher_schedule_map.get(vip_teacher, set())
+                vip_working_days = {d for d, s in current_teacher_slots}
                 
-            #     if not red_zone_slots:
-            #         log_q.put(f"✅ الأستاذ '{vip_teacher}' لا يملك أي حصص في المنطقة الحمراء (المساء).")
-            #         continue
+                for d, s in current_teacher_slots:
+                    for lvl, grid in refined_schedule.items():
+                        if d < len(grid) and s < len(grid[d]):
+                            for lec in grid[d][s]:
+                                if lec.get('teacher_name') == vip_teacher:
+                                    vip_all_lectures.append((lec, lvl, d, s))
 
-            #     lectures_for_teacher = lectures_by_teacher_map.get(vip_teacher, [])
-            #     if not lectures_for_teacher: continue
+                if not any(s >= red_zone_start_idx for d, s in current_teacher_slots):
+                    log_q.put(f"✅ الأستاذ '{vip_teacher}' جدوله مثالي (لا توجد حصص مسائية).")
+                    continue
 
-            #     best_temp_schedule = None
-            #     best_violation_cost = violation_cost
-            #     best_compaction_cost = compaction_cost
-            #     found_better = False
-            #     old_red_zone_count = len(red_zone_slots)
-            #     best_victims_names = set()
+                log_q.put(f"🔄 بدء التدخل الجراحي للأستاذ '{vip_teacher}' بسقف {max_victims} أساتذة...")
 
-            #     # ==========================================
-            #     # ⚙️ الحد الأقصى لعمق السلسلة (عدد الضحايا المتتاليين)
-            #     # ==========================================
-            #     max_chain_depth = 50 # غير هذا الرقم لتحديد أقصى عدد للمطرودين في السلسلة الواحدة
-            #     # ==========================================
+                # =========================================================
+                # 🛡️ دالة الحماية (تُقصي المدرجات والمشتركة)
+                # =========================================================
+                def is_lecture_protected(lec, full_sched, d, s):
+                    if lec.get('room_type') == 'كبيرة': return True
+                    lec_id = str(lec.get('id'))
+                    appearances = sum(1 for lvl_name, grid in full_sched.items() if d < len(grid) and s < len(grid[d]) for l in grid[d][s] if str(l.get('id')) == lec_id)
+                    return appearances > 1
 
-            #     morning_slots = [(d, s) for d in range(len(days)) for s in range(red_zone_start_idx)]
-                
-            #     # --- الدالة التراجعية (Recursive Function) ---
-            #     def try_ejection_chain(lecture, depth, sched, t_map, r_map, allowed_slots, is_vip, current_chain_victims):
-            #         # 1. المرحلة السلمية: البحث عن فراغ (بين الفترات المسموحة)
-            #         success, _ = find_slot_for_single_lecture(
-            #             lecture, sched, t_map, r_map,
-            #             days, slots, rules_grid, rooms_data, teacher_constraints, 
-            #             globally_unavailable_slots, special_constraints,
-            #             [], allowed_slots, identifiers_by_level, False, saturday_teachers, day_to_idx,
-            #             level_specific_large_rooms, specific_small_room_assignments, consecutive_large_hall_rule, 
-            #             prefer_morning_slots=is_vip # הVIP يبحث صباحاً، الضحية يبحث في أي وقت من أيام عمله
-            #         )
+                # =========================================================
+                # ⚔️ دالة سلسلة الإزاحة الجراحية (المرحلة 2)
+                # =========================================================
+                def run_targeted_ejection(lecture, depth, max_depth, sched, t_map, r_map, allowed_slots, prohibited_victims):
+                    success, _ = find_slot_for_single_lecture(
+                        lecture, sched, t_map, r_map, days, slots, rules_grid, rooms_data, teacher_constraints, 
+                        globally_unavailable_slots, special_constraints, [], allowed_slots, identifiers_by_level, 
+                        False, saturday_teachers, day_to_idx, level_specific_large_rooms, specific_small_room_assignments, 
+                        consecutive_large_hall_rule, prefer_morning_slots=True
+                    )
+                    if success: return True, sched, t_map, r_map, []
+                    if depth >= max_depth: return False, sched, t_map, r_map, []
+
+                    teacher_name = lecture.get('teacher_name')
+                    target_level = lecture.get('level')
+                    t_busy_slots = t_map.get(teacher_name, set())
                     
-            #         if success:
-            #             return True, sched, t_map, r_map, [] # نجح السلم.. نعود منتصرين!
+                    teacher_gaps = [(d, s) for (d, s) in allowed_slots if (d, s) not in t_busy_slots]
 
-            #         # إذا فشل السلم ووصلنا للعمق الأقصى، نعلن فشل هذا المسار
-            #         if depth >= max_chain_depth:
-            #             return False, sched, t_map, r_map, []
+                    for d, s in teacher_gaps:
+                        all_potential_victims = []
+                        for v_lvl, grid in sched.items():
+                            if d < len(grid) and s < len(grid[d]):
+                                for v_lec in grid[d][s]:
+                                    all_potential_victims.append((v_lvl, v_lec))
 
-            #         # 2. المرحلة الهجومية: إزاحة ضحية (التوغل في الشجرة)
-            #         lvl = lecture.get('level')
-            #         slots_to_attack = list(allowed_slots)
-            #         random.shuffle(slots_to_attack) # تنويع مسارات الهجوم
-                    
-            #         for d, s in slots_to_attack:
-            #             # استهداف خانة الفوج المشغولة
-            #             if lvl in sched and sched[lvl][d][s]:
-            #                 victims_in_slot = list(sched[lvl][d][s])
+                        all_potential_victims.sort(key=lambda x: 0 if x[0] == target_level else 1)
+
+                        for v_lvl, v_lec in all_potential_victims:
+                            v_name = v_lec.get('teacher_name')
+                            if not v_name or v_name in prohibited_victims or v_name == teacher_name: continue
+                            if is_lecture_protected(v_lec, sched, d, s): continue
                             
-            #                 # حماية ضد الحلقات المفرغة (لا تطرد الـ VIP ولا تطرد من طردته للتو)
-            #                 victim_names = [v.get('teacher_name') for v in victims_in_slot if v.get('teacher_name')]
-            #                 if any(vn in current_chain_victims for vn in victim_names) or vip_teacher in victim_names:
-            #                     continue
+                            branch_sched = copy.deepcopy(sched)
+                            branch_t = copy.deepcopy(t_map)
+                            branch_r = copy.deepcopy(r_map)
+                            
+                            victim_id = str(v_lec.get('id'))
+                            branch_sched[v_lvl][d][s] = [l for l in branch_sched[v_lvl][d][s] if str(l.get('id')) != victim_id]
+                            
+                            if v_name in branch_t: 
+                                branch_t[v_name].discard((d, s))
+                            if v_lec.get('room') and v_lec.get('room') in branch_r: 
+                                branch_r[v_lec.get('room')].discard((d, s))
+                            
+                            success_force, _ = find_slot_for_single_lecture(
+                                lecture, branch_sched, branch_t, branch_r, days, slots, rules_grid, rooms_data, teacher_constraints, 
+                                globally_unavailable_slots, special_constraints, [], [(d, s)], identifiers_by_level, 
+                                False, saturday_teachers, day_to_idx, level_specific_large_rooms, specific_small_room_assignments, 
+                                consecutive_large_hall_rule, prefer_morning_slots=True
+                            )
+                            
+                            if success_force:
+                                v_constraints = teacher_constraints.get(v_name, {})
+                                v_working_days = v_constraints.get('allowed_days', {vd for vd, vs in t_map.get(v_name, set())})
+                                if not v_working_days: v_working_days = set(range(len(days)))
                                 
-            #                 # أخذ لقطة للحالة الحالية (للتراجع في حال الفشل)
-            #                 branch_sched = copy.deepcopy(sched)
-            #                 branch_t_map = copy.deepcopy(t_map)
-            #                 branch_r_map = copy.deepcopy(r_map)
-                            
-            #                 # إفراغ الخانة بقوة السلاح
-            #                 branch_sched[lvl][d][s] = []
-            #                 for v in victims_in_slot:
-            #                     if v.get('teacher_name'): branch_t_map[v.get('teacher_name')].discard((d, s))
-            #                     if v.get('room'): branch_r_map[v.get('room')].discard((d, s))
-                            
-            #                 # محاولة التمركز في الخانة المفرغة
-            #                 success_force, _ = find_slot_for_single_lecture(
-            #                     lecture, branch_sched, branch_t_map, branch_r_map,
-            #                     days, slots, rules_grid, rooms_data, teacher_constraints, 
-            #                     globally_unavailable_slots, special_constraints,
-            #                     [], [(d, s)], identifiers_by_level, False, saturday_teachers, day_to_idx,
-            #                     level_specific_large_rooms, specific_small_room_assignments, consecutive_large_hall_rule, 
-            #                     prefer_morning_slots=is_vip
-            #                 )
-                            
-            #                 if success_force:
-            #                     # التمركز نجح.. الآن يجب إنقاذ الضحايا المطرودين!
-            #                     all_victims_saved = True
-            #                     displaced_in_this_branch = []
+                                slots_to_exclude = 0
+                                if v_name in last_slot_restrictions:
+                                    slots_to_exclude = 2 if last_slot_restrictions[v_name] == 'last_2' else 1
                                 
-            #                     for v in victims_in_slot:
-            #                         v_name = v.get('teacher_name')
-            #                         # إجبار الضحية على البحث داخل أيام عمله "الأصلية" فقط
-            #                         v_work_days = {wd for wd, ws in teacher_schedule_map.get(v_name, set())}
-            #                         if not v_work_days: v_work_days = set(range(len(days))) # أمان
-                                    
-            #                         v_allowed_slots = [(wd, ws) for wd in v_work_days for ws in range(len(slots))]
-                                    
-            #                         # إرسال الضحية للشجرة ليبحث عن مكان (السلم أولاً ثم الهجوم)
-            #                         v_success, branch_sched, branch_t_map, branch_r_map, v_displaced = try_ejection_chain(
-            #                             v, depth + 1, branch_sched, branch_t_map, branch_r_map, 
-            #                             v_allowed_slots, False, current_chain_victims + victim_names
-            #                         )
-                                    
-            #                         if not v_success:
-            #                             all_victims_saved = False
-            #                             break # السلسلة انهارت، نتراجع عن هذا المسار فوراً!
-                                        
-            #                         if v_name: displaced_in_this_branch.append(v_name)
-            #                         displaced_in_this_branch.extend(v_displaced)
-                                    
-            #                     if all_victims_saved:
-            #                         return True, branch_sched, branch_t_map, branch_r_map, displaced_in_this_branch
-                                    
-            #         # إذا جربنا كل الهجومات الممكنة وفشلنا
-            #         return False, sched, t_map, r_map, []
-            #     # --- نهاية الدالة التراجعية ---
+                                v_allowed_slots = [(vd, vs) for vd in v_working_days for vs in range(len(slots) - slots_to_exclude)]
+                                
+                                v_success, final_sched, final_t, final_r, disp = run_targeted_ejection(
+                                    v_lec, depth + 1, max_depth, branch_sched, branch_t, branch_r, v_allowed_slots, prohibited_victims + [teacher_name]
+                                )
+                                
+                                if v_success: return True, final_sched, final_t, final_r, [v_name] + disp
 
-            #     # قللنا عدد المحاولات الخارجية لأن الشجرة الداخلية ستقوم ببحث مهول وعميق جداً
-            #     attempts_limit = 15 
+                    return False, sched, t_map, r_map, []
+
+                working_schedule = copy.deepcopy(refined_schedule)
+                working_t_map = copy.deepcopy(teacher_schedule_map)
+                working_r_map = copy.deepcopy(room_schedule_map)
+
+                # =========================================================
+                # 🧱 المرحلة 1: تفكيك الجدول وإعادة التركيب السلمي
+                # =========================================================
+                log_q.put("🧱 [المرحلة 1]: تفكيك جدول الأستاذ ومحاولة إعادة بنائه صباحاً...")
                 
-            #     for attempt in range(attempts_limit):
-            #         temp_schedule_deep = copy.deepcopy(refined_schedule)
-            #         vip_lec_ids = {str(l.get('id')) for l in lectures_for_teacher}
+                vip_allowed_morning_slots = [(d, s) for d, s in global_morning_slots if d in vip_working_days]
+                vip_allowed_evening_slots = [(d, s) for d, s in global_evening_slots if d in vip_working_days]
+                
+                for lec, lvl, d, s in vip_all_lectures:
+                    lec_id = str(lec.get('id'))
+                    working_schedule[lvl][d][s] = [l for l in working_schedule[lvl][d][s] if str(l.get('id')) != lec_id]
                     
-            #         # 1. سحب الـ VIP من الجدول
-            #         for lvl_grid in temp_schedule_deep.values():
-            #             for day_slots in lvl_grid:
-            #                 for slot_lectures in day_slots:
-            #                     slot_lectures[:] = [l for l in slot_lectures if str(l.get('id')) not in vip_lec_ids]
+                    if vip_teacher in working_t_map: 
+                        working_t_map[vip_teacher].discard((d, s))
+                    if lec.get('room') and lec.get('room') in working_r_map: 
+                        working_r_map[lec.get('room')].discard((d, s))
 
-            #         temp_teacher_map = defaultdict(set)
-            #         temp_room_map = defaultdict(set)
-            #         for lvl_grid in temp_schedule_deep.values():
-            #             for d, day in enumerate(lvl_grid):
-            #                 for s, lects in enumerate(day):
-            #                     for l in lects:
-            #                         if l.get('teacher_name'): temp_teacher_map[l.get('teacher_name')].add((d, s))
-            #                         if l.get('room'): temp_room_map[l.get('room')].add((d, s))
+                rebuild_success = True
+                for lec, lvl, d, s in vip_all_lectures:
+                    ok_morning, _ = find_slot_for_single_lecture(
+                        lec, working_schedule, working_t_map, working_r_map, days, slots, rules_grid, rooms_data, teacher_constraints, 
+                        globally_unavailable_slots, special_constraints, [], vip_allowed_morning_slots, identifiers_by_level, 
+                        False, saturday_teachers, day_to_idx, level_specific_large_rooms, specific_small_room_assignments, 
+                        consecutive_large_hall_rule, prefer_morning_slots=True
+                    )
+                    if not ok_morning:
+                        ok_evening, _ = find_slot_for_single_lecture(
+                            lec, working_schedule, working_t_map, working_r_map, days, slots, rules_grid, rooms_data, teacher_constraints, 
+                            globally_unavailable_slots, special_constraints, [], vip_allowed_evening_slots, identifiers_by_level, 
+                            False, saturday_teachers, day_to_idx, level_specific_large_rooms, specific_small_room_assignments, 
+                            consecutive_large_hall_rule, prefer_morning_slots=False
+                        )
+                        if not ok_evening:
+                            rebuild_success = False
+                            break
+                
+                vip_remaining_evening = []
+                if rebuild_success:
+                    for d, s in working_t_map.get(vip_teacher, set()):
+                        if s >= red_zone_start_idx:
+                            for lvl, grid in working_schedule.items():
+                                if d < len(grid) and s < len(grid[d]):
+                                    for lec in grid[d][s]:
+                                        if lec.get('teacher_name') == vip_teacher:
+                                            vip_remaining_evening.append((lec, lvl, d, s))
+                
+                if not rebuild_success:
+                    log_q.put("⚠️ إعادة البناء السلمية فشلت، سيتم التراجع والانتقال للطرد المباشر.")
+                    working_schedule = copy.deepcopy(refined_schedule)
+                    working_t_map = copy.deepcopy(teacher_schedule_map)
+                    working_r_map = copy.deepcopy(room_schedule_map)
+                    vip_remaining_evening = [(lec, lvl, d, s) for lec, lvl, d, s in vip_all_lectures if s >= red_zone_start_idx]
+                elif not vip_remaining_evening:
+                    log_q.put("✅ نجاح باهر في المرحلة 1! تم إعادة بناء الجدول بالكامل في الصباح دون الحاجة لطرد أي أستاذ.")
+                    refined_schedule = working_schedule
+                    teacher_schedule_map = working_t_map
+                    room_schedule_map = working_r_map
+                    moves_made += 1
+                    continue_main_loop = True
+                    break
+                else:
+                    log_q.put(f"⚠️ بعد إعادة البناء تبقى {len(vip_remaining_evening)} حصص مسائية.")
+
+                # =========================================================
+                # ⚔️ المرحلة 2: الطرد المتسلسل (مع قبول النجاح الجزئي)
+                # =========================================================
+                log_q.put("⚔️ [المرحلة 2]: بدء سلسلة الطرد الجراحية (نظام النجاح الجزئي)...")
+                
+                final_displaced = set()
+                successful_ejections = 0
+
+                for lec, lvl, d, s in vip_remaining_evening:
+                    lec_id = str(lec.get('id'))
                     
-            #         shuffled_vip_lectures = list(lectures_for_teacher)
-            #         random.shuffle(shuffled_vip_lectures)
+                    working_schedule[lvl][d][s] = [l for l in working_schedule[lvl][d][s] if str(l.get('id')) != lec_id]
                     
-            #         success_all_vip = True
-            #         current_attempt_victims = set()
+                    if vip_teacher in working_t_map: 
+                        working_t_map[vip_teacher].discard((d, s))
+                    if lec.get('room') and lec.get('room') in working_r_map: 
+                        working_r_map[lec.get('room')].discard((d, s))
+
+                    # ✨ استخدام المتغير الجديد max_victims هنا بدلاً من 4 الثابتة!
+                    success, temp_sched, temp_t, temp_r, displaced = run_targeted_ejection(
+                        lec, 0, max_victims, working_schedule, working_t_map, working_r_map, vip_allowed_morning_slots, [vip_teacher]
+                    )
                     
-            #         # 2. إطلاق الشجرة التراجعية لإنقاذ الـ VIP
-            #         for lec in shuffled_vip_lectures:
-            #             success, temp_schedule_deep, temp_teacher_map, temp_room_map, displaced = try_ejection_chain(
-            #                 lec, 0, temp_schedule_deep, temp_teacher_map, temp_room_map, 
-            #                 morning_slots, True, list(current_attempt_victims)
-            #             )
+                    if success:
+                        working_schedule = temp_sched
+                        working_t_map = temp_t
+                        working_r_map = temp_r
+                        final_displaced.update(displaced)
+                        successful_ejections += 1
+                    else:
+                        working_schedule[lvl][d][s].append(lec)
                         
-            #             if success:
-            #                 current_attempt_victims.update(displaced)
-            #             else:
-            #                 success_all_vip = False
-            #                 break
-                            
-            #         if not success_all_vip:
-            #             continue
+                        if vip_teacher not in working_t_map: working_t_map[vip_teacher] = set()
+                        working_t_map[vip_teacher].add((d, s))
                         
-            #         # 3. حكم القاضي النهائي بعد نجاح السلاسل
-            #         new_vip_slots = temp_teacher_map.get(vip_teacher, set())
-            #         new_red_zone_count = sum(1 for d, s in new_vip_slots if s >= red_zone_start_idx)
+                        if lec.get('room'): 
+                            if lec.get('room') not in working_r_map: working_r_map[lec.get('room')] = set()
+                            working_r_map[lec.get('room')].add((d, s))
+
+                # =========================================================
+                # 📋 التقييم النهائي
+                # =========================================================
+                total_initial_evening = sum(1 for _, _, _, s in vip_all_lectures if s >= red_zone_start_idx)
+                total_remaining_evening = len(vip_remaining_evening) - successful_ejections
+                total_saved = total_initial_evening - total_remaining_evening
+
+                if total_saved > 0:
+                    refined_schedule = working_schedule
+                    teacher_schedule_map = working_t_map
+                    room_schedule_map = working_r_map
+                    moves_made += 1
                     
-            #         new_violations_deep = calculate_schedule_cost(temp_schedule_deep, **cost_args_violations, non_sharing_teacher_pairs=non_sharing_teacher_pairs)
-            #         new_violation_cost_deep = sum(f.get('penalty', 1) for f in new_violations_deep)
-
-            #         if new_violation_cost_deep <= violation_cost and new_red_zone_count < old_red_zone_count:
-            #             new_total_deep = calculate_schedule_cost(temp_schedule_deep, **cost_args_compaction, non_sharing_teacher_pairs=non_sharing_teacher_pairs)
-            #             new_compaction_cost_deep = sum(f.get('penalty', 1) for f in new_total_deep) - new_violation_cost_deep
-                        
-            #             best_temp_schedule = temp_schedule_deep
-            #             best_violation_cost = new_violation_cost_deep
-            #             best_compaction_cost = new_compaction_cost_deep
-            #             old_red_zone_count = new_red_zone_count
-            #             best_victims_names = current_attempt_victims
-            #             found_better = True
-                        
-            #             if new_red_zone_count == 0:
-            #                 break 
-
-            #     # 4. التقرير النهائي
-            #     if found_better:
-            #         if best_victims_names:
-            #             victims_str = "، ".join(best_victims_names)
-            #             victims_msg = f"تمت الإزاحة بنجاح (سلسلة طرد): [{victims_str}]"
-            #         else:
-            #             victims_msg = "لم يتم إزاحة أحد (تم استغلال فراغات متاحة للـ VIP)"
-
-            #         log_msg = f"تفريغ المساء لـ '{vip_teacher}' (باقي {old_red_zone_count} حصص مساءً) | {victims_msg}"
-            #         log_q.put(f"✅ تحسين جراحي ناجح: {log_msg}")
-            #         refinement_log.append(f"  - {log_msg}")
-
-            #         send_chart_data(log_q, calculate_schedule_cost(best_temp_schedule, **cost_args_violations, non_sharing_teacher_pairs=non_sharing_teacher_pairs), False)
-
-            #         refined_schedule = best_temp_schedule
-            #         violation_cost = best_violation_cost
-            #         compaction_cost = best_compaction_cost
-            #         moves_made += 1
-            #         continue_main_loop = True
-            #         break
-            #     else:
-            #         msg = f"❌ مستحيل: فشلت سلاسل الطرد. إما أن الإزاحة وصلت للعمق الأقصى ({max_chain_depth} ضحايا) دون مخرج، أو تعارضت مع أيام العمل المحددة للضحايا."
-            #         log_q.put(msg)
-            #         refinement_log.append(f"  - {msg}")
-            #         continue_main_loop = False
-            #         break
+                    displaced_str = "، ".join(final_displaced) if final_displaced else "بدون طرد"
+                    status_msg = "نجاح كلي" if total_remaining_evening == 0 else "نجاح جزئي"
+                    
+                    log_msg = f"تم نقل {total_saved} حصص للصباح ({status_msg}). المتبقي مساءً: {total_remaining_evening}. الإزاحات: [{displaced_str}]"
+                    log_q.put(f"✅ عملية جراحية منجزة: {log_msg}")
+                    
+                    new_violations = calculate_schedule_cost(refined_schedule, **cost_args_violations, non_sharing_teacher_pairs=non_sharing_teacher_pairs)
+                    send_chart_data(log_q, new_violations, False)
+                    
+                    continue_main_loop = True
+                    break
+                else:
+                    log_q.put(f"❌ تعذر نقل أي حصة للصباح. تم التراجع للحفاظ على استقرار الجدول.")
+                    continue_main_loop = False
+                    break
             
             else: 
                 # ✨ التعديل الذكي: تضييق مساحة البحث للمستوى المقيد

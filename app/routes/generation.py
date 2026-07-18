@@ -119,26 +119,25 @@ def start_refinement():
     current_schedule = data.get('schedule')
     if not current_schedule: return jsonify({"error": "الجدول غير موجود أو فارغ."}), 400
         
-    # ✨ التعديل: قراءة المستوى بشكل ذكي (التقاط أي تسمية قد ترسلها الواجهة)
+    # ✨ التقاط المستوى وعدد الضحايا
     req_level = data.get('level') or data.get('refinement_level') or 'balanced'
+    max_victims = data.get('max_victims', 4)
     
     log_q.clear_logs()
     log_q.set_running(True)
     log_q.set_stop_flag(False)
     
-    # 🔍 طباعة المستوى في الشاشة السوداء للتأكيد
     log_q.put(f"🔍 تم بدء عملية التحسين باختيار المستوى: [{req_level}]")
 
-    # 🚀 المحول الذكي
     mode = current_app.config.get('APP_MODE')
     if mode == 'desktop':
         app_obj = current_app._get_current_object()
         def run_thread():
             with app_obj.app_context():
-                background_refinement_task(tenant_id, current_schedule, req_level, data.get('teachers', []))
+                background_refinement_task(tenant_id, current_schedule, req_level, data.get('teachers', []), max_victims)
         threading.Thread(target=run_thread).start()
     else:
-        background_refinement_task.delay(tenant_id, current_schedule, req_level, data.get('teachers', []))
+        background_refinement_task.delay(tenant_id, current_schedule, req_level, data.get('teachers', []), max_victims)
         
     return jsonify({"success": True})
 
@@ -710,7 +709,7 @@ def background_generation_task(tenant_id, strict_hierarchy, algorithms, algo_set
 
 
 @celery_app.task
-def background_refinement_task(tenant_id, current_schedule, refinement_level, selected_teachers):
+def background_refinement_task(tenant_id, current_schedule, refinement_level, selected_teachers, max_victims=4):
     log_q = get_log_queue(tenant_id)
     scheduling_state = SchedulingStateProxy(tenant_id)
     from flask import current_app as app
@@ -909,7 +908,7 @@ def background_refinement_task(tenant_id, current_schedule, refinement_level, se
             day_to_idx=day_to_idx, rules_grid=rules_grid, last_slot_restrictions=last_slot_restrictions, level_specific_large_rooms=level_specific_large_rooms,
             specific_small_room_assignments=specific_small_room_assignments, constraint_severities=constraint_severities, max_sessions_per_day=max_sessions_per_day, 
             consecutive_large_hall_rule=consecutive_large_hall_rule, prefer_morning_slots=True, non_sharing_teacher_pairs=non_sharing_teacher_pairs, 
-            refinement_level=refinement_level
+            refinement_level=refinement_level, max_victims=max_victims
         )
 
         prof_schedules = {t['name']: [[[] for _ in slots] for _ in days] for t in teachers}

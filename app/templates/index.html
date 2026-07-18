@@ -783,6 +783,29 @@
                         ✨ ضغط وتحسين جداول الأساتذة (سد الفجوات)
                     </button>
 
+                    <!-- ✨ شرط إظهار الميزة الجراحية ✨ -->
+                    {% if config.get('ENABLE_SURGICAL_FEATURE') %}
+                    <!-- حاوية التدخل الجراحي الجديدة 🎯 -->
+                    <div style="display: flex; background: #ecf0f1; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                        
+                        <!-- أزلنا الـ padding من هنا لمنع الخلل البصري، واستخدمنا الهوامش الداخلية للعناصر -->
+                        <div id="surgical-actions-wrapper" class="domino-slider" style="flex-direction: row; align-items: center; gap: 8px;">
+                            <select id="surgical-teacher-select" style="padding: 5px; margin-right: 10px; border-radius: 4px; border: 1px solid #bdc3c7; font-family: inherit; font-weight: bold; width: 140px; color: #2c3e50;">
+                                <option value="">الأستاذ الهدف...</option>
+                            </select>
+                            <input type="number" id="surgical-max-victims" value="4" min="1" max="10" style="width: 45px; padding: 5px; border-radius: 4px; border: 1px solid #bdc3c7; text-align: center;" title="الحد الأقصى للضحايا">
+                            <button id="btn-execute-surgical" onclick="executeSurgicalStrike()" class="domino-btn-action" style="background: #e74c3c; border-radius: 4px; padding: 5px 10px; margin-left: 10px; font-size: 14px;">
+                                🚀 تنفيذ
+                            </button>
+                        </div>
+
+                        <!-- تم توحيد اللون (#8e44ad) وحجم الخط (26px) ليطابق زر الدومينو تماماً -->
+                        <button onclick="toggleSurgicalSlider()" style="background: #8e44ad; color: white; border: none; width: 60px; cursor: pointer; font-size: 26px; display: flex; align-items: center; justify-content: center; transition: 0.3s;" title="المشرط الجراحي (لأستاذ واحد)">
+                            🎯
+                        </button>
+                    </div>
+                    {% endif %}
+
                     <!-- حاوية الدومينو الذكية -->
                      {% if config.get('ENABLE_DOMINO_FEATURE') %}
                     <div style="display: flex; background: #ecf0f1; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
@@ -833,11 +856,6 @@
                             <input type="radio" name="opt_level" value="deep_balance"> 
                             <span>🟣 <strong>عميق (موازنة العبء):</strong> تفكيك الجداول وإعادة توزيعها لضمان التساوي والعدل في عدد الحصص اليومية للأستاذ.</span>
                         </label>
-
-                        <!-- <label class="d-flex align-items-center gap-2 mb-2 p-2 border rounded" style="cursor: pointer; transition: background 0.2s;">
-                            <input type="radio" name="opt_level" value="deep_surgical"> 
-                            <span class="text-danger">🎯 <strong>عميق جراحي (لأستاذ واحد):</strong> رفع الحصص المسائية لأستاذ محدد نحو الصباح بالقوة، عبر إزاحة حصص أساتذة آخرين وتغيير جداولهم.</span>
-                        </label> -->
 
                     </div>
                 </div>

@@ -26,6 +26,9 @@ def create_app():
     # 1. الإعدادات الأساسية
     # ✨ مفتاح تشغيل ميزة الدومينو (ضع علامة # قبل السطر لتعطيل الميزة وإخفائها بالكامل)
     app.config['ENABLE_DOMINO_FEATURE'] = True
+
+    # ✨ مفتاح تشغيل ميزة التدخل الجراحي (المشرط)
+    app.config['ENABLE_SURGICAL_FEATURE'] = True
     
     app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'chy_secret_key_2026_fallback')
     # التعرف التلقائي الذكي على البيئة (Desktop vs Web)
