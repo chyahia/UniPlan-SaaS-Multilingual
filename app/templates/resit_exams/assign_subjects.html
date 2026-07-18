@@ -6,30 +6,67 @@
     .item-box { cursor: pointer; transition: all 0.2s ease-in-out; user-select: none; }
     .item-box:hover { filter: brightness(0.95); transform: translateY(-1px); }
     
-    /* لون التظليل عند الاختيار المؤقت (للتخصيص) */
-    .selected-target { border: 2px solid #0d6efd !important; background-color: #e7f1ff !important; box-shadow: 0 0 8px rgba(13,110,253,0.3); }
-    
-    /* لون الأساتذة والمواد المسندة (النهائي) */
+    /* 1. لون الأساتذة والمواد المسندة (النهائي - الحالة الطبيعية) */
     .is-assigned-teacher { background-color: #d1e7dd !important; border-color: #badbcc !important; color: #0f5132 !important; font-weight: bold;}
     .is-assigned-subject { background-color: #fff3cd !important; border-color: #ffecb5 !important; color: #664d03 !important; }
+
+    /* 2. لون التظليل عند الاختيار المؤقت (نووي - يطغى على أي كلاس آخر) */
+    .item-box.selected-target { 
+        border: 2px solid #0d6efd !important; 
+        background-color: #0d6efd !important; 
+        color: #ffffff !important;
+        box-shadow: 0 4px 10px rgba(13,110,253,0.5) !important; 
+    }
+    .item-box.selected-target * { color: #ffffff !important; }
+    .item-box.selected-target .badge, .item-box.selected-target button {
+        border-color: #ffffff !important;
+        background-color: rgba(255, 255, 255, 0.2) !important;
+    }
+    
+    /* ✨ تنسيقات الزر الأوسط ✨ */
+    .btn-middle-assign {
+        background: #27ae60;
+        color: white; 
+        border: none; 
+        border-radius: 50%;
+        width: 75px; 
+        height: 75px; 
+        cursor: pointer; 
+        font-weight: bold; 
+        font-size: 12px; 
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2); 
+        transition: 0.3s transform, 0.3s background;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 0px;
+        text-decoration: none;
+    }
+    .btn-middle-assign:hover {
+        background: #219a52;
+        transform: scale(1.08);
+        color: white;
+    }
 </style>
 
 <h2 class="text-center text-primary mb-4 border border-primary p-3 rounded bg-light">
     إسناد المواد للأساتذة
 </h2>
 
-<div class="row g-4 mb-5">
+<div class="row g-4 mb-5 align-items-center">
     
+    <!-- العمود الأول: الأساتذة -->
     <div class="col-md-5">
-        <div class="card shadow-sm border-primary h-100">
+        <div class="card shadow-sm border-primary" style="height: 550px;">
             <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
                 <span>👨‍🏫 الأساتذة</span>
                 <small>(نقرة مزدوجة لإلغاء مواده)</small>
             </div>
-            <div class="card-body p-2">
+            <div class="card-body p-2 d-flex flex-column">
                 <input type="text" id="teacherSearch" class="form-control mb-2" placeholder="🔍 بحث عن أستاذ..." onkeyup="filterList('teacherSearch', 'teacherList')">
                 
-                <div class="list-group" id="teacherList" style="max-height: 500px; overflow-y: auto;">
+                <div class="list-group flex-grow-1" id="teacherList" style="overflow-y: auto; max-height: 450px;">
                     {% for teacher in db.teachers %}
                         {% set assigned_subs = db.teacher_subjects.get(teacher, []) %}
                         
@@ -67,20 +104,26 @@
         </div>
     </div>
 
-    <div class="col-md-7">
-        <div class="card shadow-sm border-primary h-100">
+    <!-- العمود الثاني: زر التخصيص -->
+    <div class="col-md-1 d-flex justify-content-center px-0">
+        <button id="middle-assign-btn" class="btn-middle-assign" onclick="submitAssignment()" title="تخصيص المواد للأستاذ المختار">
+            <span style="font-size: 22px;">🔗</span>
+            <span id="assign-btn-text">تخصيص</span>
+        </button>
+    </div>
+
+    <!-- العمود الثالث: المواد -->
+    <div class="col-md-6">
+        <div class="card shadow-sm border-primary" style="height: 550px;">
             <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
                 <span>📚 المواد</span>
                 <small>(نقرة مزدوجة لإلغاء المادة)</small>
             </div>
-            <div class="card-body p-2">
+            <div class="card-body p-2 d-flex flex-column">
                 
-                <div class="d-flex mb-2 gap-2">
-                    <input type="text" id="subjectSearch" class="form-control" placeholder="🔍 بحث عن مادة..." onkeyup="filterList('subjectSearch', 'subjectList')">
-                    <button class="btn btn-primary fw-bold" onclick="submitAssignment()" style="min-width: 150px;">💾 تخصيص</button>
-                </div>
+                <input type="text" id="subjectSearch" class="form-control mb-2" placeholder="🔍 بحث عن مادة..." onkeyup="filterList('subjectSearch', 'subjectList')">
                 
-                <div id="subjectList" class="p-1" style="max-height: 500px; overflow-y: auto;">
+                <div id="subjectList" class="p-1 flex-grow-1" style="overflow-y: auto; max-height: 450px;">
                     {% for sub in db.subjects %}
                         {% set full_name = sub.name ~ ' (' ~ sub.level ~ ')' %}
                         {% set assigned_teacher = subject_to_teacher.get(full_name) %}
@@ -111,18 +154,19 @@
     </div>
 </div>
 
-<form id="form_assign" method="POST" style="display: none;">
+<!-- النماذج المخفية (ستستخدم للجلب الصامت) -->
+<form id="form_assign" style="display: none;">
     <input type="hidden" name="action" value="assign_selected">
     <input type="hidden" name="teacher_name" id="assign_t_name">
     <input type="hidden" name="subjects_list" id="assign_s_list">
 </form>
 
-<form id="form_unassign_teacher" method="POST" style="display: none;">
+<form id="form_unassign_teacher" style="display: none;">
     <input type="hidden" name="action" value="unassign_teacher">
     <input type="hidden" name="teacher_name" id="unassign_t_name">
 </form>
 
-<form id="form_unassign_subject" method="POST" style="display: none;">
+<form id="form_unassign_subject" style="display: none;">
     <input type="hidden" name="action" value="unassign_subject">
     <input type="hidden" name="subject_name" id="unassign_s_name">
 </form>
@@ -131,14 +175,91 @@
 let selectedTeacher = "";
 let selectedSubjects = [];
 
-// دالة تظليل الأستاذ
+// ==========================================
+// 🚀 المحرك المعماري الصامت (Fetch API)
+// ==========================================
+async function silentSubmit(formId) {
+    const form = document.getElementById(formId);
+    const formData = new FormData(form);
+    
+    // إظهار حالة التحميل
+    document.body.style.cursor = 'wait';
+    let btnText = document.getElementById('assign-btn-text');
+    if (btnText) btnText.innerText = '⏳...';
+
+    try {
+        // إرسال الطلب في الخلفية
+        const response = await fetch(window.location.href, {
+            method: 'POST',
+            body: formData
+        });
+        
+        // جلب كود الصفحة الجديدة
+        const htmlText = await response.text();
+        const parser = new DOMParser();
+        const newDoc = parser.parseFromString(htmlText, 'text/html');
+        
+        // 1. حفظ مواقع الـ Scroll الحالية
+        const tScroll = document.getElementById('teacherList').scrollTop;
+        const sScroll = document.getElementById('subjectList').scrollTop;
+        
+        // 2. تحديث DOM بصمت (الأساتذة والمواد فقط)
+        document.getElementById('teacherList').innerHTML = newDoc.getElementById('teacherList').innerHTML;
+        document.getElementById('subjectList').innerHTML = newDoc.getElementById('subjectList').innerHTML;
+        
+        // 3. إرجاع الـ Scroll لمكانه الدقيق
+        document.getElementById('teacherList').scrollTop = tScroll;
+        document.getElementById('subjectList').scrollTop = sScroll;
+        
+        // 4. تصفير التحديدات
+        selectedTeacher = "";
+        selectedSubjects = [];
+        
+        // 5. إعادة تطبيق مربعات البحث (إذا كان المستخدم يكتب شيئاً)
+        filterList('teacherSearch', 'teacherList');
+        filterList('subjectSearch', 'subjectList');
+        
+    } catch (error) {
+        alert("حدث خطأ أثناء الاتصال بالخادم.");
+    } finally {
+        document.body.style.cursor = 'default';
+        if (btnText) btnText.innerText = 'تخصيص';
+    }
+}
+
+// دالة إرسال التخصيص
+function submitAssignment() {
+    if (!selectedTeacher) { alert("⚠️ الرجاء تحديد أستاذ من القائمة اليمنى أولاً."); return; }
+    if (selectedSubjects.length === 0) { alert("⚠️ الرجاء تحديد مادة واحدة على الأقل من القائمة اليسرى."); return; }
+
+    document.getElementById('assign_t_name').value = selectedTeacher;
+    document.getElementById('assign_s_list').value = JSON.stringify(selectedSubjects);
+    silentSubmit('form_assign');
+}
+
+// دالة النقر المزدوج (الأستاذ)
+function unassignTeacher(tName) {
+    if(confirm('هل أنت متأكد من إفراغ جميع مواد الأستاذ ' + tName + '؟')) {
+        document.getElementById('unassign_t_name').value = tName;
+        silentSubmit('form_unassign_teacher');
+    }
+}
+
+// دالة النقر المزدوج (المادة)
+function unassignSubject(sName) {
+    if(confirm('هل أنت متأكد من إلغاء إسناد هذه المادة؟')) {
+        document.getElementById('unassign_s_name').value = sName;
+        silentSubmit('form_unassign_subject');
+    }
+}
+
+// باقي دوال التظليل والبحث (لم تتغير)
 function selectTeacher(tName, boxId) {
     document.querySelectorAll('[id^="t_box_"]').forEach(el => el.classList.remove('selected-target'));
     selectedTeacher = tName;
     document.getElementById(boxId).classList.add('selected-target');
 }
 
-// دالة تظليل المواد
 function toggleSubject(sName, boxId) {
     let el = document.getElementById(boxId);
     let idx = selectedSubjects.indexOf(sName);
@@ -152,7 +273,6 @@ function toggleSubject(sName, boxId) {
     }
 }
 
-// دالة إظهار/إخفاء القائمة المنسدلة (المثلث)
 function toggleCollapse(e, targetId) {
     e.stopPropagation();
     let target = document.getElementById(targetId);
@@ -163,33 +283,6 @@ function toggleCollapse(e, targetId) {
     }
 }
 
-// دالة إرسال التخصيص
-function submitAssignment() {
-    if (!selectedTeacher) { alert("⚠️ الرجاء تحديد أستاذ من القائمة اليمنى أولاً."); return; }
-    if (selectedSubjects.length === 0) { alert("⚠️ الرجاء تحديد مادة واحدة على الأقل من القائمة اليسرى."); return; }
-
-    document.getElementById('assign_t_name').value = selectedTeacher;
-    document.getElementById('assign_s_list').value = JSON.stringify(selectedSubjects);
-    document.getElementById('form_assign').submit();
-}
-
-// دالة النقر المزدوج (الأستاذ)
-function unassignTeacher(tName) {
-    if(confirm('هل أنت متأكد من إفراغ جميع مواد الأستاذ ' + tName + '؟')) {
-        document.getElementById('unassign_t_name').value = tName;
-        document.getElementById('form_unassign_teacher').submit();
-    }
-}
-
-// دالة النقر المزدوج (المادة)
-function unassignSubject(sName) {
-    if(confirm('هل أنت متأكد من إلغاء إسناد هذه المادة؟')) {
-        document.getElementById('unassign_s_name').value = sName;
-        document.getElementById('form_unassign_subject').submit();
-    }
-}
-
-// دالة البحث (تعمل على القائمتين)
 function filterList(inputId, listId) {
     let input = document.getElementById(inputId).value.toLowerCase();
     let listContainer = document.getElementById(listId);

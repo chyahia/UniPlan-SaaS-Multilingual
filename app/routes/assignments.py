@@ -8,31 +8,32 @@ assignments_bp = Blueprint('assignments', __name__)
 def get_assignments_data():
     tenant_id = session.get('tenant_id')
     
-    # 1. جلب أساتذة هذا القسم فقط
     teachers = Teacher.query.filter_by(tenant_id=tenant_id).all()
     teachers_data = [{"id": t.id, "name": t.name} for t in teachers]
     
-    # 2. جلب مواد هذا القسم وإعادة هيكلتها لتوافق الواجهة
     courses = Course.query.filter_by(tenant_id=tenant_id).all()
     courses_data = []
     
     for c in courses:
-        # تجميع أسماء المستويات
         levels_str = "، ".join([l.name for l in c.levels])
         
-        # ربط اسم الأستاذ إذا كانت المادة مسندة
+        # ✨ التصحيح هنا: التحقق من وجود الأستاذ فعلياً
         teacher_name = None
         if c.teacher_id:
             teacher_obj = next((t for t in teachers if t.id == c.teacher_id), None)
             if teacher_obj:
                 teacher_name = teacher_obj.name
-
+            else:
+                # إذا كان teacher_id موجوداً في المادة لكنه محذوف من جدول الأساتذة
+                c.teacher_id = None
+                db.session.commit()
+        
         courses_data.append({
             "id": c.id,
             "name": c.name,
             "room_type": c.room_type,
-            "teacher_id": c.teacher_id,
-            "teacher_name": teacher_name,
+            "teacher_id": c.teacher_id, # سيصبح None تلقائياً إذا تم حذفه
+            "teacher_name": teacher_name, # سيكون None إذا تم حذفه
             "levels": levels_str
         })
         

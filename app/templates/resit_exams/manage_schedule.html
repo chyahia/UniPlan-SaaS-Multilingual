@@ -1,192 +1,208 @@
 {% extends 'resit_exams/base.html' %}
 
 {% block content %}
-<h2 class="text-center text-primary mb-4 border border-primary p-3 rounded bg-light">
-    أيام وأوقات الامتحان
-</h2>
+<!-- ✨ غلفنا كل محتوى الصفحة بحاوية للتحكم فيه صمتاً ✨ -->
+<div id="manage-schedule-wrapper">
 
-{% if not db.levels %}
-    <div class="alert alert-warning text-center fs-5">
-        ⚠️ يرجى إدخال المستويات في المرحلة الأولى أولاً لتتمكن من وضع الجدول.
-    </div>
-{% else %}
+    <h2 class="text-center text-primary mb-4 border border-primary p-3 rounded bg-light">
+        أيام وأوقات الامتحان
+    </h2>
 
-    <div class="card shadow-sm border-primary mb-4">
-        <div class="card-body">
-            <form method="POST" class="row align-items-center">
-                <input type="hidden" name="action" value="add_day">
-                <div class="col-md-3">
-                    <label class="form-label fw-bold">➕ إضافة يوم امتحان:</label>
-                </div>
-                <div class="col-md-6">
-                    <input type="date" class="form-control" name="exam_date" required>
-                </div>
-                <div class="col-md-3">
-                    <button type="submit" class="btn btn-primary w-100 fw-bold">إضافة اليوم</button>
-                </div>
-            </form>
+    {% if not db.levels %}
+        <div class="alert alert-warning text-center fs-5">
+            ⚠️ يرجى إدخال المستويات في المرحلة الأولى أولاً لتتمكن من وضع الجدول.
         </div>
-    </div>
+    {% else %}
 
-    {% if db.schedule %}
-        <ul class="nav nav-tabs fw-bold mb-3" id="daysTabs" role="tablist">
-            {% for day in db.schedule.keys() %}
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link {% if loop.first %}active{% endif %}" 
-                            id="tab-{{ loop.index }}" 
-                            data-bs-toggle="tab" 
-                            data-bs-target="#pane-{{ loop.index }}" 
-                            type="button" 
-                            role="tab">
-                        📅 {{ day }}
-                    </button>
-                </li>
-            {% endfor %}
-        </ul>
+        <div class="card shadow-sm border-primary mb-4">
+            <div class="card-body">
+                <!-- تحويل نموذج إضافة يوم للإرسال الصامت -->
+                <form method="POST" class="row align-items-center" onsubmit="silentSubmit(event, this)">
+                    <input type="hidden" name="action" value="add_day">
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold">➕ إضافة يوم امتحان:</label>
+                    </div>
+                    <div class="col-md-6">
+                        <input type="date" class="form-control" name="exam_date" required>
+                    </div>
+                    <div class="col-md-3">
+                        <button type="submit" class="btn btn-primary w-100 fw-bold">إضافة اليوم</button>
+                    </div>
+                </form>
+            </div>
+        </div>
 
-        <div class="tab-content" id="daysTabsContent">
-            {% for day, slots in db.schedule.items() %}
-                {% set day_idx = loop.index %}
-                
-                <div class="tab-pane fade {% if loop.first %}show active{% endif %}" 
-                     id="pane-{{ day_idx }}" 
-                     role="tabpanel">
+        {% if db.schedule %}
+            <ul class="nav nav-tabs fw-bold mb-3" id="daysTabs" role="tablist">
+                {% for day in db.schedule.keys() %}
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link {% if loop.first %}active{% endif %}" 
+                                id="tab-{{ loop.index }}" 
+                                data-bs-toggle="tab" 
+                                data-bs-target="#pane-{{ loop.index }}" 
+                                type="button" 
+                                role="tab">
+                            📅 {{ day }}
+                        </button>
+                    </li>
+                {% endfor %}
+            </ul>
+
+            <div class="tab-content" id="daysTabsContent">
+                {% for day, slots in db.schedule.items() %}
+                    {% set day_idx = loop.index %}
                     
-                    <div class="card border-primary mb-5 shadow-sm">
+                    <div class="tab-pane fade {% if loop.first %}show active{% endif %}" 
+                         id="pane-{{ day_idx }}" 
+                         role="tabpanel">
                         
-                        <div class="card-header bg-light d-flex justify-content-between align-items-center">
-                            <form method="POST" class="d-flex align-items-center gap-2 m-0">
-                                <input type="hidden" name="action" value="duplicate_day">
-                                <input type="hidden" name="source_day" value="{{ day }}">
-                                <span class="fw-bold text-secondary">🔄 تكرار اليوم لـ:</span>
-                                <input type="date" class="form-control form-control-sm" name="target_date" required>
-                                <button type="submit" class="btn btn-sm btn-outline-primary" title="نسخ الأوقات والمستويات">نسخ</button>
-                            </form>
+                        <div class="card border-primary mb-5 shadow-sm">
+                            
+                            <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                                <!-- نموذج التكرار -->
+                                <form method="POST" class="d-flex align-items-center gap-2 m-0" onsubmit="silentSubmit(event, this)">
+                                    <input type="hidden" name="action" value="duplicate_day">
+                                    <input type="hidden" name="source_day" value="{{ day }}">
+                                    <span class="fw-bold text-secondary">🔄 تكرار اليوم لـ:</span>
+                                    <input type="date" class="form-control form-control-sm" name="target_date" required>
+                                    <button type="submit" class="btn btn-sm btn-outline-primary" title="نسخ الأوقات والمستويات">نسخ</button>
+                                </form>
 
-                            <form method="POST" class="m-0">
-                                <input type="hidden" name="action" value="delete_day">
-                                <input type="hidden" name="day_key" value="{{ day }}">
-                                <button type="submit" class="btn btn-sm btn-danger fw-bold" onclick="return confirm('تأكيد حذف يوم {{ day }} بالكامل؟');">
-                                    🗑️ حذف هذا اليوم
-                                </button>
-                            </form>
-                        </div>
+                                <!-- نموذج حذف اليوم -->
+                                <form method="POST" class="m-0" onsubmit="silentSubmit(event, this)">
+                                    <input type="hidden" name="action" value="delete_day">
+                                    <input type="hidden" name="day_key" value="{{ day }}">
+                                    <!-- نقل التأكيد إلى onsubmit -->
+                                    <button type="submit" class="btn btn-sm btn-danger fw-bold" onclick="return confirm('تأكيد حذف يوم {{ day }} بالكامل؟');">
+                                        🗑️ حذف هذا اليوم
+                                    </button>
+                                </form>
+                            </div>
 
-                        <div class="card-body">
-                            <form method="POST" class="row align-items-center mb-4 pb-3 border-bottom">
-                                <input type="hidden" name="action" value="add_time">
-                                <input type="hidden" name="day_key" value="{{ day }}">
-                                <div class="col-md-8 mb-2 mb-md-0">
-                                    <input type="text" class="form-control" name="time_val" placeholder="مثال: من 08:30 إلى 10:00" required>
-                                </div>
-                                <div class="col-md-4">
-                                    <button type="submit" class="btn btn-success w-100 fw-bold">➕ إضافة فترة</button>
-                                </div>
-                            </form>
+                            <div class="card-body">
+                                <!-- نموذج إضافة فترة زمنية -->
+                                <form method="POST" class="row align-items-center mb-4 pb-3 border-bottom" onsubmit="silentSubmit(event, this)">
+                                    <input type="hidden" name="action" value="add_time">
+                                    <input type="hidden" name="day_key" value="{{ day }}">
+                                    <div class="col-md-8 mb-2 mb-md-0">
+                                        <input type="text" class="form-control" name="time_val" placeholder="مثال: من 08:30 إلى 10:00" required>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <button type="submit" class="btn btn-success w-100 fw-bold">➕ إضافة فترة</button>
+                                    </div>
+                                </form>
 
-                            <form method="POST">
-                                <input type="hidden" name="action" value="save_levels">
-                                <input type="hidden" name="day_key" value="{{ day }}">
-                                
-                                {% for slot in slots %}
-                                    {% set slot_idx = loop.index %}
-                                    {% set slot_idx0 = loop.index0 %}
+                                <!-- نموذج حفظ المستويات الأساسية والاحتياطية للفترات -->
+                                <form method="POST" onsubmit="silentSubmit(event, this)">
+                                    <input type="hidden" name="action" value="save_levels">
+                                    <input type="hidden" name="day_key" value="{{ day }}">
                                     
-                                    {% set pri_list = slot.get('primary_levels') or [] %}
-                                    {% set res_list = slot.get('reserve_levels') or [] %}
-                                    {% set old_list = slot.get('levels') or [] %}
-                                    
-                                    <div class="border border-secondary rounded p-3 mb-3 bg-white shadow-sm">
-                                        <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
-                                            <h5 class="text-primary m-0 fw-bold">⏰ {{ slot.time }}</h5>
-                                            <button type="button" class="btn btn-sm btn-outline-danger" title="حذف الفترة" 
-                                                    onclick="if(confirm('هل أنت متأكد من حذف هذه الفترة؟')) document.getElementById('del_time_form_{{ day_idx }}_{{ slot_idx }}').submit();">
-                                                ❌ حذف
-                                            </button>
-                                        </div>
+                                    {% for slot in slots %}
+                                        {% set slot_idx = loop.index %}
+                                        {% set slot_idx0 = loop.index0 %}
                                         
-                                        <div class="mb-3">
-                                            <label class="fw-bold text-success mb-2 d-block">🎯 مستويات معنية كفترة أساسية:</label>
-                                            <div class="d-flex flex-wrap gap-2">
-                                                {% for lvl in db.levels %}
-                                                    {% set is_primary = (lvl in pri_list) or (not slot.get('primary_levels') and slot.get('type') == 'primary' and lvl in old_list) %}
-                                                    
-                                                    <div class="form-check border rounded px-2 py-1 m-0 bg-light" style="cursor: pointer;">
-                                                        <input class="form-check-input ms-1" type="checkbox" 
-                                                               name="primary_levels_{{ slot_idx0 }}" value="{{ lvl }}" 
-                                                               id="pri_{{ day_idx }}_{{ slot_idx }}_{{ loop.index }}"
-                                                               {% if is_primary %}checked{% endif %}
-                                                               onchange="syncCheckboxes('{{ day_idx }}_{{ slot_idx }}_{{ loop.index }}')">
-                                                        <label class="form-check-label" for="pri_{{ day_idx }}_{{ slot_idx }}_{{ loop.index }}" style="cursor: pointer;">{{ lvl }}</label>
-                                                    </div>
-                                                {% endfor %}
+                                        {% set pri_list = slot.get('primary_levels') or [] %}
+                                        {% set res_list = slot.get('reserve_levels') or [] %}
+                                        {% set old_list = slot.get('levels') or [] %}
+                                        
+                                        <div class="border border-secondary rounded p-3 mb-3 bg-white shadow-sm">
+                                            <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
+                                                <h5 class="text-primary m-0 fw-bold">⏰ {{ slot.time }}</h5>
+                                                <button type="button" class="btn btn-sm btn-outline-danger" title="حذف الفترة" 
+                                                        onclick="if(confirm('هل أنت متأكد من حذف هذه الفترة؟')) { let f = document.getElementById('del_time_form_{{ day_idx }}_{{ slot_idx }}'); if(f) silentSubmit(null, f); }">
+                                                    ❌ حذف
+                                                </button>
                                             </div>
-                                        </div>
-
-                                        {% set has_reserves = (res_list|length > 0) or (not slot.get('reserve_levels') and slot.get('type') == 'reserve' and old_list|length > 0) %}
-                                        <button type="button" class="btn btn-sm btn-warning text-dark fw-bold mb-2 shadow-sm" 
-                                                data-bs-toggle="collapse" data-bs-target="#res_col_{{ day_idx }}_{{ slot_idx }}">
-                                            🔽 عرض المستويات الاحتياطية (انقر للفتح)
-                                        </button>
-
-                                        <div class="collapse {% if has_reserves %}show{% endif %}" id="res_col_{{ day_idx }}_{{ slot_idx }}">
-                                            <div class="p-3 border border-warning rounded" style="background-color: #fffdf5;">
-                                                <label class="fw-bold text-warning text-dark mb-2 d-block">⏳ مستويات معنية كفترة احتياطية:</label>
+                                            
+                                            <div class="mb-3">
+                                                <label class="fw-bold text-success mb-2 d-block">🎯 مستويات معنية كفترة أساسية:</label>
                                                 <div class="d-flex flex-wrap gap-2">
                                                     {% for lvl in db.levels %}
-                                                        {% set is_reserve = (lvl in res_list) or (not slot.get('reserve_levels') and slot.get('type') == 'reserve' and lvl in old_list) %}
+                                                        {% set is_primary = (lvl in pri_list) or (not slot.get('primary_levels') and slot.get('type') == 'primary' and lvl in old_list) %}
                                                         
-                                                        <div class="form-check border rounded px-2 py-1 m-0 bg-white" style="cursor: pointer;">
+                                                        <div class="form-check border rounded px-2 py-1 m-0 bg-light" style="cursor: pointer;">
                                                             <input class="form-check-input ms-1" type="checkbox" 
-                                                                   name="reserve_levels_{{ slot_idx0 }}" value="{{ lvl }}" 
-                                                                   id="res_{{ day_idx }}_{{ slot_idx }}_{{ loop.index }}"
-                                                                   {% if is_reserve %}checked{% endif %}
+                                                                   name="primary_levels_{{ slot_idx0 }}" value="{{ lvl }}" 
+                                                                   id="pri_{{ day_idx }}_{{ slot_idx }}_{{ loop.index }}"
+                                                                   {% if is_primary %}checked{% endif %}
                                                                    onchange="syncCheckboxes('{{ day_idx }}_{{ slot_idx }}_{{ loop.index }}')">
-                                                            <label class="form-check-label" for="res_{{ day_idx }}_{{ slot_idx }}_{{ loop.index }}" style="cursor: pointer;">{{ lvl }}</label>
+                                                            <label class="form-check-label" for="pri_{{ day_idx }}_{{ slot_idx }}_{{ loop.index }}" style="cursor: pointer;">{{ lvl }}</label>
                                                         </div>
                                                     {% endfor %}
                                                 </div>
                                             </div>
+
+                                            {% set has_reserves = (res_list|length > 0) or (not slot.get('reserve_levels') and slot.get('type') == 'reserve' and old_list|length > 0) %}
+                                            <button type="button" class="btn btn-sm btn-warning text-dark fw-bold mb-2 shadow-sm" 
+                                                    data-bs-toggle="collapse" data-bs-target="#res_col_{{ day_idx }}_{{ slot_idx }}">
+                                                🔽 عرض المستويات الاحتياطية (انقر للفتح)
+                                            </button>
+
+                                            <div class="collapse {% if has_reserves %}show{% endif %}" id="res_col_{{ day_idx }}_{{ slot_idx }}">
+                                                <div class="p-3 border border-warning rounded" style="background-color: #fffdf5;">
+                                                    <label class="fw-bold text-warning text-dark mb-2 d-block">⏳ مستويات معنية كفترة احتياطية:</label>
+                                                    <div class="d-flex flex-wrap gap-2">
+                                                        {% for lvl in db.levels %}
+                                                            {% set is_reserve = (lvl in res_list) or (not slot.get('reserve_levels') and slot.get('type') == 'reserve' and lvl in old_list) %}
+                                                            
+                                                            <div class="form-check border rounded px-2 py-1 m-0 bg-white" style="cursor: pointer;">
+                                                                <input class="form-check-input ms-1" type="checkbox" 
+                                                                       name="reserve_levels_{{ slot_idx0 }}" value="{{ lvl }}" 
+                                                                       id="res_{{ day_idx }}_{{ slot_idx }}_{{ loop.index }}"
+                                                                       {% if is_reserve %}checked{% endif %}
+                                                                       onchange="syncCheckboxes('{{ day_idx }}_{{ slot_idx }}_{{ loop.index }}')">
+                                                                <label class="form-check-label" for="res_{{ day_idx }}_{{ slot_idx }}_{{ loop.index }}" style="cursor: pointer;">{{ lvl }}</label>
+                                                            </div>
+                                                        {% endfor %}
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
-                                    </div>
-                                {% endfor %}
-                                
-                                {% if slots %}
-                                    <div class="text-center mt-4">
-                                        <button type="submit" class="btn btn-primary btn-lg w-75 fw-bold shadow">
-                                            💾 حفظ توزيع المستويات على فترات هذا اليوم
-                                        </button>
-                                    </div>
-                                {% else %}
-                                    <div class="alert alert-warning text-center">لا توجد فترات مضافة في هذا اليوم.</div>
-                                {% endif %}
-                            </form>
-
-                            {% for slot in slots %}
-                                {% set slot_idx = loop.index %}
-                                {% set slot_idx0 = loop.index0 %}
-                                <form method="POST" id="del_time_form_{{ day_idx }}_{{ slot_idx }}" style="display: none;">
-                                    <input type="hidden" name="action" value="delete_time">
-                                    <input type="hidden" name="day_key" value="{{ day }}">
-                                    <input type="hidden" name="time_idx" value="{{ slot_idx0 }}">
+                                    {% endfor %}
+                                    
+                                    {% if slots %}
+                                        <div class="text-center mt-4">
+                                            <button type="submit" class="btn btn-primary btn-lg w-75 fw-bold shadow">
+                                                💾 حفظ توزيع المستويات على فترات هذا اليوم
+                                            </button>
+                                        </div>
+                                    {% else %}
+                                        <div class="alert alert-warning text-center">لا توجد فترات مضافة في هذا اليوم.</div>
+                                    {% endif %}
                                 </form>
-                            {% endfor %}
 
+                                {% for slot in slots %}
+                                    {% set slot_idx = loop.index %}
+                                    {% set slot_idx0 = loop.index0 %}
+                                    <form method="POST" id="del_time_form_{{ day_idx }}_{{ slot_idx }}" style="display: none;">
+                                        <input type="hidden" name="action" value="delete_time">
+                                        <input type="hidden" name="day_key" value="{{ day }}">
+                                        <input type="hidden" name="time_idx" value="{{ slot_idx0 }}">
+                                    </form>
+                                {% endfor %}
+
+                            </div>
                         </div>
                     </div>
-                </div>
-            {% endfor %}
-        </div>
-    {% else %}
-        <div class="alert alert-info text-center mt-3">
-            لم يتم إضافة أي أيام بعد. ابدأ باختيار تاريخ من التقويم في الأعلى.
-        </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="alert alert-info text-center mt-3">
+                لم يتم إضافة أي أيام بعد. ابدأ باختيار تاريخ من التقويم في الأعلى.
+            </div>
+        {% endif %}
+
     {% endif %}
 
-{% endif %}
+</div> <!-- نهاية manage-schedule-wrapper -->
 
+<!-- ========================================== -->
+<!-- 🚀 المحرك المعماري الصامت والجافاسكريبت -->
+<!-- ========================================== -->
 <script>
-document.addEventListener("DOMContentLoaded", function() {
+// 1. دوال الجدار الناري وحفظ التبويبات (تهيئة أولية)
+function initScheduleScripts() {
+    // تفعيل التبويب المحفوظ
     let activeTabId = localStorage.getItem('scheduleActiveTab');
     if (activeTabId) {
         let tabElement = document.getElementById(activeTabId);
@@ -196,16 +212,20 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     }
 
+    // حفظ التبويب عند النقر
     document.querySelectorAll('button[data-bs-toggle="tab"]').forEach(t => {
         t.addEventListener('shown.bs.tab', function (e) {
             localStorage.setItem('scheduleActiveTab', e.target.id);
         });
     });
-});
-</script>
 
-<script>
-// دالة تزامن المربعات: تمنع اختيار المستوى كـ أساسي واحتياطي في نفس الوقت
+    // تشغيل جدار الحماية (منع اختيار أساسي واحتياطي معاً)
+    document.querySelectorAll('input[id^="pri_"]').forEach(function(pri) {
+        let idSuffix = pri.id.substring(4);
+        syncCheckboxes(idSuffix);
+    });
+}
+
 function syncCheckboxes(idSuffix) {
     let pri = document.getElementById('pri_' + idSuffix);
     let res = document.getElementById('res_' + idSuffix);
@@ -223,12 +243,81 @@ function syncCheckboxes(idSuffix) {
     }
 }
 
-// تشغيل جدار الحماية فور تحميل الصفحة على جميع المربعات الموجودة
-document.addEventListener("DOMContentLoaded", function() {
-    document.querySelectorAll('input[id^="pri_"]').forEach(function(pri) {
-        let idSuffix = pri.id.substring(4);
-        syncCheckboxes(idSuffix);
-    });
-});
+// تشغيل التهيئة عند تحميل الصفحة لأول مرة
+document.addEventListener("DOMContentLoaded", initScheduleScripts);
+
+// 2. المحرك الصامت (HTML Over The Wire)
+async function silentSubmit(event, form) {
+    if(event) event.preventDefault();
+
+    const submitBtn = form.querySelector('button[type="submit"]');
+    let originalText = '';
+    
+    // التأثير البصري للزر فقط للنماذج التي تحتوي على زر ظاهر
+    if (submitBtn) {
+        originalText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '⏳...';
+        submitBtn.disabled = true;
+    }
+    document.body.style.cursor = 'wait';
+
+    try {
+        const formData = new FormData(form);
+        const scrollY = window.scrollY;
+
+        // الإرسال الصامت
+        const response = await fetch(window.location.href, {
+            method: 'POST',
+            body: formData
+        });
+
+        // قراءة الـ HTML الجديد
+        const htmlText = await response.text();
+        const parser = new DOMParser();
+        const newDoc = parser.parseFromString(htmlText, 'text/html');
+
+        // تحديث التنبيهات (Flash Messages) إن وجدت
+        const oldAlerts = document.querySelectorAll('.alert-dismissible');
+        oldAlerts.forEach(a => a.remove());
+        const newAlerts = newDoc.querySelectorAll('.alert-dismissible');
+        const alertContainer = document.querySelector('.container.mt-4');
+        if(alertContainer && newAlerts.length > 0) {
+            newAlerts.forEach(alertEl => {
+                alertContainer.insertBefore(alertEl, alertContainer.firstChild);
+            });
+        }
+
+        // استبدال الشاشة صمتاً
+        const newWrapper = newDoc.getElementById('manage-schedule-wrapper');
+        if (newWrapper) {
+            document.getElementById('manage-schedule-wrapper').innerHTML = newWrapper.innerHTML;
+        }
+
+        // 🌟 إعادة تشغيل سكربتات التبويبات والجدار الناري للشاشة الجديدة 🌟
+        initScheduleScripts();
+
+        // العودة لمكانك والاحتفال!
+        window.scrollTo(0, scrollY);
+        
+        if (submitBtn) {
+            submitBtn.innerHTML = '✅ تم';
+            submitBtn.classList.add('btn-success');
+            setTimeout(() => {
+                submitBtn.innerHTML = originalText;
+                submitBtn.classList.remove('btn-success');
+                submitBtn.disabled = false;
+            }, 1000);
+        }
+
+    } catch (error) {
+        alert("حدث خطأ أثناء الاتصال بالخادم.");
+        if (submitBtn) {
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+        }
+    } finally {
+        document.body.style.cursor = 'default';
+    }
+}
 </script>
 {% endblock %}

@@ -250,7 +250,7 @@
         <p>اختر أستاذًا من اليمين، ثم حدد المواد من اليسار، واضغط على "تخصيص". (انقر مرتين للإلغاء)</p>
 
         <style>
-            .assign-container { display: flex; gap: 20px; height: 500px; margin-top: 15px; }
+            .assign-container { display: flex; gap: 20px; height: 500px; margin-top: 15px; margin-bottom: 50px; }
             .assign-box { flex: 1; border: 1px solid #ccc; border-radius: 8px; background: #fff; display: flex; flex-direction: column; overflow: hidden; }
             .assign-header { background: #2c3e50; color: white; padding: 10px; text-align: center; font-weight: bold; }
             .assign-search { padding: 10px; border-bottom: 1px solid #ddd; background: #f9f9f9; }
@@ -333,6 +333,19 @@
                 <div class="assign-header">📚 قائمة المواد</div>
                 <div class="assign-search"><input type="text" id="search-courses" placeholder="بحث عن مادة..." onkeyup="renderAssignments()"></div>
                 <div id="assign-courses-list" class="assign-list"></div>
+            </div>
+        </div>
+        <!-- ✨ الإضافة الجديدة: رادار المواد غير المسندة ✨ -->
+        <div id="unassigned-summary-wrapper" style="background: #fffdf5; border: 2px solid #f1c40f; border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 20px;">
+            <h3 style="margin-top: 0; color: #d35400; border-bottom: 1px solid #f1c40f; padding-bottom: 10px;">
+                ⚠️ قائمة المواد غير المسندة (تنتظر أستاذاً)
+            </h3>
+            <p style="font-size: 13px; color: #7f8c8d; margin-top: -5px; margin-bottom: 15px;">
+                بمجرد إسناد المادة لأستاذ في الأعلى، ستختفي من هذه القائمة تلقائياً.
+            </p>
+            
+            <div id="unassigned-courses-container" style="display: flex; flex-wrap: wrap; gap: 20px;">
+                <!-- سيتم التوليد هنا بواسطة الجافاسكريبت -->
             </div>
         </div>
     </section>

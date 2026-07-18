@@ -9,13 +9,15 @@
     💡 <strong>تنبيه:</strong> الخوارزمية تعطي الأولوية المطلقة لعدم تعارض المستويات (قيد صارم)، ثم لتجميع مواد الأساتذة ذوي الأولوية في أقل عدد من الأيام (أقوى قيد مرن).
 </div>
 
-<div class="row g-4 mb-5">
+<!-- ✨ تغليف كل المحتوى بهذه الحاوية ليتم تحديثها صمتاً ✨ -->
+<div class="row g-4 mb-5" id="constraints-container">
     
+    <!-- 1. تعارض المستويات -->
     <div class="col-md-6">
         <div class="card border-danger shadow-sm h-100">
             <div class="card-header bg-danger text-white fw-bold">❌ تعارض المستويات (قيد صارم)</div>
             <div class="card-body">
-                <form method="POST" class="mb-3">
+                <form method="POST" class="mb-3" onsubmit="silentSubmit(event, this)">
                     <input type="hidden" name="action" value="add_incompatible">
                     <div class="d-flex gap-2 mb-2">
                         <select class="form-select" name="level1" required>
@@ -29,20 +31,19 @@
                     </div>
                     <button type="submit" class="btn btn-outline-danger w-100 fw-bold">➕ إضافة قيد تعارض</button>
                 </form>
-                <!-- 🌟 بداية الزر الآلي الجديد -->
-                <form method="POST" class="mb-3 mt-2">
+
+                <form method="POST" class="mb-3 mt-2" onsubmit="silentSubmit(event, this)">
                     <input type="hidden" name="action" value="auto_extract_incompatible">
                     <button type="submit" class="btn btn-danger w-100 fw-bold shadow-sm" onclick="return confirm('هل أنت متأكد؟ سيقوم النظام بالبحث عن أي مستوى يحتوي على علامة (+) وإضافة قيد تعارض بينه وبين مستوياته الفرعية آلياً.');">
                         🤖 استخراج آلي للمستويات المشتركة
                     </button>
                 </form>
-                <!-- 🌟 نهاية الزر الآلي -->
                 <hr>
                 <ul class="list-group">
                     {% for pair in c_db.incompatible_levels %}
                     <li class="list-group-item d-flex justify-content-between align-items-center">
                         <span>{{ pair[0] }} <strong>ضد</strong> {{ pair[1] }}</span>
-                        <form method="POST" class="m-0">
+                        <form method="POST" class="m-0" onsubmit="silentSubmit(event, this)">
                             <input type="hidden" name="action" value="del_incompatible">
                             <input type="hidden" name="idx" value="{{ loop.index0 }}">
                             <button type="submit" class="btn btn-sm btn-danger border-0">حذف</button>
@@ -54,14 +55,14 @@
         </div>
     </div>
 
+    <!-- 2. أساتذة ذوو أولوية -->
     <div class="col-md-6">
         <div class="card border-success shadow-sm h-100">
             <div class="card-header bg-success text-white fw-bold">🌟 أساتذة ذوو أولوية (تجميع الأيام)</div>
             <div class="card-body">
                 <div class="d-flex flex-column gap-2 mb-3">
                     
-                    <!-- فورم 1: إضافة الأساتذة المحددين -->
-                    <form method="POST" class="w-100 mb-1">
+                    <form method="POST" class="w-100 mb-1" onsubmit="silentSubmit(event, this)">
                         <input type="hidden" name="action" value="add_prioritized">
                         
                         <small class="text-muted fw-bold mb-1 d-block">أشّر على أستاذ أو أكثر:</small>
@@ -94,8 +95,7 @@
                         </div>
                     </form>
                     
-                    <!-- فورم 2: إضافة جميع المتبقين دفعة واحدة -->
-                    <form method="POST" class="d-flex gap-2 m-0 w-100 border-top pt-2 mt-1">
+                    <form method="POST" class="d-flex gap-2 m-0 w-100 border-top pt-2 mt-1" onsubmit="silentSubmit(event, this)">
                         <input type="hidden" name="action" value="add_all_prioritized">
                         <select class="form-select form-select-sm" name="pref" style="max-width: 110px; font-weight: bold;">
                             <option value="flexible">مرن</option>
@@ -123,7 +123,7 @@
                                     <span class="badge bg-secondary ms-2 shadow-sm" style="font-size: 11px;">مرن</span>
                                 {% endif %}
                             </div>
-                            <form method="POST" class="m-0">
+                            <form method="POST" class="m-0" onsubmit="silentSubmit(event, this)">
                                 <input type="hidden" name="action" value="del_prioritized">
                                 <input type="hidden" name="teacher" value="{{ t }}">
                                 <button type="submit" class="btn btn-sm text-danger border-0 p-0 shadow-none fs-5 bg-transparent" title="حذف">✖</button>
@@ -138,11 +138,12 @@
         </div>
     </div>
 
+    <!-- 3. المرافقة -->
     <div class="col-md-6">
         <div class="card border-primary shadow-sm h-100">
             <div class="card-header bg-primary text-white fw-bold">🚗 المرافقة (سيارة واحدة)</div>
             <div class="card-body">
-                <form method="POST" class="mb-3">
+                <form method="POST" class="mb-3" onsubmit="silentSubmit(event, this)">
                     <input type="hidden" name="action" value="add_carpool">
                     <div class="d-flex gap-2 mb-2">
                         <select class="form-select" name="t1" required>
@@ -161,7 +162,7 @@
                     {% for pair in c_db.carpool_pairs %}
                     <li class="list-group-item d-flex justify-content-between align-items-center">
                         <span>{{ pair[0] }} <strong>مع</strong> {{ pair[1] }}</span>
-                        <form method="POST" class="m-0">
+                        <form method="POST" class="m-0" onsubmit="silentSubmit(event, this)">
                             <input type="hidden" name="action" value="del_carpool">
                             <input type="hidden" name="idx" value="{{ loop.index0 }}">
                             <button type="submit" class="btn btn-sm btn-danger border-0">حذف</button>
@@ -173,11 +174,12 @@
         </div>
     </div>
 
+    <!-- 4. قيد الانفصال -->
     <div class="col-md-6">
         <div class="card border-secondary shadow-sm h-100">
             <div class="card-header bg-secondary text-white fw-bold">⚡ قيد الانفصال (لا يشتركان في يوم)</div>
             <div class="card-body">
-                <form method="POST" class="mb-3">
+                <form method="POST" class="mb-3" onsubmit="silentSubmit(event, this)">
                     <input type="hidden" name="action" value="add_conflict">
                     <div class="d-flex gap-2 mb-2">
                         <select class="form-select" name="t1" required>
@@ -196,7 +198,7 @@
                     {% for pair in c_db.conflict_pairs %}
                     <li class="list-group-item d-flex justify-content-between align-items-center">
                         <span>{{ pair[0] }} <strong>عكس</strong> {{ pair[1] }}</span>
-                        <form method="POST" class="m-0">
+                        <form method="POST" class="m-0" onsubmit="silentSubmit(event, this)">
                             <input type="hidden" name="action" value="del_conflict">
                             <input type="hidden" name="idx" value="{{ loop.index0 }}">
                             <button type="submit" class="btn btn-sm btn-danger border-0">حذف</button>
@@ -208,11 +210,12 @@
         </div>
     </div>
 
+    <!-- 5. إعفاء من الحصة الأولى -->
     <div class="col-md-12">
         <div class="card border-warning shadow-sm h-100">
             <div class="card-header bg-warning text-dark fw-bold">😴 إعفاء من الحصة الأولى في كل الأيام</div>
             <div class="card-body">
-                <form method="POST" class="mb-3 d-flex gap-2">
+                <form method="POST" class="mb-3 d-flex gap-2" onsubmit="silentSubmit(event, this)">
                     <input type="hidden" name="action" value="add_no_first">
                     <select class="form-select w-50" name="teacher" required>
                         <option value="">اختر أستاذاً للإعفاء...</option>
@@ -225,7 +228,7 @@
                     {% for t in c_db.no_first_slot_teachers %}
                     <div class="badge bg-light text-dark border p-2 d-flex align-items-center gap-2" style="font-size: 15px;">
                         {{ t }}
-                        <form method="POST" class="m-0">
+                        <form method="POST" class="m-0" onsubmit="silentSubmit(event, this)">
                             <input type="hidden" name="action" value="del_no_first">
                             <input type="hidden" name="teacher" value="{{ t }}">
                             <button type="submit" class="btn btn-sm text-danger p-0 m-0 border-0 bg-transparent" title="إلغاء الإعفاء">❌</button>
@@ -237,6 +240,7 @@
         </div>
     </div>
 
+    <!-- 6. إدارة مجموعات العزل -->
     <div class="col-12 mt-4">
         <div class="card border-dark shadow-lg">
             <div class="card-header bg-dark text-white fw-bold fs-5">
@@ -248,7 +252,7 @@
                     <strong>🃏 المستوى الجوكر:</strong> المستويات التي لا تنتمي لأي مجموعة (حرة) يمكنها دخول أي فترة احتياطية لأي مجموعة دون أن تطرد أحداً.
                 </div>
                 
-                <form method="POST" class="mb-4 border border-secondary p-3 bg-white rounded shadow-sm">
+                <form method="POST" class="mb-4 border border-secondary p-3 bg-white rounded shadow-sm" onsubmit="silentSubmit(event, this)">
                     <input type="hidden" name="action" value="add_isolation_group">
                     <div class="row align-items-center">
                         <div class="col-md-3 mb-2 mb-md-0">
@@ -277,10 +281,11 @@
                         <div class="card border-dark h-100 shadow-sm">
                             <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center py-2">
                                 <span class="fw-bold fs-6">{{ g_name }}</span>
-                                <form method="POST" class="m-0" onsubmit="return confirm('هل أنت متأكد من حذف هذه المجموعة؟ ستصبح مستوياتها حرة.');">
+                                <!-- ✨ تعديل: نقل رسالة التأكيد إلى الزر نفسه ✨ -->
+                                <form method="POST" class="m-0" onsubmit="silentSubmit(event, this)">
                                     <input type="hidden" name="action" value="del_isolation_group">
                                     <input type="hidden" name="group_name" value="{{ g_name }}">
-                                    <button type="submit" class="btn btn-sm text-white p-0 m-0 border-0 bg-transparent" title="فك العزل وحذف المجموعة">❌</button>
+                                    <button type="submit" class="btn btn-sm text-white p-0 m-0 border-0 bg-transparent" title="فك العزل وحذف المجموعة" onclick="return confirm('هل أنت متأكد من حذف هذه المجموعة؟ ستصبح مستوياتها حرة.');">❌</button>
                                 </form>
                             </div>
                             <div class="card-body py-3">
@@ -301,4 +306,55 @@
     </div>
 
 </div>
+
+<!-- ========================================== -->
+<!-- 🚀 المحرك المعماري الصامت (Fetch API) -->
+<!-- ========================================== -->
+<script>
+    async function silentSubmit(event, form) {
+        event.preventDefault(); // منع إعادة تحميل الصفحة
+
+        // 1. تأثير بصري (تغيير الزر لـ "جاري التحميل")
+        const submitBtn = form.querySelector('button[type="submit"]');
+        let originalText = '';
+        if (submitBtn) {
+            originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '⏳...';
+            submitBtn.disabled = true;
+        }
+        document.body.style.cursor = 'wait';
+
+        try {
+            // 2. تجهيز البيانات وحفظ موضع الـ Scroll
+            const formData = new FormData(form);
+            const scrollY = window.scrollY;
+
+            // 3. الإرسال الصامت للخادم
+            const response = await fetch(window.location.href, {
+                method: 'POST',
+                body: formData
+            });
+
+            // 4. استلام الـ HTML الجديد واقتطاع الحاوية
+            const htmlText = await response.text();
+            const parser = new DOMParser();
+            const newDoc = parser.parseFromString(htmlText, 'text/html');
+
+            // 5. استبدال محتوى الشاشة بالبيانات المحدثة فوراً!
+            document.getElementById('constraints-container').innerHTML = newDoc.getElementById('constraints-container').innerHTML;
+
+            // 6. استعادة موضع الـ Scroll بدقة
+            window.scrollTo(0, scrollY);
+
+        } catch (error) {
+            alert("حدث خطأ أثناء الاتصال بالخادم.");
+            if (submitBtn) {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }
+        } finally {
+            document.body.style.cursor = 'default';
+        }
+    }
+</script>
 {% endblock %}

@@ -31,10 +31,12 @@
         قم بالتأشير على القاعات المخصصة لكل مستوى، ثم اضغط على زر الحفظ في الأسفل.
     </div>
 
-    <form method="POST">
+    <!-- ✨ تحويل النموذج لمنع الإرسال التقليدي وتشغيل دالة الجافاسكريبت ✨ -->
+    <form id="rooms-form" onsubmit="event.preventDefault(); silentSubmit();">
         <input type="hidden" name="action" value="save_level_rooms">
         
-        <div class="row g-4 mb-4">
+        <!-- ✨ إضافة ID الحاوية التي سيتم تحديثها صمتاً ✨ -->
+        <div class="row g-4 mb-4" id="levels-container">
             {% for level in db.levels %}
                 {% set outer_index = loop.index %}
                 {% set saved_rooms = db.level_rooms.get(level, []) %}
@@ -80,7 +82,7 @@
         </div>
         
         <div class="sticky-bottom bg-white p-3 border-top shadow-lg rounded mb-5 text-center" style="z-index: 1000;">
-            <button type="submit" class="btn btn-primary btn-lg w-75 fw-bold shadow">
+            <button type="submit" id="save-btn" class="btn btn-primary btn-lg w-75 fw-bold shadow transition-all">
                 💾 حفظ تخصيص القاعات لجميع المستويات
             </button>
         </div>
@@ -88,6 +90,7 @@
 {% endif %}
 
 <script>
+    // دالة تغيير التنسيق البصري عند النقر
     function toggleCheckboxStyle(element) {
         let checkbox = element.querySelector('input[type="checkbox"]');
         if(event.target.tagName !== 'INPUT' && event.target.tagName !== 'LABEL') {
@@ -98,6 +101,63 @@
             element.classList.add('selected');
         } else {
             element.classList.remove('selected');
+        }
+    }
+
+    // ==========================================
+    // 🚀 المحرك المعماري الصامت (Fetch API)
+    // ==========================================
+    async function silentSubmit() {
+        const form = document.getElementById('rooms-form');
+        const formData = new FormData(form);
+        const btn = document.getElementById('save-btn');
+        const originalText = btn.innerHTML;
+
+        // 1. تغيير حالة الزر لمنع النقر المزدوج وإظهار التحميل
+        btn.innerHTML = '⏳ جاري الحفظ...';
+        btn.disabled = true;
+        document.body.style.cursor = 'wait';
+
+        try {
+            // 2. حفظ موضع التمرير الحالي للشاشة
+            const scrollY = window.scrollY;
+
+            // 3. إرسال الطلب في الخلفية
+            const response = await fetch(window.location.href, {
+                method: 'POST',
+                body: formData
+            });
+
+            // 4. جلب كود الصفحة المحدث واقتطاع الحاوية المطلوبة
+            const htmlText = await response.text();
+            const parser = new DOMParser();
+            const newDoc = parser.parseFromString(htmlText, 'text/html');
+
+            // 5. تحديث عدادات المستويات وصناديق الاختيار بصمت
+            document.getElementById('levels-container').innerHTML = newDoc.getElementById('levels-container').innerHTML;
+
+            // 6. إرجاع الشاشة لنفس مستوى التمرير
+            window.scrollTo(0, scrollY);
+
+            // 7. تأثير بصري ذكي لزر الحفظ (تأكيد النجاح)
+            btn.innerHTML = '✅ تم الحفظ بنجاح!';
+            btn.classList.remove('btn-primary');
+            btn.classList.add('btn-success');
+            
+            // إعادة الزر لشكله الطبيعي بعد ثانيتين
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.classList.remove('btn-success');
+                btn.classList.add('btn-primary');
+                btn.disabled = false;
+            }, 2000);
+
+        } catch (error) {
+            alert("حدث خطأ أثناء الاتصال بالخادم.");
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        } finally {
+            document.body.style.cursor = 'default';
         }
     }
 </script>

@@ -7,7 +7,8 @@
 
 <div class="card shadow-sm border-primary mb-5">
     <div class="card-body p-4">
-        <form id="solverForm">
+        <!-- ✨ التعديل هنا: منع الإرسال الافتراضي (Enter) وربطه بالدالة مباشرة ✨ -->
+        <form id="solverForm" onsubmit="event.preventDefault(); startSolver();">
             {% set c_dict = db.get('constraints', {}) %}
             {% set saved_algo = c_dict.get('algo_choice', 'lns') %}
             {% set saved_strategy = c_dict.get('strategy', 'teacher') %}
@@ -59,7 +60,8 @@
                 </div>
             </div>
 
-            <button type="button" class="btn btn-primary btn-lg w-100 fw-bold shadow-sm" onclick="startSolver()" id="btnStart">
+            <!-- ✨ التعديل هنا: تحويل الزر إلى submit ليتوافق مع النموذج ✨ -->
+            <button type="submit" class="btn btn-primary btn-lg w-100 fw-bold shadow-sm" id="btnStart">
                 🚀 بدء التوزيع وسجل المتابعة الحي
             </button>
         </form>
@@ -103,13 +105,13 @@
     <div class="card-header bg-success text-white fs-4 fw-bold text-center">🎉 اكتمل التوزيع بنجاح!</div>
     <div class="card-body p-4">
         
-        <!-- هنا سيتم حقن المخالفات ديناميكياً -->
         <div id="violationsWrapper"></div>
 
         <hr class="my-4">
         <h4 class="mb-4 text-center text-secondary fw-bold">📥 تصدير الجداول</h4>
         <div class="row g-4">
             <div class="col-md-6">
+                <!-- أزرار التحميل لا تحتاج لتعديل لأنها روابط تحميل مباشرة -->
                 <a href="{{ url_for('resit_exams.download_doc', doc_type='levels') }}" class="btn btn-outline-primary btn-lg w-100 fw-bold">📄 جداول المستويات</a>
             </div>
             <div class="col-md-6">
@@ -130,6 +132,9 @@
     let isStartedPrinted = false;
 
     function startSolver() {
+        // ✨ تنظيف الذاكرة من أي نتائج توزيع سابقة فور بدء بحث جديد
+        sessionStorage.removeItem('resit_violations');
+
         document.getElementById('btnStart').disabled = true;
         document.getElementById('progressSection').style.display = 'block';
         if(document.getElementById('resultsSection')) {
@@ -150,19 +155,16 @@
             destruction_rate: parseInt(document.getElementById('lns_destruction').value)
         };
 
-        // 🌟 تم تحديث مسار الـ fetch ليستخدم url_for 🌟
         fetch('{{ url_for("resit_exams.start_solver") }}', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(data)
         }).then(response => {
             pollInterval = setInterval(() => {
-                // 🌟 تم تحديث مسار التتبع ليستخدم url_for 🌟
                 fetch('{{ url_for("resit_exams.get_solver_progress") }}')
                 .then(r => r.json())
                 .then(prog => {
                     
-                    // 🌟 حماية ذكية: لا تقم بتحديث الأرقام إذا كانت الخوارزمية انتهت ولم ترسلها
                     if (prog.unassigned !== undefined) {
                         let pct = 0;
                         if(prog.duration > 0) {
@@ -182,7 +184,6 @@
                                 isStartedPrinted = true;
                             }
 
-                            // 🌟 إضافة المؤقت الحي (السطر المتحرك) لمنع التجميد البصري
                             let activeLine = document.getElementById('active-progress');
                             if (!activeLine) {
                                 activeLine = document.createElement('div');
@@ -193,7 +194,6 @@
                             }
                             activeLine.innerHTML = `⏳ الوقت المنقضي: ${prog.elapsed.toFixed(1)} ثانية | الخوارزمية تعمل بقوة وتختبر آلاف الاحتمالات...`;
 
-                            // إضافة سطر جديد فقط إذا تحسنت النتيجة (تغيرت الأرقام)
                             if (prog.elapsed !== lastElapsed || prog.unassigned !== lastUnassigned || prog.hard !== lastHard || prog.soft !== lastSoft) {
                                 let minutes = Math.floor(prog.elapsed / 60).toString().padStart(2, '0');
                                 let seconds = Math.floor(prog.elapsed % 60).toString().padStart(2, '0');
@@ -203,7 +203,7 @@
                                     let logLine = `&gt; [توقيت ${timeStr}] 🤖 جاري التحسين واختزال الأخطاء &gt;&gt; نقص: <span class="text-danger fw-bold">${prog.unassigned}</span> | صارم: <span class="text-danger fw-bold">${prog.hard}</span> | مرن: <span style="color: #ffc107;">${prog.soft}</span>`;
                                     let div = document.createElement('div');
                                     div.innerHTML = logLine;
-                                    terminal.insertBefore(div, activeLine); // نضعه فوق السطر المتحرك
+                                    terminal.insertBefore(div, activeLine);
                                 }
 
                                 lastUnassigned = prog.unassigned;
@@ -217,7 +217,6 @@
                         }
                     }
 
-                    // 🌟 عند انتهاء الخوارزمية بنجاح
                     if (prog.done) {
                         document.getElementById('progressBar').style.width = '100%';
                         document.getElementById('progressBar').innerText = '100%';
@@ -234,7 +233,6 @@
                             alert("حدث خطأ: " + prog.error);
                             document.getElementById('btnStart').disabled = false;
                         } else {
-                            // 🌟 התعديل السحري: إظهار النتيجة فورا بدون رعشة وحفظها في التبويبة فقط
                             sessionStorage.setItem('resit_violations', JSON.stringify(prog.violations || []));
                             displayResults(prog.violations || []);
                             document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
@@ -246,7 +244,6 @@
         });
     }
 
-    // دالة لعرض النتائج ديناميكياً بدون رعشة
     function displayResults(violations) {
         let resSec = document.getElementById('resultsSection');
         let violWrap = document.getElementById('violationsWrapper');
@@ -263,7 +260,6 @@
         resSec.style.display = 'block';
     }
 
-    // 🌟 السر هنا: قراءة النتيجة من الجلسة المؤقتة عند التبديل بين التبويبات
     document.addEventListener("DOMContentLoaded", function() {
         let savedViolations = sessionStorage.getItem('resit_violations');
         if (savedViolations !== null) {

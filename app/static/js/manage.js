@@ -197,7 +197,12 @@ function editItem(url, oldName) {
 function deleteItem(url) {
     if(confirm('هل أنت متأكد من حذف هذا العنصر؟ (سيتم حذف أي ارتباطات له)')) {
         fetch(url, { method: 'DELETE' }).then(res => res.json()).then(data => {
-            if(data.success) { loadManageTables(); if(typeof loadPreviews === 'function') loadPreviews(); }
+            if(data.success) { 
+                loadManageTables(); 
+                if(typeof loadPreviews === 'function') loadPreviews();
+                // ✨ الإضافة الضرورية: إذا كنت في صفحة الإسناد، يجب إعادة تحميلها
+                if(typeof loadAssignmentsData === 'function') loadAssignmentsData();
+            }
         });
     }
 }
