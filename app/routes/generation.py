@@ -123,6 +123,10 @@ def start_refinement():
     req_level = data.get('level') or data.get('refinement_level') or 'balanced'
     max_victims = data.get('max_victims', 4)
     
+    # 🛡️ الحماية الأمنية (الدفاع بعمق): التحقق من تفعيل الميزة الجراحية
+    if req_level == 'deep_surgical' and not current_app.config.get('ENABLE_SURGICAL_FEATURE'):
+        return jsonify({"error": "ميزة التدخل الجراحي غير مفعلة في هذه النسخة."}), 403
+    
     log_q.clear_logs()
     log_q.set_running(True)
     log_q.set_stop_flag(False)
