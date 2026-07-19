@@ -792,12 +792,26 @@ def download_doc(doc_type):
         flash("لم يتم توليد الجدول بعد.", "danger")
         return redirect(url_for('resit_exams.generate_schedule'))
         
+    # ✨ التقاط اللغة المختارة من الرابط (الافتراضي عربي)
+    lang = request.args.get('lang', 'ar')
+        
     if doc_type == 'levels':
-        doc_stream = generate_levels_word(db_dict, final_schedule)
-        filename = "جداول_المستويات_استدراكي.docx"
+        doc_stream = generate_levels_word(db_dict, final_schedule, lang=lang)
+        if lang == 'en':
+            filename = "Resit_Levels.docx"
+        elif lang == 'fr':
+            filename = "Rattrapage_Niveaux.docx"
+        else:
+            filename = "جداول_المستويات_استدراكي.docx"
+            
     elif doc_type == 'teachers':
-        doc_stream = generate_teachers_word(db_dict, final_schedule)
-        filename = "جداول_الأساتذة_استدراكي.docx"
+        doc_stream = generate_teachers_word(db_dict, final_schedule, lang=lang)
+        if lang == 'en':
+            filename = "Resit_Teachers.docx"
+        elif lang == 'fr':
+            filename = "Rattrapage_Profs.docx"
+        else:
+            filename = "جداول_الأساتذة_استدراكي.docx"
     else:
         return redirect(url_for('resit_exams.generate_schedule'))
         

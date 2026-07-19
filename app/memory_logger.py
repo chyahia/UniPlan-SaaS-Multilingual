@@ -24,6 +24,11 @@ class MemoryLogQueue:
             if self.tenant_id not in store.logs:
                 store.logs[self.tenant_id] = []
             store.logs[self.tenant_id].append(str(msg))
+            
+        # 🚀 اللمسة السحرية هنا: إجبار الخوارزمية على التنازل عن معالج بايثون (GIL)
+        # بعد خروجها من الـ lock لكي يستطيع خادم Flask أخذ السطر وإرساله للمتصفح
+        import time
+        time.sleep(0.001)
 
     def get_logs(self, start_index=0):
         with store.lock:

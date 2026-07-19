@@ -19,28 +19,61 @@ from openpyxl.styles import Alignment
 
 exams_export_bp = Blueprint('exams_export', __name__)
 
-def create_word_document_with_table(doc, title, headers, data_grid):
+# ================== قاموس الترجمة للامتحانات ==================
+EXAM_TRANSLATIONS = {
+    'ar': {
+        'period': 'الفترة', 'date_day': 'اليوم/التاريخ', 'exam_schedule': 'جدول امتحانات',
+        'guard_schedule': 'جدول الحراسة', 'simplified': '(مُبسَّط)',
+        'course_prof': 'أستاذ المادة', 'guarding': 'الحراسة:', 'large_hall': 'القاعة الكبيرة',
+        'other_halls': 'القاعات الأخرى', 'not_specified': 'غير محدد', 'no_level': 'بدون مستوى',
+        'no_guards': '(لا يوجد)', 'shortage_alert': 'نقص!', 'empty': '- فراغ -',
+        'is_guarding': '(حراسة)', 'no_guarding': '(دون حراسة)', 'assigned_guard': '(تكليف بحراسة)',
+        'days': ["الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"]
+    },
+    'en': {
+        'period': 'Time Slot', 'date_day': 'Day / Date', 'exam_schedule': 'Exams Schedule',
+        'guard_schedule': 'Guarding Schedule', 'simplified': '(Simplified)',
+        'course_prof': 'Course Professor', 'guarding': 'Invigilators:', 'large_hall': 'Large Hall',
+        'other_halls': 'Other Halls', 'not_specified': 'Not Specified', 'no_level': 'No Level',
+        'no_guards': '(None)', 'shortage_alert': 'Shortage!', 'empty': '- Empty -',
+        'is_guarding': '(Invigilation)', 'no_guarding': '(No Invigilation)', 'assigned_guard': '(Assigned Invigilator)',
+        'days': ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+    },
+    'fr': {
+        'period': 'Créneau', 'date_day': 'Jour / Date', 'exam_schedule': 'Emploi des Examens',
+        'guard_schedule': 'Emploi de Surveillance', 'simplified': '(Simplifié)',
+        'course_prof': 'Professeur du module', 'guarding': 'Surveillants:', 'large_hall': 'Grande Salle',
+        'other_halls': 'Autres Salles', 'not_specified': 'Non Spécifié', 'no_level': 'Sans Niveau',
+        'no_guards': '(Aucun)', 'shortage_alert': 'Manque!', 'empty': '- Vide -',
+        'is_guarding': '(Surveillance)', 'no_guarding': '(Sans Surveillance)', 'assigned_guard': '(Assigné à surveiller)',
+        'days': ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"]
+    }
+}
+
+def create_word_document_with_table(doc, title, headers, data_grid, lang='ar'):
     heading = doc.add_heading(level=2)
     heading.clear() 
     heading.alignment = WD_ALIGN_PARAGRAPH.CENTER
     
-    pPr = heading._p.get_or_add_pPr()
-    bidi = OxmlElement('w:bidi')
-    bidi.set(qn('w:val'), '1')
-    pPr.append(bidi)
+    if lang == 'ar':
+        pPr = heading._p.get_or_add_pPr()
+        bidi = OxmlElement('w:bidi')
+        bidi.set(qn('w:val'), '1')
+        pPr.append(bidi)
     
     run = heading.add_run(title)
     font = run.font
-    font.rtl = True
+    if lang == 'ar': font.rtl = True
     font.name = 'Arial'
 
     table = doc.add_table(rows=1, cols=len(headers))
     table.style = 'Table Grid'
     table.autofit = False
 
-    tbl_pr = table._element.xpath('w:tblPr')[0]
-    bidi_visual_element = OxmlElement('w:bidiVisual')
-    tbl_pr.append(bidi_visual_element)
+    if lang == 'ar':
+        tbl_pr = table._element.xpath('w:tblPr')[0]
+        bidi_visual_element = OxmlElement('w:bidiVisual')
+        tbl_pr.append(bidi_visual_element)
 
     hdr_cells = table.rows[0].cells
     for i, header in enumerate(headers):
@@ -48,10 +81,10 @@ def create_word_document_with_table(doc, title, headers, data_grid):
         cell_paragraph.text = ""
         run = cell_paragraph.add_run(header)
         font = run.font
-        font.rtl = True
+        if lang == 'ar': font.rtl = True
         font.name = 'Arial'
         cell_paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        cell_paragraph.paragraph_format.rtl = True
+        if lang == 'ar': cell_paragraph.paragraph_format.rtl = True
 
     for row_data in data_grid:
         row_cells = table.add_row().cells
@@ -64,10 +97,10 @@ def create_word_document_with_table(doc, title, headers, data_grid):
                     cell_paragraph.add_run().add_break()
                 run = cell_paragraph.add_run(line)
                 font = run.font
-                font.rtl = True
+                if lang == 'ar': font.rtl = True
                 font.name = 'Arial'
-            cell_paragraph.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-            cell_paragraph.paragraph_format.rtl = True
+            cell_paragraph.alignment = WD_ALIGN_PARAGRAPH.RIGHT if lang == 'ar' else WD_ALIGN_PARAGRAPH.LEFT
+            if lang == 'ar': cell_paragraph.paragraph_format.rtl = True
             
     doc.add_page_break()
 
@@ -82,16 +115,18 @@ def export_exams_word():
     schedule_data = request.get_json()
     if not schedule_data: return jsonify({"error": "No schedule data provided"}), 400
     
-    # بناء قائمة الإسنادات باستخدام هيكل Many-to-Many الجديد
+    lang = request.args.get('lang', 'ar')
+    t = EXAM_TRANSLATIONS.get(lang, EXAM_TRANSLATIONS['ar'])
+    
     assignments_rows = []
-    for t in ExamTeacher.query.filter_by(tenant_id=tenant_id).all():
-        for s in t.subjects:
+    for t_obj in ExamTeacher.query.filter_by(tenant_id=tenant_id).all():
+        for s in t_obj.subjects:
             levels_list = sorted([l.name for l in s.levels]) if hasattr(s, 'levels') and s.levels else []
-            combined_level = " + ".join(levels_list) if levels_list else "بدون مستوى"
+            combined_level = " + ".join(levels_list) if levels_list else t['no_level']
             assignments_rows.append({
                 'subj_name': s.name, 
                 'level_name': combined_level, 
-                'prof_name': t.name
+                'prof_name': t_obj.name
             })
             
     settings_row = ExamSetting.query.filter_by(key='main_settings', tenant_id=tenant_id).first()
@@ -115,9 +150,9 @@ def export_exams_word():
     all_dates = sorted(schedule_data.keys())
     all_times = sorted({time for date_slots in schedule_data.values() for time in date_slots})
     all_levels = sorted({exam['level'] for slots in schedule_data.values() for exams in slots.values() for exam in exams})
-    day_names = ["الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"]
+    day_names = t['days']
     
-    headers = ["الفترة"] + [f"{day_names[datetime.strptime(d, '%Y-%m-%d').isoweekday() % 7]}\n{d}" for d in all_dates]
+    headers = [t['period']] + [f"{day_names[datetime.strptime(d, '%Y-%m-%d').isoweekday() % 7]}\n{d}" for d in all_dates]
 
     for level in all_levels:
         data_grid = []
@@ -127,8 +162,8 @@ def export_exams_word():
                 exam = next((e for e in schedule_data.get(date, {}).get(time, []) if e['level'] == level), None)
                 content = ""
                 if exam:
-                    owner = subject_owners.get((exam['subject'], exam['level']), "غير محدد")
-                    content = f"{exam['subject']}\nأستاذ المادة: {owner}\n\nالحراسة:"
+                    owner = subject_owners.get((exam['subject'], exam['level']), t['not_specified'])
+                    content = f"{exam['subject']}\n{t['course_prof']}: {owner}\n\n{t['guarding']}"
 
                     halls_by_type = defaultdict(list)
                     for h in exam.get('halls', []): halls_by_type[h['type']].append(h['name'])
@@ -140,23 +175,23 @@ def export_exams_word():
                         g_list = guards_copy[:num_guards_needed]
                         guards_copy = guards_copy[num_guards_needed:]
                         hall_names = ", ".join(halls_by_type['كبيرة'])
-                        guard_text = '\n'.join(g_list) if g_list else '(لا يوجد)'
-                        content += f"\nالقاعة الكبيرة: {hall_names}\n{guard_text}"
+                        guard_text = '\n'.join(g_list) if g_list else t['no_guards']
+                        content += f"\n{t['large_hall']}: {hall_names}\n{guard_text}"
                     
                     other_hall_names = halls_by_type.get('متوسطة', []) + halls_by_type.get('صغيرة', [])
                     if other_hall_names:
-                        guard_text = '\n'.join(guards_copy) if guards_copy else '(لا يوجد)'
-                        content += f"\nالقاعات الأخرى: {', '.join(other_hall_names)}\n{guard_text}"
+                        guard_text = '\n'.join(guards_copy) if guards_copy else t['no_guards']
+                        content += f"\n{t['other_halls']}: {', '.join(other_hall_names)}\n{guard_text}"
                 
                 row_data.append(content)
             data_grid.append(row_data)
         
-        create_word_document_with_table(doc, f"جدول امتحانات: {level}", headers, data_grid)
+        create_word_document_with_table(doc, f"{t['exam_schedule']}: {level}", headers, data_grid, lang)
 
     buffer = io.BytesIO()
     doc.save(buffer)
     buffer.seek(0)
-    return send_file(buffer, as_attachment=True, download_name="جداول_الامتحانات.docx", mimetype="application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+    return send_file(buffer, as_attachment=True, download_name="export.docx", mimetype="application/vnd.openxmlformats-officedocument.wordprocessingml.document")
 
 # ==============================================================
 # 2. تصدير جداول الحراسة المفصلة للأساتذة
@@ -169,14 +204,17 @@ def export_profs_word():
     schedule_data = request.get_json()
     if not schedule_data: return jsonify({"error": "No schedule data provided"}), 400
 
+    lang = request.args.get('lang', 'ar')
+    t = EXAM_TRANSLATIONS.get(lang, EXAM_TRANSLATIONS['ar'])
+
     all_professors = sorted([p.name for p in ExamTeacher.query.filter_by(tenant_id=tenant_id).all()])
     
     prof_owned_subjects = defaultdict(set)
-    for t in ExamTeacher.query.filter_by(tenant_id=tenant_id).all():
-        for s in t.subjects:
+    for t_obj in ExamTeacher.query.filter_by(tenant_id=tenant_id).all():
+        for s in t_obj.subjects:
             levels_list = sorted([l.name for l in s.levels]) if hasattr(s, 'levels') and s.levels else []
-            combined_level = " + ".join(levels_list) if levels_list else "بدون مستوى"
-            prof_owned_subjects[t.name].add((s.name, combined_level))
+            combined_level = " + ".join(levels_list) if levels_list else t['no_level']
+            prof_owned_subjects[t_obj.name].add((s.name, combined_level))
 
     doc = Document()
     section = doc.sections[0]
@@ -189,33 +227,40 @@ def export_profs_word():
 
     all_dates = sorted(schedule_data.keys())
     all_times = sorted({time for date_slots in schedule_data.values() for time in date_slots})
-    day_names = ["الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"]
+    day_names = t['days']
     
     for prof_name in all_professors:
-        title = f"جدول الحراسة: {prof_name}"
-        headers = ["اليوم/التاريخ"] + all_times
+        title = f"{t['guard_schedule']}: {prof_name}"
+        headers = [t['date_day']] + all_times
         
         heading = doc.add_heading(level=2); heading.clear()
         heading.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        pPr = heading._p.get_or_add_pPr()
-        bidi = OxmlElement('w:bidi'); bidi.set(qn('w:val'), '1'); pPr.append(bidi)
+        if lang == 'ar':
+            pPr = heading._p.get_or_add_pPr()
+            bidi = OxmlElement('w:bidi'); bidi.set(qn('w:val'), '1'); pPr.append(bidi)
         run = heading.add_run(title)
-        font = run.font; font.rtl = True; font.name = 'Arial'
+        font = run.font; 
+        if lang == 'ar': font.rtl = True
+        font.name = 'Arial'
 
         table = doc.add_table(rows=1, cols=len(headers))
         table.style = 'Table Grid'
         table.autofit = False
-        tbl_pr = table._element.xpath('w:tblPr')[0]
-        bidi_visual_element = OxmlElement('w:bidiVisual')
-        tbl_pr.append(bidi_visual_element)
+        
+        if lang == 'ar':
+            tbl_pr = table._element.xpath('w:tblPr')[0]
+            bidi_visual_element = OxmlElement('w:bidiVisual')
+            tbl_pr.append(bidi_visual_element)
         
         hdr_cells = table.rows[0].cells
         for i, header in enumerate(headers):
             p = hdr_cells[i].paragraphs[0]; p.text = ""
             run = p.add_run(header)
-            font = run.font; font.rtl = True; font.name = 'Arial'
+            font = run.font; 
+            if lang == 'ar': font.rtl = True
+            font.name = 'Arial'
             p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-            p.paragraph_format.rtl = True
+            if lang == 'ar': p.paragraph_format.rtl = True
 
         has_any_duty = False
         for date in all_dates:
@@ -223,8 +268,11 @@ def export_profs_word():
             day_name = day_names[datetime.strptime(date, '%Y-%m-%d').isoweekday() % 7]
             
             p = row_cells[0].paragraphs[0]; p.text = ""
-            run = p.add_run(f"{day_name}\n{date}"); run.font.rtl = True; run.font.name = 'Arial'; run.bold = True
-            p.alignment = WD_ALIGN_PARAGRAPH.CENTER; p.paragraph_format.rtl = True
+            run = p.add_run(f"{day_name}\n{date}"); 
+            if lang == 'ar': run.font.rtl = True
+            run.font.name = 'Arial'; run.bold = True
+            p.alignment = WD_ALIGN_PARAGRAPH.CENTER; 
+            if lang == 'ar': p.paragraph_format.rtl = True
 
             for i, time in enumerate(all_times, 1):
                 cell_content_parts = []
@@ -241,18 +289,21 @@ def export_profs_word():
                         has_any_duty = True
                         if is_guarding:
                             if is_owner: is_teaching_and_guarding = True
-                            cell_content_parts.append(f"{exam['subject']} ({exam['level']})\n(حراسة)")
+                            cell_content_parts.append(f"{exam['subject']} ({exam['level']})\n{t['is_guarding']}")
                         elif is_owner:
                             is_teaching_only = True
-                            cell_content_parts.append(f"{exam['subject']} ({exam['level']})\n(دون حراسة)")
+                            cell_content_parts.append(f"{exam['subject']} ({exam['level']})\n{t['no_guarding']}")
                 
                 p = row_cells[i].paragraphs[0]; p.text = ""
                 lines = "\n---\n".join(cell_content_parts).split('\n')
                 for idx, line in enumerate(lines):
                     if idx > 0: p.add_run().add_break()
                     run = p.add_run(line)
-                    font = run.font; font.rtl = True; font.name = 'Arial'
-                p.alignment = WD_ALIGN_PARAGRAPH.RIGHT; p.paragraph_format.rtl = True
+                    font = run.font; 
+                    if lang == 'ar': font.rtl = True
+                    font.name = 'Arial'
+                p.alignment = WD_ALIGN_PARAGRAPH.RIGHT if lang == 'ar' else WD_ALIGN_PARAGRAPH.LEFT
+                if lang == 'ar': p.paragraph_format.rtl = True
                 
                 shading_elm = OxmlElement('w:shd')
                 if is_teaching_and_guarding:
@@ -271,7 +322,7 @@ def export_profs_word():
     buffer = io.BytesIO()
     doc.save(buffer)
     buffer.seek(0)
-    return send_file(buffer, as_attachment=True, download_name="جداول_الحراسة_للأساتذة.docx", mimetype="application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+    return send_file(buffer, as_attachment=True, download_name="export.docx", mimetype="application/vnd.openxmlformats-officedocument.wordprocessingml.document")
 
 # ==============================================================
 # 3. تصدير جداول الحراسة المبسطة للأساتذة
@@ -284,14 +335,17 @@ def export_profs_anonymous_word():
     schedule_data = request.get_json()
     if not schedule_data: return jsonify({"error": "No schedule data provided"}), 400
 
+    lang = request.args.get('lang', 'ar')
+    t = EXAM_TRANSLATIONS.get(lang, EXAM_TRANSLATIONS['ar'])
+
     all_professors = sorted([p.name for p in ExamTeacher.query.filter_by(tenant_id=tenant_id).all()])
     
     prof_owned_subjects = defaultdict(set)
-    for t in ExamTeacher.query.filter_by(tenant_id=tenant_id).all():
-        for s in t.subjects:
+    for t_obj in ExamTeacher.query.filter_by(tenant_id=tenant_id).all():
+        for s in t_obj.subjects:
             levels_list = sorted([l.name for l in s.levels]) if hasattr(s, 'levels') and s.levels else []
-            combined_level = " + ".join(levels_list) if levels_list else "بدون مستوى"
-            prof_owned_subjects[t.name].add((s.name, combined_level))
+            combined_level = " + ".join(levels_list) if levels_list else t['no_level']
+            prof_owned_subjects[t_obj.name].add((s.name, combined_level))
 
     doc = Document()
     section = doc.sections[0]
@@ -304,33 +358,40 @@ def export_profs_anonymous_word():
 
     all_dates = sorted(schedule_data.keys())
     all_times = sorted({time for date_slots in schedule_data.values() for time in date_slots})
-    day_names = ["الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"]
+    day_names = t['days']
     
     for prof_name in all_professors:
-        title = f"جدول الحراسة (مُبسَّط): {prof_name}"
-        headers = ["اليوم/التاريخ"] + all_times
+        title = f"{t['guard_schedule']} {t['simplified']}: {prof_name}"
+        headers = [t['date_day']] + all_times
         
         heading = doc.add_heading(level=2); heading.clear()
         heading.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        pPr = heading._p.get_or_add_pPr()
-        bidi = OxmlElement('w:bidi'); bidi.set(qn('w:val'), '1'); pPr.append(bidi)
+        if lang == 'ar':
+            pPr = heading._p.get_or_add_pPr()
+            bidi = OxmlElement('w:bidi'); bidi.set(qn('w:val'), '1'); pPr.append(bidi)
         run = heading.add_run(title)
-        font = run.font; font.rtl = True; font.name = 'Arial'
+        font = run.font; 
+        if lang == 'ar': font.rtl = True
+        font.name = 'Arial'
 
         table = doc.add_table(rows=1, cols=len(headers))
         table.style = 'Table Grid'
         table.autofit = False
-        tbl_pr = table._element.xpath('w:tblPr')[0]
-        bidi_visual_element = OxmlElement('w:bidiVisual')
-        tbl_pr.append(bidi_visual_element)
+        
+        if lang == 'ar':
+            tbl_pr = table._element.xpath('w:tblPr')[0]
+            bidi_visual_element = OxmlElement('w:bidiVisual')
+            tbl_pr.append(bidi_visual_element)
         
         hdr_cells = table.rows[0].cells
         for i, header in enumerate(headers):
             p = hdr_cells[i].paragraphs[0]; p.text = ""
             run = p.add_run(header)
-            font = run.font; font.rtl = True; font.name = 'Arial'
+            font = run.font; 
+            if lang == 'ar': font.rtl = True
+            font.name = 'Arial'
             p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-            p.paragraph_format.rtl = True
+            if lang == 'ar': p.paragraph_format.rtl = True
 
         has_any_duty = False
         for date in all_dates:
@@ -338,8 +399,11 @@ def export_profs_anonymous_word():
             day_name = day_names[datetime.strptime(date, '%Y-%m-%d').isoweekday() % 7]
             
             p = row_cells[0].paragraphs[0]; p.text = ""
-            run = p.add_run(f"{day_name}\n{date}"); run.font.rtl = True; run.font.name = 'Arial'; run.bold = True
-            p.alignment = WD_ALIGN_PARAGRAPH.CENTER; p.paragraph_format.rtl = True
+            run = p.add_run(f"{day_name}\n{date}"); 
+            if lang == 'ar': run.font.rtl = True
+            run.font.name = 'Arial'; run.bold = True
+            p.alignment = WD_ALIGN_PARAGRAPH.CENTER; 
+            if lang == 'ar': p.paragraph_format.rtl = True
 
             for i, time in enumerate(all_times, 1):
                 cell_content_parts = []
@@ -357,20 +421,23 @@ def export_profs_anonymous_word():
                         if is_guarding:
                             if is_owner:
                                 is_teaching_and_guarding = True
-                                cell_content_parts.append(f"{exam['subject']} ({exam['level']})\n(حراسة)")
+                                cell_content_parts.append(f"{exam['subject']} ({exam['level']})\n{t['is_guarding']}")
                             else:
-                                cell_content_parts.append("(تكليف بحراسة)")
+                                cell_content_parts.append(t['assigned_guard'])
                         elif is_owner:
                             is_teaching_only = True
-                            cell_content_parts.append(f"{exam['subject']} ({exam['level']})\n(دون حراسة)")
+                            cell_content_parts.append(f"{exam['subject']} ({exam['level']})\n{t['no_guarding']}")
                 
                 p = row_cells[i].paragraphs[0]; p.text = ""
                 lines = "\n---\n".join(cell_content_parts).split('\n')
                 for idx, line in enumerate(lines):
                     if idx > 0: p.add_run().add_break()
                     run = p.add_run(line)
-                    font = run.font; font.rtl = True; font.name = 'Arial'
-                p.alignment = WD_ALIGN_PARAGRAPH.RIGHT; p.paragraph_format.rtl = True
+                    font = run.font; 
+                    if lang == 'ar': font.rtl = True
+                    font.name = 'Arial'
+                p.alignment = WD_ALIGN_PARAGRAPH.RIGHT if lang == 'ar' else WD_ALIGN_PARAGRAPH.LEFT
+                if lang == 'ar': p.paragraph_format.rtl = True
                 
                 shading_elm = OxmlElement('w:shd')
                 if is_teaching_and_guarding:
@@ -389,7 +456,7 @@ def export_profs_anonymous_word():
     buffer = io.BytesIO()
     doc.save(buffer)
     buffer.seek(0)
-    return send_file(buffer, as_attachment=True, download_name="جداول_الحراسة_المبسطة.docx", mimetype="application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+    return send_file(buffer, as_attachment=True, download_name="export.docx", mimetype="application/vnd.openxmlformats-officedocument.wordprocessingml.document")
 
 # ==============================================================
 # 4. تصدير مخطط التوزيع اليدوي (قالب إكسل)

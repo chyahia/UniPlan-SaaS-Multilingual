@@ -530,6 +530,25 @@
                 
                 <!-- 1. شريط العنوان وأزرار التصدير الثلاثة فقط -->
                 <h3 style="color: #3f51b5; border-bottom: 2px solid #3f51b5; padding-bottom: 5px;">🎉 النتائج النهائية:</h3>
+                
+                <!-- ✨ صندوق اختيار لغة التصدير ✨ -->
+                <div style="margin: 0 0 20px 0; display: inline-flex; flex-wrap: wrap; align-items: center; gap: 20px; background: #e8f4f8; padding: 10px 20px; border-radius: 6px; border: 1px solid #3498db; width: 100%; box-sizing: border-box;">
+                    <strong style="color: #2c3e50;">🌐 لغة التصدير (Export Language):</strong>
+                    <label style="cursor: pointer; font-weight: bold; color: #2980b9; display: flex; align-items: center; gap: 5px;">
+                        <input type="radio" name="export_lang" value="ar" checked style="transform: scale(1.2); margin: 0;">
+                        <span>العربية</span>
+                    </label>
+                    <label style="cursor: pointer; font-weight: bold; color: #27ae60; display: flex; align-items: center; gap: 5px; direction: ltr;">
+                        <input type="radio" name="export_lang" value="en" style="transform: scale(1.2); margin: 0;">
+                        <span>English</span>
+                    </label>
+                    <label style="cursor: pointer; font-weight: bold; color: #8e44ad; display: flex; align-items: center; gap: 5px; direction: ltr;">
+                        <input type="radio" name="export_lang" value="fr" style="transform: scale(1.2); margin: 0;">
+                        <span>Français</span>
+                    </label>
+                </div>
+                <!-- ✨ نهاية صندوق اللغة ✨ -->
+
                 <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px;">
                     <button id="publish-schedule-button" class="action-button" onclick="publishExamSchedule()" style="background-color: #ff9800; color: white; border: none; padding: 10px 15px; border-radius: 4px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">📢 نشر الجدول للأساتذة</button>
                     <button id="unpublish-schedule-button" class="action-button" onclick="unpublishExamSchedule()" style="background-color: #e74c3c; color: white; border: none; padding: 10px 15px; border-radius: 4px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">🚫 سحب الجداول</button>

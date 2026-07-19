@@ -109,13 +109,31 @@
 
         <hr class="my-4">
         <h4 class="mb-4 text-center text-secondary fw-bold">📥 تصدير الجداول</h4>
+        
+        <!-- ✨ صندوق اختيار لغة التصدير ✨ -->
+        <div style="margin: 0 auto 20px auto; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 20px; background: #e8f4f8; padding: 10px 20px; border-radius: 6px; border: 1px solid #3498db; width: fit-content;">
+            <strong style="color: #2c3e50;">🌐 لغة التصدير (Export Language):</strong>
+            <label style="cursor: pointer; font-weight: bold; color: #2980b9; display: flex; align-items: center; gap: 5px;">
+                <input type="radio" name="resit_export_lang" value="ar" checked style="transform: scale(1.2); margin: 0;">
+                <span>العربية</span>
+            </label>
+            <label style="cursor: pointer; font-weight: bold; color: #27ae60; display: flex; align-items: center; gap: 5px; direction: ltr;">
+                <input type="radio" name="resit_export_lang" value="en" style="transform: scale(1.2); margin: 0;">
+                <span>English</span>
+            </label>
+            <label style="cursor: pointer; font-weight: bold; color: #8e44ad; display: flex; align-items: center; gap: 5px; direction: ltr;">
+                <input type="radio" name="resit_export_lang" value="fr" style="transform: scale(1.2); margin: 0;">
+                <span>Français</span>
+            </label>
+        </div>
+        <!-- ✨ نهاية صندوق اللغة ✨ -->
+
         <div class="row g-4">
             <div class="col-md-6">
-                <!-- أزرار التحميل لا تحتاج لتعديل لأنها روابط تحميل مباشرة -->
-                <a href="{{ url_for('resit_exams.download_doc', doc_type='levels') }}" class="btn btn-outline-primary btn-lg w-100 fw-bold">📄 جداول المستويات</a>
+                <button onclick="downloadResitDoc('levels')" class="btn btn-outline-primary btn-lg w-100 fw-bold">📄 جداول المستويات</button>
             </div>
             <div class="col-md-6">
-                <a href="{{ url_for('resit_exams.download_doc', doc_type='teachers') }}" class="btn btn-outline-success btn-lg w-100 fw-bold">👨‍🏫 جداول الأساتذة</a>
+                <button onclick="downloadResitDoc('teachers')" class="btn btn-outline-success btn-lg w-100 fw-bold">👨‍🏫 جداول الأساتذة</button>
             </div>
         </div>
     </div>
@@ -266,5 +284,13 @@
             displayResults(JSON.parse(savedViolations));
         }
     });
+
+    function downloadResitDoc(docType) {
+        const lang = document.querySelector('input[name="resit_export_lang"]:checked')?.value || 'ar';
+        // استخدام مسار فلاسك ودمج اللغة معه
+        let baseUrl = "{{ url_for('resit_exams.download_doc', doc_type='__TYPE__') }}".replace('__TYPE__', docType);
+        window.location.href = baseUrl + '?lang=' + lang;
+    }
+    
 </script>
 {% endblock %}

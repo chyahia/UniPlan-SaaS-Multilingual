@@ -20,91 +20,108 @@ from docx.oxml.ns import qn
 
 export_bp = Blueprint('export', __name__)
 
+# ================== قاموس الترجمة الموحد ==================
+TRANSLATIONS = {
+    'ar': {
+        'time': 'الوقت', 'day': 'اليوم', 'teacher': 'الأستاذ', 'course': 'المادة', 'nature': 'طبيعة المادة', 'room': 'القاعة',
+        'level': 'المستوى', 'empty': 'فارغ', 'no_teacher': 'بدون أستاذ', 'no_room': 'بدون قاعة',
+        'days': {'السبت': 'السبت', 'الأحد': 'الأحد', 'الإثنين': 'الإثنين', 'الثلاثاء': 'الثلاثاء', 'الأربعاء': 'الأربعاء', 'الخميس': 'الخميس', 'الجمعة': 'الجمعة'},
+        'nature_map': {'محاضرة': 'محاضرة', 'أعمال موجهة': 'أعمال موجهة', 'أعمال تطبيقية': 'أعمال تطبيقية'},
+        'levels_map': {"Bachelor 1": "ليسانس 1", "Bachelor 2": "ليسانس 2", "Bachelor 3": "ليسانس 3", "Master 1": "ماستر 1", "Master 2": "ماستر 2"}
+    },
+    'en': {
+        'time': 'Time', 'day': 'Day', 'teacher': 'Professor', 'course': 'Course', 'nature': 'Nature', 'room': 'Room',
+        'level': 'Level', 'empty': 'Empty', 'no_teacher': 'No Professor', 'no_room': 'No Room',
+        'days': {'السبت': 'Saturday', 'الأحد': 'Sunday', 'الإثنين': 'Monday', 'الثلاثاء': 'Tuesday', 'الأربعاء': 'Wednesday', 'الخميس': 'Thursday', 'الجمعة': 'Friday'},
+        'nature_map': {'محاضرة': 'Lecture', 'أعمال موجهة': 'Tutorial (TD)', 'أعمال تطبيقية': 'Practical (TP)'},
+        'levels_map': {"Bachelor 1": "Bachelor 1", "Bachelor 2": "Bachelor 2", "Bachelor 3": "Bachelor 3", "Master 1": "Master 1", "Master 2": "Master 2"}
+    },
+    'fr': {
+        'time': 'Heure', 'day': 'Jour', 'teacher': 'Professeur', 'course': 'Module', 'nature': 'Nature', 'room': 'Salle',
+        'level': 'Niveau', 'empty': 'Vide', 'no_teacher': 'Sans Professeur', 'no_room': 'Sans Salle',
+        'days': {'السبت': 'Samedi', 'الأحد': 'Dimanche', 'الإثنين': 'Lundi', 'الثلاثاء': 'Mardi', 'الأربعاء': 'Mercredi', 'الخميس': 'Jeudi', 'الجمعة': 'Vendredi'},
+        'nature_map': {'محاضرة': 'Cours', 'أعمال موجهة': 'TD', 'أعمال تطبيقية': 'TP'},
+        'levels_map': {"Bachelor 1": "Licence 1", "Bachelor 2": "Licence 2", "Bachelor 3": "Licence 3", "Master 1": "Master 1", "Master 2": "Master 2"}
+    }
+}
+
 # ================== دوال مساعدة لتنسيق الوورد والإكسل ==================
-def create_word_document_with_table(doc, title, headers, data):
-    """دالة مساعدة لرسم جداول الوورد وتنسيقها مع دعم اليمين لليسار (RTL) والمحاذاة في الوسط (Center)"""
+def create_word_document_with_table(doc, title, headers, data, lang='ar'):
+    """دالة مساعدة لرسم جداول الوورد مع التحكم باتجاه اللغة"""
     heading = doc.add_heading(title, level=1)
-    # ⬅️ تعديل: جعل العنوان الرئيسي في وسط الصفحة
     heading.alignment = WD_ALIGN_PARAGRAPH.CENTER
     
-    # فرض اتجاه اليمين لليسار (RTL) على العنوان لمنع انقلاب الأقواس
-    pPr = heading._element.get_or_add_pPr()
-    bidi = OxmlElement('w:bidi')
-    bidi.set(qn('w:val'), '1')
-    pPr.append(bidi)
-    for run in heading.runs:
-        run.font.rtl = True
+    # تطبيق اتجاه اليمين-لليسار فقط إذا كانت اللغة عربية
+    if lang == 'ar':
+        pPr = heading._element.get_or_add_pPr()
+        bidi = OxmlElement('w:bidi')
+        bidi.set(qn('w:val'), '1')
+        pPr.append(bidi)
+        for run in heading.runs:
+            run.font.rtl = True
     
     table = doc.add_table(rows=1, cols=len(headers))
     table.style = 'Table Grid'
     
-    # 1. جعل إطار الجدول نفسه من اليمين لليسار
-    tblPr = table._tbl.tblPr
-    if tblPr is not None:
-        bidiVisual = OxmlElement('w:bidiVisual')
-        tblPr.append(bidiVisual)
+    if lang == 'ar':
+        tblPr = table._tbl.tblPr
+        if tblPr is not None:
+            bidiVisual = OxmlElement('w:bidiVisual')
+            tblPr.append(bidiVisual)
         
-    # 2. دالة مساعدة داخلية لفرض اتجاه (RTL) والمحاذاة في الوسط (Center)
-    def set_rtl_center_run(cell):
+    def set_cell_format(cell):
         for p in cell.paragraphs:
-            # ⬅️ التعديل الأساسي: جعل محاذاة النص في وسط الخلية
             p.alignment = WD_ALIGN_PARAGRAPH.CENTER 
-            
-            # فرض اتجاه الفقرة لليمن واليسار برمجياً لحماية الرموز
-            pPr = p._element.get_or_add_pPr()
-            bidi = OxmlElement('w:bidi')
-            bidi.set(qn('w:val'), '1')
-            pPr.append(bidi)
-            
-            # فرض اتجاه الكلمات
-            for run in p.runs:
-                run.font.rtl = True 
+            if lang == 'ar':
+                pPr = p._element.get_or_add_pPr()
+                bidi = OxmlElement('w:bidi')
+                bidi.set(qn('w:val'), '1')
+                pPr.append(bidi)
+                for run in p.runs:
+                    run.font.rtl = True 
 
-    # كتابة رؤوس الجدول
     hdr_cells = table.rows[0].cells
     for i, header in enumerate(headers):
         hdr_cells[i].text = str(header)
-        set_rtl_center_run(hdr_cells[i])
+        set_cell_format(hdr_cells[i])
         
-    # كتابة بيانات الجدول
     for row_data in data:
         row_cells = table.add_row().cells
         for i, val in enumerate(row_data):
             row_cells[i].text = str(val)
-            set_rtl_center_run(row_cells[i])
+            set_cell_format(row_cells[i])
             
     doc.add_page_break()
 
-def process_and_format_sheet(writer, df, sheet_name, title=None, sheet_type=None):
-    """دالة مساعدة لتنسيق جداول الإكسل باحترافية"""
+def process_and_format_sheet(writer, df, sheet_name, lang='ar'):
+    """دالة مساعدة لتنسيق جداول الإكسل باحترافية مع دعم اللغات"""
     df.to_excel(writer, sheet_name=sheet_name)
     worksheet = writer.sheets[sheet_name]
-    worksheet.sheet_view.rightToLeft = True # إجبار الإكسل على اليمين لليسار
     
-    # 1. تعريف التنسيقات (الخطوط، الألوان، الحدود، والمحاذاة)
+    # تحديد اتجاه الشيت حسب اللغة
+    worksheet.sheet_view.rightToLeft = (lang == 'ar')
+    reading_order = 2 if lang == 'ar' else 1
+    
     thin_border = Border(left=Side(style='thin'), right=Side(style='thin'), top=Side(style='thin'), bottom=Side(style='thin'))
     header_font = Font(bold=True, color="FFFFFF")
     header_fill = PatternFill(start_color="4F81BD", end_color="4F81BD", fill_type="solid")
-    center_alignment = Alignment(horizontal='center', vertical='center', wrap_text=True) # التفاف النص ضروري جداً
+    center_alignment = Alignment(horizontal='center', vertical='center', wrap_text=True, readingOrder=reading_order) 
 
-    # 2. تنسيق الصف الأول (رؤوس الجدول: الأيام)
     for cell in worksheet[1]:
         cell.font = header_font
         cell.fill = header_fill
         cell.border = thin_border
         cell.alignment = center_alignment
 
-    # 3. تنسيق باقي الخلايا (أوقات الحصص ومحتوى القاعات)
     for row in worksheet.iter_rows(min_row=2):
         for cell in row:
             cell.border = thin_border
             cell.alignment = center_alignment
             
-    # 4. ضبط عرض الأعمدة لتناسب المحتوى
-    worksheet.column_dimensions['A'].width = 18 # عرض عمود الوقت
+    worksheet.column_dimensions['A'].width = 18 
     for col_idx in range(1, len(df.columns) + 1):
-        col_letter = chr(65 + col_idx) # تحويل الرقم لحرف (B, C, D...)
-        worksheet.column_dimensions[col_letter].width = 30 # عرض مناسب للقاعات المتعددة
+        col_letter = chr(65 + col_idx) 
+        worksheet.column_dimensions[col_letter].width = 30
 
 # =====================================================================
 # 1. تصدير جداول المستويات (Word)
@@ -113,24 +130,24 @@ def process_and_format_sheet(writer, df, sheet_name, title=None, sheet_type=None
 def export_all_levels_word():
     data = request.get_json()
     schedules_by_level, days, slots = data.get('schedule'), data.get('days', []), data.get('slots', [])
+    lang = data.get('lang', 'ar')
+    
     if not all([schedules_by_level, days, slots]):
         return jsonify({"error": "بيانات التصدير غير كاملة"}), 400
 
+    t = TRANSLATIONS.get(lang, TRANSLATIONS['ar'])
+    translated_days = [t['days'].get(d, d) for d in days]
+    headers = [t['time']] + translated_days
+
     doc = Document()
-    
     section = doc.sections[0]
     section.orientation = WD_ORIENT.LANDSCAPE
     new_width, new_height = section.page_height, section.page_width
     section.page_width = new_width
     section.page_height = new_height
     margin_size = Cm(0.5)
-    section.top_margin = margin_size
-    section.bottom_margin = margin_size
-    section.left_margin = margin_size
-    section.right_margin = margin_size
-
-    level_name_map = {"Bachelor 1": "ليسانس 1", "Bachelor 2": "ليسانس 2", "Bachelor 3": "ليسانس 3", "Master 1": "ماستر 1", "Master 2": "ماستر 2"}
-    headers = ['الوقت'] + days
+    section.top_margin = margin_size; section.bottom_margin = margin_size
+    section.left_margin = margin_size; section.right_margin = margin_size
 
     for level, grid_data in schedules_by_level.items():
         processed_data = []
@@ -141,14 +158,15 @@ def export_all_levels_word():
                 row_content.append(cell_text)
             processed_data.append(row_content)
         
-        sheet_name = level_name_map.get(level, level)
-        create_word_document_with_table(doc, sheet_name, headers, processed_data)
+        sheet_name = t['levels_map'].get(level, level)
+        create_word_document_with_table(doc, sheet_name, headers, processed_data, lang)
 
     output = io.BytesIO()
     doc.save(output)
     output.seek(0)
     
-    return send_file(output, mimetype='application/vnd.openxmlformats-officedocument.wordprocessingml.document', as_attachment=True, download_name='جداول المستويات.docx')
+    filename = 'Schedules_Levels.docx' if lang == 'en' else ('Emplois_Niveaux.docx' if lang == 'fr' else 'جداول_المستويات.docx')
+    return send_file(output, mimetype='application/vnd.openxmlformats-officedocument.wordprocessingml.document', as_attachment=True, download_name=filename)
 
 # =====================================================================
 # 2. تصدير جداول الأساتذة (Word)
@@ -156,15 +174,17 @@ def export_all_levels_word():
 @export_bp.route('/api/export/word/all-professors', methods=['POST'])
 def export_all_professors_word():
     data = request.get_json()
-    
-    # ✨ --- التعديل تم في هذا السطر --- ✨
     schedules_by_prof = data.get('prof_schedules') or data.get('schedule')
     days = data.get('days', [])
     slots = data.get('slots', [])
-    # ✨ ----------------------------- ✨
+    lang = data.get('lang', 'ar')
 
     if not all([schedules_by_prof, days, slots]):
         return jsonify({"error": "بيانات التصدير غير كاملة"}), 400
+
+    t = TRANSLATIONS.get(lang, TRANSLATIONS['ar'])
+    translated_days = [t['days'].get(d, d) for d in days]
+    headers = [t['time']] + translated_days
 
     doc = Document()
     section = doc.sections[0]
@@ -173,30 +193,27 @@ def export_all_professors_word():
     section.page_width = new_width
     section.page_height = new_height
     margin_size = Cm(0.5)
-    section.top_margin = margin_size
-    section.bottom_margin = margin_size
-    section.left_margin = margin_size
-    section.right_margin = margin_size
-
-    level_name_map = {"Bachelor 1": "ليسانس 1", "Bachelor 2": "ليسانس 2", "Bachelor 3": "ليسانس 3", "Master 1": "ماستر 1", "Master 2": "ماستر 2"}
-    headers = ['الوقت'] + days
+    section.top_margin = margin_size; section.bottom_margin = margin_size
+    section.left_margin = margin_size; section.right_margin = margin_size
 
     for prof_name, grid_data in sorted(schedules_by_prof.items()):
         processed_data = []
         for i, slot_name in enumerate(slots):
             row_content = [slot_name]
             for j in range(len(days)):
-                cell_texts = [f"{lec.get('name', '')}\nالمستوى: {level_name_map.get(lec.get('level', ''), lec.get('level', ''))}\n{lec.get('room', '')}".strip() for lec in grid_data[j][i]]
+                lvl_lbl = t['level']
+                cell_texts = [f"{lec.get('name', '')}\n{lvl_lbl}: {t['levels_map'].get(lec.get('level', ''), lec.get('level', ''))}\n{lec.get('room', '')}".strip() for lec in grid_data[j][i]]
                 row_content.append("\n".join(cell_texts))
             processed_data.append(row_content)
         
-        create_word_document_with_table(doc, prof_name, headers, processed_data)
+        create_word_document_with_table(doc, prof_name, headers, processed_data, lang)
 
     output = io.BytesIO()
     doc.save(output)
     output.seek(0)
 
-    return send_file(output, mimetype='application/vnd.openxmlformats-officedocument.wordprocessingml.document', as_attachment=True, download_name='جداول الأساتذة.docx')
+    filename = 'Schedules_Professors.docx' if lang == 'en' else ('Emplois_Professeurs.docx' if lang == 'fr' else 'جداول_الأساتذة.docx')
+    return send_file(output, mimetype='application/vnd.openxmlformats-officedocument.wordprocessingml.document', as_attachment=True, download_name=filename)
 
 # =====================================================================
 # 3. تصدير القاعات الفارغة (Excel)
@@ -207,19 +224,25 @@ def export_free_rooms():
     free_rooms_grid = data.get('free_rooms') or data.get('schedule')
     days = data.get('days', [])
     slots = data.get('slots', [])
+    lang = data.get('lang', 'ar')
     
     if not all([free_rooms_grid, days, slots]): 
         return jsonify({"error": "بيانات التصدير غير كاملة"}), 400
     
+    t = TRANSLATIONS.get(lang, TRANSLATIONS['ar'])
+    translated_days = [t['days'].get(d, d) for d in days]
+    sheet_name = 'Free Rooms' if lang == 'en' else ('Salles Libres' if lang == 'fr' else 'القاعات الشاغرة')
+    
     output = io.BytesIO()
     with pd.ExcelWriter(output, engine='openpyxl') as writer:
         processed_data = [["\n".join(free_rooms_grid[j][i]) for j in range(len(days))] for i in range(len(slots))]
-        df = pd.DataFrame(processed_data, index=slots, columns=days)
-        # استدعاء دالة التنسيق الاحترافية
-        process_and_format_sheet(writer, df, 'القاعات الشاغرة')
+        df = pd.DataFrame(processed_data, index=slots, columns=translated_days)
+        process_and_format_sheet(writer, df, sheet_name, lang)
     
     output.seek(0)
-    return send_file(output, mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', as_attachment=True, download_name='جدول_القاعات_الشاغرة.xlsx')
+    filename = 'Free_Rooms.xlsx' if lang == 'en' else ('Salles_Libres.xlsx' if lang == 'fr' else 'جدول_القاعات_الشاغرة.xlsx')
+    return send_file(output, mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', as_attachment=True, download_name=filename)
+
 # =====================================================================
 # 4. تصدير العبء البيداغوجي (Excel)
 # =====================================================================
@@ -227,26 +250,20 @@ def export_free_rooms():
 def export_teaching_load():
     try:
         tenant_id = session.get('tenant_id')
+        lang = request.args.get('lang', 'ar')
+        t = TRANSLATIONS.get(lang, TRANSLATIONS['ar'])
         
-        # 1. جلب الأساتذة والمواد المعزولة الخاصة بهذا القسم فقط
         teachers_list = Teacher.query.filter_by(tenant_id=tenant_id).all()
-        teacher_map = {t.id: t.name for t in teachers_list}
-        
-        # جلب المواد التي تم إسنادها لأساتذة (teacher_id ليس فارغاً)
+        teacher_map = {t_obj.id: t_obj.name for t_obj in teachers_list}
         courses_raw = Course.query.filter(Course.teacher_id != None, Course.tenant_id == tenant_id).all()
         
         courses_by_teacher = defaultdict(list)
         for c in courses_raw:
             teacher_name = teacher_map.get(c.teacher_id)
-            if not teacher_name: continue # تخطي إذا لم يتم العثور على الأستاذ
-            
-            # 2. تجهيز قاموس المادة ليتوافق مع كود رسم الإكسل
+            if not teacher_name: continue
             course_dict = {
-                'id': c.id,
-                'name': c.name,
-                'division': c.division,
-                'specialization': c.specialization,
-                'levels': [l.name for l in c.levels]
+                'id': c.id, 'name': c.name, 'division': c.division, 'specialization': c.specialization,
+                'levels': [t['levels_map'].get(l.name, l.name) for l in c.levels]
             }
             courses_by_teacher[teacher_name].append(course_dict)
 
@@ -255,30 +272,36 @@ def export_teaching_load():
             workbook = writer.book
             if 'Sheet' in workbook.sheetnames:
                 workbook.remove(workbook['Sheet'])
-            worksheet = workbook.create_sheet('العبء البيداغوجي', 0)
-            worksheet.sheet_view.rightToLeft = True
+            sheet_title = 'Teaching Load' if lang == 'en' else ('Charge Pédagogique' if lang == 'fr' else 'العبء البيداغوجي')
+            worksheet = workbook.create_sheet(sheet_title, 0)
+            
+            worksheet.sheet_view.rightToLeft = (lang == 'ar')
+            reading_order = 2 if lang == 'ar' else 1
 
             thin_border = Border(left=Side(style='thin'), right=Side(style='thin'), top=Side(style='thin'), bottom=Side(style='thin'))
             header_font = Font(bold=True, color="FFFFFF")
             header_fill = PatternFill(start_color="4F81BD", end_color="4F81BD", fill_type="solid")
-            header_alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
-            cell_alignment = Alignment(horizontal='right', vertical='top', wrap_text=True)
-            merged_alignment = Alignment(horizontal='right', vertical='center', wrap_text=True)
+            header_alignment = Alignment(horizontal='center', vertical='center', wrap_text=True, readingOrder=reading_order)
+            cell_alignment = Alignment(horizontal='right' if lang == 'ar' else 'left', vertical='top', wrap_text=True, readingOrder=reading_order)
+            merged_alignment = Alignment(horizontal='right' if lang == 'ar' else 'left', vertical='center', wrap_text=True, readingOrder=reading_order)
             banded_fill = PatternFill(start_color="F2F2F2", end_color="F2F2F2", fill_type="solid")
 
-            headers = ['الرقم', 'اللقب', 'الاسم', 'الرتبة', 'الشهادة', 'تخصص الشهادة', 'المستوى', 'نوع المادة', 'الشعبة', 'التخصص', 'اسم المادة', 'القسم', 'الكلية', 'الحجم الساعي']
+            if lang == 'en':
+                headers = ['No', 'Last Name', 'First Name', 'Rank', 'Degree', 'Specialty', 'Level', 'Type', 'Division', 'Specialization', 'Course Name', 'Department', 'Faculty', 'Hours']
+            elif lang == 'fr':
+                headers = ['N°', 'Nom', 'Prénom', 'Grade', 'Diplôme', 'Spécialité', 'Niveau', 'Type', 'Filière', 'Spécialisation', 'Module', 'Département', 'Faculté', 'Volume Horaire']
+            else:
+                headers = ['الرقم', 'اللقب', 'الاسم', 'الرتبة', 'الشهادة', 'تخصص الشهادة', 'المستوى', 'نوع المادة', 'الشعبة', 'التخصص', 'اسم المادة', 'القسم', 'الكلية', 'الحجم الساعي']
+
             for col_num, header_title in enumerate(headers, 1):
                 cell = worksheet.cell(row=1, column=col_num)
                 cell.value = header_title
-                cell.font = header_font
-                cell.fill = header_fill
-                cell.border = thin_border
-                cell.alignment = header_alignment
+                cell.font = header_font; cell.fill = header_fill; cell.border = thin_border; cell.alignment = header_alignment
 
             worksheet.column_dimensions['A'].width = 5
             worksheet.column_dimensions['B'].width = 30
             for col_letter in ['C', 'D', 'E', 'F']: worksheet.column_dimensions[col_letter].width = 15
-            for col_letter in ['G', 'H']: worksheet.column_dimensions[col_letter].width = 12
+            for col_letter in ['G', 'H']: worksheet.column_dimensions[col_letter].width = 15
             for col_letter in ['I', 'J']: worksheet.column_dimensions[col_letter].width = 25
             worksheet.column_dimensions['K'].width = 45
             for col_letter in ['L', 'M', 'N']: worksheet.column_dimensions[col_letter].width = 15
@@ -296,25 +319,20 @@ def export_teaching_load():
                 for course in courses:
                     for level_name in course.get('levels', []):
                         course_name_original = course.get('name', '')
+                        course_type_ar = 'أعمال موجهة' 
+                        if '[مح]' in course_name_original: course_type_ar = 'محاضرة'
+                        elif '[أت]' in course_name_original: course_type_ar = 'أعمال تطبيقية'
                         
-                        # تحديد نوع المادة
-                        course_type = 'أعمال موجهة' # القيمة الافتراضية
-                        if '[مح]' in course_name_original: course_type = 'محاضرة'
-                        elif '[أت]' in course_name_original: course_type = 'أعمال تطبيقية'
-                        
-                        # قراءة الشعبة والتخصص مباشرة
+                        course_type_translated = t['nature_map'].get(course_type_ar, course_type_ar)
                         division = course.get('division') or ''
                         specialization = course.get('specialization') or ''
 
-                        # ✨ التعديل: إدراج اسم المستوى الأصلي (بدون اختصار) واسم المادة الأصلي
-                        data_row = [level_name, course_type, division, specialization, course_name_original]
+                        data_row = [level_name, course_type_translated, division, specialization, course_name_original]
                         for col_offset, value in enumerate(data_row):
                             worksheet.cell(row=current_row, column=7 + col_offset, value=value)
-                        
                         current_row += 1
 
                 end_row = current_row - 1
-                
                 for r in range(teacher_start_row, end_row + 1):
                     worksheet.row_dimensions[r].height = None
                     for c in range(1, 15):
@@ -332,12 +350,11 @@ def export_teaching_load():
                         worksheet.merge_cells(start_row=teacher_start_row, start_column=2, end_row=end_row, end_column=2)
                         for col in [3, 4, 5, 6, 12, 13, 14]:
                             worksheet.merge_cells(start_row=teacher_start_row, start_column=col, end_row=end_row, end_column=col)
-                
                 professor_number += 1
 
         output.seek(0)
-        return send_file(output, mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', as_attachment=True, download_name='العبء_البيداغوجي_للأساتذة.xlsx')
-
+        filename = 'Teaching_Load.xlsx' if lang == 'en' else ('Charge_Pedagogique.xlsx' if lang == 'fr' else 'العبء_البيداغوجي_للأساتذة.xlsx')
+        return send_file(output, mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', as_attachment=True, download_name=filename)
     except Exception as e:
         import traceback
         traceback.print_exc()
@@ -348,7 +365,6 @@ def export_teaching_load():
 # =====================================================================
 @export_bp.route('/api/export/comprehensive-list', methods=['POST'])
 def export_comprehensive_list():
-    # ✨ التعديل السحابي: التأكد من أن الطلب قادم من مستخدم مسجل الدخول
     if 'tenant_id' not in session:
         return jsonify({"error": "غير مصرح"}), 403
 
@@ -356,68 +372,64 @@ def export_comprehensive_list():
     schedule = data.get('schedule', {})
     days = data.get('days', [])
     slots = data.get('slots', [])
+    lang = data.get('lang', 'ar')
     
     if not all([schedule, days, slots]): 
         return jsonify({"error": "بيانات التصدير غير كاملة"}), 400
     
+    t = TRANSLATIONS.get(lang, TRANSLATIONS['ar'])
+    
     output = io.BytesIO()
     with pd.ExcelWriter(output, engine='openpyxl') as writer:
         if not schedule:
-            pd.DataFrame(["لا توجد بيانات"]).to_excel(writer, sheet_name="فارغ", index=False)
+            pd.DataFrame([t['empty']]).to_excel(writer, sheet_name=t['empty'], index=False)
         
         for level, grid in schedule.items():
-            safe_title = str(level).replace("/", "-").replace("\\", "-").replace("*", "").replace("?", "")[:31]
+            safe_title = str(t['levels_map'].get(level, level)).replace("/", "-").replace("\\", "-").replace("*", "").replace("?", "")[:31]
             flat_data = []
             
             for d_idx, day_name in enumerate(days):
+                translated_day = t['days'].get(day_name, day_name)
                 for s_idx, slot_name in enumerate(slots):
                     lectures = grid[d_idx][s_idx] if d_idx < len(grid) and s_idx < len(grid[d_idx]) else []
                     
                     for lec in lectures:
                         course_name_full = lec.get('name', '')
-                        teacher_name = lec.get('teacher_name', 'بدون أستاذ')
-                        room_name = lec.get('room', 'بدون قاعة')
+                        teacher_name = lec.get('teacher_name') or t['no_teacher']
+                        room_name = lec.get('room') or t['no_room']
                         
-                        course_type = 'أعمال موجهة' 
-                        if '[مح]' in course_name_full: 
-                            course_type = 'محاضرة'
-                        elif '[أت]' in course_name_full: 
-                            course_type = 'أعمال تطبيقية'
+                        course_type_ar = 'أعمال موجهة' 
+                        if '[مح]' in course_name_full: course_type_ar = 'محاضرة'
+                        elif '[أت]' in course_name_full: course_type_ar = 'أعمال تطبيقية'
+                        course_type = t['nature_map'].get(course_type_ar, course_type_ar)
                         
                         clean_course_name = course_name_full.replace('[مح]', '').replace('[أم]', '').replace('[أت]', '').strip()
-                        if not clean_course_name:
-                            clean_course_name = course_name_full
+                        if not clean_course_name: clean_course_name = course_name_full
                         
-                        flat_data.append([day_name, slot_name, teacher_name, clean_course_name, course_type, room_name])
+                        flat_data.append([translated_day, slot_name, teacher_name, clean_course_name, course_type, room_name])
             
             if not flat_data:
                 flat_data = [["-", "-", "-", "-", "-", "-"]]
                 
-            headers = ['اليوم', 'الوقت', 'الأستاذ', 'المادة', 'طبيعة المادة', 'القاعة']
+            headers = [t['day'], t['time'], t['teacher'], t['course'], t['nature'], t['room']]
             df = pd.DataFrame(flat_data, columns=headers)
-            
             df.to_excel(writer, sheet_name=safe_title, index=False)
-            worksheet = writer.sheets[safe_title]
             
-            # قلب اتجاه ورقة العمل (الأعمدة من اليمين لليسار)
-            worksheet.sheet_view.rightToLeft = True
+            worksheet = writer.sheets[safe_title]
+            worksheet.sheet_view.rightToLeft = (lang == 'ar')
+            reading_order = 2 if lang == 'ar' else 1
             
             thin_border = Border(left=Side(style='thin'), right=Side(style='thin'), top=Side(style='thin'), bottom=Side(style='thin'))
             header_font = Font(bold=True, color="FFFFFF")
             header_fill = PatternFill(start_color="4F81BD", end_color="4F81BD", fill_type="solid")
-            
-            rtl_alignment = Alignment(horizontal='center', vertical='center', wrap_text=True, readingOrder=2)
+            rtl_alignment = Alignment(horizontal='center', vertical='center', wrap_text=True, readingOrder=reading_order)
             
             for cell in worksheet[1]:
-                cell.font = header_font
-                cell.fill = header_fill
-                cell.border = thin_border
-                cell.alignment = rtl_alignment
+                cell.font = header_font; cell.fill = header_fill; cell.border = thin_border; cell.alignment = rtl_alignment
             
             for row in worksheet.iter_rows(min_row=2):
                 for cell in row:
-                    cell.border = thin_border
-                    cell.alignment = rtl_alignment
+                    cell.border = thin_border; cell.alignment = rtl_alignment
             
             worksheet.column_dimensions['A'].width = 15 
             worksheet.column_dimensions['B'].width = 15 
@@ -425,13 +437,8 @@ def export_comprehensive_list():
             worksheet.column_dimensions['D'].width = 30 
             worksheet.column_dimensions['E'].width = 18 
             worksheet.column_dimensions['F'].width = 15 
-            
             worksheet.auto_filter.ref = worksheet.dimensions
             
     output.seek(0)
-    return send_file(
-        output, 
-        mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 
-        as_attachment=True, 
-        download_name='القائمة_الشاملة_للجداول.xlsx'
-    )
+    filename = 'Comprehensive_List.xlsx' if lang == 'en' else ('Liste_Globale.xlsx' if lang == 'fr' else 'القائمة_الشاملة_للجداول.xlsx')
+    return send_file(output, mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', as_attachment=True, download_name=filename)

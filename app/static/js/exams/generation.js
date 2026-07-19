@@ -360,121 +360,85 @@ function displayWorkloadChart(chartData) {
 }
 
 // ==========================================
-// 📥 دوال تصدير جداول Word الثلاثة
+// 📥 دوال تصدير جداول Word الثلاثة (محدثة بدعم اللغات)
 // ==========================================
 
 async function exportScheduleWord() {
-    if (!lastGeneratedSchedule) {
-        alert("يرجى إنشاء جدول أولاً قبل التصدير.");
-        return;
-    }
+    if (!lastGeneratedSchedule) { alert("يرجى إنشاء جدول أولاً قبل التصدير."); return; }
+    
     const button = document.getElementById('export-schedule-word-button');
-    button.disabled = true;
-    button.textContent = 'جاري التصدير...';
+    button.disabled = true; button.textContent = 'جاري التصدير...';
+    
+    const lang = document.querySelector('input[name="export_lang"]:checked')?.value || 'ar';
+    let fileName = lang === 'en' ? 'Exams_Schedule.docx' : (lang === 'fr' ? 'Emplois_Examens.docx' : 'جداول_الامتحانات.docx');
 
     try {
-        const response = await fetch('/exams/api/export/word/all-exams', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+        const response = await fetch(`/exams/api/export/word/all-exams?lang=${lang}`, {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(lastGeneratedSchedule)
         });
-
         if (!response.ok) throw new Error('فشل التصدير من الخادم');
 
         const blob = await response.blob();
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
-        a.style.display = 'none';
-        a.href = url;
-        a.download = 'جداول_الامتحانات.docx';
-        document.body.appendChild(a);
-        a.click();
-        window.URL.revokeObjectURL(url);
-        document.body.removeChild(a);
-
-    } catch (err) {
-        alert('حدث خطأ أثناء تصدير الملف.');
-        console.error(err);
-    } finally {
-        button.disabled = false;
-        button.textContent = 'تصدير الامتحانات (Word)';
-    }
+        a.style.display = 'none'; a.href = url; a.download = fileName;
+        document.body.appendChild(a); a.click();
+        window.URL.revokeObjectURL(url); document.body.removeChild(a);
+    } catch (err) { alert('حدث خطأ أثناء تصدير الملف.'); console.error(err); } 
+    finally { button.disabled = false; button.textContent = 'تصدير الامتحانات (Word)'; }
 }
 
 async function exportProfScheduleWord() {
-    if (!lastGeneratedSchedule) {
-        alert("يرجى إنشاء جدول أولاً قبل التصدير.");
-        return;
-    }
+    if (!lastGeneratedSchedule) { alert("يرجى إنشاء جدول أولاً قبل التصدير."); return; }
+    
     const button = document.getElementById('export-prof-word-button');
-    button.disabled = true;
-    button.textContent = 'جاري التصدير...';
+    button.disabled = true; button.textContent = 'جاري التصدير...';
+
+    const lang = document.querySelector('input[name="export_lang"]:checked')?.value || 'ar';
+    let fileName = lang === 'en' ? 'Profs_Guarding_Schedule.docx' : (lang === 'fr' ? 'Emplois_Surveillance_Profs.docx' : 'جداول_الحراسة_للأساتذة.docx');
 
     try {
-        const response = await fetch('/exams/api/export/word/all-profs', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+        const response = await fetch(`/exams/api/export/word/all-profs?lang=${lang}`, {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(lastGeneratedSchedule)
         });
-
         if (!response.ok) throw new Error('فشل التصدير من الخادم');
 
         const blob = await response.blob();
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
-        a.style.display = 'none';
-        a.href = url;
-        a.download = 'جداول_الحراسة_للأساتذة.docx';
-        document.body.appendChild(a);
-        a.click();
-        window.URL.revokeObjectURL(url);
-        document.body.removeChild(a);
-
-    } catch (err) {
-        alert('حدث خطأ أثناء تصدير الملف.');
-        console.error(err);
-    } finally {
-        button.disabled = false;
-        button.textContent = 'تصدير الأساتذة (Word)';
-    }
+        a.style.display = 'none'; a.href = url; a.download = fileName;
+        document.body.appendChild(a); a.click();
+        window.URL.revokeObjectURL(url); document.body.removeChild(a);
+    } catch (err) { alert('حدث خطأ أثناء تصدير الملف.'); console.error(err); } 
+    finally { button.disabled = false; button.textContent = 'تصدير الأساتذة (Word)'; }
 }
 
 async function exportProfScheduleAnonymous() {
-    if (!lastGeneratedSchedule) {
-        alert("يرجى إنشاء جدول أولاً قبل التصدير.");
-        return;
-    }
+    if (!lastGeneratedSchedule) { alert("يرجى إنشاء جدول أولاً قبل التصدير."); return; }
+    
     const button = document.getElementById('export-prof-anonymous-word-button');
-    button.disabled = true;
-    button.textContent = 'جاري التصدير...';
+    button.disabled = true; button.textContent = 'جاري التصدير...';
+
+    const lang = document.querySelector('input[name="export_lang"]:checked')?.value || 'ar';
+    let fileName = lang === 'en' ? 'Profs_Schedule_Simplified.docx' : (lang === 'fr' ? 'Emplois_Surveillance_Simplifie.docx' : 'جداول_الحراسة_المبسطة.docx');
 
     try {
-        const response = await fetch('/exams/api/export/word/all-profs-anonymous', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+        const response = await fetch(`/exams/api/export/word/all-profs-anonymous?lang=${lang}`, {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(lastGeneratedSchedule)
         });
-
         if (!response.ok) throw new Error('فشل التصدير من الخادم');
 
         const blob = await response.blob();
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
-        a.style.display = 'none';
-        a.href = url;
-        a.download = 'جداول_الحراسة_المبسطة.docx';
-        document.body.appendChild(a);
-        a.click();
-        window.URL.revokeObjectURL(url);
-        document.body.removeChild(a);
-
-    } catch (err) {
-        alert('حدث خطأ أثناء تصدير الملف.');
-        console.error(err);
-    } finally {
-        button.disabled = false;
-        button.textContent = 'تصدير الأساتذة (مُبسَّط)';
-    }
+        a.style.display = 'none'; a.href = url; a.download = fileName;
+        document.body.appendChild(a); a.click();
+        window.URL.revokeObjectURL(url); document.body.removeChild(a);
+    } catch (err) { alert('حدث خطأ أثناء تصدير الملف.'); console.error(err); } 
+    finally { button.disabled = false; button.textContent = 'تصدير الأساتذة (مُبسَّط)'; }
 }
 
 function displayBalanceReport(data) {

@@ -309,12 +309,25 @@ function renderLevelSchedules(scheduleData, days, slots) {
     }
 }
 
+
+
 // ================= أزرار التصدير (نفس المسارات التي في app.py) =================
 
-function exportFiles(url, fileName, isProfessor = false, isFreeRoom = false) {
+function exportFiles(url, defaultFileName, isProfessor = false, isFreeRoom = false) {
     if (!currentGenerationData) { alert('لا توجد بيانات مصدرة. يرجى توليد الجدول أولاً.'); return; }
     
-    // تحديد البيانات المطلوبة بناءً على نوع التصدير
+    const lang = document.querySelector('input[name="export_lang"]:checked')?.value || 'ar';
+
+    // ✨ تحديد اسم الملف برمجياً بناءً على المسار واللغة ✨
+    let finalFileName = defaultFileName;
+    if (url.includes('all-levels')) {
+        finalFileName = lang === 'en' ? 'Schedules_Levels.docx' : (lang === 'fr' ? 'Emplois_Niveaux.docx' : 'جداول_المستويات.docx');
+    } else if (url.includes('all-professors')) {
+        finalFileName = lang === 'en' ? 'Schedules_Professors.docx' : (lang === 'fr' ? 'Emplois_Professeurs.docx' : 'جداول_الأساتذة.docx');
+    } else if (url.includes('free-rooms')) {
+        finalFileName = lang === 'en' ? 'Free_Rooms.xlsx' : (lang === 'fr' ? 'Salles_Libres.xlsx' : 'جدول_القاعات_الشاغرة.xlsx');
+    }
+
     let scheduleToSend = currentGenerationData.schedule;
     if (isProfessor) scheduleToSend = currentGenerationData.prof_schedules;
     if (isFreeRoom) scheduleToSend = currentGenerationData.free_rooms;
@@ -322,7 +335,8 @@ function exportFiles(url, fileName, isProfessor = false, isFreeRoom = false) {
     const payload = {
         schedule: scheduleToSend,
         days: currentGenerationData.days,
-        slots: currentGenerationData.slots
+        slots: currentGenerationData.slots,
+        lang: lang 
     };
 
     fetch(url, {
@@ -331,15 +345,19 @@ function exportFiles(url, fileName, isProfessor = false, isFreeRoom = false) {
         body: JSON.stringify(payload)
     })
     .then(res => res.blob())
-    .then(blob => triggerDownload(blob, fileName))
+    .then(blob => triggerDownload(blob, finalFileName)) // ✨ تمرير الاسم الجديد
     .catch(err => alert("خطأ في التصدير: " + err));
 }
 
 function exportPedagogicalLoad() {
-    // العبء البيداغوجي يستخدم مسار GET لأنه يقرأ من قاعدة البيانات مباشرة (كما في مشروعك)
-    fetch('/api/export/teaching-load')
+    const lang = document.querySelector('input[name="export_lang"]:checked')?.value || 'ar';
+    
+    // ✨ تحديد اسم ملف العبء البيداغوجي ✨
+    let finalFileName = lang === 'en' ? 'Teaching_Load.xlsx' : (lang === 'fr' ? 'Charge_Pedagogique.xlsx' : 'العبء_البيداغوجي.xlsx');
+    
+    fetch(`/api/export/teaching-load?lang=${lang}`)
     .then(res => res.blob())
-    .then(blob => triggerDownload(blob, 'العبء_البيداغوجي.xlsx'))
+    .then(blob => triggerDownload(blob, finalFileName))
     .catch(err => alert("خطأ في تصدير العبء البيداغوجي: " + err));
 }
 
@@ -349,10 +367,16 @@ function exportComprehensiveList() {
         return; 
     }
     
+    const lang = document.querySelector('input[name="export_lang"]:checked')?.value || 'ar';
+
+    // ✨ تحديد اسم ملف القائمة الشاملة ✨
+    let finalFileName = lang === 'en' ? 'Comprehensive_List.xlsx' : (lang === 'fr' ? 'Liste_Globale.xlsx' : 'القائمة_الشاملة_للجداول.xlsx');
+
     const payload = {
         schedule: currentGenerationData.schedule,
         days: currentGenerationData.days,
-        slots: currentGenerationData.slots
+        slots: currentGenerationData.slots,
+        lang: lang 
     };
 
     fetch('/api/export/comprehensive-list', {
@@ -361,7 +385,7 @@ function exportComprehensiveList() {
         body: JSON.stringify(payload)
     })
     .then(res => res.blob())
-    .then(blob => triggerDownload(blob, 'القائمة_الشاملة_للجداول.xlsx'))
+    .then(blob => triggerDownload(blob, finalFileName))
     .catch(err => alert("خطأ في تصدير القائمة الشاملة: " + err));
 }
 
@@ -372,6 +396,19 @@ function triggerDownload(blob, fileName) {
     a.style.display = 'none';
     a.href = downloadUrl;
     a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(downloadUrl);
+    document.body.removeChild(a);
+}
+
+// دالة مساعدة لعملية تنزيل الملف فعلياً في المتصفح
+function triggerDownload(blob, fileName) {
+    const downloadUrl = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.style.display = 'none';
+    a.href = downloadUrl;
+    a.download = fileName; // ملاحظة: سنقوم بتحديث الاسم من الخلفية لاحقاً إذا أردت
     document.body.appendChild(a);
     a.click();
     window.URL.revokeObjectURL(downloadUrl);
@@ -1024,17 +1061,21 @@ function syncProfSchedules() {
     }
 }
 
+
 // ==================== التصدير والاستيراد عبر Excel ====================
 function exportToExcel() {
     if(!currentGenerationData || !currentGenerationData.schedule) return alert("لا يوجد جدول لتصديره.");
     
+    const lang = document.querySelector('input[name="export_lang"]:checked')?.value || 'ar';
+
     fetch('/api/export_excel', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({
             schedule: currentGenerationData.schedule,
             days: currentGenerationData.days,
-            slots: currentGenerationData.slots
+            slots: currentGenerationData.slots,
+            lang: lang // ✨ إرسال اللغة
         })
     })
     .then(res => res.blob())
