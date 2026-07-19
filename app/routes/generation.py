@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify, Response, session
+from flask import Blueprint, request, jsonify, Response, stream_with_context, session
 import time
 import json
 import traceback
@@ -154,18 +154,32 @@ def stream_logs():
     
     def generate():
         last_idx = 0
+        import time
         while True:
             logs = log_q.get_logs(start_index=last_idx)
-            for msg in logs:
-                yield f"data: {msg}\n\n"
-            last_idx += len(logs)
             
-            if not log_q.is_running() and last_idx > 0:
+            if logs:
+                # إذا كانت هناك سجلات جديدة، أرسلها
+                for msg in logs:
+                    yield f"data: {msg}\n\n"
+                last_idx += len(logs)
+            else:
+                # 🚀 نبضة الحياة (Heartbeat): 
+                # إرسال تعليق فارغ لا يظهر في الواجهة لكنه يمنع المتصفح من قطع الاتصال
+                yield ": heartbeat\n\n"
+            
+            # 🛡️ التحقق من توقف الخوارزمية وانتهاء الرسائل للخروج من الحلقة بسلام
+            if not log_q.is_running() and not logs:
                 break
+                
             time.sleep(0.5)
             
-    return Response(generate(), mimetype='text/event-stream', headers={'X-Accel-Buffering': 'no', 'Cache-Control': 'no-cache'})
-
+    # 🛡️ حماية السياق وإجبار المتصفح على إبقاء الاتصال مفتوحاً
+    return Response(stream_with_context(generate()), mimetype='text/event-stream', headers={
+        'X-Accel-Buffering': 'no', 
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive'
+    })
 
 @generation_bp.route('/api/stop-generation', methods=['POST'])
 def stop_generation():

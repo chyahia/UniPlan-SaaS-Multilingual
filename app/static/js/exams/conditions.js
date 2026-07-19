@@ -205,16 +205,55 @@ function addCustomTarget() {
 }
 
 function renderCustomTargetsTable() {
-    const tbody = document.getElementById('custom-targets-tbody');
-    tbody.innerHTML = '';
-    customTargetPatterns.forEach((pat, idx) => {
-        tbody.innerHTML += `
-            <tr>
-                <td style="padding:8px; border:1px solid #eee; font-weight: bold; color: #1565c0;">${pat.count}</td>
-                <td style="padding:8px; border:1px solid #eee;">${pat.large} كبيرة + ${pat.other} أخرى</td>
-                <td style="padding:8px; border:1px solid #eee;"><button onclick="removeCustomTarget(${idx})" style="color:red; background:none; border:none; font-size:18px; cursor:pointer;" title="حذف النمط">×</button></td>
-            </tr>`;
+    const tableBody = document.getElementById('custom-targets-tbody');
+    if (!tableBody) return;
+    
+    tableBody.innerHTML = '';
+    let totalCustomProfs = 0;
+
+    // رسم الجدول
+    customTargetPatterns.forEach((pattern, index) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td style="padding: 10px; border: 1px solid #eee;">${pattern.count}</td>
+            <td style="padding: 10px; border: 1px solid #eee;">${pattern.large} كبيرة + ${pattern.other} أخرى</td>
+            <td style="padding: 10px; border: 1px solid #eee;">
+                <!-- ✨ التعديل هنا: استدعاء دالتك الأصلية removeCustomTarget ✨ -->
+                <button type="button" onclick="removeCustomTarget(${index})" style="background: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">&times;</button>
+            </td>
+        `;
+        tableBody.appendChild(row);
+        totalCustomProfs += pattern.count;
     });
+
+    // =========================================================
+    // ✨ الميزة المسترجعة: مراقبة ومقارنة عدد الأساتذة المخصصين
+    // =========================================================
+    const totalProfsP = document.getElementById('custom-target-prof-total');
+    if (!totalProfsP) return;
+
+    // جلب إجمالي الأساتذة الفعلي من البطاقة الإحصائية في أعلى الصفحة
+    const allProfsCountElement = document.getElementById('stat-prof-count');
+    const allProfsCount = allProfsCountElement ? parseInt(allProfsCountElement.innerText) : 0;
+
+    totalProfsP.textContent = `الإجمالي: ${totalCustomProfs} أستاذًا في الأنماط المخصصة.`;
+
+    if (totalCustomProfs > allProfsCount) {
+        totalProfsP.style.color = '#dc3545'; // أحمر (خطأ)
+        totalProfsP.style.borderColor = '#dc3545';
+        totalProfsP.style.backgroundColor = '#f8d7da';
+        totalProfsP.textContent += ` (تحذير: العدد يتجاوز إجمالي الأساتذة ${allProfsCount}!)`;
+    } else if (totalCustomProfs < allProfsCount) {
+        totalProfsP.style.color = '#e67e22'; // برتقالي (تنبيه)
+        totalProfsP.style.borderColor = '#e67e22';
+        totalProfsP.style.backgroundColor = '#fff3cd';
+        totalProfsP.textContent += ` (ملاحظة: العدد أقل من إجمالي الأساتذة ${allProfsCount}. سيتم توزيع الباقي تلقائياً.)`;
+    } else {
+        totalProfsP.style.color = '#28a745'; // أخضر (ممتاز)
+        totalProfsP.style.borderColor = '#28a745';
+        totalProfsP.style.backgroundColor = '#d4edda';
+        totalProfsP.textContent += ` (ممتاز: تم تحديد أنماط لجميع الأساتذة ${allProfsCount} بدقة.)`;
+    }
 }
 
 function removeCustomTarget(idx) {

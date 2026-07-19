@@ -101,6 +101,8 @@ class StopEventProxy:
 # 🌐 مسارات الواجهة الأمامية (API) الخاصة بتوليد الامتحانات
 # ==============================================================
 
+from flask import Response, stream_with_context
+
 @exams_generation_bp.route('/exams/api/stream-logs')
 def stream_logs():
     tenant_id = session.get('tenant_id')
@@ -111,15 +113,29 @@ def stream_logs():
         import time
         while True:
             logs = log_q.get_logs(start_index=last_idx)
-            for msg in logs:
-                yield f"data: {msg}\n\n"
-            last_idx += len(logs)
             
-            if not log_q.is_running() and last_idx > 0:
+            if logs:
+                # إذا كانت هناك سجلات جديدة، أرسلها
+                for msg in logs:
+                    yield f"data: {msg}\n\n"
+                last_idx += len(logs)
+            else:
+                # 🚀 نبضة الحياة (Heartbeat): 
+                # إرسال تعليق فارغ لا يظهر في الواجهة لكنه يمنع المتصفح من قطع الاتصال (Timeout)
+                yield ": heartbeat\n\n"
+            
+            # 🛡️ التعديل الدقيق: التحقق من انتهاء الخوارزمية وانتهاء الرسائل للخروج من الحلقة
+            if not log_q.is_running() and not logs:
                 break
+                
             time.sleep(0.5)
             
-    return Response(generate(), mimetype='text/event-stream', headers={'X-Accel-Buffering': 'no', 'Cache-Control': 'no-cache'})
+    # 🛡️ التعديل الدقيق: إضافة stream_with_context لحماية الاتصال
+    return Response(stream_with_context(generate()), mimetype='text/event-stream', headers={
+        'X-Accel-Buffering': 'no', 
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive' 
+    })
 
 @exams_generation_bp.route('/exams/api/stop-generation', methods=['POST'])
 def stop_algorithm():

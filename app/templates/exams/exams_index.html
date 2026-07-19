@@ -443,6 +443,8 @@
                         </thead>
                         <tbody id="custom-targets-tbody"></tbody>
                     </table>
+                    <!-- ✨ رسالة مراقبة العدد المسترجعة من المشروع القديم ✨ -->
+                    <p id="custom-target-prof-total" style="margin-top: 15px; font-weight: bold; font-size: 14px; text-align: center; padding: 10px; border-radius: 5px; background: #f8f9fa; border: 1px dashed #ccc;"></p>
                 </div>
             </div>
         </div>
@@ -549,12 +551,21 @@
                 </div>
                 <!-- ✨ نهاية صندوق اللغة ✨ -->
 
-                <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px;">
-                    <button id="publish-schedule-button" class="action-button" onclick="publishExamSchedule()" style="background-color: #ff9800; color: white; border: none; padding: 10px 15px; border-radius: 4px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">📢 نشر الجدول للأساتذة</button>
-                    <button id="unpublish-schedule-button" class="action-button" onclick="unpublishExamSchedule()" style="background-color: #e74c3c; color: white; border: none; padding: 10px 15px; border-radius: 4px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">🚫 سحب الجداول</button>
-                    <button id="export-schedule-word-button" class="action-button" style="background-color: #2a5599; color: white; border: none; padding: 10px 15px; border-radius: 4px; font-weight: bold; cursor: pointer;">تصدير الامتحانات (Word)</button>
-                    <button id="export-prof-word-button" class="action-button" style="background-color: #2a5599; color: white; border: none; padding: 10px 15px; border-radius: 4px; font-weight: bold; cursor: pointer;">تصدير الأساتذة (Word)</button>
-                    <button id="export-prof-anonymous-word-button" class="action-button" style="background-color: #5a9955; color: white; border: none; padding: 10px 15px; border-radius: 4px; font-weight: bold; cursor: pointer;">تصدير الأساتذة (مُبسَّط)</button>
+                <div style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: 15px; margin-bottom: 20px;">
+                    
+                    <!-- المجموعة الأولى (أقصى اليمين): أزرار التصدير الثلاثة -->
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <button id="export-schedule-word-button" class="action-button" style="background-color: #2a5599; color: white; border: none; padding: 10px 15px; border-radius: 4px; font-weight: bold; cursor: pointer;">تصدير الامتحانات (Word)</button>
+                        <button id="export-prof-word-button" class="action-button" style="background-color: #2a5599; color: white; border: none; padding: 10px 15px; border-radius: 4px; font-weight: bold; cursor: pointer;">تصدير الأساتذة (Word)</button>
+                        <button id="export-prof-anonymous-word-button" class="action-button" style="background-color: #5a9955; color: white; border: none; padding: 10px 15px; border-radius: 4px; font-weight: bold; cursor: pointer;">تصدير الأساتذة (مُبسَّط)</button>
+                    </div>
+
+                    <!-- المجموعة الثانية (أقصى اليسار): أزرار النشر والسحب -->
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <button id="publish-schedule-button" class="action-button" onclick="publishExamSchedule()" style="background-color: #ff9800; color: white; border: none; padding: 10px 15px; border-radius: 4px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">📢 نشر الجدول للأساتذة</button>
+                        <button id="unpublish-schedule-button" class="action-button" onclick="unpublishExamSchedule()" style="background-color: #e74c3c; color: white; border: none; padding: 10px 15px; border-radius: 4px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">🚫 سحب الجداول</button>
+                    </div>
+
                 </div>
 
                 <!-- 2. شريط البحث -->
