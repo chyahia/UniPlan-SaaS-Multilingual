@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify, session
 from app.database import db, ExamTeacher, ExamRoom, ExamLevel, ExamSubject
+from flask_babel import _
 
 exams_assignments_bp = Blueprint('exams_assignments', __name__)
 
@@ -10,7 +11,7 @@ exams_assignments_bp = Blueprint('exams_assignments', __name__)
 @exams_assignments_bp.route('/exams/api/assignments/professors', methods=['GET'])
 def get_professor_assignments():
     tenant_id = session.get('tenant_id')
-    if not tenant_id: return jsonify({"error": "غير مصرح"}), 403
+    if not tenant_id: return jsonify({"error": _("غير مصرح")}), 403
 
     teachers = ExamTeacher.query.filter_by(tenant_id=tenant_id).all()
     data = {}
@@ -24,7 +25,7 @@ def get_professor_assignments():
         # بفضل SQLAlchemy يمكننا الوصول للمواد المرتبطة مباشرة كقائمة (List)
         for s in t.subjects:
             # ✨ التعديل: قراءة قائمة المستويات ودمجها بدلاً من مستوى واحد
-            level_names = " + ".join([l.name for l in s.levels]) if hasattr(s, 'levels') and s.levels else "غير محدد"
+            level_names = " + ".join([l.name for l in s.levels]) if hasattr(s, 'levels') and s.levels else _("غير محدد")
             data[t.id]['subjects'].append({
                 'subj_id': s.id,
                 'subj_name': s.name,
@@ -37,7 +38,7 @@ def get_professor_assignments():
 @exams_assignments_bp.route('/exams/api/assignments/unassigned-subjects', methods=['GET'])
 def get_unassigned_subjects():
     tenant_id = session.get('tenant_id')
-    if not tenant_id: return jsonify({"error": "غير مصرح"}), 403
+    if not tenant_id: return jsonify({"error": _("غير مصرح")}), 403
 
     all_subjects = ExamSubject.query.filter_by(tenant_id=tenant_id).all()
     unassigned_subjects = [s for s in all_subjects if not s.teachers]
@@ -45,7 +46,7 @@ def get_unassigned_subjects():
     data = []
     for s in unassigned_subjects:
         # ✨ التعديل: قراءة قائمة المستويات ودمجها
-        level_names = " + ".join([l.name for l in s.levels]) if hasattr(s, 'levels') and s.levels else "غير محدد"
+        level_names = " + ".join([l.name for l in s.levels]) if hasattr(s, 'levels') and s.levels else _("غير محدد")
         data.append({
             'subj_id': s.id,
             'subj_name': s.name,
@@ -61,7 +62,7 @@ def assign_subject_to_professor():
     subj_ids = data.get('subj_ids', []) # يدعم تعيين عدة مواد دفعة واحدة
     
     teacher = ExamTeacher.query.filter_by(id=prof_id, tenant_id=tenant_id).first()
-    if not teacher: return jsonify({'success': False, 'message': 'الأستاذ غير موجود'})
+    if not teacher: return jsonify({'success': False, 'message': _('الأستاذ غير موجود')})
 
     added = 0
     for subj_id in subj_ids:

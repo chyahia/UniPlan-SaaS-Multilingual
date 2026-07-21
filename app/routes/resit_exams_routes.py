@@ -2,6 +2,7 @@ import os
 import json
 from flask import Blueprint, render_template, request, redirect, url_for, flash, send_file, jsonify, session
 from io import BytesIO
+from flask_babel import _
 
 # استدعاء دوال إدارة البيانات السحابية (الجديدة)
 from app.resit_data_manager import (
@@ -29,7 +30,7 @@ def require_login():
         return redirect(url_for('auth.login'))
     # نمنع فقط الأساتذة من الدخول، ونسمح لأي إدارة (مهما كان اسم الصلاحية)
     if session.get('role') == 'teacher':
-        flash("غير مصرح لك بالدخول إلى هذا النظام.", "danger")
+        flash(_("غير مصرح لك بالدخول إلى هذا النظام."), "danger")
         return redirect(url_for('portal'))
 
 # ==========================================
@@ -56,7 +57,7 @@ def manage_data():
             if t_input:
                 new_t = list(dict.fromkeys([n.strip() for n in t_input.split('\n') if n.strip()]))
                 for t in new_t: add_teacher(t)
-                flash(f"تم إضافة {len(new_t)} أستاذ بنجاح.", "success")
+                flash(_("تم إضافة {count} أستاذ بنجاح.").format(count=len(new_t)), "success")
                 
         elif action == 'add_room':
             r_type = request.form.get('room_type')
@@ -64,21 +65,21 @@ def manage_data():
             if r_input:
                 new_r = list(dict.fromkeys([n.strip() for n in r_input.split('\n') if n.strip()]))
                 for r in new_r: add_room(r, r_type)
-                flash(f"تم إضافة {len(new_r)} قاعة بنجاح.", "success")
+                flash(_("تم إضافة {count} قاعة بنجاح.").format(count=len(new_r)), "success")
                 
         elif action == 'add_level':
             l_input = request.form.get('levels_input')
             if l_input:
                 new_l = list(dict.fromkeys([n.strip() for n in l_input.split('\n') if n.strip()]))
                 for l in new_l: add_level(l)
-                flash(f"تم إضافة {len(new_l)} مستوى بنجاح.", "success")
+                flash(_("تم إضافة {count} مستوى بنجاح.").format(count=len(new_l)), "success")
                 
         elif action == 'add_subject':
             level_names = request.form.getlist('level_names')
             subject_names = request.form.get('subject_names', '')
             
             if not level_names:
-                flash("الرجاء اختيار مستوى واحد على الأقل.", "danger")
+                flash(_("الرجاء اختيار مستوى واحد على الأقل."), "danger")
             else:
                 # دمج المستويات المحددة بفاصل (+)
                 combined_level = " + ".join(sorted(level_names))
@@ -96,7 +97,7 @@ def manage_data():
                     if s:
                         add_subject(s, combined_level)
                         
-                flash("تم إضافة المواد وربطها بالمستويات بنجاح.", "success")
+                flash(_("تم إضافة المواد وربطها بالمستويات بنجاح."), "success")
 
         # --- الحذف (مع التنظيف) ---
         elif action == 'delete_teacher':
@@ -107,7 +108,7 @@ def manage_data():
                 if t_del in ts_dict:
                     del ts_dict[t_del]
                     update_complex_state('teacher_subjects', ts_dict)
-                flash(f"تم حذف الأستاذ {t_del} وتنظيف ارتباطاته.", "danger")
+                flash(_("تم حذف الأستاذ {t_del} وتنظيف ارتباطاته.").format(t_del=t_del), "danger")
 
         elif action == 'delete_room':
             r_del = request.form.get('room_name')
@@ -117,7 +118,7 @@ def manage_data():
                 for lvl in lr_dict:
                     lr_dict[lvl] = [r for r in lr_dict[lvl] if not r.startswith(r_del)]
                 update_complex_state('level_rooms', lr_dict)
-                flash(f"تم حذف القاعة {r_del}.", "danger")
+                flash(_("تم حذف القاعة {r_del}.").format(r_del=r_del), "danger")
 
         elif action == 'delete_level':
             l_del = request.form.get('level_name')
@@ -132,7 +133,7 @@ def manage_data():
                 for t in ts_dict:
                     ts_dict[t] = [sub for sub in ts_dict[t] if not sub.endswith(f"({l_del})")]
                 update_complex_state('teacher_subjects', ts_dict)
-                flash(f"تم حذف المستوى {l_del} وارتباطاته بنجاح.", "danger")
+                flash(_("تم حذف المستوى {l_del} وارتباطاته بنجاح.").format(l_del=l_del), "danger")
 
         elif action == 'delete_subject':
             subject_identifier = request.form.get('subject_identifier')
@@ -146,7 +147,7 @@ def manage_data():
                     if target_sub in ts_dict[t]:
                         ts_dict[t].remove(target_sub)
                 update_complex_state('teacher_subjects', ts_dict)
-                flash(f"تم حذف المادة {s_del}.", "danger")
+                flash(_("تم حذف المادة {s_del}.").format(s_del=s_del), "danger")
 
         # --- التعديل ---
         elif action == 'edit_teacher':
@@ -158,7 +159,7 @@ def manage_data():
                 if old_name in ts_dict:
                     ts_dict[new_name] = ts_dict.pop(old_name)
                     update_complex_state('teacher_subjects', ts_dict)
-                flash(f"تم تعديل الأستاذ إلى [{new_name}].", "success")
+                flash(_("تم تعديل الأستاذ إلى [{new_name}].").format(new_name=new_name), "success")
 
         elif action == 'edit_room':
             old_name = request.form.get('old_name')
@@ -178,7 +179,7 @@ def manage_data():
                     lr_dict[lvl] = updated_rooms
                 if modified_lr:
                     update_complex_state('level_rooms', lr_dict)
-                flash(f"تم تعديل القاعة إلى [{new_name}].", "success")
+                flash(_("تم تعديل القاعة إلى [{new_name}].").format(new_name=new_name), "success")
 
         return redirect(url_for('resit_exams.manage_data'))
 
@@ -212,14 +213,14 @@ def assign_subjects():
                         ts_dict[t_name].append(s)
                         
                 update_complex_state('teacher_subjects', ts_dict)
-                flash(f"تم تخصيص المواد للأستاذ {t_name}.", "success")
+                flash(_("تم تخصيص المواد للأستاذ {t_name}.").format(t_name=t_name), "success")
                 
         elif action == 'unassign_teacher':
             t_name = request.form.get('teacher_name')
             if t_name in ts_dict:
                 ts_dict[t_name] = []
                 update_complex_state('teacher_subjects', ts_dict)
-                flash(f"تم إلغاء مواد الأستاذ {t_name}.", "warning")
+                flash(_("تم إلغاء مواد الأستاذ {t_name}.").format(t_name=t_name), "warning")
                 
         elif action == 'unassign_subject':
             s_name = request.form.get('subject_name')
@@ -227,7 +228,7 @@ def assign_subjects():
                 if s_name in ts_dict[t]:
                     ts_dict[t].remove(s_name)
             update_complex_state('teacher_subjects', ts_dict)
-            flash(f"تم إلغاء إسناد المادة {s_name}.", "warning")
+            flash(_("تم إلغاء إسناد المادة {s_name}.").format(s_name=s_name), "warning")
             
         return redirect(url_for('resit_exams.assign_subjects'))
 
@@ -255,14 +256,14 @@ def assign_rooms():
                     new_level_rooms[level] = selected_rooms
                 
             update_complex_state('level_rooms', new_level_rooms)
-            flash("تم حفظ تخصيص القاعات بنجاح!", "success")
+            flash(_("تم حفظ تخصيص القاعات بنجاح!"), "success")
             return redirect(url_for('resit_exams.assign_rooms'))
             
     return render_template('resit_exams/assign_rooms.html', db=db_dict)
 
 
 import datetime
-ARABIC_DAYS = {6: "الأحد", 0: "الإثنين", 1: "الثلاثاء", 2: "الأربعاء", 3: "الخميس", 4: "الجمعة", 5: "السبت"}
+ARABIC_DAYS = {6: _("الأحد"), 0: _("الإثنين"), 1: _("الثلاثاء"), 2: _("الأربعاء"), 3: _("الخميس"), 4: _("الجمعة"), 5: _("السبت")}
 
 # ==========================================
 # أيام وأوقات الامتحان
@@ -287,23 +288,29 @@ def manage_schedule():
             date_str = request.form.get('exam_date')
             if date_str:
                 date_obj = datetime.datetime.strptime(date_str, '%Y-%m-%d')
-                day_name = ARABIC_DAYS[date_obj.weekday()]
+                
+                # ✨ تعريف القاموس هنا ليترجم اليوم فوراً حسب لغة المستخدم الحالية ✨
+                LOCALIZED_DAYS = {
+                    6: _("الأحد"), 0: _("الإثنين"), 1: _("الثلاثاء"), 
+                    2: _("الأربعاء"), 3: _("الخميس"), 4: _("الجمعة"), 5: _("السبت")
+                }
+                
+                day_name = LOCALIZED_DAYS[date_obj.weekday()]
                 new_day = f"{day_name} ({date_str})"
                 if new_day not in schedule:
                     schedule[new_day] = []
                     
-                    # 🌟 التعديل الثاني: إعادة الترتيب فور إضافة يوم جديد
                     schedule = {k: schedule[k] for k in sorted(schedule.keys(), key=lambda x: x.split('(')[1].strip(')') if '(' in x else x)}
                     
                     update_complex_state('schedule', schedule)
-                    flash(f"تم إضافة يوم {new_day}.", "success")
+                    flash(_("تم إضافة يوم {new_day}.").format(new_day=new_day), "success")
                     
         elif action == 'delete_day':
             day_to_del = request.form.get('day_key')
             if day_to_del in schedule:
                 del schedule[day_to_del]
                 update_complex_state('schedule', schedule)
-                flash(f"تم حذف يوم {day_to_del}.", "danger")
+                flash(_("تم حذف يوم {day_to_del}.").format(day_to_del=day_to_del), "danger")
                 
         elif action == 'add_time':
             day_key = request.form.get('day_key')
@@ -315,7 +322,7 @@ def manage_schedule():
                     "reserve_levels": []
                 })
                 update_complex_state('schedule', schedule)
-                flash("تم إضافة الفترة الزمنية.", "success")
+                flash(_("تم إضافة الفترة الزمنية."), "success")
                 
         elif action == 'delete_time':
             day_key = request.form.get('day_key')
@@ -335,7 +342,7 @@ def manage_schedule():
                     slot['primary_levels'] = request.form.getlist(f"primary_levels_{idx}")
                     slot['reserve_levels'] = request.form.getlist(f"reserve_levels_{idx}")
                 update_complex_state('schedule', schedule)
-                flash("تم تحديث المستويات في الفترات.", "success")
+                flash(_("تم تحديث المستويات في الفترات."), "success")
 
         # 🌟 مسار تكرار/نسخ اليوم 🌟
         elif action == 'duplicate_day':
@@ -345,22 +352,26 @@ def manage_schedule():
             if source_day and target_date_str:
                 import copy
                 date_obj = datetime.datetime.strptime(target_date_str, '%Y-%m-%d')
-                day_name = ARABIC_DAYS[date_obj.weekday()]
+                
+                # ✨ استخدام القاموس المترجم هنا أيضاً ✨
+                LOCALIZED_DAYS = {
+                    6: _("الأحد"), 0: _("الإثنين"), 1: _("الثلاثاء"), 
+                    2: _("الأربعاء"), 3: _("الخميس"), 4: _("الجمعة"), 5: _("السبت")
+                }
+                day_name = LOCALIZED_DAYS[date_obj.weekday()]
                 target_day_key = f"{day_name} ({target_date_str})"
                 
                 if source_day in schedule:
                     schedule[target_day_key] = copy.deepcopy(schedule[source_day])
                     
-                    # 🌟 التعديل الثالث: إعادة الترتيب فور استنساخ يوم جديد
                     schedule = {k: schedule[k] for k in sorted(schedule.keys(), key=lambda x: x.split('(')[1].strip(')') if '(' in x else x)}
                     
                     update_complex_state('schedule', schedule)
-                    flash(f"✅ تم نسخ فترات ومستويات يوم [{source_day}] إلى [{target_day_key}] بنجاح.", "success")
+                    flash(_("✅ تم نسخ فترات ومستويات يوم [{source_day}] إلى [{target_day_key}] بنجاح.").format(source_day=source_day, target_day_key=target_day_key), "success")
 
         return redirect(url_for('resit_exams.manage_schedule'))
         
     return render_template('resit_exams/manage_schedule.html', db=db_dict)
-
 
 # ==========================================
 # إدارة القيود والشروط (المسار المفقود)
@@ -397,12 +408,12 @@ def manage_constraints():
                 if pair not in c_db['incompatible_levels']:
                     c_db['incompatible_levels'].append(pair)
                     update_complex_state('constraints', c_db)
-                    flash("تم إضافة قيد تعارض المستويات.", "success")
+                    flash(_("تم إضافة قيد تعارض المستويات."), "success")
         elif action == 'del_incompatible':
             idx = int(request.form.get('idx'))
             c_db['incompatible_levels'].pop(idx)
             update_complex_state('constraints', c_db)
-            flash("تم حذف القيد.", "danger")
+            flash(_("تم حذف القيد."), "danger")
             
         elif action == 'auto_extract_incompatible':
             levels = db_dict.get('levels', [])
@@ -418,9 +429,9 @@ def manage_constraints():
                                 added_count += 1
             if added_count > 0:
                 update_complex_state('constraints', c_db)
-                flash(f"🤖 تم مسح المستويات وتوليد ({added_count}) قيد تعارض آلياً بنجاح!", "success")
+                flash(_("🤖 تم مسح المستويات وتوليد ({count}) قيد تعارض آلياً بنجاح!").format(count=added_count), "success")
             else:
-                flash("لم يتم العثور على تعارضات جديدة لإضافتها.", "info")
+                flash(_("لم يتم العثور على تعارضات جديدة لإضافتها."), "info")
         
         # 2. 🌟 الأساتذة ذوو الأولوية (بالتحديث الجديد - تحديد متعدد)
         elif action == 'add_prioritized':
@@ -436,9 +447,9 @@ def manage_constraints():
                         
                 if added_count > 0:
                     update_complex_state('constraints', c_db)
-                    flash(f"تم إضافة ({added_count}) أساتذة لقائمة الأولوية بنمط ({pref}).", "success")
+                    flash(_("تم إضافة ({count}) أساتذة لقائمة الأولوية بنمط ({pref}).").format(count=added_count, pref=pref), "success")
             else:
-                flash("الرجاء تأشير أستاذ واحد على الأقل من القائمة.", "danger")
+                flash(_("الرجاء تأشير أستاذ واحد على الأقل من القائمة."), "danger")
 
         elif action == 'add_all_prioritized':
             pref = request.form.get('pref', 'flexible')
@@ -451,16 +462,16 @@ def manage_constraints():
             
             if added_count > 0:
                 update_complex_state('constraints', c_db)
-                flash(f"تم إضافة جميع الأساتذة المتبقين وعددهم ({added_count}) إلى قائمة الأولوية.", "success")
+                flash(_("تم إضافة جميع الأساتذة المتبقين وعددهم ({count}) إلى قائمة الأولوية.").format(count=added_count), "success")
             else:
-                flash("جميع الأساتذة متواجدون بالفعل في قائمة الأولوية.", "info")
+                flash(_("جميع الأساتذة متواجدون بالفعل في قائمة الأولوية."), "info")
             
         elif action == 'del_prioritized':
             teacher = request.form.get('teacher')
             if teacher and teacher in c_db.get('prioritized_teachers', {}):
                 del c_db['prioritized_teachers'][teacher]
             update_complex_state('constraints', c_db)
-            flash("تم حذف الأستاذ من قائمة الأولوية بنجاح.", "danger")
+            flash(_("تم حذف الأستاذ من قائمة الأولوية بنجاح."), "danger")
         
         # 3. أساتذة في سيارة واحدة (مرافقة)
         elif action == 'add_carpool':
@@ -470,12 +481,12 @@ def manage_constraints():
                 if pair not in c_db['carpool_pairs']:
                     c_db['carpool_pairs'].append(pair)
                     update_complex_state('constraints', c_db)
-                    flash("تم إضافة قيد المرافقة.", "success")
+                    flash(_("تم إضافة قيد المرافقة."), "success")
         elif action == 'del_carpool':
             idx = int(request.form.get('idx'))
             c_db['carpool_pairs'].pop(idx)
             update_complex_state('constraints', c_db)
-            flash("تم حذف قيد المرافقة.", "danger")
+            flash(_("تم حذف قيد المرافقة."), "danger")
             
         # 4. قيد الانفصال (عدم الاشتراك)
         elif action == 'add_conflict':
@@ -485,12 +496,12 @@ def manage_constraints():
                 if pair not in c_db['conflict_pairs']:
                     c_db['conflict_pairs'].append(pair)
                     update_complex_state('constraints', c_db)
-                    flash("تم إضافة قيد الانفصال.", "success")
+                    flash(_("تم إضافة قيد الانفصال."), "success")
         elif action == 'del_conflict':
             idx = int(request.form.get('idx'))
             c_db['conflict_pairs'].pop(idx)
             update_complex_state('constraints', c_db)
-            flash("تم حذف قيد الانفصال.", "danger")
+            flash(_("تم حذف قيد الانفصال."), "danger")
             
         # 5. إعفاء من الحصة الأولى
         elif action == 'add_no_first':
@@ -498,12 +509,12 @@ def manage_constraints():
             if t and t not in c_db['no_first_slot_teachers']:
                 c_db['no_first_slot_teachers'].append(t)
                 update_complex_state('constraints', c_db)
-                flash("تم إعفاء الأستاذ من الحصة الأولى.", "success")
+                flash(_("تم إعفاء الأستاذ من الحصة الأولى."), "success")
         elif action == 'del_no_first':
             t = request.form.get('teacher')
             c_db['no_first_slot_teachers'].remove(t)
             update_complex_state('constraints', c_db)
-            flash("تم إلغاء الإعفاء.", "danger")
+            flash(_("تم إلغاء الإعفاء."), "danger")
             
         # 6. مجموعات العزل
         elif action == 'add_isolation_group':
@@ -514,14 +525,14 @@ def manage_constraints():
                     c_db['isolation_groups'] = {}
                 c_db['isolation_groups'][group_name] = group_levels
                 update_complex_state('constraints', c_db)
-                flash(f"تم إنشاء مجموعة العزل [{group_name}] وتشفير مستوياتها بنجاح.", "success")
+                flash(_("تم إنشاء مجموعة العزل [{group_name}] وتشفير مستوياتها بنجاح.").format(group_name=group_name), "success")
                 
         elif action == 'del_isolation_group':
             group_name = request.form.get('group_name')
             if 'isolation_groups' in c_db and group_name in c_db['isolation_groups']:
                 del c_db['isolation_groups'][group_name]
                 update_complex_state('constraints', c_db)
-                flash(f"تم فك العزل وحذف المجموعة [{group_name}].", "success")
+                flash(_("تم فك العزل وحذف المجموعة [{group_name}].").format(group_name=group_name), "success")
         
         return redirect(url_for('resit_exams.manage_constraints'))
         
@@ -538,7 +549,7 @@ def import_from_exams():
         
         tenant_id = session.get('tenant_id')
         if not tenant_id:
-            flash("غير مصرح لك بإجراء هذه العملية.", "danger")
+            flash(_("غير مصرح لك بإجراء هذه العملية."), "danger")
             return redirect(url_for('resit_exams.manage_data'))
         
         # 2. جلب البيانات الفعلية من جداول الامتحانات السداسية للقسم الحالي
@@ -549,7 +560,7 @@ def import_from_exams():
         
         # التحقق مما إذا كانت هناك بيانات فعلياً
         if not exams_teachers and not exams_subjects:
-            flash("⚠️ البيانات في نظام الامتحانات السداسية تبدو فارغة. تأكد من إدخالها هناك أولاً.", "warning")
+            flash(_("⚠️ البيانات في نظام الامتحانات السداسية تبدو فارغة. تأكد من إدخالها هناك أولاً."), "warning")
             return redirect(url_for('resit_exams.manage_data'))
             
         # 3. جلب صندوق الاستدراكي الحالي
@@ -571,10 +582,10 @@ def import_from_exams():
         for s in exams_subjects:
             # قراءة المستويات المتعددة بالهيكل الجديد ودمجها
             levels_list = sorted([l.name for l in s.levels]) if hasattr(s, 'levels') and s.levels else []
-            combined_level = " + ".join(levels_list) if levels_list else "بدون مستوى"
+            combined_level = " + ".join(levels_list) if levels_list else _("بدون مستوى")
             
             # تسجيل المستوى المدمج كـ "مستوى جديد" في النظام
-            if combined_level != "بدون مستوى":
+            if combined_level != _("بدون مستوى"):
                 levels_set.add(combined_level)
                 
             resit_db['subjects'].append({
@@ -590,7 +601,7 @@ def import_from_exams():
             assigned_subs = []
             for s in t.subjects:
                 levels_list = sorted([l.name for l in s.levels]) if hasattr(s, 'levels') and s.levels else []
-                combined_level = " + ".join(levels_list) if levels_list else "بدون مستوى"
+                combined_level = " + ".join(levels_list) if levels_list else _("بدون مستوى")
                 assigned_subs.append(f"{s.name} ({combined_level})")
             
             if assigned_subs:
@@ -601,12 +612,12 @@ def import_from_exams():
         # 5. حفظ التغييرات في قاعدة بيانات الاستدراكي
         save_full_db(resit_db)
         
-        flash(f"✅ تم سحب البيانات بنجاح! استُورِد: ({len(resit_db['teachers'])}) أستاذ، ({len(resit_db['rooms'])}) قاعة، و({len(resit_db['subjects'])}) مادة.", "success")
+        flash(_("✅ تم سحب البيانات بنجاح! استُورِد: ({t_count}) أستاذ، ({r_count}) قاعة، و({s_count}) مادة.").format(t_count=len(resit_db['teachers']), r_count=len(resit_db['rooms']), s_count=len(resit_db['subjects'])), "success")
         
     except Exception as e:
         import traceback
         traceback.print_exc() # لطباعة الخطأ بدقة في الطرفية إذا حدث
-        flash(f"❌ خطأ في الاستيراد: {str(e)}", "danger")
+        flash(_("❌ خطأ في الاستيراد: {error}").format(error=str(e)), "danger")
         
     return redirect(url_for('resit_exams.manage_data'))
 
@@ -647,12 +658,12 @@ def import_smart():
             
             # حفظ البيانات الكاملة في الصندوق الخاص بالقسم
             save_full_db(imported_data)
-            flash("✅ تم استعادة بيانات الاستدراكي بنجاح!", "success")
+            flash(_("✅ تم استعادة بيانات الاستدراكي بنجاح!"), "success")
             
         except Exception as e:
-            flash(f"❌ حدث خطأ أثناء الاستيراد: {str(e)}", "danger")
+            flash(_("❌ حدث خطأ أثناء الاستيراد: {error}").format(error=str(e)), "danger")
     else:
-        flash("❌ يرجى رفع ملف بصيغة .json", "danger")
+        flash(_("❌ يرجى رفع ملف بصيغة .json"), "danger")
         
     return redirect(url_for('resit_exams.manage_data'))
 
@@ -779,7 +790,7 @@ def get_solver_progress():
             response = {"is_running": False, "done": True, "error": str(task.info)}
             
         return jsonify(response)
-
+    
 # ==========================================
 # 🌟 مسارات تحميل ملفات Word
 # ==========================================
@@ -789,7 +800,7 @@ def download_doc(doc_type):
     final_schedule = db_dict.get('final_schedule')
         
     if not final_schedule:
-        flash("لم يتم توليد الجدول بعد.", "danger")
+        flash(_("لم يتم توليد الجدول بعد."), "danger")
         return redirect(url_for('resit_exams.generate_schedule'))
         
     # ✨ التقاط اللغة المختارة من الرابط (الافتراضي عربي)
@@ -802,7 +813,7 @@ def download_doc(doc_type):
         elif lang == 'fr':
             filename = "Rattrapage_Niveaux.docx"
         else:
-            filename = "جداول_المستويات_استدراكي.docx"
+            filename = _("جداول_المستويات_استدراكي.docx")
             
     elif doc_type == 'teachers':
         doc_stream = generate_teachers_word(db_dict, final_schedule, lang=lang)
@@ -811,7 +822,7 @@ def download_doc(doc_type):
         elif lang == 'fr':
             filename = "Rattrapage_Profs.docx"
         else:
-            filename = "جداول_الأساتذة_استدراكي.docx"
+            filename = _("جداول_الأساتذة_استدراكي.docx")
     else:
         return redirect(url_for('resit_exams.generate_schedule'))
         
@@ -840,14 +851,14 @@ def phase7():
     return render_template('resit_exams/phase7.html', db=db_dict, has_schedule=bool(final_schedule), is_published=is_published)
 
 # ==========================================
-# 🌟 التصدير للإكسل (بنفس طريقة الامتحانات العادية - Matrix)
+# 🌟 التصدير للإكسل (ديناميكي يدعم العربية والإنجليزية)
 # ==========================================
 @resit_exams_bp.route('/export_excel')
 def export_excel():
     db_dict = load_full_db()
     final_schedule = db_dict.get('final_schedule', {})
     if not final_schedule:
-        flash("لا يوجد جدول لتصديره.", "danger")
+        flash(_("لا يوجد جدول لتصديره."), "danger")
         return redirect(url_for('resit_exams.phase7'))
 
     import pandas as pd
@@ -856,8 +867,12 @@ def export_excel():
     from openpyxl.utils import get_column_letter
     from openpyxl.styles import Alignment
 
-    # استخراج جميع الأيام، الفترات، والمستويات
-    all_days = sorted(list(final_schedule.keys()))
+    # ✨ 1. تحديد لغة الجلسة الحالية واتجاه الملف
+    lang = session.get('lang', 'ar')
+    is_rtl = (lang == 'ar')
+
+    # استخراج جميع الأيام، الفترات، والمستويات (مع ترتيب الأيام ذكياً حسب التاريخ)
+    all_days = sorted(list(final_schedule.keys()), key=lambda x: x.split('(')[1].strip(')') if '(' in x else x)
     all_times = set()
     all_levels = set()
 
@@ -876,7 +891,7 @@ def export_excel():
     # بناء الجداول بحيث يكون كل مستوى في Sheet مستقل
     for level_name in all_levels:
         df_level = pd.DataFrame(index=all_times, columns=all_days)
-        df_level.index.name = "الفترة"
+        df_level.index.name = _("الفترة")
 
         for day in all_days:
             for time_val in all_times:
@@ -894,7 +909,7 @@ def export_excel():
                         # تنسيق الحراس لربطهم بقاعاتهم بشكل مقروء للتعديل
                         guards_details = []
                         for r_name, g_list in rooms.items():
-                            g_str = "، ".join(g_list) if g_list else "بدون حراس"
+                            g_str = "، ".join(g_list) if g_list else _("بدون حراس")
                             guards_details.append(f"{r_name}: {g_str}")
                         guards_str = " | ".join(guards_details)
 
@@ -910,14 +925,22 @@ def export_excel():
         safe_sheet_name = re.sub(r'[\\*?:/\[\]]', '-', level_name)[:31]
         df_level.to_excel(writer, sheet_name=safe_sheet_name)
 
-        # التنسيقات الجمالية والمطابقة تماماً لملف exams_export_bp
+        # التنسيقات الجمالية
         worksheet = writer.sheets[safe_sheet_name]
-        worksheet.sheet_view.rightToLeft = True
+        
+        # ✨ 2. تفعيل اتجاه الورقة حسب اللغة (يمين لليسار للعربية فقط)
+        worksheet.sheet_view.rightToLeft = is_rtl
+        
         worksheet.column_dimensions['A'].width = 18
         for i in range(2, len(all_days) + 2):
             worksheet.column_dimensions[get_column_letter(i)].width = 30
 
-        wrap_alignment = Alignment(wrap_text=True, horizontal='right', vertical='center', readingOrder=2)
+        # ✨ 3. تحديد محاذاة النص بناءً على اللغة
+        align_horizontal = 'right' if is_rtl else 'left'
+        reading_order = 2 if is_rtl else 1 # 2=RTL, 1=LTR
+        
+        wrap_alignment = Alignment(wrap_text=True, horizontal=align_horizontal, vertical='center', readingOrder=reading_order)
+        
         for row in worksheet.iter_rows():
             if row[0].row == 1:
                 worksheet.row_dimensions[row[0].row].height = 35
@@ -929,10 +952,14 @@ def export_excel():
 
     writer.close()
     output.seek(0)
+    
+    # ✨ 4. تسمية الملف بناءً على اللغة الحالية
+    file_name = "Resit_Schedule_Edit.xlsx" if lang == 'en' else _("الجدول_الاستدراكي_للتعديل.xlsx")
+    
     return send_file(
         output,
         as_attachment=True,
-        download_name="الجدول_الاستدراكي_للتعديل.xlsx",
+        download_name=file_name,
         mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
 
@@ -989,17 +1016,17 @@ def import_excel():
                                             if ':' in r_block:
                                                 r_name, r_guards = r_block.split(':', 1)
                                                 r_name = r_name.strip()
-                                                guards_list = [g.strip() for g in r_guards.split('،') if g.strip() and g.strip() != 'بدون حراس']
+                                                guards_list = [g.strip() for g in r_guards.split('،') if g.strip() and g.strip() != _('بدون حراس')]
                                                 new_schedule[day][time_val][level]["rooms"][r_name] = guards_list
 
             update_complex_state('final_schedule', new_schedule)
-            flash("✅ تم استيراد التعديلات من الإكسل بنجاح وتحديث النظام!", "success")
+            flash(_("✅ تم استيراد التعديلات من الإكسل بنجاح وتحديث النظام!"), "success")
 
         except Exception as e:
             import traceback; traceback.print_exc()
-            flash(f"❌ خطأ في قراءة ملف الإكسل: التفاصيل: {str(e)}", "danger")
+            flash(_("❌ خطأ في قراءة ملف الإكسل: التفاصيل: {error}").format(error=str(e)), "danger")
     else:
-        flash("يرجى رفع ملف بصيغة .xlsx", "danger")
+        flash(_("يرجى رفع ملف بصيغة .xlsx"), "danger")
 
     return redirect(url_for('resit_exams.phase7'))
 
@@ -1010,7 +1037,7 @@ def publish_resit():
     final_schedule = db_dict.get('final_schedule')
     
     if not final_schedule:
-        flash("لا يوجد جدول لنشره.", "danger")
+        flash(_("لا يوجد جدول لنشره."), "danger")
         return redirect(url_for('resit_exams.phase7'))
 
     from app.database import ExamSetting, db
@@ -1031,10 +1058,11 @@ def publish_resit():
         import json
         pub_setting.value = '1'
         sched_setting.value = json.dumps(final_schedule)
-        flash("✅ تم نشر الجدول الاستدراكي بنجاح! سيظهر الآن في بوابة الأساتذة.", "success")
+        flash(_("✅ تم نشر الجدول الاستدراكي بنجاح! سيظهر الآن في بوابة الأساتذة."), "success")
     else:
         pub_setting.value = '0'
-        flash("⚠️ تم سحب وإخفاء الجدول الاستدراكي من بوابة الأساتذة.", "warning")
+        flash(_("⚠️ تم سحب وإخفاء الجدول الاستدراكي من بوابة الأساتذة."), "warning")
 
     db.session.commit()
     return redirect(url_for('resit_exams.phase7'))
+

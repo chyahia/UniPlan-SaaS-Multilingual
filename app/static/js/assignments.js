@@ -1,3 +1,14 @@
+// ==========================================
+// 🌐 محرك الترجمة المصغر لملفات الجافاسكريبت
+// ==========================================
+function _t(key) {
+    // يتحقق مما إذا كان هناك قاموس ترجمة مرسل من واجهة HTML
+    if (window.i18n_dict && window.i18n_dict[key]) {
+        return window.i18n_dict[key];
+    }
+    return key; // يعود بالنص الأصلي إذا لم تتوفر الترجمة
+}
+
 let assig_teachers = [];
 let assig_courses = [];
 let selectedTeacherId = null;
@@ -49,8 +60,9 @@ function renderAssignments() {
             
         // إضافة القائمة المنسدلة المخفية (المثلث)
         if(hasAssigned) {
-            html += `<ul class="teacher-courses-list" id="t-list-${teacher.id}">
-                        ${teacherCourses.map(c => `<li>${c.name} (${c.levels || ''})</li>`).join('')}
+            // ✨ استخدام الخصائص المنطقية للاتجاهات
+            html += `<ul class="teacher-courses-list" id="t-list-${teacher.id}" style="text-align: start; padding-inline-start: 20px;">
+                        ${teacherCourses.map(c => `<li>${c.name} <span dir="auto">(${c.levels || ''})</span></li>`).join('')}
                      </ul>`;
         }
         html += `</div>`;
@@ -65,10 +77,10 @@ function renderAssignments() {
         const hasAssigned = course.teacher_id !== null;
         const classes = `list-item ${isSelected ? 'is-selected' : ''} ${hasAssigned ? 'is-assigned' : ''}`;
         
+        // ✨ تغليف كلمة "بدون مستوى" بدالة الترجمة
         let html = `<div class="${classes}" onclick="selectCourse(${course.id})" ondblclick="unassignCourse(${course.id}, event)">
-            <strong>${course.name}</strong> <small style="color:#7f8c8d;">(${course.levels || 'بدون مستوى'})</small>`;
+            <strong>${course.name}</strong> <small style="color:#7f8c8d;" dir="auto">(${course.levels || _t('بدون مستوى')})</small>`;
             
-        // ✨ التعديل هنا: التأكد من وجود اسم الأستاذ (teacher_name) فعلياً
         if(hasAssigned && course.teacher_name) {
             html += `<span class="teacher-badge">${course.teacher_name}</span>`;
         }
@@ -77,7 +89,7 @@ function renderAssignments() {
         coursesListEl.innerHTML += html;
     });
 
-    // ✨ استدعاء تحديث رادار المواد غير المسندة ✨
+    // استدعاء تحديث رادار المواد غير المسندة
     renderUnassignedCourses();
 }
 
@@ -101,7 +113,7 @@ function selectCourse(id) {
 
 // فتح وإغلاق قائمة مواد الأستاذ (المثلث)
 function toggleTeacherList(id, event) {
-    event.stopPropagation(); // منع تفعيل تحديد الأستاذ عند ضغط المثلث
+    event.stopPropagation();
     const list = document.getElementById(`t-list-${id}`);
     const btn = event.target;
     if(list) {
@@ -115,15 +127,13 @@ function toggleTeacherList(id, event) {
     }
 }
 
-// تفعيل/تعطيل زر التخصيص (تم التحديث ليشمل الزر الأوسط)
+// تفعيل/تعطيل زر التخصيص
 function updateAssignButton() {
     const isReady = (selectedTeacherId !== null && selectedCourseIds.size > 0);
     
-    // الزر العلوي القديم
     const topBtn = document.getElementById('main-assign-btn');
     if (topBtn) topBtn.disabled = !isReady;
     
-    // ✨ الزر الأوسط الجديد ✨
     const midBtn = document.getElementById('middle-assign-btn');
     if (midBtn) midBtn.disabled = !isReady;
 }
@@ -146,7 +156,7 @@ function performAssignment() {
 
 // إلغاء إسناد مادة (نقر مزدوج)
 function unassignCourse(id, event) {
-    event.stopPropagation(); // لمنع تفعيل الاختيار الفردي
+    event.stopPropagation(); 
     fetch(`/api/assignments/unassign_course/${id}`, { method: 'POST' })
     .then(res => res.json()).then(data => {
         if(data.success) loadAssignmentsData();
@@ -155,7 +165,8 @@ function unassignCourse(id, event) {
 
 // إلغاء إسناد كل مواد الأستاذ (نقر مزدوج)
 function unassignTeacher(id) {
-    if(!confirm('هل أنت متأكد من إلغاء إسناد جميع المواد لهذا الأستاذ؟')) return;
+    // ✨ تغليف رسالة التأكيد بدالة الترجمة
+    if(!confirm(_t('هل أنت متأكد من إلغاء إسناد جميع المواد لهذا الأستاذ؟'))) return;
     fetch(`/api/assignments/unassign_teacher/${id}`, { method: 'POST' })
     .then(res => res.json()).then(data => {
         if(data.success) loadAssignmentsData();
@@ -169,24 +180,22 @@ function renderUnassignedCourses() {
     const container = document.getElementById('unassigned-courses-container');
     if (!container) return;
 
-    // 1. فلترة المواد التي ليس لها أستاذ (teacher_id === null)
     const unassigned = assig_courses.filter(c => c.teacher_id === null);
 
-    // 2. إذا تم إسناد كل شيء، نظهر رسالة نجاح
     if (unassigned.length === 0) {
+        // ✨ تغليف رسالة النجاح بدالة الترجمة
         container.innerHTML = `
             <div style="width: 100%; text-align: center; padding: 20px; background: #e8f5e9; border: 1px dashed #27ae60; border-radius: 8px;">
-                <h3 style="color: #27ae60; margin: 0;">🎉 عمل ممتاز! جميع المواد مسندة لأساتذة.</h3>
+                <h3 style="color: #27ae60; margin: 0;">🎉 ${_t('عمل ممتاز! جميع المواد مسندة لأساتذة.')}</h3>
             </div>`;
         return;
     }
 
-    // 3. تجميع المواد حسب المستوى (بذكاء: فصل المستويات المشتركة)
     const groupedByLevel = {};
 
     unassigned.forEach(course => {
-        const levelsStr = course.levels || 'بدون مستوى';
-        // تقسيم النص إذا كانت المادة تدرس لمستويين (مثل: الأولى، الثانية)
+        // ✨ تغليف كلمة بدون مستوى هنا أيضاً
+        const levelsStr = course.levels || _t('بدون مستوى');
         const levelsArray = levelsStr.split('،').map(l => l.trim());
         
         levelsArray.forEach(lvl => {
@@ -197,14 +206,13 @@ function renderUnassignedCourses() {
         });
     });
 
-    // 4. رسم البطاقات (كل مستوى في بطاقة منفصلة)
     let html = '';
     for (const [level, courses] of Object.entries(groupedByLevel)) {
         html += `
         <div style="flex: 1; min-width: 260px; background: #fff; border: 1px solid #e0e0e0; border-radius: 6px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
             <div style="background: #34495e; color: white; padding: 10px 15px; font-weight: bold; font-size: 14px; display: flex; justify-content: space-between; align-items: center;">
                 <span>🎓 ${level}</span>
-                <span style="background: #e74c3c; padding: 2px 8px; border-radius: 12px; font-size: 11px;">${courses.length} مواد</span>
+                <span style="background: #e74c3c; padding: 2px 8px; border-radius: 12px; font-size: 11px;">${courses.length} ${_t('مواد')}</span>
             </div>
             <ul style="list-style: none; padding: 0; margin: 0; max-height: 250px; overflow-y: auto;">
                 ${courses.map(c => `

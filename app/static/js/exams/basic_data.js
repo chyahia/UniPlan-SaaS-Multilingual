@@ -27,7 +27,7 @@ function renderPreviewList(elementId, items, displayField, typeField = null) {
     listDiv.innerHTML = ''; // مسح المحتوى القديم
     
     if (items.length === 0) {
-        listDiv.innerHTML = '<p style="font-style: italic; color: #777; text-align: center;">القائمة فارغة</p>';
+        listDiv.innerHTML = `<p style="font-style: italic; color: #777; text-align: center;">${_t('القائمة فارغة')}</p>`;
         return;
     }
     
@@ -92,7 +92,7 @@ function refreshLevelPreview() {
             checkboxContainer.innerHTML = ''; // مسح المحتوى القديم
             
             if (data.length === 0) {
-                checkboxContainer.innerHTML = '<span style="color: #999; font-size: 13px;">لا توجد مستويات، أضف مستويات أولاً.</span>';
+                checkboxContainer.innerHTML = `<span style="color: #999; font-size: 13px;">${_t('لا توجد مستويات، أضف مستويات أولاً.')}</span>`;
             } else {
                 data.forEach(lvl => {
                     checkboxContainer.innerHTML += `
@@ -123,7 +123,7 @@ function renderGroupedSubjects(subjects) {
     listDiv.innerHTML = ''; // مسح القديم
     
     if (subjects.length === 0) {
-        listDiv.innerHTML = '<p style="font-style: italic; color: #777; text-align: center;">لا توجد مواد مدخلة بعد</p>';
+        listDiv.innerHTML = `<p style="font-style: italic; color: #777; text-align: center;">${_t('لا توجد مواد مدخلة بعد')}</p>`;
         return;
     }
 
@@ -173,7 +173,7 @@ function handleAddProfessors(e) {
     e.preventDefault();
     const text = document.getElementById('professors-input').value;
     const names = text.split('\n').map(n => n.trim()).filter(n => n !== '');
-    if (names.length === 0) return showNotification('الرجاء إدخال اسم واحد على الأقل.', 'error');
+    if (names.length === 0) return showNotification(_t('الرجاء إدخال اسم واحد على الأقل.'), 'error');
 
     fetch('/exams/api/add-professors', {
         method: 'POST',
@@ -183,18 +183,18 @@ function handleAddProfessors(e) {
     .then(res => res.json())
     .then(data => {
         if (data.success) {
-            showNotification(`تم الإضافة بنجاح! مضاف: ${data.added}، مكرر: ${data.duplicates}`, 'success');
+            showNotification(`${_t('تم الإضافة بنجاح! مضاف: ')}${data.added}${_t('، مكرر: ')}${data.duplicates}`, 'success');
             document.getElementById('professors-input').value = ''; // مسح المدخلات
             refreshProfessorPreview(); // 🔄 تحديث المعاينة فورياً
         }
-    }).catch(err => showNotification('حدث خطأ في الاتصال بالخادم', 'error'));
+    }).catch(err => showNotification(_t('حدث خطأ في الاتصال بالخادم'), 'error'));
 }
 
 function handleAddLevels(e) {
     e.preventDefault();
     const text = document.getElementById('levels-input').value;
     const levels = text.split('\n').map(l => l.trim()).filter(l => l !== '');
-    if (levels.length === 0) return showNotification('الرجاء إدخال اسم واحد على الأقل للمستوى.', 'error');
+    if (levels.length === 0) return showNotification(_t('الرجاء إدخال اسم واحد على الأقل للمستوى.'), 'error');
 
     fetch('/exams/api/add-levels', {
         method: 'POST',
@@ -204,11 +204,11 @@ function handleAddLevels(e) {
     .then(res => res.json())
     .then(data => {
         if (data.success) {
-            showNotification(`تم الإضافة بنجاح! مضاف: ${data.added}، مكرر: ${data.duplicates}`, 'success');
+            showNotification(`${_t('تم الإضافة بنجاح! مضاف: ')}${data.added}${_t('، مكرر: ')}${data.duplicates}`, 'success');
             document.getElementById('levels-input').value = ''; // مسح المدخلات
             refreshLevelPreview(); // 🔄 تحديث المعاينة فورياً (وتحديث قائمة المواد)
         }
-    }).catch(err => showNotification('حدث خطأ في الاتصال بالخادم', 'error'));
+    }).catch(err => showNotification(_t('حدث خطأ في الاتصال بالخادم'), 'error'));
 }
 
 function handleAddSubjects(e) {
@@ -218,11 +218,11 @@ function handleAddSubjects(e) {
     const checkboxes = document.querySelectorAll('.level-cb-input:checked');
     const levelIds = Array.from(checkboxes).map(cb => cb.value);
     
-    if (levelIds.length === 0) return showNotification('الرجاء اختيار مستوى واحد على الأقل.', 'error');
+    if (levelIds.length === 0) return showNotification(_t('الرجاء اختيار مستوى واحد على الأقل.'), 'error');
     
     const text = document.getElementById('subjects-input').value;
     const subjects = text.split('\n').map(s => s.trim()).filter(s => s !== '');
-    if (subjects.length === 0) return showNotification('الرجاء إدخال مادة واحدة على الأقل.', 'error');
+    if (subjects.length === 0) return showNotification(_t('الرجاء إدخال مادة واحدة على الأقل.'), 'error');
 
     fetch('/exams/api/add-subjects', {
         method: 'POST',
@@ -232,7 +232,7 @@ function handleAddSubjects(e) {
     .then(res => res.json())
     .then(data => {
         if (data.success) {
-            showNotification(`تم الإضافة بنجاح! مضاف: ${data.added}، مكرر: ${data.duplicates}`, 'success');
+            showNotification(`${_t('تم الإضافة بنجاح! مضاف: ')}${data.added}${_t('، مكرر: ')}${data.duplicates}`, 'success');
             document.getElementById('subjects-input').value = ''; 
             
             // 🧹 إزالة التأشير عن المربعات بعد النجاح لتجهيز الإدخال القادم
@@ -240,9 +240,9 @@ function handleAddSubjects(e) {
             
             refreshSubjectPreview(); 
         } else {
-             showNotification(data.message || 'حدث خطأ أثناء الإضافة', 'error');
+             showNotification(data.message || _t('حدث خطأ أثناء الإضافة'), 'error');
         }
-    }).catch(err => showNotification('حدث خطأ في الاتصال بالخادم', 'error'));
+    }).catch(err => showNotification(_t('حدث خطأ في الاتصال بالخادم'), 'error'));
 }
 
 function handleAddHalls(e) {
@@ -250,7 +250,7 @@ function handleAddHalls(e) {
     const type = document.getElementById('hall-type-select').value;
     const text = document.getElementById('halls-input').value;
     const halls = text.split('\n').map(h => h.trim()).filter(h => h !== '');
-    if (halls.length === 0) return showNotification('الرجاء إدخال قاعة واحدة على الأقل.', 'error');
+    if (halls.length === 0) return showNotification(_t('الرجاء إدخال قاعة واحدة على الأقل.'), 'error');
 
     fetch('/exams/api/add-halls', {
         method: 'POST',
@@ -260,9 +260,9 @@ function handleAddHalls(e) {
     .then(res => res.json())
     .then(data => {
         if (data.success) {
-            showNotification(`تم الإضافة بنجاح! مضاف: ${data.added}، مكرر: ${data.duplicates}`, 'success');
+            showNotification(`${_t('تم الإضافة بنجاح! مضاف: ')}${data.added}${_t('، مكرر: ')}${data.duplicates}`, 'success');
             document.getElementById('halls-input').value = ''; // مسح المدخلات
             refreshHallPreview(); // 🔄 تحديث المعاينة فورياً
         }
-    }).catch(err => showNotification('حدث خطأ في الاتصال بالخادم', 'error'));
+    }).catch(err => showNotification(_t('حدث خطأ في الاتصال بالخادم'), 'error'));
 }

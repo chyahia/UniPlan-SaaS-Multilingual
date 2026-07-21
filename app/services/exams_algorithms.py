@@ -4,6 +4,31 @@ import math
 import uuid
 import threading
 from collections import defaultdict, Counter, deque
+import os
+import gettext
+
+# 1. مترجم افتراضي (يعيد النص كما هو في حال لم يتم تحديد لغة أو فشل التحميل)
+_current_translator = lambda message: message
+
+def set_exam_algorithm_language(lang_code):
+    """
+    تقرأ ملفات الترجمة (.mo) وتضبطها لعملية حراسة الامتحانات.
+    """
+    global _current_translator
+    try:
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        app_dir = os.path.dirname(current_dir)
+        root_dir = os.path.dirname(app_dir)
+        localedir = os.path.join(root_dir, 'translations')
+        
+        translation = gettext.translation('messages', localedir=localedir, languages=[lang_code])
+        _current_translator = translation.gettext
+    except Exception:
+        _current_translator = lambda message: message
+
+# 2. دالة الترجمة المعزولة التي سيستخدمها هذا الملف
+def _(message):
+    return _current_translator(message)
 
 
 # ===================================================================
@@ -32,7 +57,7 @@ def is_assignment_valid(prof, exam, prof_assignments, prof_large_counts, setting
     # ب. الإصلاح الدقيق للقاعات الكبيرة
     guards_large_hall_setting = int(settings.get('guardsLargeHall', 4))
     large_guards_needed = sum(guards_large_hall_setting for h in exam.get('halls', []) if h.get('type') == 'كبيرة')
-    current_guards_count = len([g for g in exam.get('guards', []) if g != "**نقص**"])
+    current_guards_count = len([g for g in exam.get('guards', []) if g != '**نقص**'])
     
     is_large_hall_position = current_guards_count < large_guards_needed
     max_large_hall_shifts = int(settings.get('maxLargeHallShifts', '2')) if settings.get('maxLargeHallShifts', '2') != '0' else float('inf')
@@ -71,7 +96,7 @@ def is_schedule_valid(schedule, settings, all_professors, duty_patterns, date_ma
     for exam in all_exams:
         is_large_exam = any(h['type'] == 'كبيرة' for h in exam.get('halls', []))
         for guard in exam.get('guards', []):
-            if guard == "**نقص**": return False 
+            if guard == '**نقص**': return False 
             for other_exam in prof_assignments.get(guard, []):
                 if other_exam['date'] == exam['date'] and other_exam['time'] == exam['time']: return False 
             if exam['date'] in unavailable_days.get(guard, []): return False 
@@ -85,7 +110,7 @@ def is_schedule_valid(schedule, settings, all_professors, duty_patterns, date_ma
     prof_assigned_slots = defaultdict(list)
     for exam in all_exams:
         for guard in exam.get('guards', []):
-            if guard != "**نقص**": prof_assigned_slots[guard].append((exam['date'], exam['time']))
+            if guard != '**نقص**': prof_assigned_slots[guard].append((exam['date'], exam['time']))
 
     for prof, pattern in duty_patterns.items():
         if not prof_assigned_slots.get(prof): continue
@@ -100,7 +125,7 @@ def is_schedule_valid(schedule, settings, all_professors, duty_patterns, date_ma
     professor_pairs = settings.get('professorPartnerships', [])
     prof_duty_days = defaultdict(set)
     for guard, duties in prof_assigned_slots.items():
-        for duty_date, _ in duties: prof_duty_days[guard].add(duty_date)
+        for duty_date, _dummy in duties: prof_duty_days[guard].add(duty_date)
             
     for pair in professor_pairs:
         if len(pair) == 2:
@@ -118,7 +143,7 @@ def calculate_cost(schedule, settings, all_professors, duty_patterns, date_map):
     from collections import Counter
     
     all_exams_flat = [exam for day in schedule.values() for slot in day.values() for exam in slot]
-    shortage_component = sum(e.get('guards', []).count("**نقص**") for e in all_exams_flat)
+    shortage_component = sum(e.get('guards', []).count('**نقص**') for e in all_exams_flat)
     
     # 🌟 الاستدعاء المباشر لدالة التقرير لضمان التطابق التام 100% 🌟
     violation_report = generate_violation_report(schedule, settings, all_professors)
@@ -132,7 +157,7 @@ def calculate_cost(schedule, settings, all_professors, duty_patterns, date_map):
     
     for exam in all_exams_flat:
         # إضافة strip لإزالة أي مسافات مخفية قد تسبب مشاكل في الحساب
-        guards_copy = [g.strip() for g in exam.get('guards', []) if g != "**نقص**"] 
+        guards_copy = [g.strip() for g in exam.get('guards', []) if g != '**نقص**'] 
         large_guards_needed = sum(guards_large_hall for h in exam.get('halls', []) if h.get('type') == 'كبيرة')
         
         for guard in guards_copy[:large_guards_needed]:
@@ -144,7 +169,7 @@ def calculate_cost(schedule, settings, all_professors, duty_patterns, date_map):
     custom_target_patterns = settings.get('customTargetPatterns', [])
 
     if enable_custom_targets and custom_target_patterns:
-        target_counts = Counter((p['large'], p['other']) for p in custom_target_patterns for _ in range(p.get('count', 0)))
+        target_counts = Counter((p['large'], p['other']) for p in custom_target_patterns for _dummy in range(p.get('count', 0)))
         actual_counts = Counter((s['large'], s['other']) for s in prof_stats.values())
         total_deviation = sum(abs(actual_counts.get(p, 0) - target_counts.get(p, 0)) for p in set(target_counts.keys()) | set(actual_counts.keys()))
         deviation_component = total_deviation * 2.0
@@ -158,7 +183,7 @@ def calculate_cost(schedule, settings, all_professors, duty_patterns, date_map):
 
 def format_cost_tuple(cost_tuple):
     s, h, d, f = cost_tuple
-    return f"(نقص: {s}, قيود صارمة: {h}, انحراف: {d:.2f}, قيود مرنة: {f})"
+    return _("(نقص: {s}, قيود صارمة: {h}, انحراف: {d:.2f}, قيود مرنة: {f})").format(s=s, h=h, d=d, f=f)
 
 # ===================================================================
 # 2. بناء الجدول المبدئي وتوزيع المواد (بناءً على الفترات الأساسية والاحتياطية)
@@ -246,7 +271,7 @@ def _run_initial_subject_placement(settings, all_subjects, all_levels_list, subj
         if not halls_for_all_levels or not halls_for_all_levels.issubset(available_halls): return False
         
         halls_details = [h for h in all_halls if h['name'] in halls_for_all_levels]
-        combined_level_name = " + ".join(original_level_names) if original_level_names else "غير محدد"
+        combined_level_name = " + ".join(original_level_names) if original_level_names else 'غير محدد'
         
         exam = {
             "date": date, 
@@ -254,7 +279,7 @@ def _run_initial_subject_placement(settings, all_subjects, all_levels_list, subj
             "subject": subject_name, 
             "level": combined_level_name, 
             "levels_list": list(levels_tuple), 
-            "professor": subject_owners.get(subject, "غير محدد"), 
+            "professor": subject_owners.get(subject, 'غير محدد'), 
             "halls": halls_details, 
             "guards": []
         }
@@ -329,7 +354,7 @@ def run_subject_optimization_phase(schedule, assignments, all_levels_list, subje
     """
     المرحلة 1.5: تجميع مواد الأستاذ الواحد في أقل عدد من الأيام.
     """
-    log_q.put(">>> بدء المرحلة 1.5: تحسين تجميع مواد الأساتذة (تقليل التشتت)...")
+    log_q.put(_(">>> بدء المرحلة 1.5: تحسين تجميع مواد الأساتذة (تقليل التشتت)..."))
     
     passes = 3
     max_improvement_attempts_per_prof = 25
@@ -345,7 +370,7 @@ def run_subject_optimization_phase(schedule, assignments, all_levels_list, subje
             for time, exams in time_slots.items():
                 for exam in exams:
                     owner = exam.get('professor')
-                    if owner and owner != "غير محدد": prof_to_exams[owner].append(exam)
+                    if owner and owner != 'غير محدد': prof_to_exams[owner].append(exam)
         
         sorted_profs = sorted(prof_to_exams.keys(), key=lambda prof: len({e['date'] for e in prof_to_exams[prof]}), reverse=True)
 
@@ -379,7 +404,7 @@ def run_subject_optimization_phase(schedule, assignments, all_levels_list, subje
                 for partner in partners:
                     if partner['level'] == exam_to_move['level']:
                         owner_c = partner.get('professor')
-                        if owner_c and owner_c != "غير محدد":
+                        if owner_c and owner_c != 'غير محدد':
                             current_days_c = {e['date'] for e in prof_to_exams.get(owner_c, [])}
                             new_days_c = (current_days_c - {target_day_for_swap}) | {exam_to_move['date']}
                             if len(new_days_c) > len(current_days_c): continue 
@@ -399,7 +424,7 @@ def run_subject_optimization_phase(schedule, assignments, all_levels_list, subje
                         for partner in partners:
                             if partner['level'] == exam_to_move['level']:
                                 owner_c = partner.get('professor')
-                                if owner_c and owner_c != "غير محدد":
+                                if owner_c and owner_c != 'غير محدد':
                                     current_days_c = {e['date'] for e in prof_to_exams.get(owner_c, [])}
                                     new_days_c = (current_days_c - {target_day_for_swap}) | {exam_to_move['date']}
                                     if len(new_days_c) > len(current_days_c): continue
@@ -419,7 +444,7 @@ def run_subject_optimization_phase(schedule, assignments, all_levels_list, subje
                     except (ValueError, KeyError):
                         pass
 
-    log_q.put("✓ اكتملت المرحلة 1.5 بنجاح.")
+    log_q.put(_("✓ اكتملت المرحلة 1.5 بنجاح."))
     return optimized_schedule
 
 def complete_schedule_with_guards(subject_schedule, settings, all_professors, assignments, all_levels_list, duty_patterns, date_map, all_subjects, locked_guards=set(), stop_event=None, log_q=None):
@@ -450,7 +475,7 @@ def complete_schedule_with_guards(subject_schedule, settings, all_professors, as
                       sum(guards_small_hall for h in exam.get('halls',[]) if h.get('type')=='صغيرة'))
         
         num_to_add = num_needed - len(exam.get('guards', []))
-        for _ in range(num_to_add): duties_to_fill.append(exam)
+        for _dummy in range(num_to_add): duties_to_fill.append(exam)
     
     while duties_to_fill:
         if stop_event and stop_event.is_set(): break
@@ -494,7 +519,7 @@ def complete_schedule_with_guards(subject_schedule, settings, all_professors, as
             valid_candidates_with_scores.sort(key=lambda x: (x[0], x[1]))
             hardest_duty_exam['guards'].append(valid_candidates_with_scores[0][2])
         else:
-            hardest_duty_exam['guards'].append("**نقص**")
+            hardest_duty_exam['guards'].append('**نقص**')
         
         try: duties_to_fill.remove(hardest_duty_exam)
         except ValueError:
@@ -507,16 +532,13 @@ def complete_schedule_with_guards(subject_schedule, settings, all_professors, as
 
 # (لقد أزلت الكود المكرر لـ LNS و VNS و Tabu اختصاراً للرسالة، لكن في ملفك الفعلي، ضعها كلها هنا كما أرسلتها أنت تماماً!)
 
-
-
-
 # ===================================================================
 # 5. دالة البحث الجواري الواسع (LNS) - النسخة المدمجة لجبر النقص
 # ===================================================================
 def run_large_neighborhood_search(
     initial_schedule, settings, all_professors, duty_patterns, date_map, log_q, locked_guards=set(), stop_event=None
 ):
-    log_q.put(">>> تشغيل LNS (النسخة النهائية المدمجة والمحسّنة)...")
+    log_q.put(_(">>> تشغيل LNS (النسخة النهائية المدمجة والمحسّنة)..."))
 
     iterations = int(settings.get('lnsIterations', 100))
     initial_destroy_fraction = float(settings.get('lnsDestroyFraction', 0.2))
@@ -539,7 +561,7 @@ def run_large_neighborhood_search(
     
     current_cost = calculate_cost(current_solution, settings, all_professors, duty_patterns, date_map)
     best_cost_so_far = current_cost
-    log_q.put(f"... [LNS] التكلفة الأولية = {format_cost_tuple(current_cost)}")
+    log_q.put(_("... [LNS] التكلفة الأولية = {cost}").format(cost=format_cost_tuple(current_cost)))
 
     temp = initial_temp
     dynamic_destroy_fraction = initial_destroy_fraction
@@ -558,7 +580,7 @@ def run_large_neighborhood_search(
             for slot in day.values():
                 for exam in slot:
                     for g_idx, guard in enumerate(exam.get('guards', [])):
-                        if guard != "**نقص**" and (exam.get('uuid'), guard) not in locked_guards:
+                        if guard != '**نقص**' and (exam.get('uuid'), guard) not in locked_guards:
                             duties_to_destroy.append({'exam': exam, 'guard_index': g_idx})
 
         random.shuffle(duties_to_destroy)
@@ -566,7 +588,7 @@ def run_large_neighborhood_search(
         
         for j in range(min(num_to_destroy, len(duties_to_destroy))):
             duty_info = duties_to_destroy[j]
-            duty_info['exam']['guards'][duty_info['guard_index']] = "**نقص**"
+            duty_info['exam']['guards'][duty_info['guard_index']] = '**نقص**'
 
         # --- 2. مرحلة الإصلاح الذكي (Repair) ---
         all_exams_in_ruined = [exam for day in ruined_solution.values() for slot in day.values() for exam in slot]
@@ -578,7 +600,7 @@ def run_large_neighborhood_search(
             is_large = any(h['type'] == 'كبيرة' for h in exam.get('halls', []))
             duty_weight = large_hall_weight if is_large else other_hall_weight
             for guard in exam.get('guards', []):
-                if guard != "**نقص**":
+                if guard != '**نقص**':
                     prof_assignments[guard].append(exam)
                     prof_workload[guard] += duty_weight
                     if is_large:
@@ -587,7 +609,7 @@ def run_large_neighborhood_search(
         shortage_slots = []
         for exam in all_exams_in_ruined:
             for idx, guard in enumerate(exam.get('guards', [])):
-                if guard == "**نقص**":
+                if guard == '**نقص**':
                     shortage_slots.append({'exam': exam, 'index_to_fill': idx})
         random.shuffle(shortage_slots)
 
@@ -605,7 +627,7 @@ def run_large_neighborhood_search(
                     valid_candidates.append((prof, prof_workload.get(prof, 0)))
 
             if valid_candidates:
-                best_prof_found, _ = min(valid_candidates, key=lambda item: item[1])
+                best_prof_found, _dummy = min(valid_candidates, key=lambda item: item[1])
                 
                 exam_to_repair['guards'][repair_info['index_to_fill']] = best_prof_found
                 
@@ -628,13 +650,13 @@ def run_large_neighborhood_search(
         if current_cost < best_cost_so_far:
             best_cost_so_far = current_cost
             best_solution_so_far = copy.deepcopy(current_solution)
-            log_q.put(f"... [LNS] دورة {i+1}: تم إيجاد حل أفضل بتكلفة = {format_cost_tuple(best_cost_so_far)}")
+            log_q.put(_("... [LNS] دورة {cycle}: تم إيجاد حل أفضل بتكلفة = {cost}").format(cycle=i+1, cost=format_cost_tuple(best_cost_so_far)))
         
 
         temp *= cooling_rate
         dynamic_destroy_fraction = max(min_destroy_fraction, dynamic_destroy_fraction * destroy_fraction_decay_rate)
 
-    log_q.put(f"✓ انتهى LNS المحسن بأفضل تكلفة: {format_cost_tuple(best_cost_so_far)}")
+    log_q.put(_("✓ انتهى LNS المحسن بأفضل تكلفة: {cost}").format(cost=format_cost_tuple(best_cost_so_far)))
     
     final_assignments = defaultdict(list)
     final_workload = defaultdict(float)
@@ -645,7 +667,7 @@ def run_large_neighborhood_search(
                 is_large_exam = any(h['type'] == 'كبيرة' for h in exam['halls'])
                 duty_weight = large_hall_weight if is_large_exam else other_hall_weight
                 for guard in exam.get('guards', []):
-                    if guard != "**نقص**":
+                    if guard != '**نقص**':
                         final_assignments[guard].append(exam)
                         final_workload[guard] += duty_weight
                         if is_large_exam: final_large_counts[guard] += 1
@@ -656,7 +678,7 @@ def run_large_neighborhood_search(
 # 6. المحرك الشامل (Unified LNS V16) - هجين يجمع الإصلاح والتحسين
 # ===================================================================
 def run_unified_lns_optimizer(initial_schedule, settings, all_professors, assignments, duty_patterns, date_map, all_subjects, log_q, all_levels_list, locked_guards=set(), stop_event=None):
-    log_q.put(">>> بدء تشغيل المُحسِّن الهجين (V16)...")
+    log_q.put(_(">>> بدء تشغيل المُحسِّن الهجين (V16)..."))
 
     iterations = int(settings.get('lnsUnifiedIterations', 300))
     initial_solution = complete_schedule_with_guards(
@@ -664,7 +686,7 @@ def run_unified_lns_optimizer(initial_schedule, settings, all_professors, assign
         all_levels_list, duty_patterns, date_map, all_subjects, locked_guards=locked_guards
     )
     initial_cost = calculate_cost(initial_solution, settings, all_professors, duty_patterns, date_map)
-    log_q.put(f"... التكلفة الأولية للحل: {format_cost_tuple(initial_cost)}")
+    log_q.put(_("... التكلفة الأولية للحل: {cost}").format(cost=format_cost_tuple(initial_cost)))
 
     repaired_solution = initial_solution
     repaired_cost = initial_cost
@@ -673,9 +695,9 @@ def run_unified_lns_optimizer(initial_schedule, settings, all_professors, assign
     # --- المرحلة 1: استدعاء LNS العادية لجبر النقص (Repair) ---
     # =================================================================
     if initial_cost[0] > 0:
-        log_q.put("--- بدء المرحلة 1: استدعاء LNS العادية لجبر النقص...")
+        log_q.put(_("--- بدء المرحلة 1: استدعاء LNS العادية لجبر النقص..."))
         
-        repaired_solution_from_lns, _, _, _ = run_large_neighborhood_search(
+        repaired_solution_from_lns, _dummy, _dummy, _dummy = run_large_neighborhood_search(
             initial_solution, settings, all_professors, duty_patterns, 
             date_map, log_q, locked_guards, stop_event
         )
@@ -686,16 +708,16 @@ def run_unified_lns_optimizer(initial_schedule, settings, all_professors, assign
         repaired_cost = calculate_cost(repaired_solution, settings, all_professors, duty_patterns, date_map)
     
     if repaired_cost[0] > 0:
-        log_q.put(f"✗ فشلت حتى LNS العادية في جبر النقص. التكلفة النهائية: {format_cost_tuple(repaired_cost)}")
+        log_q.put(_("✗ فشلت حتى LNS العادية في جبر النقص. التكلفة النهائية: {cost}").format(cost=format_cost_tuple(repaired_cost)))
         best_solution = repaired_solution
         best_cost = repaired_cost
     else:
-        log_q.put(f"✓ نجحت LNS العادية في جبر النقص! التكلفة بعد الإصلاح: {format_cost_tuple(repaired_cost)}")
+        log_q.put(_("✓ نجحت LNS العادية في جبر النقص! التكلفة بعد الإصلاح: {cost}").format(cost=format_cost_tuple(repaired_cost)))
         
         # =================================================================
         # --- المرحلة 2: تشغيل منطق التحسين (Optimization) ---
         # =================================================================
-        log_q.put("--- بدء المرحلة 2: تحسين الجدول الكامل باستخدام منطق V13...")
+        log_q.put(_("--- بدء المرحلة 2: تحسين الجدول الكامل باستخدام منطق V13..."))
         
         current_solution = copy.deepcopy(repaired_solution)
         current_cost = repaired_cost
@@ -723,11 +745,11 @@ def run_unified_lns_optimizer(initial_schedule, settings, all_professors, assign
             guards_small_hall = int(settings.get('guardsSmallHall', 1))
             
             for exam in all_exams_flat:
-                owner = exam.get('professor', "غير محدد")
-                if owner != "غير محدد": prof_subject_days[owner].add(exam['date'])
+                owner = exam.get('professor', 'غير محدد')
+                if owner != 'غير محدد': prof_subject_days[owner].add(exam['date'])
                 is_large = any(h['type'] == 'كبيرة' for h in exam.get('halls',[]))
                 for idx, guard in enumerate(exam.get('guards', [])):
-                    if guard != "**نقص**":
+                    if guard != '**نقص**':
                         prof_guard_days[guard].add(exam['date'])
                         prof_duties[guard].append({'exam': exam, 'guard_index': idx})
                         prof_assignments[guard].append(exam)
@@ -736,7 +758,7 @@ def run_unified_lns_optimizer(initial_schedule, settings, all_professors, assign
             tool_choice = random.random()
             if tool_choice < 0.6: # 60% فرصة لمحاولة تحسين الانحراف والموازنة
                 custom_patterns = settings.get('customTargetPatterns', [])
-                target_counts = Counter((p['large'], p['other']) for p in custom_patterns for _ in range(p.get('count', 0)))
+                target_counts = Counter((p['large'], p['other']) for p in custom_patterns for _dummy in range(p.get('count', 0)))
                 actual_counts = Counter((s['large'], s['other']) for s in prof_stats.values())
                 over_patterns = {p for p, a in actual_counts.items() if a > target_counts.get(p, 0)}
                 donors = [p for p, s in prof_stats.items() if (s['large'], s['other']) in over_patterns]
@@ -785,11 +807,11 @@ def run_unified_lns_optimizer(initial_schedule, settings, all_professors, assign
                                         sum(guards_medium_hall for h in exam.get('halls',[]) if h['type']=='متوسطة') +
                                         sum(guards_small_hall for h in exam.get('halls',[]) if h['type']=='صغيرة'))
                                 
-                                current_guards = [g for g in exam.get('guards', []) if g != "**نقص**"]
+                                current_guards = [g for g in exam.get('guards', []) if g != '**نقص**']
                                 if len(current_guards) > needed:
                                     exam['guards'] = current_guards[:needed]
                                 else:
-                                    exam['guards'] = current_guards + ["**نقص**"] * (needed - len(current_guards))
+                                    exam['guards'] = current_guards + ['**نقص**'] * (needed - len(current_guards))
 
             final_neighbor = neighbor_solution
             new_cost = calculate_cost(final_neighbor, settings, all_professors, duty_patterns, date_map)
@@ -803,7 +825,7 @@ def run_unified_lns_optimizer(initial_schedule, settings, all_professors, assign
                 
                 if new_cost < best_cost:
                     best_solution, best_cost = copy.deepcopy(current_solution), new_cost
-                    log_q.put(f"... [مُحسِّن LNS v16] دورة {i+1}: حل أفضل بتكلفة = {format_cost_tuple(best_cost)}")
+                    log_q.put(_("... [مُحسِّن LNS v16] دورة {cycle}: حل أفضل بتكلفة = {cost}").format(cycle=i+1, cost=format_cost_tuple(best_cost)))
                     stagnation_counter = 0 # تصفير العداد لأننا وجدنا تحسناً
                 else:
                     stagnation_counter += 1
@@ -812,7 +834,7 @@ def run_unified_lns_optimizer(initial_schedule, settings, all_professors, assign
 
             # --- ⚡ الصدمة الكهربائية (إعادة التسخين) ⚡ ---
             if stagnation_counter >= 500:
-                log_q.put(f"... ⚡ [تنبيه] الخوارزمية عالقة في الفخ! جاري تنشيط صدمة حرارية في الدورة {i+1} للهروب...")
+                log_q.put(_("... ⚡ [تنبيه] الخوارزمية عالقة في الفخ! جاري تنشيط صدمة حرارية في الدورة {cycle} للهروب...").format(cycle=i+1))
                 temp = max(temp, initial_temp * 0.4) # نرفع درجة الحرارة لإجبارها على حركات عشوائية
                 stagnation_counter = 0 # نصفر العداد ونبدأ المحاولة من جديد
                 
@@ -821,12 +843,10 @@ def run_unified_lns_optimizer(initial_schedule, settings, all_professors, assign
 
             # --- 🕵️‍♂️ رسالة التتبع الصامتة (لتتأكد من أن الخوارزمية تعمل) ---
             if (i + 1) % 500 == 0:
-                log_q.put(f"... ⚙️ جاري المعالجة بصمت: وصلنا للدورة {i+1} من أصل {iterations}...")
+                log_q.put(_("... ⚙️ جاري المعالجة بصمت: وصلنا للدورة {cycle} من أصل {total}...").format(cycle=i+1, total=iterations))
 
-    log_q.put(f"✓ انتهى مُحسِّن LNS v16 بأفضل تكلفة: {format_cost_tuple(best_cost)}")
+    log_q.put(_("✓ انتهى مُحسِّن LNS v16 بأفضل تكلفة: {cost}").format(cost=format_cost_tuple(best_cost)))
     return best_solution, True
-
-
 
 # ===================================================================
 # 7. دالة البحث المحلي (تُستخدم كجزء من VNS لتحسين الحلول بعد هزها)
@@ -849,7 +869,7 @@ def run_post_processing_swaps(schedule, prof_assignments, prof_workload, prof_la
         is_large = any(h['type'] == 'كبيرة' for h in exam.get('halls', []))
         duty_weight = large_hall_weight if is_large else other_hall_weight
         for g in exam.get('guards', []):
-            if g != "**نقص**":
+            if g != '**نقص**':
                 temp_assignments[g].append(exam)
                 temp_workload[g] += duty_weight
                 if is_large:
@@ -857,7 +877,7 @@ def run_post_processing_swaps(schedule, prof_assignments, prof_workload, prof_la
 
     for i in range(swap_attempts):
         if stop_event and stop_event.is_set():
-            if log_q and i > 0: log_q.put(f"... [الصقل] تم الإيقاف بعد {i} محاولة تبديل.")
+            if log_q and i > 0: log_q.put(_("... [الصقل] تم الإيقاف بعد {i} محاولة تبديل.").format(i=i))
             break
         if not temp_workload or len(temp_workload) < 2: break
         
@@ -927,7 +947,7 @@ def run_post_processing_swaps(schedule, prof_assignments, prof_workload, prof_la
 # 8. دالة البحث الجواري المتغير (VNS)
 # ===================================================================
 def run_variable_neighborhood_search(initial_schedule, settings, all_professors, duty_patterns, date_map, log_q, locked_guards=set(), stop_event=None):
-    log_q.put(">>> تشغيل VNS (النسخة ذات البصيرة المرحلية)...")
+    log_q.put(_(">>> تشغيل VNS (النسخة ذات البصيرة المرحلية)..."))
 
     iterations = int(settings.get('vnsIterations', 100))
     k_max = int(settings.get('vnsMaxK', 25))
@@ -944,7 +964,7 @@ def run_variable_neighborhood_search(initial_schedule, settings, all_professors,
     # 🌟 التعديل السحري: وضع غشاوة على عيني الخوارزمية إذا كان هناك نقص
     raw_cost = calculate_cost(current_solution, settings, all_professors, duty_patterns, date_map)
     current_cost = (raw_cost[0], raw_cost[1], 0.0, 0) if raw_cost[0] > 0 or raw_cost[1] > 0 else raw_cost
-    log_q.put(f"... [VNS] التكلفة الأولية = {format_cost_tuple(current_cost)}")
+    log_q.put(_("... [VNS] التكلفة الأولية = {cost}").format(cost=format_cost_tuple(current_cost)))
 
     best_solution_so_far = copy.deepcopy(current_solution)
     best_cost_so_far = current_cost
@@ -958,7 +978,7 @@ def run_variable_neighborhood_search(initial_schedule, settings, all_professors,
         log_q.put(f"PROGRESS:{percent_complete}")
         
         if (i + 1) % 10 == 0:
-            log_q.put(f"... ⚙️ [VNS] الدورة {i+1}/{iterations}: المعالجة مستمرة...")
+            log_q.put(_("... ⚙️ [VNS] الدورة {cycle}/{total}: المعالجة مستمرة...").format(cycle=i+1, total=iterations))
         
         k = 1
         while k <= k_max:
@@ -969,7 +989,7 @@ def run_variable_neighborhood_search(initial_schedule, settings, all_professors,
                 for slot in day.values():
                     for exam in slot:
                         for g_idx, guard in enumerate(exam.get('guards', [])):
-                            if guard != "**نقص**" and (exam.get('uuid'), guard) not in locked_guards:
+                            if guard != '**نقص**' and (exam.get('uuid'), guard) not in locked_guards:
                                 duties_to_destroy.append({'exam': exam, 'guard_index': g_idx})
 
             if not duties_to_destroy: break 
@@ -977,7 +997,7 @@ def run_variable_neighborhood_search(initial_schedule, settings, all_professors,
             random.shuffle(duties_to_destroy)
             for j in range(min(k, len(duties_to_destroy))):
                 duty_info = duties_to_destroy[j]
-                duty_info['exam']['guards'][duty_info['guard_index']] = "**نقص**"
+                duty_info['exam']['guards'][duty_info['guard_index']] = '**نقص**'
 
             # --- ب. مرحلة الإصلاح السريع ---
             all_exams_in_shaken = [exam for day in shaken_solution.values() for slot in day.values() for exam in slot]
@@ -993,7 +1013,7 @@ def run_variable_neighborhood_search(initial_schedule, settings, all_professors,
                 is_large = any(h['type'] == 'كبيرة' for h in exam.get('halls', []))
                 duty_weight = large_hall_weight if is_large else other_hall_weight
                 for idx, guard in enumerate(exam.get('guards', [])):
-                    if guard == "**نقص**":
+                    if guard == '**نقص**':
                         shortage_slots.append({'exam': exam, 'index_to_fill': idx})
                     else:
                         prof_workload[guard] += duty_weight
@@ -1012,7 +1032,7 @@ def run_variable_neighborhood_search(initial_schedule, settings, all_professors,
                         valid_candidates.append((prof, prof_workload.get(prof, 0)))
                 
                 if valid_candidates:
-                    best_prof_found, _ = min(valid_candidates, key=lambda item: item[1])
+                    best_prof_found, _dummy = min(valid_candidates, key=lambda item: item[1])
                     exam_to_repair['guards'][repair_info['index_to_fill']] = best_prof_found
                     prof_workload[best_prof_found] += repair_duty_weight
                     prof_assignments[best_prof_found].append(exam_to_repair)
@@ -1021,7 +1041,7 @@ def run_variable_neighborhood_search(initial_schedule, settings, all_professors,
             # --- ج. مرحلة البحث المحلي ---
             local_search_solution = copy.deepcopy(shaken_solution)
             
-            local_search_solution, _, _, _ = run_post_processing_swaps(
+            local_search_solution, _dummy, _dummy, _dummy = run_post_processing_swaps(
                 local_search_solution, defaultdict(list), defaultdict(float), defaultdict(int),
                 settings, all_professors, date_map, 40, locked_guards
             )
@@ -1032,12 +1052,12 @@ def run_variable_neighborhood_search(initial_schedule, settings, all_professors,
             for e in all_exams_ls:
                 is_large = any(h['type'] == 'كبيرة' for h in e.get('halls', []))
                 for g in e.get('guards', []):
-                    if g != "**نقص**":
+                    if g != '**نقص**':
                         prof_assignments_ls[g].append(e)
                         if is_large: prof_large_counts_ls[g] += 1
 
-            for _ in range(30):
-                duties = [(exam, g, idx) for exam in all_exams_ls for idx, g in enumerate(exam.get('guards', [])) if g != "**نقص**" and (exam.get('uuid'), g) not in locked_guards]
+            for _dummy in range(30):
+                duties = [(exam, g, idx) for exam in all_exams_ls for idx, g in enumerate(exam.get('guards', [])) if g != '**نقص**' and (exam.get('uuid'), g) not in locked_guards]
                 if not duties: break
                 exam_to_change, prof1, guard_idx = random.choice(duties)
                 
@@ -1061,10 +1081,10 @@ def run_variable_neighborhood_search(initial_schedule, settings, all_professors,
                 current_solution, current_cost = local_search_solution, new_cost
                 if new_cost < best_cost_so_far:
                     best_cost_so_far, best_solution_so_far = new_cost, copy.deepcopy(current_solution)
-                    log_q.put(f"... [VNS] دورة {i+1} (k={k}): تم العثور على حل أفضل بتكلفة = {format_cost_tuple(best_cost_so_far)}")
+                    log_q.put(_("... [VNS] دورة {cycle} (k={k}): تم العثور على حل أفضل بتكلفة = {cost}").format(cycle=i+1, k=k, cost=format_cost_tuple(best_cost_so_far)))
                     
                     if best_cost_so_far[0] == 0 and best_cost_so_far[1] == 0 and best_cost_so_far[2] == 0 and best_cost_so_far[3] == 0:
-                        log_q.put("... [VNS] تم الوصول لجدول مثالي بالكامل! إنهاء مبكر...")
+                        log_q.put(_("... [VNS] تم الوصول لجدول مثالي بالكامل! إنهاء مبكر..."))
                         break
                 k = 1 
             else:
@@ -1076,7 +1096,7 @@ def run_variable_neighborhood_search(initial_schedule, settings, all_professors,
 
     # حساب التكلفة الحقيقية الصافية في النهاية لعرضها للمستخدم
     final_cost = calculate_cost(best_solution_so_far, settings, all_professors, duty_patterns, date_map)
-    log_q.put(f"✓ انتهى VNS بأفضل تكلفة: {format_cost_tuple(final_cost)}")
+    log_q.put(_("✓ انتهى VNS بأفضل تكلفة: {cost}").format(cost=format_cost_tuple(final_cost)))
     
     final_assignments = defaultdict(list)
     final_workload = defaultdict(float)
@@ -1089,7 +1109,7 @@ def run_variable_neighborhood_search(initial_schedule, settings, all_professors,
                  is_large = any(h['type'] == 'كبيرة' for h in exam.get('halls', []))
                  duty_weight = large_hall_weight if is_large else other_hall_weight
                  for guard in exam.get('guards',[]):
-                     if guard != "**نقص**":
+                     if guard != '**نقص**':
                          final_assignments[guard].append(exam)
                          final_workload[guard] += duty_weight
                          if is_large:
@@ -1134,21 +1154,21 @@ def generate_violation_report(schedule, settings, all_professors):
         for time_slot, exams in slots.items():
             slot_profs = set() # لمنع تكرار الأستاذ في نفس الفترة
             for exam in exams:
-                subject_owner = exam.get('professor', 'غير محدد').strip()
-                subject_name = exam.get('subject', 'مادة غير معروفة')
+                subject_owner = exam.get('professor', _('غير محدد')).strip()
+                subject_name = exam.get('subject', _('مادة غير معروفة'))
                 
                 # حساب عدد الحراس المطلوبين للقاعات الكبيرة في هذا الامتحان
                 num_large_halls = len([h for h in exam.get('halls', []) if h.get('type') == 'كبيرة'])
                 large_slots_needed = num_large_halls * guards_per_large_hall
                 
                 # تسجيل يوم المادة لصاحب المادة
-                if subject_owner and subject_owner != "غير محدد":
+                if subject_owner and subject_owner != 'غير محدد':
                     prof_subject_days[subject_owner].add(day)
 
                 # فحص الحراس
                 for idx, guard in enumerate(exam.get('guards', [])):
-                    if guard == "**نقص**":
-                        strict_errors.append(f"🔴 نقص: يوم {day} ({time_slot}) لمادة {subject_name}.")
+                    if guard == '**نقص**':
+                        strict_errors.append(_("🔴 نقص: يوم {day} ({time_slot}) لمادة {subject_name}.").format(day=day, time_slot=time_slot, subject_name=subject_name))
                         continue
                     
                     guard_clean = guard.strip()
@@ -1161,21 +1181,21 @@ def generate_violation_report(schedule, settings, all_professors):
 
                     # فحص التعارض الزمني
                     if guard_clean in slot_profs:
-                        strict_errors.append(f"🔴 تعارض زمني: الأستاذ [{guard_clean}] يحرس في أكثر من مكان يوم {day} ({time_slot}).")
+                        strict_errors.append(_("🔴 تعارض زمني: الأستاذ [{guard_clean}] يحرس في أكثر من مكان يوم {day} ({time_slot}).").format(guard_clean=guard_clean, day=day, time_slot=time_slot))
                     slot_profs.add(guard_clean)
 
                     # فحص الأيام غير المتاحة
                     if day in unavailable_days.get(guard_clean, []):
-                        strict_errors.append(f"🔴 مخالفة توفر: الأستاذ [{guard_clean}] كُلف بالحراسة يوم {day} وهو غير متاح.")
+                        strict_errors.append(_("🔴 مخالفة توفر: الأستاذ [{guard_clean}] كُلف بالحراسة يوم {day} وهو غير متاح.").format(guard_clean=guard_clean, day=day))
 
     # 2. فحص سقف الحراسات (إجمالي وقاعات كبيرة)
     for prof in all_professors:
         p_name = prof.strip()
         if prof_shift_counts[p_name] > max_shifts:
-            strict_errors.append(f"🔴 تجاوز الحد الأقصى: الأستاذ [{p_name}] يحرس {prof_shift_counts[p_name]} فترات (الحد: {max_shifts}).")
+            strict_errors.append(_("🔴 تجاوز الحد الأقصى: الأستاذ [{p_name}] يحرس {count} فترات (الحد: {max_shifts}).").format(p_name=p_name, count=prof_shift_counts[p_name], max_shifts=max_shifts))
         
         if prof_large_counts[p_name] > max_large_hall_shifts:
-            strict_errors.append(f"🔴 تجاوز القاعات الكبيرة: الأستاذ [{p_name}] يحرس {prof_large_counts[p_name]} مرات في قاعة كبيرة (الحد: {max_large_hall_shifts}).")
+            strict_errors.append(_("🔴 تجاوز القاعات الكبيرة: الأستاذ [{p_name}] يحرس {count} مرات في قاعة كبيرة (الحد: {max_large_hall_shifts}).").format(p_name=p_name, count=prof_large_counts[p_name], max_large_hall_shifts=max_large_hall_shifts))
 
     # 3. فحص أنماط الدوام (تجاهل نمط unlimited)
     for prof, pattern in duty_patterns.items():
@@ -1185,23 +1205,23 @@ def generate_violation_report(schedule, settings, all_professors):
         num_days = len(indices)
 
         if pattern == 'one_day_only' and num_days > 1:
-            strict_errors.append(f"🔴 مخالفة نمط (يوم واحد فقط): الأستاذ [{prof}] يحرس في {num_days} أيام.")
+            strict_errors.append(_("🔴 مخالفة نمط (يوم واحد فقط): الأستاذ [{prof}] يحرس في {num_days} أيام.").format(prof=prof, num_days=num_days))
         elif pattern == 'flexible_2_days' and num_days != 2:
-            strict_errors.append(f"🔴 مخالفة نمط (يومان مرنان): الأستاذ [{prof}] يحرس في {num_days} أيام (المطلوب 2).")
+            strict_errors.append(_("🔴 مخالفة نمط (يومان مرنان): الأستاذ [{prof}] يحرس في {num_days} أيام (المطلوب 2).").format(prof=prof, num_days=num_days))
         elif pattern == 'consecutive_strict':
             if num_days != 2 or (len(indices) > 1 and indices[1] - indices[0] != 1):
-                strict_errors.append(f"🔴 مخالفة نمط (يومان متتاليان): الأستاذ [{prof}] لم يحقق شرط التتالي حصراً.")
+                strict_errors.append(_("🔴 مخالفة نمط (يومان متتاليان): الأستاذ [{prof}] لم يحقق شرط التتالي حصراً.").format(prof=prof))
         elif pattern == 'flexible_3_days' and (num_days < 2 or num_days > 3):
-            strict_errors.append(f"🔴 مخالفة نمط (2-3 أيام مرنة): الأستاذ [{prof}] يحرس في {num_days} أيام.")
+            strict_errors.append(_("🔴 مخالفة نمط (2-3 أيام مرنة): الأستاذ [{prof}] يحرس في {num_days} أيام.").format(prof=prof, num_days=num_days))
 
     # 4. فحص الارتباط والتنافر
     for p1, p2 in [ (str(pair[0]).strip(), str(pair[1]).strip()) for pair in professor_pairs if len(pair)==2 ]:
         if prof_proctor_days.get(p1, set()) != prof_proctor_days.get(p2, set()):
-            strict_errors.append(f"🔴 فك ارتباط: الأستاذان [{p1}] و [{p2}] يجب أن يتشاركا في جميع أيام حراستهما.")
+            strict_errors.append(_("🔴 فك ارتباط: الأستاذان [{p1}] و [{p2}] يجب أن يتشاركا في جميع أيام حراستهما.").format(p1=p1, p2=p2))
 
     for p1, p2 in [ (str(pair[0]).strip(), str(pair[1]).strip()) for pair in exclusive_profs if len(pair)==2 ]:
         if not prof_proctor_days.get(p1, set()).isdisjoint(prof_proctor_days.get(p2, set())):
-            strict_errors.append(f"🔴 تنافر ممنوع: الأستاذان [{p1}] و [{p2}] لا يجب أن يجتمعا في نفس اليوم.")
+            strict_errors.append(_("🔴 تنافر ممنوع: الأستاذان [{p1}] و [{p2}] لا يجب أن يجتمعا في نفس اليوم.").format(p1=p1, p2=p2))
 
     # 5. القيود المرنة (كفاءة الحضور وتشتت المواد)
     for prof, sub_days in prof_subject_days.items():
@@ -1211,12 +1231,12 @@ def generate_violation_report(schedule, settings, all_professors):
         # كفاءة الحضور
         for s_day in sub_days:
             if s_day not in p_days:
-                soft_warnings.append(f"🟠 كفاءة الحضور (-10 نقاط): الأستاذ [{p_name}] لديه امتحان مادة يوم {s_day} ولكنه لا يحرس فيه.")
+                soft_warnings.append(_("🟠 كفاءة الحضور (-10 نقاط): الأستاذ [{p_name}] لديه امتحان مادة يوم {s_day} ولكنه لا يحرس فيه.").format(p_name=p_name, s_day=s_day))
         
         # تشتت المواد (أكثر من يومين)
         if len(sub_days) > 2:
             extra = len(sub_days) - 2
-            soft_warnings.append(f"🟠 تشتت المواد (-{extra * 5} نقاط): مواد الأستاذ [{p_name}] موزعة على {len(sub_days)} أيام.")
+            soft_warnings.append(_("🟠 تشتت المواد (-{points} نقاط): مواد الأستاذ [{p_name}] موزعة على {count} أيام.").format(points=extra * 5, p_name=p_name, count=len(sub_days)))
 
     return {"strict": strict_errors, "soft": soft_warnings}
 
@@ -1249,7 +1269,7 @@ def desperation_repair_pass(schedule, settings, all_professors, duty_patterns, d
             for exam in exams:
                 num_large_halls = len([h for h in exam.get('halls', []) if h.get('type') == 'كبيرة'])
                 large_slots_needed = num_large_halls * guards_per_large_hall
-                valid_guards = [g for g in exam.get('guards', []) if g != "**نقص**"]
+                valid_guards = [g for g in exam.get('guards', []) if g != '**نقص**']
                 
                 for idx, guard in enumerate(valid_guards):
                     guard_clean = guard.strip()
@@ -1291,10 +1311,10 @@ def desperation_repair_pass(schedule, settings, all_professors, duty_patterns, d
     for day, slots in repaired_schedule.items():
         for time_slot, exams in slots.items():
             for exam in exams:
-                while "**نقص**" in exam.get('guards', []):
+                while '**نقص**' in exam.get('guards', []):
                     num_large_halls = len([h for h in exam.get('halls', []) if h.get('type') == 'كبيرة'])
                     large_slots_needed = num_large_halls * guards_per_large_hall
-                    current_guards_count = len([g for g in exam.get('guards', []) if g != "**نقص**"])
+                    current_guards_count = len([g for g in exam.get('guards', []) if g != '**نقص**'])
                     
                     # 🌟 هل هذا النقص يقع ضمن مقاعد القاعة الكبيرة؟
                     is_large_hall_position = current_guards_count < large_slots_needed
@@ -1322,7 +1342,7 @@ def desperation_repair_pass(schedule, settings, all_professors, duty_patterns, d
                             elif level == 3:
                                 pass
                             
-                            exam['guards'].remove("**نقص**")
+                            exam['guards'].remove('**نقص**')
                             exam['guards'].append(prof_clean)
                             prof_assignments[prof_clean].append(exam)
                             if is_large_hall_position:

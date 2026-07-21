@@ -1,17 +1,15 @@
-let currentGenerationData = null; // لتخزين البيانات عند انتهاء الخوارزمية لاستخدامها في التصدير
+let currentGenerationData = null; 
 let eventSource = null;
-
-// (جزء من app/static/js/generation.js)
 
 // --- دالة مساعدة لتحديد لون شريط التقدم بناءً على النسبة ---
 function getProgressBarColor(percentage) {
     percentage = parseInt(percentage);
     if (percentage < 40) {
-        return '#e74c3c'; // أحمر (10-30%)
+        return '#e74c3c'; 
     } else if (percentage < 70) {
-        return '#e67e22'; // برتقالي (40-60%)
+        return '#e67e22'; 
     } else {
-        return '#27ae60'; // أخضر (70-100%)
+        return '#27ae60'; 
     }
 }
 
@@ -26,13 +24,12 @@ function startGeneration() {
         vns_iterations: document.getElementById('vns_iter').value,
         vns_k_max: document.getElementById('vns_k').value,
         vns_stagnation_threshold: document.getElementById('vns_stagnation')?.value || 15,
-        // ✨ الإضافة الجديدة
         mutation_hard_intensity: parseInt(document.getElementById('mutation_hard_intensity')?.value) || 4,
         mutation_soft_probability: parseFloat(document.getElementById('mutation_soft_probability')?.value) || 0.5
     };
 
     if (selectedAlgorithms.length === 0) {
-        alert("يرجى اختيار خوارزمية مساعدة واحدة على الأقل!");
+        alert(_t("يرجى اختيار خوارزمية مساعدة واحدة على الأقل!"));
         return;
     }
 
@@ -44,28 +41,26 @@ function startGeneration() {
     const logOutput = document.getElementById('log-output');
     const resultsContainer = document.getElementById('schedule-results-container');
     
-    // --- تصفير شريط التقدم وإخفائه عند بدء محاولة جديدة مع لون أولي أحمر ---
     const progressContainer = document.getElementById('progress-container');
     const progressBar = document.getElementById('progress-bar');
     if (progressContainer && progressBar) {
         progressContainer.style.display = 'none';
         progressBar.style.width = '0%';
-        progressBar.style.backgroundColor = getProgressBarColor(0); // تطبيق اللون الأولي
+        progressBar.style.backgroundColor = getProgressBarColor(0); 
         progressBar.textContent = '0%';
     }
 
-    // تجهيز الواجهة للبدء
     btnStart.style.display = 'none';
     btnStop.style.display = 'block';
-    btnStop.innerText = '🛑 إيقاف البحث';
+    // ✨ تغليف النص مع الحفاظ على الأيقونة
+    btnStop.innerText = '🛑 ' + _t("إيقاف البحث");
     btnStop.disabled = false;
     resultsContainer.style.display = 'none';
     
     logContainer.style.display = 'block';
     initLiveChart();
-    logOutput.textContent = 'بدء الاتصال بالخادم وإرسال البيانات...\n';
+    logOutput.textContent = _t("بدء الاتصال بالخادم وإرسال البيانات...\n");
 
-    // طلب بدء الخوارزمية
     fetch('/api/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -78,15 +73,13 @@ function startGeneration() {
     .then(res => res.json())
     .then(data => {
         if (data.success || data.status === 'ok') {
-            logOutput.textContent += 'تم بدء العملية. جاري استقبال المتابعة الحية...\n';
+            logOutput.textContent += _t("تم بدء العملية. جاري استقبال المتابعة الحية...\n");
             
-            // فتح قناة استقبال السجل الحي (Server-Sent Events)
             eventSource = new EventSource('/stream-logs');
             
             eventSource.onmessage = function(event) {
                 const message = event.data;
                 
-                // الكلمة المفتاحية "DONE" تعني انتهاء الخوارزمية
                 if (message.startsWith("DONE")) {
                     eventSource.close();
                     const jsonData = message.substring(4);
@@ -94,16 +87,14 @@ function startGeneration() {
                     if (jsonData.trim().length > 0) {
                         try {
                             const parsedData = JSON.parse(jsonData);
-                            currentGenerationData = parsedData; // تخزين البيانات لأزرار التصدير
+                            currentGenerationData = parsedData; 
                             
-                            logOutput.textContent += '\n--- اكتملت عملية الجدولة بنجاح! ---\n';
+                            logOutput.textContent += '\n--- ' + _t("اكتملت عملية الجدولة بنجاح!") + ' ---\n';
                             
-                            // --- حساب النسبة النهائي (مطابق تماماً لمنطق البايثون الذكي) ---
                             const finalFailures = parsedData.final_failures || [];
                             let hardErrorsCount = 0;
                             let softErrorsCount = 0;
                             
-                            // فرز الأخطاء لمعرفة الصارم من المرن
                             finalFailures.forEach(f => {
                                 const penalty = f.penalty !== undefined ? f.penalty : 1;
                                 if (penalty >= 100) {
@@ -115,61 +106,52 @@ function startGeneration() {
                             
                             let finalPercentage = 0;
                             
-                            // تطبيق نفس منطق البايثون:
-                            // 1. إذا كان هناك أخطاء صارمة، التقدم هو 0 (أو 5% ليبقى الشريط ظاهراً)
                             if (hardErrorsCount > 0) {
                                 finalPercentage = 5; 
                             } else {
-                                // 2. إذا بقيت أخطاء مرنة فقط، نحسبها (كل خطأ يخصم 10%)
                                 finalPercentage = Math.max(0, ((10 - softErrorsCount) / 10) * 100);
-                                finalPercentage = Math.max(5, finalPercentage); // حد أدنى 5%
+                                finalPercentage = Math.max(5, finalPercentage); 
                             }
 
-                            // تحديث الشريط باللون والنسبة الواقعية
                             if (progressContainer && progressBar) {
                                 progressBar.style.width = finalPercentage + '%';
                                 progressBar.style.backgroundColor = getProgressBarColor(finalPercentage);
                                 
                                 let errorText = "";
                                 if (hardErrorsCount > 0) {
-                                    errorText = ` (باقي ${hardErrorsCount} صارم و ${softErrorsCount} مرن)`;
+                                    // ✨ تدويل مركب بالمتغيرات
+                                    errorText = ` (${_t("باقي")} ${hardErrorsCount} ${_t("صارم و")} ${softErrorsCount} ${_t("مرن)")}`;
                                 } else if (softErrorsCount > 0) {
-                                    errorText = ` (باقي ${softErrorsCount} مرن)`;
+                                    errorText = ` (${_t("باقي")} ${softErrorsCount} ${_t("مرن)")}`;
                                 }
                                 
                                 progressBar.textContent = finalPercentage + '%' + errorText;
                             }
-                            // ----------------------------------------------------------------
-                            // ----------------------------------------------------------------------
                             
-                            // إعادة الواجهة لحالة الانتهاء
                             btnStop.style.display = 'none';
                             btnStart.style.display = 'block';
-                            btnStart.innerText = '🔄 إعادة الجدولة مرة أخرى';
+                            btnStart.innerText = '🔄 ' + _t("إعادة الجدولة مرة أخرى");
                             const forceMutBtn = document.getElementById('btn-force-mutation');
                             if (forceMutBtn) forceMutBtn.style.display = 'none';
                             
-                            // إظهار النتائج وأزرار التصدير ورسم جداول المستويات
                             resultsContainer.style.display = 'block';
                             renderLevelSchedules(parsedData.schedule, parsedData.days, parsedData.slots);
                             
                         } catch(e) {
                             console.error("Error parsing DONE JSON:", e);
-                            logOutput.textContent += '\nحدث خطأ أثناء قراءة النتيجة النهائية.\n';
+                            logOutput.textContent += '\n' + _t("حدث خطأ أثناء قراءة النتيجة النهائية.") + '\n';
                         }
                     }
                 } 
-                // --- إضافة: التقاط شريط التقدم وتحديث اللون ديناميكياً هنا ---
                 else if (message.includes("PROGRESS:")) {
                     if (progressContainer && progressBar) {
                         let percentage = message.replace("PROGRESS:", "").trim();
                         progressContainer.style.display = 'block';
                         progressBar.style.width = percentage + '%';
-                        progressBar.style.backgroundColor = getProgressBarColor(percentage); // تحديث اللون ديناميكياً
+                        progressBar.style.backgroundColor = getProgressBarColor(percentage); 
                         progressBar.textContent = percentage + '%';
                     }
                 } 
-                // ✨ الإضافة الجديدة: التقاط بيانات المخطط البياني وإرسالها للرسم ✨
                 else if (message.startsWith("CHART_DATA:")) {
                     try {
                         const chartJson = message.replace("CHART_DATA:", "");
@@ -179,44 +161,47 @@ function startGeneration() {
                         console.error("خطأ في قراءة بيانات المخطط:", e);
                     }
                 }
-                // ------------------------------------
                 else {
-                    // طباعة الرسالة الحية في الشاشة السوداء إذا لم تكن DONE أو PROGRESS أو CHART_DATA
                     logOutput.textContent += message + '\n';
-                    logOutput.scrollTop = logOutput.scrollHeight; // التمرير التلقائي للأسفل
+                    logOutput.scrollTop = logOutput.scrollHeight; 
                 }
             };
             
             eventSource.onerror = function() {
-                logOutput.textContent += '\n--- انقطع الاتصال بالخادم (قد تكون العملية انتهت أو توقفت). ---\n';
+                logOutput.textContent += '\n--- ' + _t("انقطع الاتصال بالخادم (قد تكون العملية انتهت أو توقفت).") + ' ---\n';
                 eventSource.close();
                 btnStop.style.display = 'none';
                 btnStart.style.display = 'block';
-                btnStart.innerText = '🔄 بدء محاولة جديدة';
+                btnStart.innerText = '🔄 ' + _t("بدء محاولة جديدة");
             };
             
         } else {
-            alert("حدث خطأ في بدء الخوارزمية:\n" + data.error);
+            alert(_t("حدث خطأ في بدء الخوارزمية:\n") + data.error);
             btnStop.style.display = 'none';
             btnStart.style.display = 'block';
         }
     }).catch(err => {
         console.error("Error:", err);
-        alert("حدث خطأ في الاتصال بالخادم.");
+        alert(_t("حدث خطأ في الاتصال بالخادم."));
         btnStop.style.display = 'none';
         btnStart.style.display = 'block';
     });
 }
+
 function stopGeneration() {
-    if(confirm("هل أنت متأكد من إيقاف الخوارزمية؟ قد لا يتم حفظ النتائج الحالية.")) {
+    if(confirm(_t("هل أنت متأكد من إيقاف الخوارزمية؟ قد لا يتم حفظ النتائج الحالية."))) {
         fetch('/api/stop-generation', { method: 'POST' });
         const btnStop = document.getElementById('btn-stop-gen');
-        btnStop.textContent = '⏳ جاري الإيقاف، يرجى الانتظار...';
+        btnStop.textContent = '⏳ ' + _t("جاري الإيقاف، يرجى الانتظار...");
         btnStop.disabled = true;
         const forceMutBtn = document.getElementById('btn-force-mutation');
         if (forceMutBtn) forceMutBtn.style.display = 'none';
     }
 }
+
+// =====================================================================
+// دوال الرسم وعرض الجداول (الجزء 2)
+// =====================================================================
 
 // دالة رسم جداول المستويات (مجهزة بمحرك النقر والتبديل التفاعلي)
 function renderLevelSchedules(scheduleData, days, slots) {
@@ -224,7 +209,7 @@ function renderLevelSchedules(scheduleData, days, slots) {
     outputDiv.innerHTML = ''; 
 
     if (!scheduleData || Object.keys(scheduleData).length === 0) {
-        outputDiv.innerHTML = '<h3 style="text-align:center;">لم يتم إنشاء أي جداول أو البيانات فارغة.</h3>';
+        outputDiv.innerHTML = `<h3 style="text-align:center;">${_t("لم يتم إنشاء أي جداول أو البيانات فارغة.")}</h3>`;
         return;
     }
 
@@ -245,7 +230,7 @@ function renderLevelSchedules(scheduleData, days, slots) {
         title.style.color = 'white';
         title.style.margin = '0';
         title.style.padding = '10px';
-        title.textContent = "جدول: " + level;
+        title.textContent = _t("جدول: ") + level;
         container.appendChild(title);
 
         const table = document.createElement('table');
@@ -256,14 +241,15 @@ function renderLevelSchedules(scheduleData, days, slots) {
         // رأس الجدول (الأيام)
         const thead = table.createTHead();
         const headerRow = thead.insertRow();
-        headerRow.innerHTML = '<th style="padding:10px; background:#ecf0f1; border:1px solid #ccc;">الوقت</th>';
+        headerRow.innerHTML = `<th style="padding:10px; background:#ecf0f1; border:1px solid #ccc;">${_t("الوقت")}</th>`;
         days.forEach(day => headerRow.innerHTML += `<th style="padding:10px; background:#ecf0f1; border:1px solid #ccc;">${day}</th>`);
 
         // محتوى الجدول (الفترات والمواد)
         const tbody = table.createTBody();
         slots.forEach((slot, slotIdx) => {
             const row = tbody.insertRow();
-            row.insertCell().innerHTML = `<strong style="display:block; padding:10px; border:1px solid #ccc; background:#fafafa;">${slot}</strong>`;
+            // استخدام الخصائص المنطقية للاتجاهات في العرض
+            row.insertCell().innerHTML = `<strong style="display:block; padding:10px; border:1px solid #ccc; background:#fafafa; direction: ltr;">${slot}</strong>`;
             
             days.forEach((day, dayIdx) => {
                 const cell = row.insertCell();
@@ -279,7 +265,7 @@ function renderLevelSchedules(scheduleData, days, slots) {
                              style="background:#e8f4f8; border:1px solid #3498db; border-radius:4px; padding:8px; margin-bottom:5px; font-size:13px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); cursor:pointer; transition:0.2s;">
                             <strong style="color:#2980b9;">${lec.name}</strong><br>
                             <span style="color:#2c3e50;">${lec.teacher_name}</span><br>
-                            <small style="color:#e67e22; font-weight:bold;">${lec.room || 'بدون قاعة'}</small>
+                            <small style="color:#e67e22; font-weight:bold;">${lec.room || _t("بدون قاعة")}</small>
                         </div>
                     `).join('');
                     
@@ -288,7 +274,7 @@ function renderLevelSchedules(scheduleData, days, slots) {
                         <div onclick="handleLectureClick('${level}', ${dayIdx}, ${slotIdx}, null, null, this)" 
                              style="margin-top: 5px; padding: 5px; border: 1px dashed #bdc3c7; border-radius: 4px; font-size: 11px; color: #7f8c8d; cursor: pointer; text-align: center; transition: 0.2s;"
                              onmouseover="this.style.background='#ecf0f1'" onmouseout="this.style.background='transparent'">
-                            ➕ نقل إلى هنا
+                            ${_t("➕ نقل إلى هنا")}
                         </div>
                     `;
                     cell.innerHTML = cellHTML;
@@ -309,23 +295,21 @@ function renderLevelSchedules(scheduleData, days, slots) {
     }
 }
 
-
-
 // ================= أزرار التصدير (نفس المسارات التي في app.py) =================
 
 function exportFiles(url, defaultFileName, isProfessor = false, isFreeRoom = false) {
-    if (!currentGenerationData) { alert('لا توجد بيانات مصدرة. يرجى توليد الجدول أولاً.'); return; }
+    if (!currentGenerationData) { alert(_t('لا توجد بيانات مصدرة. يرجى توليد الجدول أولاً.')); return; }
     
     const lang = document.querySelector('input[name="export_lang"]:checked')?.value || 'ar';
 
-    // ✨ تحديد اسم الملف برمجياً بناءً على المسار واللغة ✨
+    // تحديد اسم الملف برمجياً بناءً على المسار واللغة 
     let finalFileName = defaultFileName;
     if (url.includes('all-levels')) {
-        finalFileName = lang === 'en' ? 'Schedules_Levels.docx' : (lang === 'fr' ? 'Emplois_Niveaux.docx' : 'جداول_المستويات.docx');
+        finalFileName = lang === 'en' ? 'Schedules_Levels.docx' : (lang === 'fr' ? 'Emplois_Niveaux.docx' : _t('جداول_المستويات.docx'));
     } else if (url.includes('all-professors')) {
-        finalFileName = lang === 'en' ? 'Schedules_Professors.docx' : (lang === 'fr' ? 'Emplois_Professeurs.docx' : 'جداول_الأساتذة.docx');
+        finalFileName = lang === 'en' ? 'Schedules_Professors.docx' : (lang === 'fr' ? 'Emplois_Professeurs.docx' : _t('جداول_الأساتذة.docx'));
     } else if (url.includes('free-rooms')) {
-        finalFileName = lang === 'en' ? 'Free_Rooms.xlsx' : (lang === 'fr' ? 'Salles_Libres.xlsx' : 'جدول_القاعات_الشاغرة.xlsx');
+        finalFileName = lang === 'en' ? 'Free_Rooms.xlsx' : (lang === 'fr' ? 'Salles_Libres.xlsx' : _t('جدول_القاعات_الشاغرة.xlsx'));
     }
 
     let scheduleToSend = currentGenerationData.schedule;
@@ -345,32 +329,30 @@ function exportFiles(url, defaultFileName, isProfessor = false, isFreeRoom = fal
         body: JSON.stringify(payload)
     })
     .then(res => res.blob())
-    .then(blob => triggerDownload(blob, finalFileName)) // ✨ تمرير الاسم الجديد
-    .catch(err => alert("خطأ في التصدير: " + err));
+    .then(blob => triggerDownload(blob, finalFileName)) 
+    .catch(err => alert(_t("خطأ في التصدير: ") + err));
 }
 
 function exportPedagogicalLoad() {
     const lang = document.querySelector('input[name="export_lang"]:checked')?.value || 'ar';
     
-    // ✨ تحديد اسم ملف العبء البيداغوجي ✨
-    let finalFileName = lang === 'en' ? 'Teaching_Load.xlsx' : (lang === 'fr' ? 'Charge_Pedagogique.xlsx' : 'العبء_البيداغوجي.xlsx');
+    let finalFileName = lang === 'en' ? 'Teaching_Load.xlsx' : (lang === 'fr' ? 'Charge_Pedagogique.xlsx' : _t('العبء_البيداغوجي.xlsx'));
     
     fetch(`/api/export/teaching-load?lang=${lang}`)
     .then(res => res.blob())
     .then(blob => triggerDownload(blob, finalFileName))
-    .catch(err => alert("خطأ في تصدير العبء البيداغوجي: " + err));
+    .catch(err => alert(_t("خطأ في تصدير العبء البيداغوجي: ") + err));
 }
 
 function exportComprehensiveList() {
     if (!currentGenerationData || !currentGenerationData.schedule) { 
-        alert('لا توجد بيانات مصدرة. يرجى توليد الجدول أولاً.'); 
+        alert(_t('لا توجد بيانات مصدرة. يرجى توليد الجدول أولاً.')); 
         return; 
     }
     
     const lang = document.querySelector('input[name="export_lang"]:checked')?.value || 'ar';
 
-    // ✨ تحديد اسم ملف القائمة الشاملة ✨
-    let finalFileName = lang === 'en' ? 'Comprehensive_List.xlsx' : (lang === 'fr' ? 'Liste_Globale.xlsx' : 'القائمة_الشاملة_للجداول.xlsx');
+    let finalFileName = lang === 'en' ? 'Comprehensive_List.xlsx' : (lang === 'fr' ? 'Liste_Globale.xlsx' : _t('القائمة_الشاملة_للجداول.xlsx'));
 
     const payload = {
         schedule: currentGenerationData.schedule,
@@ -386,7 +368,7 @@ function exportComprehensiveList() {
     })
     .then(res => res.blob())
     .then(blob => triggerDownload(blob, finalFileName))
-    .catch(err => alert("خطأ في تصدير القائمة الشاملة: " + err));
+    .catch(err => alert(_t("خطأ في تصدير القائمة الشاملة: ") + err));
 }
 
 // دالة مساعدة لعملية تنزيل الملف فعلياً في المتصفح
@@ -402,32 +384,19 @@ function triggerDownload(blob, fileName) {
     document.body.removeChild(a);
 }
 
-// دالة مساعدة لعملية تنزيل الملف فعلياً في المتصفح
-function triggerDownload(blob, fileName) {
-    const downloadUrl = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.style.display = 'none';
-    a.href = downloadUrl;
-    a.download = fileName; // ملاحظة: سنقوم بتحديث الاسم من الخلفية لاحقاً إذا أردت
-    document.body.appendChild(a);
-    a.click();
-    window.URL.revokeObjectURL(downloadUrl);
-    document.body.removeChild(a);
-}
-
 // ==========================================
 // دوال حفظ واستعادة الجداول (الذاكرة المحلية)
 // ==========================================
 
 function saveResult(slotNumber) {
     if (!currentGenerationData || !currentGenerationData.schedule) {
-        alert("لا توجد نتيجة حالية لحفظها! يرجى توليد جدول أولاً.");
+        alert(_t("لا توجد نتيجة حالية لحفظها! يرجى توليد جدول أولاً."));
         return;
     }
     
     // تحويل الجدول إلى نص وحفظه في ذاكرة المتصفح
     localStorage.setItem('savedSchedule_' + slotNumber, JSON.stringify(currentGenerationData));
-    alert("✅ تم حفظ النتيجة الحالية في [الذاكرة رقم " + slotNumber + "] بنجاح!");
+    alert(_t("✅ تم حفظ النتيجة الحالية في [الذاكرة رقم ") + slotNumber + _t("] بنجاح!"));
     
     // إظهار زر الاستعادة المقابل
     document.getElementById('btn-restore-' + slotNumber).style.display = 'inline-block';
@@ -439,7 +408,7 @@ function restoreResult(slotNumber) {
         // استرجاع البيانات وتحويلها لجدول في الذاكرة الحية
         currentGenerationData = JSON.parse(savedData);
         
-        // ✨ الإضافة الضرورية: إظهار حاوية الجداول وأزرار التصدير المخفية
+        // إظهار حاوية الجداول وأزرار التصدير المخفية
         const resultsContainer = document.getElementById('schedule-results-container');
         if (resultsContainer) {
             resultsContainer.style.display = 'block';
@@ -447,9 +416,9 @@ function restoreResult(slotNumber) {
 
         // إعادة رسم الجداول على الشاشة
         renderLevelSchedules(currentGenerationData.schedule, currentGenerationData.days, currentGenerationData.slots);
-        alert("📂 تمت استعادة [النتيجة رقم " + slotNumber + "] بنجاح! يمكنك الآن مراجعتها أو تصديرها.");
+        alert(_t("📂 تمت استعادة [النتيجة رقم ") + slotNumber + _t("] بنجاح! يمكنك الآن مراجعتها أو تصديرها."));
     } else {
-        alert("لا توجد نتيجة محفوظة في هذه الذاكرة.");
+        alert(_t("لا توجد نتيجة محفوظة في هذه الذاكرة."));
     }
 }
 
@@ -470,16 +439,15 @@ document.addEventListener('DOMContentLoaded', function() {
 // ==========================================
 function refineSchedule() {
     if (!currentGenerationData || !currentGenerationData.schedule) {
-        alert("يرجى توليد جدول أولاً قبل محاولة تحسينه!");
+        alert(_t("يرجى توليد جدول أولاً قبل محاولة تحسينه!"));
         return;
     }
 
-    // ✨ 1. جلب مستوى التحسين من أزرار الراديو (Radio Buttons) في واجهتك
+    // 1. جلب مستوى التحسين من أزرار الراديو (Radio Buttons) في واجهتك
     const levelRadio = document.querySelector('input[name="opt_level"]:checked');
     const selectedLevel = levelRadio ? levelRadio.value : 'balanced';
 
-    // ✨ 2. جلب الأساتذة المحددين من الحاوية الخاصة بهم
-    // نبحث عن كل مربع اختيار تم تأشيره داخل الحاوية optimization-teachers
+    // 2. جلب الأساتذة المحددين من الحاوية الخاصة بهم
     const teacherCheckboxes = document.querySelectorAll('#optimization-teachers input[type="checkbox"]:checked');
     const selectedTeachers = Array.from(teacherCheckboxes).map(cb => cb.value);
 
@@ -492,25 +460,28 @@ function refineSchedule() {
     resultsContainer.style.display = 'none';
     logContainer.style.display = 'block';
     
+    // ترجمة اسم المستوى للغة المحددة لطباعته في الشاشة السوداء
+    let levelNameAr = selectedLevel === 'simple_restricted' ? _t('بسيط (مقيد)') : 
+                     (selectedLevel === 'simple' ? _t('بسيط (مفتوح)') : 
+                     (selectedLevel === 'deep' ? _t('عميق (تفريغ المساء)') : 
+                     (selectedLevel === 'deep_balance' ? _t('عميق (موازنة العبء)') : _t('متوازن'))));
+                     
+    let teachersText = selectedTeachers.length > 0 ? (_t("لعدد ") + selectedTeachers.length + _t(" أساتذة")) : _t("لجميع الأساتذة");
     
-   // ترجمة اسم المستوى للغة العربية لطباعته في الشاشة السوداء
-    let levelNameAr = selectedLevel === 'simple_restricted' ? 'بسيط (مقيد)' : (selectedLevel === 'simple' ? 'بسيط (مفتوح)' : (selectedLevel === 'deep' ? 'عميق (تفريغ المساء)' : (selectedLevel === 'deep_balance' ? 'عميق (موازنة العبء)' : 'متوازن')));
-    let teachersText = selectedTeachers.length > 0 ? `لعدد ${selectedTeachers.length} أساتذة` : 'لجميع الأساتذة';
-    
-    logOutput.textContent = `🚀 جاري الاتصال بالخادم لضغط وتحسين أوقات الأساتذة...\n`;
-    logOutput.textContent += `⚙️ المستوى: [${levelNameAr}] | النطاق: [${teachersText}]\n\n`;
+    logOutput.textContent = _t("🚀 جاري الاتصال بالخادم لضغط وتحسين أوقات الأساتذة...\n");
+    logOutput.textContent += _t("⚙️ المستوى: [") + levelNameAr + _t("] | النطاق: [") + teachersText + _t("]\n\n");
     
     // إيقاف الزر مؤقتاً
     btnRefine.disabled = true;
-    btnRefine.innerText = '⏳ جاري التحسين...';
+    btnRefine.innerText = '⏳ ' + _t("جاري التحسين...");
 
     fetch('/api/refine', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
             schedule: currentGenerationData.schedule,
-            level: selectedLevel,       // ✨ إرسال المستوى المختار
-            teachers: selectedTeachers  // ✨ إرسال الأساتذة المحددين
+            level: selectedLevel,       
+            teachers: selectedTeachers  
         })
     })
     .then(res => res.json())
@@ -529,15 +500,15 @@ function refineSchedule() {
                         const parsedData = JSON.parse(jsonData);
                         currentGenerationData = parsedData; 
                         
-                        logOutput.textContent += '\n--- ✨ اكتملت عملية التحسين وسد الفجوات بنجاح! ---\n';
+                        logOutput.textContent += '\n--- ✨ ' + _t("اكتملت عملية التحسين وسد الفجوات بنجاح!") + ' ---\n';
                         
                         btnRefine.disabled = false;
-                        btnRefine.innerText = '✨ ضغط وتحسين جداول الأساتذة (سد الفجوات)';
+                        btnRefine.innerText = _t("✨ ضغط وتحسين جداول الأساتذة (سد الفجوات)");
                         resultsContainer.style.display = 'block';
                         
                         currentGenerationData = parsedData; // حفظ البيانات للنشر
                         renderLevelSchedules(parsedData.schedule, parsedData.days, parsedData.slots);
-                        alert("✨ تم ضغط الجداول بنجاح! يمكنك الآن مراجعتها أو تصديرها.");
+                        alert(_t("✨ تم ضغط الجداول بنجاح! يمكنك الآن مراجعتها أو تصديرها."));
                         
                         // إضافة أزرار النشر ديناميكياً أعلى الجداول
                         let pubDiv = document.getElementById('publish-actions');
@@ -547,27 +518,28 @@ function refineSchedule() {
                             pubDiv.style = 'margin-bottom: 25px; padding: 20px; background: #fffdf5; border: 2px solid #f39c12; border-radius: 8px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05);';
                             resultsContainer.parentNode.insertBefore(pubDiv, resultsContainer);
                         }
+                        
+                        // استخدام الترجمة داخل القالب الديناميكي
                         pubDiv.innerHTML = `
-                            <h3 style="margin-top: 0; color: #d35400;">🚀 الخطوة الختامية: المراجعة والنشر</h3>
-                            <p style="font-size: 14px; color: #7f8c8d; margin-bottom: 15px;">يمكنك تعديل الجداول برمجياً، أو تصديرها للإكسل وتعديلها خارجياً، ثم العودة لنشرها.</p>
+                            <h3 style="margin-top: 0; color: #d35400;">${_t("🚀 الخطوة الختامية: المراجعة والنشر")}</h3>
+                            <p style="font-size: 14px; color: #7f8c8d; margin-bottom: 15px;">${_t("يمكنك تعديل الجداول برمجياً، أو تصديرها للإكسل وتعديلها خارجياً، ثم العودة لنشرها.")}</p>
                             
                             <div style="background: white; padding: 15px; border-radius: 6px; display: inline-block; border: 1px solid #ddd; margin-bottom: 15px;">
-                                <button onclick="exportToExcel()" style="background: #207245; color: white; padding: 10px 15px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 14px; margin-left: 10px;">⬇️ تصدير الجداول (Excel)</button>
+                                <button onclick="exportToExcel()" style="background: #207245; color: white; padding: 10px 15px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 14px; margin-inline-start: 10px;">${_t("⬇️ تصدير الجداول (Excel)")}</button>
                                 
                                 <input type="file" id="excel-upload" accept=".xlsx" style="display: none;" onchange="importFromExcel(this)">
-                                <button onclick="document.getElementById('excel-upload').click()" style="background: #f1c40f; color: #2c3e50; padding: 10px 15px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 14px;">⬆️ استيراد الجداول المعدلة</button>
+                                <button onclick="document.getElementById('excel-upload').click()" style="background: #f1c40f; color: #2c3e50; padding: 10px 15px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 14px;">${_t("⬆️ استيراد الجداول المعدلة")}</button>
                             </div>
                             <br>
 
-                            <button id="btn-edit-mode" onclick="toggleEditMode()" style="background: #f39c12; color: white; padding: 12px 25px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 16px; margin-left: 10px; transition: 0.3s;">✏️ تفعيل التعديل التفاعلي</button>
-                            <button id="btn-publish" onclick="publishSchedule()" style="background: #27ae60; color: white; padding: 12px 25px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 16px; margin-left: 10px; transition: 0.3s;">✅ إرسال الجداول للأساتذة</button>
-                            <button onclick="unpublishSchedule()" style="background: #95a5a6; color: white; padding: 12px 25px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 16px;">🚫 سحب وإخفاء</button>
+                            <button id="btn-edit-mode" onclick="toggleEditMode()" style="background: #f39c12; color: white; padding: 12px 25px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 16px; margin-inline-start: 10px; transition: 0.3s;">${_t("✏️ تفعيل التعديل التفاعلي")}</button>
+                            <button id="btn-publish" onclick="publishSchedule()" style="background: #27ae60; color: white; padding: 12px 25px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 16px; margin-inline-start: 10px; transition: 0.3s;">${_t("✅ إرسال الجداول للأساتذة")}</button>
+                            <button onclick="unpublishSchedule()" style="background: #95a5a6; color: white; padding: 12px 25px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 16px;">${_t("🚫 سحب وإخفاء")}</button>
                         `;
                         
                     } catch(e) {
                         console.error("Error parsing DONE JSON:", e);
                     }
-                // ✨ الإضافة: التقاط بيانات الرسم البياني أثناء التحسين وإخفائها من الشاشة السوداء
                 } else if (message.startsWith("CHART_DATA:")) {
                     try {
                         const chartJson = message.replace("CHART_DATA:", "");
@@ -585,24 +557,24 @@ function refineSchedule() {
             refineEventSource.onerror = function() {
                 refineEventSource.close();
                 btnRefine.disabled = false;
-                btnRefine.innerText = '✨ ضغط وتحسين جداول الأساتذة (سد الفجوات)';
+                btnRefine.innerText = _t("✨ ضغط وتحسين جداول الأساتذة (سد الفجوات)");
                 
-                // ✨ السطر المنقذ: إعادة إظهار الجداول إذا انقطع الاتصال
+                // إعادة إظهار الجداول إذا انقطع الاتصال
                 resultsContainer.style.display = 'block'; 
             };
         } else {
-            alert("حدث خطأ: " + data.error);
+            alert(_t("حدث خطأ: ") + data.error);
             btnRefine.disabled = false;
-            btnRefine.innerText = '✨ ضغط وتحسين جداول الأساتذة (سد الفجوات)';
-            resultsContainer.style.display = 'block'; // ✨ الإضافة هنا أيضاً
+            btnRefine.innerText = _t("✨ ضغط وتحسين جداول الأساتذة (سد الفجوات)");
+            resultsContainer.style.display = 'block';
         }
     })
     .catch(err => {
         console.error("Error:", err);
-        alert("حدث خطأ في الاتصال.");
+        alert(_t("حدث خطأ في الاتصال."));
         btnRefine.disabled = false;
-        btnRefine.innerText = '✨ ضغط وتحسين جداول الأساتذة (سد الفجوات)';
-        resultsContainer.style.display = 'block'; // ✨ والإضافة هنا أيضاً
+        btnRefine.innerText = _t("✨ ضغط وتحسين جداول الأساتذة (سد الفجوات)");
+        resultsContainer.style.display = 'block';
     });
 }
 
@@ -611,10 +583,10 @@ function refineSchedule() {
 // ==========================================
 function activateDominoSchedules() {
     if (!currentGenerationData || !currentGenerationData.schedule) {
-        alert("يرجى توليد جدول أولاً!"); return;
+        alert(_t("يرجى توليد جدول أولاً!")); return;
     }
     
-    if (!confirm("هل أنت متأكد أنك تريد تفعيل الدومينو (صناعة حصص يتيمة) للأساتذة المؤشر عليهم؟")) return;
+    if (!confirm(_t("هل أنت متأكد أنك تريد تفعيل الدومينو (صناعة حصص يتيمة) للأساتذة المؤشر عليهم؟"))) return;
 
     const logContainer = document.getElementById('live-log-container');
     const logOutput = document.getElementById('log-output');
@@ -623,10 +595,10 @@ function activateDominoSchedules() {
     
     resultsContainer.style.display = 'none';
     logContainer.style.display = 'block';
-    logOutput.textContent = `🟢 جاري الاتصال بالخادم لتفعيل الدومينو (صناعة الحصص اليتيمة)...\n`;
+    logOutput.textContent = _t("🟢 جاري الاتصال بالخادم لتفعيل الدومينو (صناعة الحصص اليتيمة)...\n");
     
     btnActivate.disabled = true;
-    btnActivate.innerText = '⏳ جاري التفعيل...';
+    btnActivate.innerText = '⏳ ' + _t("جاري التفعيل...");
 
     fetch('/api/activate_domino', {
         method: 'POST',
@@ -647,12 +619,12 @@ function activateDominoSchedules() {
                         currentGenerationData.schedule = parsedData.schedule;
                         currentGenerationData.prof_schedules = parsedData.prof_schedules;
                         currentGenerationData.free_rooms = parsedData.free_rooms; 
-                        logOutput.textContent += '\n--- 🟢 نجحت عملية صناعة الحصص اليتيمة! ---\n';
+                        logOutput.textContent += '\n--- 🟢 ' + _t("نجحت عملية صناعة الحصص اليتيمة!") + ' ---\n';
                         btnActivate.disabled = false;
-                        btnActivate.innerText = '🟢 تفعيل الدومينو';
+                        btnActivate.innerText = '🟢 ' + _t("تفعيل الدومينو");
                         resultsContainer.style.display = 'block';
                         renderLevelSchedules(parsedData.schedule, parsedData.days, parsedData.slots);
-                        alert("🟢 تم تفعيل مسار الدومينو وصناعة الحصص اليتيمة بنجاح!");
+                        alert(_t("🟢 تم تفعيل مسار الدومينو وصناعة الحصص اليتيمة بنجاح!"));
                     } catch(e) { console.error(e); }
                 } else if (!message.includes("PROGRESS:") && !message.startsWith("CHART_DATA:")) {
                     logOutput.textContent += message + '\n';
@@ -662,20 +634,20 @@ function activateDominoSchedules() {
             refineEventSource.onerror = function() {
                 refineEventSource.close();
                 btnActivate.disabled = false;
-                btnActivate.innerText = '🟢 تفعيل الدومينو';
+                btnActivate.innerText = '🟢 ' + _t("تفعيل الدومينو");
                 resultsContainer.style.display = 'block'; 
             };
         } else {
-            alert("حدث خطأ: " + data.error);
+            alert(_t("حدث خطأ: ") + data.error);
             btnActivate.disabled = false;
-            btnActivate.innerText = '🟢 تفعيل الدومينو';
+            btnActivate.innerText = '🟢 ' + _t("تفعيل الدومينو");
             resultsContainer.style.display = 'block';
         }
     })
     .catch(err => {
-        alert("حدث خطأ في الاتصال.");
+        alert(_t("حدث خطأ في الاتصال."));
         btnActivate.disabled = false;
-        btnActivate.innerText = '🟢 تفعيل الدومينو';
+        btnActivate.innerText = '🟢 ' + _t("تفعيل الدومينو");
         resultsContainer.style.display = 'block';
     });
 }
@@ -685,10 +657,10 @@ function activateDominoSchedules() {
 // ==========================================
 function compressDominoSchedules() {
     if (!currentGenerationData || !currentGenerationData.schedule) {
-        alert("يرجى توليد جدول أولاً!"); return;
+        alert(_t("يرجى توليد جدول أولاً!")); return;
     }
     
-    if (!confirm("هل أنت متأكد من تجميع الدومينو وضغط جداول الأساتذة العالقين؟")) return;
+    if (!confirm(_t("هل أنت متأكد من تجميع الدومينو وضغط جداول الأساتذة العالقين؟"))) return;
 
     const logContainer = document.getElementById('live-log-container');
     const logOutput = document.getElementById('log-output');
@@ -697,10 +669,10 @@ function compressDominoSchedules() {
     
     resultsContainer.style.display = 'none';
     logContainer.style.display = 'block';
-    logOutput.textContent = `🔵 جاري الاتصال بالخادم وتجميع مسارات الدومينو لضغط الجداول...\n`;
+    logOutput.textContent = _t("🔵 جاري الاتصال بالخادم وتجميع مسارات الدومينو لضغط الجداول...\n");
     
     btnCompress.disabled = true;
-    btnCompress.innerText = '⏳ جاري التجميع...';
+    btnCompress.innerText = '⏳ ' + _t("جاري التجميع...");
 
     fetch('/api/compress_domino', {
         method: 'POST',
@@ -721,12 +693,12 @@ function compressDominoSchedules() {
                         currentGenerationData.schedule = parsedData.schedule;
                         currentGenerationData.prof_schedules = parsedData.prof_schedules;
                         currentGenerationData.free_rooms = parsedData.free_rooms; 
-                        logOutput.textContent += '\n--- 🔵 نجحت عملية تجميع مسارات الدومينو! ---\n';
+                        logOutput.textContent += '\n--- 🔵 ' + _t("نجحت عملية تجميع مسارات الدومينو!") + ' ---\n';
                         btnCompress.disabled = false;
-                        btnCompress.innerText = '🔵 تجميع الدومينو';
+                        btnCompress.innerText = '🔵 ' + _t("تجميع الدومينو");
                         resultsContainer.style.display = 'block';
                         renderLevelSchedules(parsedData.schedule, parsedData.days, parsedData.slots);
-                        alert("🔵 تم تجميع الحصص اليتيمة وضغط الجداول بنجاح!");
+                        alert(_t("🔵 تم تجميع الحصص اليتيمة وضغط الجداول بنجاح!"));
                     } catch(e) { console.error(e); }
                 } else if (!message.includes("PROGRESS:") && !message.startsWith("CHART_DATA:")) {
                     logOutput.textContent += message + '\n';
@@ -736,20 +708,20 @@ function compressDominoSchedules() {
             refineEventSource.onerror = function() {
                 refineEventSource.close();
                 btnCompress.disabled = false;
-                btnCompress.innerText = '🔵 تجميع الدومينو';
+                btnCompress.innerText = '🔵 ' + _t("تجميع الدومينو");
                 resultsContainer.style.display = 'block'; 
             };
         } else {
-            alert("حدث خطأ: " + data.error);
+            alert(_t("حدث خطأ: ") + data.error);
             btnCompress.disabled = false;
-            btnCompress.innerText = '🔵 تجميع الدومينو';
+            btnCompress.innerText = '🔵 ' + _t("تجميع الدومينو");
             resultsContainer.style.display = 'block';
         }
     })
     .catch(err => {
-        alert("حدث خطأ في الاتصال.");
+        alert(_t("حدث خطأ في الاتصال."));
         btnCompress.disabled = false;
-        btnCompress.innerText = '🔵 تجميع الدومينو';
+        btnCompress.innerText = '🔵 ' + _t("تجميع الدومينو");
         resultsContainer.style.display = 'block';
     });
 }
@@ -788,16 +760,17 @@ function toggleSurgicalSlider() {
 
 function executeSurgicalStrike() {
     if (!currentGenerationData || !currentGenerationData.schedule) {
-        alert("يرجى توليد جدول أولاً!"); return;
+        alert(_t("يرجى توليد جدول أولاً!")); return;
     }
     const teacherName = document.getElementById('surgical-teacher-select').value;
     const maxVictims = document.getElementById('surgical-max-victims').value;
     
     if (!teacherName) {
-        alert("الرجاء اختيار الأستاذ الهدف من القائمة المنسدلة."); return;
+        alert(_t("الرجاء اختيار الأستاذ الهدف من القائمة المنسدلة.")); return;
     }
     
-    if (!confirm(`هل أنت متأكد من تنفيذ العملية الجراحية لرفع حصص الأستاذ [${teacherName}] نحو الصباح؟\n(ملاحظة: سيتم إزاحة أساتذة آخرين كضحايا بحد أقصى ${maxVictims}).`)) return;
+    // تقسيم النص لترجمة المتغيرات المدمجة
+    if (!confirm(`${_t("هل أنت متأكد من تنفيذ العملية الجراحية لرفع حصص الأستاذ [")}${teacherName}${_t("] نحو الصباح؟\n(ملاحظة: سيتم إزاحة أساتذة آخرين كضحايا بحد أقصى ")}${maxVictims}${_t(").")}`)) return;
 
     const logContainer = document.getElementById('live-log-container');
     const logOutput = document.getElementById('log-output');
@@ -806,7 +779,7 @@ function executeSurgicalStrike() {
     
     resultsContainer.style.display = 'none';
     logContainer.style.display = 'block';
-    logOutput.textContent = `🎯 جاري الاتصال بالخادم لتنفيذ التدخل الجراحي للأستاذ: [${teacherName}]...\n`;
+    logOutput.textContent = `🎯 ${_t("جاري الاتصال بالخادم لتنفيذ التدخل الجراحي للأستاذ: [")}${teacherName}${_t("]...\n")}`;
     
     btnExecute.disabled = true;
     btnExecute.innerText = '⏳ ...';
@@ -834,12 +807,12 @@ function executeSurgicalStrike() {
                     try {
                         const parsedData = JSON.parse(jsonData);
                         currentGenerationData = parsedData; 
-                        logOutput.textContent += '\n--- 🎯 انتهت العملية الجراحية! ---\n';
+                        logOutput.textContent += '\n--- 🎯 ' + _t("انتهت العملية الجراحية!") + ' ---\n';
                         btnExecute.disabled = false;
-                        btnExecute.innerText = '🚀 تنفيذ';
+                        btnExecute.innerText = '🚀 ' + _t("تنفيذ");
                         resultsContainer.style.display = 'block';
                         renderLevelSchedules(parsedData.schedule, parsedData.days, parsedData.slots);
-                        alert("🎯 تمت العملية الجراحية، ويمكنك معاينة الجدول المحدث!");
+                        alert(_t("🎯 تمت العملية الجراحية، ويمكنك معاينة الجدول المحدث!"));
                     } catch(e) { console.error(e); }
                 } else if (!message.includes("PROGRESS:") && !message.startsWith("CHART_DATA:")) {
                     logOutput.textContent += message + '\n';
@@ -855,24 +828,23 @@ function executeSurgicalStrike() {
             sseSource.onerror = function() {
                 sseSource.close();
                 btnExecute.disabled = false;
-                btnExecute.innerText = '🚀 تنفيذ';
+                btnExecute.innerText = '🚀 ' + _t("تنفيذ");
                 resultsContainer.style.display = 'block'; 
             };
         } else {
-            alert("حدث خطأ: " + data.error);
+            alert(_t("حدث خطأ: ") + data.error);
             btnExecute.disabled = false;
-            btnExecute.innerText = '🚀 تنفيذ';
+            btnExecute.innerText = '🚀 ' + _t("تنفيذ");
             resultsContainer.style.display = 'block';
         }
     })
     .catch(err => {
-        alert("حدث خطأ في الاتصال بالخادم.");
+        alert(_t("حدث خطأ في الاتصال بالخادم."));
         btnExecute.disabled = false;
-        btnExecute.innerText = '🚀 تنفيذ';
+        btnExecute.innerText = '🚀 ' + _t("تنفيذ");
         resultsContainer.style.display = 'block';
     });
 }
-
 
 // ==================== محرك التعديل اليدوي الذكي (Interactive Swapping) ====================
 let isEditMode = false;
@@ -886,15 +858,19 @@ function toggleEditMode() {
     
     if(isEditMode) {
         btn.style.background = '#e74c3c';
-        btn.innerHTML = '🔴 إغلاق وضع التعديل';
-        container.style.border = '3px dashed #f39c12';
-        container.style.padding = '10px';
-        alert("✨ تم تفعيل الوضع اليدوي!\\n1. انقر على أي مادة لتحديدها.\\n2. انقر على مادة أخرى (أو فراغ) ليتبادلا الأماكن فوراً.");
+        btn.innerHTML = _t("🔴 إغلاق وضع التعديل");
+        if(container) {
+            container.style.border = '3px dashed #f39c12';
+            container.style.padding = '10px';
+        }
+        alert(_t("✨ تم تفعيل الوضع اليدوي!\n1. انقر على أي مادة لتحديدها.\n2. انقر على مادة أخرى (أو فراغ) ليتبادلا الأماكن فوراً."));
     } else {
         btn.style.background = '#f39c12';
-        btn.innerHTML = '✏️ تفعيل التعديل اليدوي';
-        container.style.border = 'none';
-        container.style.padding = '0';
+        btn.innerHTML = _t("✏️ تفعيل التعديل التفاعلي");
+        if(container) {
+            container.style.border = 'none';
+            container.style.padding = '0';
+        }
         clearSelection();
     }
 }
@@ -912,7 +888,6 @@ function clearSelection() {
 // دالة مساعدة ذكية للتمييز بين القاعات الكبيرة والصغيرة
 function isLargeRoom(roomName) {
     if (!roomName) return false;
-    // يعتبرها قاعة كبيرة إذا كان اسمها يحتوي على إحدى هذه الكلمات
     return roomName.includes('مدرج') || roomName.includes('كبرى') || roomName.includes('كبير');
 }
 
@@ -941,11 +916,11 @@ function handleLectureClick(level, dayIndex, slotIndex, lecIndex, teacherName, e
 
     // 1. فحص تعارض الأساتذة
     if(isTeacherBusy(source.teacherName, target.dayIndex, target.slotIndex, source.level)) {
-        alert(`❌ تعارض: الأستاذ (${source.teacherName}) يدرّس مستوى آخر في هذا التوقيت!`);
+        alert(_t("❌ تعارض: الأستاذ (") + source.teacherName + _t(") يدرّس مستوى آخر في هذا التوقيت!"));
         clearSelection(); return;
     }
     if(target.teacherName && isTeacherBusy(target.teacherName, source.dayIndex, source.slotIndex, target.level)) {
-        alert(`❌ تعارض: الأستاذ (${target.teacherName}) يدرّس مستوى آخر في التوقيت الأول!`);
+        alert(_t("❌ تعارض: الأستاذ (") + target.teacherName + _t(") يدرّس مستوى آخر في التوقيت الأول!"));
         clearSelection(); return;
     }
 
@@ -962,7 +937,7 @@ function handleLectureClick(level, dayIndex, slotIndex, lecIndex, teacherName, e
         // حالة: تبديل مادة بمادة أخرى
         const isTargetLarge = isLargeRoom(targetLec.room);
         if (sourceNeedsLarge !== isTargetLarge) {
-            alert("❌ عملية مرفوضة: لا يمكن التبديل بين قاعة كبيرة وقاعة صغيرة لاختلاف سعة الاستيعاب!");
+            alert(_t("❌ عملية مرفوضة: لا يمكن التبديل بين قاعة كبيرة وقاعة صغيرة لاختلاف سعة الاستيعاب!"));
             clearSelection(); return;
         }
         
@@ -971,16 +946,15 @@ function handleLectureClick(level, dayIndex, slotIndex, lecIndex, teacherName, e
         targetLec.room = tempRoom;
     } 
     else {
-        // حالة: النقل إلى فترة فارغة (أو النقر على "نقل إلى هنا")
+        // حالة: النقل إلى فترة فارغة
         if (!freeRooms[target.dayIndex][target.slotIndex] || freeRooms[target.dayIndex][target.slotIndex].length === 0) {
-            alert("❌ عملية مرفوضة: لا توجد أي قاعات شاغرة في الكلية في هذا التوقيت!");
+            alert(_t("❌ عملية مرفوضة: لا توجد أي قاعات شاغرة في الكلية في هذا التوقيت!"));
             clearSelection(); return;
         }
 
         const availableRooms = freeRooms[target.dayIndex][target.slotIndex];
         let foundRoomIndex = -1;
 
-        // البحث عن قاعة شاغرة تطابق الحجم المطلوب (كبيرة أو صغيرة)
         for(let i=0; i<availableRooms.length; i++) {
             if(isLargeRoom(availableRooms[i]) === sourceNeedsLarge) {
                 foundRoomIndex = i;
@@ -989,17 +963,15 @@ function handleLectureClick(level, dayIndex, slotIndex, lecIndex, teacherName, e
         }
 
         if(foundRoomIndex === -1) {
-            let roomTypeStr = sourceNeedsLarge ? "كبيرة (مدرج)" : "صغيرة (عادية)";
-            alert(`❌ عملية مرفوضة: توجد قاعات شاغرة في هذا الوقت، ولكن لا توجد قاعة ${roomTypeStr} تناسب المادة!`);
+            let roomTypeStr = sourceNeedsLarge ? _t("كبيرة (مدرج)") : _t("صغيرة (عادية)");
+            alert(_t("❌ عملية مرفوضة: توجد قاعات شاغرة في هذا الوقت، ولكن لا توجد قاعة ") + roomTypeStr + _t(" تناسب المادة!"));
             clearSelection(); return;
         }
         
-        // سحب القاعة المناسبة من قائمة الشواغر
         const oldRoom = sourceLec.room;
         const newRoom = availableRooms.splice(foundRoomIndex, 1)[0]; 
         sourceLec.room = newRoom;
         
-        // إعادة القاعة القديمة لتصبح شاغرة في التوقيت القديم
         if (oldRoom) {
             freeRooms[source.dayIndex][source.slotIndex].push(oldRoom);
         }
@@ -1038,13 +1010,11 @@ function isTeacherBusy(teacherName, dayIdx, slotIdx, excludeLevel) {
 // 5. مزامنة التغييرات مع جداول الأساتذة لتصلهم صحيحة
 function syncProfSchedules() {
     const profs = currentGenerationData.prof_schedules;
-    // تفريغ الجداول الحالية
     for(let p in profs) {
         for(let d=0; d<profs[p].length; d++) {
             for(let s=0; s<profs[p][d].length; s++) profs[p][d][s] = [];
         }
     }
-    // إعادة التعبئة
     const sched = currentGenerationData.schedule;
     for(const [lvl, days] of Object.entries(sched)) {
         for(let d=0; d<days.length; d++) {
@@ -1061,10 +1031,9 @@ function syncProfSchedules() {
     }
 }
 
-
 // ==================== التصدير والاستيراد عبر Excel ====================
 function exportToExcel() {
-    if(!currentGenerationData || !currentGenerationData.schedule) return alert("لا يوجد جدول لتصديره.");
+    if(!currentGenerationData || !currentGenerationData.schedule) return alert(_t("لا يوجد جدول لتصديره."));
     
     const lang = document.querySelector('input[name="export_lang"]:checked')?.value || 'ar';
 
@@ -1075,7 +1044,7 @@ function exportToExcel() {
             schedule: currentGenerationData.schedule,
             days: currentGenerationData.days,
             slots: currentGenerationData.slots,
-            lang: lang // ✨ إرسال اللغة
+            lang: lang 
         })
     })
     .then(res => res.blob())
@@ -1083,25 +1052,21 @@ function exportToExcel() {
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'الجداول_الجامعية.xlsx';
+        a.download = 'الجداول_الجامعية.xlsx'; // سيتم معالجته لاحقاً في API إن شئت
         a.click();
     });
 }
 
-
-
-
 // =====================================================================
-// نظام المخطط البياني الحي (المضاف حديثاً)
+// نظام المخطط البياني الحي
 // =====================================================================
 let liveErrorChart = null;
-let currentChartType = 'bar'; // النوع الافتراضي (أعمدة)
+let currentChartType = 'bar'; 
 
 function initLiveChart() {
     const ctx = document.getElementById('liveErrorChart');
     if (!ctx) return;
     
-    // تدمير المخطط القديم إن وجد لإعادة رسمه من جديد عند التبديل
     if (liveErrorChart) {
         liveErrorChart.destroy();
     }
@@ -1109,16 +1074,16 @@ function initLiveChart() {
     liveErrorChart = new Chart(ctx, {
         type: currentChartType,
         data: {
-            labels: [], // سيتم ملؤها آلياً
+            labels: [], 
             datasets: [{
-                label: 'عدد الأخطاء',
-                data: [], // سيتم ملؤها آلياً
+                label: 'Errors / الأخطاء',
+                data: [], 
                 backgroundColor: [
-                    'rgba(231, 76, 60, 0.7)',  // أحمر (للصارم)
-                    'rgba(230, 126, 34, 0.7)', // برتقالي
-                    'rgba(241, 196, 15, 0.7)', // أصفر
-                    'rgba(52, 152, 219, 0.7)', // أزرق
-                    'rgba(46, 204, 113, 0.7)'  // أخضر
+                    'rgba(231, 76, 60, 0.7)',
+                    'rgba(230, 126, 34, 0.7)',
+                    'rgba(241, 196, 15, 0.7)',
+                    'rgba(52, 152, 219, 0.7)',
+                    'rgba(46, 204, 113, 0.7)'
                 ],
                 borderColor: [
                     'rgba(192, 57, 43, 1)',
@@ -1134,36 +1099,19 @@ function initLiveChart() {
             responsive: true,
             maintainAspectRatio: false,
             scales: {
-                r: { // إعدادات الشبكة العنكبوتية (تظهر فقط إذا كان النوع radar)
-                    display: currentChartType === 'radar',
-                    beginAtZero: true,
-                    ticks: { stepSize: 1, precision: 0 }
-                },
-                y: { // إعدادات الأعمدة (تظهر فقط إذا كان النوع bar)
-                    display: currentChartType === 'bar',
-                    beginAtZero: true,
-                    ticks: { stepSize: 1, precision: 0 }
-                }
+                r: { display: currentChartType === 'radar', beginAtZero: true, ticks: { stepSize: 1, precision: 0 } },
+                y: { display: currentChartType === 'bar', beginAtZero: true, ticks: { stepSize: 1, precision: 0 } }
             },
-            plugins: {
-                legend: { display: false } // إخفاء مفتاح الخريطة لتوفير المساحة
-            },
-            animation: {
-                duration: 400 // حركة سريعة وناعمة عند تحديث البيانات
-            }
+            plugins: { legend: { display: false } },
+            animation: { duration: 400 }
         }
     });
 }
 
-// =====================================================================
-// ✨ الإضافة: متغيرات الذاكرة لحفظ آخر حالة للبيانات
 let latestChartLabels = [];
 let latestChartData = [];
-// =====================================================================
 
-// دالة تحديث البيانات حياً (المعدلة)
 function updateLiveChart(labels, data) {
-    // تحديث الذاكرة بالبيانات الجديدة القادمة من الخوارزمية
     latestChartLabels = labels; 
     latestChartData = data;     
 
@@ -1173,15 +1121,13 @@ function updateLiveChart(labels, data) {
     liveErrorChart.update();
 }
 
-// تفعيل زر التبديل بين الأعمدة والشبكة العنكبوتية (المعدل)
 document.addEventListener('DOMContentLoaded', function() {
     const toggleBtn = document.getElementById('btn-toggle-chart');
     if(toggleBtn) {
         toggleBtn.addEventListener('click', function() {
             currentChartType = (currentChartType === 'bar') ? 'radar' : 'bar';
-            initLiveChart(); // إعادة رسم الهيكل بالشكل الجديد
+            initLiveChart(); 
 
-            // ✨ الإضافة: استرجاع البيانات من الذاكرة وعرضها فوراً دون انتظار الخوارزمية
             if (latestChartLabels.length > 0) {
                 liveErrorChart.data.labels = latestChartLabels;
                 liveErrorChart.data.datasets[0].data = latestChartData;
@@ -1191,15 +1137,12 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// دالة إرسال أمر الطفرة اليدوية للخادم (محدثة للزر الشفاف)
 function triggerManualMutation() {
     const intensityVal = parseInt(document.getElementById('mutation_hard_intensity')?.value) || 4;
 
     fetch('/api/generate/force_mutation', { 
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ intensity: intensityVal }) 
     })
     .then(res => res.json())
@@ -1207,40 +1150,36 @@ function triggerManualMutation() {
         if(data.success) {
             const btn = document.getElementById('btn-force-mutation');
             
-            // ⚡ تأثير بصري حركي شفاف (بدون ظهور المربع المحيط)
-            btn.style.transform = "scale(0.7)"; // انكماش سريع
-            btn.style.opacity = "0.5";         // تصبح باهتة مؤقتاً
+            btn.style.transform = "scale(0.7)"; 
+            btn.style.opacity = "0.5";         
             
             setTimeout(() => {
-                btn.style.transform = "scale(1)"; // العودة للحجم الطبيعي
-                btn.style.opacity = "1";          // العودة للوضوح التام
-            }, 150); // نبضة سريعة جداً (0.15 ثانية)
+                btn.style.transform = "scale(1)"; 
+                btn.style.opacity = "1";          
+            }, 150); 
             
-            console.log(`⚡ تم إرسال صدمة بقوة ${intensityVal}`);
+            console.log(_t("⚡ تم إرسال صدمة بقوة ") + intensityVal);
         }
     })
-    .catch(err => console.error("خطأ في إرسال الطفرة:", err));
+    .catch(err => console.error("Error forced mutation:", err));
 }
 
 // ==================== دوال المرحلة 7 (غرفة التحكم المركزية) ====================
 
-// دالة استيراد الجداول من الإكسل
 function importExcelSchedule() {
     const fileInput = document.getElementById('excel-import-file');
     if (!fileInput || !fileInput.files.length) {
-        return alert("الرجاء اختيار ملف Excel أولاً!");
+        return alert(_t("الرجاء اختيار ملف Excel أولاً!"));
     }
 
     const formData = new FormData();
     formData.append('file', fileInput.files[0]);
-    // إرسال الهيكل الحالي مع الملف لضمان توافق الأيام والفترات
     formData.append('days', JSON.stringify(currentGenerationData?.days || []));
     formData.append('slots', JSON.stringify(currentGenerationData?.slots || []));
 
-    // إظهار رسالة تحميل
     const btn = event.target;
     const originalText = btn.innerHTML;
-    btn.innerHTML = "⏳ جاري الاستيراد والمعالجة...";
+    btn.innerHTML = '⏳ ' + _t("جاري الاستيراد والمعالجة...");
     btn.disabled = true;
 
     fetch('/api/import_excel', {
@@ -1253,39 +1192,34 @@ function importExcelSchedule() {
         btn.disabled = false;
         
         if (data.success) {
-            // تحديث الذاكرة الحية للنظام
             if(!currentGenerationData) currentGenerationData = {};
             currentGenerationData.schedule = data.schedule;
             currentGenerationData.prof_schedules = data.prof_schedules;
             
-            alert("✅ تم استيراد الجداول من الإكسل وتحديث قاعدة البيانات بنجاح!\nالآن يمكنك الضغط على 'إرسال للأساتذة' لنشرها.");
-            fileInput.value = ''; // تفريغ خانة الملف
+            alert(_t("✅ تم استيراد الجداول من الإكسل وتحديث قاعدة البيانات بنجاح!\nالآن يمكنك الضغط على 'إرسال للأساتذة' لنشرها."));
+            fileInput.value = ''; 
             
-            // إعادة رسم الجداول في الواجهة إن كانت ظاهرة
             if(typeof renderLevelSchedules === 'function' && currentGenerationData.days) {
                 renderLevelSchedules(data.schedule, currentGenerationData.days, currentGenerationData.slots);
             }
         } else {
-            alert("❌ خطأ: " + data.error);
+            alert("❌ " + (data.error || "Error"));
         }
     })
     .catch(err => {
         btn.innerHTML = originalText;
         btn.disabled = false;
-        alert("حدث خطأ في الاتصال أثناء رفع الملف.");
+        alert(_t("حدث خطأ في الاتصال أثناء رفع الملف."));
     });
 }
 
-// دالة نشر الجداول للأساتذة (محدثة بمحرك إعادة البناء الذكي)
 function publishSchedule() {
-    // 1. التحقق من وجود بيانات في الذاكرة
     if(!currentGenerationData || !currentGenerationData.schedule) {
-        return alert("⚠️ لا يوجد جدول حالي في الذاكرة! يرجى استيراد ملف الإكسل مرة أخرى ثم النقر على إرسال فوراً (دون تحديث الصفحة).");
+        return alert(_t("⚠️ لا يوجد جدول حالي في الذاكرة! يرجى استيراد ملف الإكسل مرة أخرى ثم النقر على إرسال فوراً (دون تحديث الصفحة)."));
     }
 
-    if(!confirm("📢 هل أنت متأكد أنك تريد إرسال الجداول؟\nسيتمكن جميع الأساتذة من رؤية جداولهم في بواباتهم الشخصية.")) return;
+    if(!confirm(_t("📢 هل أنت متأكد أنك تريد إرسال الجداول؟\nسيتمكن جميع الأساتذة من رؤية جداولهم في بواباتهم الشخصية."))) return;
 
-    // 2. هندسة عكسية: بناء جداول الأساتذة من الجدول العام لضمان عدم وجود فراغ
     let newProfSchedules = {};
     const sched = currentGenerationData.schedule;
     const daysCount = currentGenerationData.days ? currentGenerationData.days.length : 6;
@@ -1301,10 +1235,8 @@ function publishSchedule() {
                     let tName = lec.teacher_name;
                     if (tName) {
                         if (!newProfSchedules[tName]) {
-                            // إنشاء هيكل فارغ للأستاذ
                             newProfSchedules[tName] = Array.from({length: daysCount}, () => Array.from({length: slotsCount}, () => []));
                         }
-                        // نسخ الحصة وإضافة اسم المستوى إليها
                         let lecCopy = {...lec, level: lvl};
                         newProfSchedules[tName][d][s].push(lecCopy);
                     }
@@ -1313,10 +1245,8 @@ function publishSchedule() {
         }
     }
 
-    // 3. تحديث الذاكرة بالبيانات المضمونة
     currentGenerationData.prof_schedules = newProfSchedules;
 
-    // 4. إرسال البيانات المضمونة للخادم
     fetch('/api/admin/publish_schedule', { 
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
@@ -1325,26 +1255,26 @@ function publishSchedule() {
     .then(res => res.json())
     .then(data => {
         if(data.success) {
-            alert("✅ تم بناء ونشر جداول الأساتذة بنجاح! يمكنهم رؤيتها الآن.");
+            alert(_t("✅ تم بناء ونشر جداول الأساتذة بنجاح! يمكنهم رؤيتها الآن."));
         } else {
-            alert("❌ خطأ: " + data.error);
+            alert("❌ " + (data.error || "Error"));
         }
     })
-    .catch(err => alert("حدث خطأ أثناء محاولة النشر."));
+    .catch(err => alert(_t("حدث خطأ أثناء محاولة النشر.")));
 }
 
-// دالة سحب الجداول (إلغاء النشر)
 function unpublishSchedule() {
-    if(!confirm("🔕 هل أنت متأكد أنك تريد سحب الجداول؟\nستختفي الجداول من بوابات الأساتذة وتعود لمرحلة إدخال الرغبات.")) return;
+    if(!confirm(_t("🔕 هل أنت متأكد أنك تريد سحب الجداول؟\nستختفي الجداول من بوابات الأساتذة وتعود لمرحلة إدخال الرغبات."))) return;
 
     fetch('/api/admin/unpublish', { method: 'POST' })
     .then(res => res.json())
     .then(data => {
         if(data.success) {
-            alert("✅ تم سحب الجداول بنجاح! عادت بوابات الأساتذة إلى وضعها الأولي.");
+            alert(_t("✅ تم سحب الجداول بنجاح! عادت بوابات الأساتذة إلى وضعها الأولي."));
         } else {
-            alert("❌ خطأ: " + data.error);
+            alert("❌ " + (data.error || "Error"));
         }
     })
-    .catch(err => alert("حدث خطأ أثناء محاولة سحب الجداول."));
+    .catch(err => alert(_t("حدث خطأ أثناء محاولة سحب الجداول.")));
 }
+

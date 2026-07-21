@@ -15,7 +15,7 @@ function refreshAllManageTables() {
 // ==========================================
 function loadManageProfessors() {
     fetch('/exams/api/get-professors').then(res => res.json()).then(data => {
-        document.getElementById('title-manage-profs').innerText = `👨‍🏫 قائمة الأساتذة (${data.length})`;
+        document.getElementById('title-manage-profs').innerText = `${_t('👨‍🏫 قائمة الأساتذة')} (${data.length})`;
         const tbody = document.getElementById('manage-professors-tbody');
         tbody.innerHTML = '';
         data.forEach(item => {
@@ -23,8 +23,8 @@ function loadManageProfessors() {
                 <tr>
                     <td>${item.name}</td>
                     <td style="text-align: center;">
-                        <button class="btn-edit" onclick="editEntity('professor', ${item.id}, '${item.name}')">تعديل</button>
-                        <button class="btn-delete" onclick="deleteEntity('professor', ${item.id})">حذف</button>
+                        <button class="btn-edit" onclick="editEntity('professor', ${item.id}, '${item.name}')">${_t('تعديل')}</button>
+                        <button class="btn-delete" onclick="deleteEntity('professor', ${item.id})">${_t('حذف')}</button>
                     </td>
                 </tr>`;
         });
@@ -33,17 +33,17 @@ function loadManageProfessors() {
 
 function loadManageHalls() {
     fetch('/exams/api/get-halls').then(res => res.json()).then(data => {
-        document.getElementById('title-manage-halls').innerText = `🏫 قائمة القاعات (${data.length})`;
+        document.getElementById('title-manage-halls').innerText = `${_t('🏫 قائمة القاعات')} (${data.length})`;
         const tbody = document.getElementById('manage-halls-tbody');
         tbody.innerHTML = '';
         data.forEach(item => {
             tbody.innerHTML += `
                 <tr>
                     <td>${item.name}</td>
-                    <td><span style="background: #e9ecef; padding: 3px 8px; border-radius: 10px; font-size: 12px;">${item.type}</span></td>
+                    <td><span style="background: #e9ecef; padding: 3px 8px; border-radius: 10px; font-size: 12px;">${_t(item.type)}</span></td>
                     <td style="text-align: center;">
-                        <button class="btn-edit" onclick="editHall(${item.id}, '${item.name}', '${item.type}')">تعديل</button>
-                        <button class="btn-delete" onclick="deleteEntity('hall', ${item.id})">حذف</button>
+                        <button class="btn-edit" onclick="editHall(${item.id}, '${item.name}', '${item.type}')">${_t('تعديل')}</button>
+                        <button class="btn-delete" onclick="deleteEntity('hall', ${item.id})">${_t('حذف')}</button>
                     </td>
                 </tr>`;
         });
@@ -52,7 +52,7 @@ function loadManageHalls() {
 
 function loadManageLevels() {
     fetch('/exams/api/get-levels').then(res => res.json()).then(data => {
-        document.getElementById('title-manage-levels').innerText = `🏗️ قائمة المستويات الدراسية (${data.length})`;
+        document.getElementById('title-manage-levels').innerText = `${_t('🏗️ قائمة المستويات الدراسية')} (${data.length})`;
         const tbody = document.getElementById('manage-levels-tbody');
         tbody.innerHTML = '';
         data.forEach(item => {
@@ -60,8 +60,8 @@ function loadManageLevels() {
                 <tr>
                     <td>${item.name}</td>
                     <td style="text-align: center;">
-                        <button class="btn-edit" onclick="editEntity('level', ${item.id}, '${item.name}')">تعديل</button>
-                        <button class="btn-delete" onclick="deleteEntity('level', ${item.id})">حذف</button>
+                        <button class="btn-edit" onclick="editEntity('level', ${item.id}, '${item.name}')">${_t('تعديل')}</button>
+                        <button class="btn-delete" onclick="deleteEntity('level', ${item.id})">${_t('حذف')}</button>
                     </td>
                 </tr>`;
         });
@@ -70,7 +70,7 @@ function loadManageLevels() {
 
 function loadManageSubjects() {
     fetch('/exams/api/get-subjects').then(res => res.json()).then(data => {
-        document.getElementById('title-manage-subjects').innerText = `📚 قائمة المواد (${data.length})`;
+        document.getElementById('title-manage-subjects').innerText = `${_t('📚 قائمة المواد')} (${data.length})`;
         const tbody = document.getElementById('manage-subjects-tbody');
         tbody.innerHTML = '';
         data.forEach(item => {
@@ -79,8 +79,8 @@ function loadManageSubjects() {
                     <td>${item.name}</td>
                     <td>${item.level_name}</td>
                     <td style="text-align: center;">
-                        <button class="btn-edit" onclick="editEntity('subject', ${item.id}, '${item.name}')">تعديل</button>
-                        <button class="btn-delete" onclick="deleteEntity('subject', ${item.id})">حذف</button>
+                        <button class="btn-edit" onclick="editEntity('subject', ${item.id}, '${item.name}')">${_t('تعديل')}</button>
+                        <button class="btn-delete" onclick="deleteEntity('subject', ${item.id})">${_t('حذف')}</button>
                     </td>
                 </tr>`;
         });
@@ -91,13 +91,13 @@ function loadManageSubjects() {
 // 🗑️ دالة الحذف الشاملة
 // ==========================================
 function deleteEntity(entityType, id) {
-    if (!confirm('هل أنت متأكد من حذف هذا العنصر؟ (قد يؤدي هذا لحذف البيانات المرتبطة به)')) return;
+    if (!confirm(_t('هل أنت متأكد من حذف هذا العنصر؟ (قد يؤدي هذا لحذف البيانات المرتبطة به)'))) return;
 
     fetch(`/exams/api/delete-${entityType}/${id}`, { method: 'DELETE' })
     .then(res => res.json())
     .then(data => {
         if (data.success) {
-            showNotification('تم الحذف بنجاح', 'success');
+            showNotification(_t('تم الحذف بنجاح'), 'success');
             // تحديث جداول المرحلة 2
             refreshAllManageTables();
             
@@ -107,16 +107,16 @@ function deleteEntity(entityType, id) {
             if(entityType === 'level' && typeof refreshLevelPreview === 'function') { refreshLevelPreview(); refreshSubjectPreview(); }
             if(entityType === 'subject' && typeof refreshSubjectPreview === 'function') refreshSubjectPreview();
         } else {
-            showNotification('فشل الحذف: ' + data.message, 'error');
+            showNotification(_t('فشل الحذف: ') + data.message, 'error');
         }
-    }).catch(err => showNotification('خطأ في الاتصال بالخادم', 'error'));
+    }).catch(err => showNotification(_t('خطأ في الاتصال بالخادم'), 'error'));
 }
 
 // ==========================================
 // ✏️ دوال التعديل
 // ==========================================
 function editEntity(entityType, id, oldName) {
-    const newName = prompt(`أدخل الاسم الجديد:`, oldName);
+    const newName = prompt(_t('أدخل الاسم الجديد:'), oldName);
     if (!newName || newName === oldName || newName.trim() === '') return;
 
     fetch(`/exams/api/edit-${entityType}/${id}`, {
@@ -127,7 +127,7 @@ function editEntity(entityType, id, oldName) {
     .then(res => res.json())
     .then(data => {
         if (data.success) {
-            showNotification('تم التعديل بنجاح', 'success');
+            showNotification(_t('تم التعديل بنجاح'), 'success');
             refreshAllManageTables();
             
             // 🔄 تزامن مع المرحلة 1
@@ -142,12 +142,12 @@ function editEntity(entityType, id, oldName) {
 
 // القاعات لها دالة خاصة لأنها تحتوي على "النوع" بالإضافة للاسم
 function editHall(id, oldName, oldType) {
-    const newName = prompt('أدخل الاسم الجديد للقاعة:', oldName);
+    const newName = prompt(_t('أدخل الاسم الجديد للقاعة:'), oldName);
     if (!newName || newName.trim() === '') return;
     
-    const newType = prompt('أدخل نوع القاعة (صغيرة، متوسطة، كبيرة):', oldType);
+    const newType = prompt(_t('أدخل نوع القاعة (صغيرة، متوسطة، كبيرة):'), oldType);
     if (!['صغيرة', 'متوسطة', 'كبيرة'].includes(newType)) {
-        return alert('نوع القاعة غير صالح! يجب أن يكون: صغيرة أو متوسطة أو كبيرة');
+        return alert(_t('نوع القاعة غير صالح! يجب أن يكون: صغيرة أو متوسطة أو كبيرة'));
     }
 
     if (newName === oldName && newType === oldType) return;
@@ -160,7 +160,7 @@ function editHall(id, oldName, oldType) {
     .then(res => res.json())
     .then(data => {
         if (data.success) {
-            showNotification('تم تعديل القاعة بنجاح', 'success');
+            showNotification(_t('تم تعديل القاعة بنجاح'), 'success');
             refreshAllManageTables();
             if(typeof refreshHallPreview === 'function') refreshHallPreview();
         } else {
@@ -175,7 +175,7 @@ function editHall(id, oldName, oldType) {
 function manualRefreshData(btnElement) {
     // 1. تغيير شكل الزر لإشعار المستخدم ببدء العملية
     const originalText = btnElement.innerHTML;
-    btnElement.innerHTML = "⏳ جاري التحديث...";
+    btnElement.innerHTML = _t("⏳ جاري التحديث...");
     btnElement.disabled = true;
     btnElement.style.opacity = "0.7";
     
@@ -189,7 +189,7 @@ function manualRefreshData(btnElement) {
         btnElement.style.opacity = "1";
         
         if (typeof showNotification === 'function') {
-            showNotification('✅ تم تحديث الجداول وجلب أحدث البيانات!', 'success');
+            showNotification(_t('✅ تم تحديث الجداول وجلب أحدث البيانات!'), 'success');
         }
     }, 500);
 }

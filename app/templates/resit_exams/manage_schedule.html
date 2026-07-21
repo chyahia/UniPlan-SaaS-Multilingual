@@ -5,12 +5,12 @@
 <div id="manage-schedule-wrapper">
 
     <h2 class="text-center text-primary mb-4 border border-primary p-3 rounded bg-light">
-        أيام وأوقات الامتحان
+        {{ _('أيام وأوقات الامتحان') }}
     </h2>
 
     {% if not db.levels %}
         <div class="alert alert-warning text-center fs-5">
-            ⚠️ يرجى إدخال المستويات في المرحلة الأولى أولاً لتتمكن من وضع الجدول.
+            {{ _('⚠️ يرجى إدخال المستويات في المرحلة الأولى أولاً لتتمكن من وضع الجدول.') }}
         </div>
     {% else %}
 
@@ -20,13 +20,13 @@
                 <form method="POST" class="row align-items-center" onsubmit="silentSubmit(event, this)">
                     <input type="hidden" name="action" value="add_day">
                     <div class="col-md-3">
-                        <label class="form-label fw-bold">➕ إضافة يوم امتحان:</label>
+                        <label class="form-label fw-bold">{{ _('➕ إضافة يوم امتحان:') }}</label>
                     </div>
                     <div class="col-md-6">
                         <input type="date" class="form-control" name="exam_date" required>
                     </div>
                     <div class="col-md-3">
-                        <button type="submit" class="btn btn-primary w-100 fw-bold">إضافة اليوم</button>
+                        <button type="submit" class="btn btn-primary w-100 fw-bold">{{ _('إضافة اليوم') }}</button>
                     </div>
                 </form>
             </div>
@@ -35,6 +35,14 @@
         {% if db.schedule %}
             <ul class="nav nav-tabs fw-bold mb-3" id="daysTabs" role="tablist">
                 {% for day in db.schedule.keys() %}
+                    <!-- ✨ محرك الترجمة الفورية لأيام الأسبوع ✨ -->
+                    {% set display_day = day %}
+                    {% if session.get('lang', 'ar') == 'en' %}
+                        {% set display_day = display_day|replace('الأحد', 'Sunday')|replace('الإثنين', 'Monday')|replace('الثلاثاء', 'Tuesday')|replace('الأربعاء', 'Wednesday')|replace('الخميس', 'Thursday')|replace('الجمعة', 'Friday')|replace('السبت', 'Saturday') %}
+                    {% else %}
+                        {% set display_day = display_day|replace('Sunday', 'الأحد')|replace('Monday', 'الإثنين')|replace('Tuesday', 'الثلاثاء')|replace('Wednesday', 'الأربعاء')|replace('Thursday', 'الخميس')|replace('Friday', 'الجمعة')|replace('Saturday', 'السبت') %}
+                    {% endif %}
+                    
                     <li class="nav-item" role="presentation">
                         <button class="nav-link {% if loop.first %}active{% endif %}" 
                                 id="tab-{{ loop.index }}" 
@@ -42,7 +50,7 @@
                                 data-bs-target="#pane-{{ loop.index }}" 
                                 type="button" 
                                 role="tab">
-                            📅 {{ day }}
+                            📅 {{ display_day }}
                         </button>
                     </li>
                 {% endfor %}
@@ -50,6 +58,14 @@
 
             <div class="tab-content" id="daysTabsContent">
                 {% for day, slots in db.schedule.items() %}
+                    <!-- ✨ محرك الترجمة الفورية للمحتوى ✨ -->
+                    {% set display_day = day %}
+                    {% if session.get('lang', 'ar') == 'en' %}
+                        {% set display_day = display_day|replace('الأحد', 'Sunday')|replace('الإثنين', 'Monday')|replace('الثلاثاء', 'Tuesday')|replace('الأربعاء', 'Wednesday')|replace('الخميس', 'Thursday')|replace('الجمعة', 'Friday')|replace('السبت', 'Saturday') %}
+                    {% else %}
+                        {% set display_day = display_day|replace('Sunday', 'الأحد')|replace('Monday', 'الإثنين')|replace('Tuesday', 'الثلاثاء')|replace('Wednesday', 'الأربعاء')|replace('Thursday', 'الخميس')|replace('Friday', 'الجمعة')|replace('Saturday', 'السبت') %}
+                    {% endif %}
+                    
                     {% set day_idx = loop.index %}
                     
                     <div class="tab-pane fade {% if loop.first %}show active{% endif %}" 
@@ -63,32 +79,41 @@
                                 <form method="POST" class="d-flex align-items-center gap-2 m-0" onsubmit="silentSubmit(event, this)">
                                     <input type="hidden" name="action" value="duplicate_day">
                                     <input type="hidden" name="source_day" value="{{ day }}">
-                                    <span class="fw-bold text-secondary">🔄 تكرار اليوم لـ:</span>
+                                    <span class="fw-bold text-secondary">{{ _('🔄 تكرار اليوم لـ:') }}</span>
                                     <input type="date" class="form-control form-control-sm" name="target_date" required>
-                                    <button type="submit" class="btn btn-sm btn-outline-primary" title="نسخ الأوقات والمستويات">نسخ</button>
+                                    <button type="submit" class="btn btn-sm btn-outline-primary" title="{{ _('نسخ الأوقات والمستويات') }}">{{ _('نسخ') }}</button>
                                 </form>
 
                                 <!-- نموذج حذف اليوم -->
                                 <form method="POST" class="m-0" onsubmit="silentSubmit(event, this)">
                                     <input type="hidden" name="action" value="delete_day">
                                     <input type="hidden" name="day_key" value="{{ day }}">
-                                    <!-- نقل التأكيد إلى onsubmit -->
-                                    <button type="submit" class="btn btn-sm btn-danger fw-bold" onclick="return confirm('تأكيد حذف يوم {{ day }} بالكامل؟');">
-                                        🗑️ حذف هذا اليوم
+                                    <!-- ✨ استخدمنا display_day بدلاً من day في رسالة التأكيد ✨ -->
+                                    <button type="submit" class="btn btn-sm btn-danger fw-bold" data-confirm="{{ _('تأكيد حذف يوم') }} {{ display_day }} {{ _('بالكامل؟') }}" onclick="return confirm(this.getAttribute('data-confirm'));">
+                                        {{ _('🗑️ حذف هذا اليوم') }}
                                     </button>
                                 </form>
                             </div>
 
                             <div class="card-body">
-                                <!-- نموذج إضافة فترة زمنية -->
-                                <form method="POST" class="row align-items-center mb-4 pb-3 border-bottom" onsubmit="silentSubmit(event, this)">
+                                <!-- نموذج إضافة فترة زمنية (محدث بأدوات اختيار الوقت) -->
+                                <form method="POST" class="row align-items-center mb-4 pb-3 border-bottom" 
+                                      onsubmit="document.getElementById('time_val_{{ day_idx }}').value = document.getElementById('start_time_{{ day_idx }}').value + ' - ' + document.getElementById('end_time_{{ day_idx }}').value; silentSubmit(event, this)">
+                                    
                                     <input type="hidden" name="action" value="add_time">
                                     <input type="hidden" name="day_key" value="{{ day }}">
-                                    <div class="col-md-8 mb-2 mb-md-0">
-                                        <input type="text" class="form-control" name="time_val" placeholder="مثال: من 08:30 إلى 10:00" required>
+                                    <!-- ✨ حقل مخفي ندمج فيه الوقتين ليقرأه البايثون كالمعتاد ✨ -->
+                                    <input type="hidden" name="time_val" id="time_val_{{ day_idx }}">
+                                    
+                                    <div class="col-md-8 mb-2 mb-md-0 d-flex align-items-center gap-2">
+                                        <span class="fw-bold text-secondary">{{ _('من:') }}</span>
+                                        <input type="time" class="form-control text-center" id="start_time_{{ day_idx }}" required>
+                                        
+                                        <span class="fw-bold text-secondary">{{ _('إلى:') }}</span>
+                                        <input type="time" class="form-control text-center" id="end_time_{{ day_idx }}" required>
                                     </div>
                                     <div class="col-md-4">
-                                        <button type="submit" class="btn btn-success w-100 fw-bold">➕ إضافة فترة</button>
+                                        <button type="submit" class="btn btn-success w-100 fw-bold">{{ _('➕ إضافة فترة') }}</button>
                                     </div>
                                 </form>
 
@@ -108,14 +133,14 @@
                                         <div class="border border-secondary rounded p-3 mb-3 bg-white shadow-sm">
                                             <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
                                                 <h5 class="text-primary m-0 fw-bold">⏰ {{ slot.time }}</h5>
-                                                <button type="button" class="btn btn-sm btn-outline-danger" title="حذف الفترة" 
-                                                        onclick="if(confirm('هل أنت متأكد من حذف هذه الفترة؟')) { let f = document.getElementById('del_time_form_{{ day_idx }}_{{ slot_idx }}'); if(f) silentSubmit(null, f); }">
-                                                    ❌ حذف
+                                                <!-- ✨ تم تطبيق التعديل هنا أيضاً ✨ -->
+                                                <button type="button" class="btn btn-sm btn-outline-danger" title="{{ _('حذف الفترة') }}" data-confirm="{{ _('هل أنت متأكد من حذف هذه الفترة؟') }}" onclick="if(confirm(this.getAttribute('data-confirm'))) { let f = document.getElementById('del_time_form_{{ day_idx }}_{{ slot_idx }}'); if(f) silentSubmit(null, f); }">
+                                                    {{ _('❌ حذف') }}
                                                 </button>
                                             </div>
                                             
                                             <div class="mb-3">
-                                                <label class="fw-bold text-success mb-2 d-block">🎯 مستويات معنية كفترة أساسية:</label>
+                                                <label class="fw-bold text-success mb-2 d-block">{{ _('🎯 مستويات معنية كفترة أساسية:') }}</label>
                                                 <div class="d-flex flex-wrap gap-2">
                                                     {% for lvl in db.levels %}
                                                         {% set is_primary = (lvl in pri_list) or (not slot.get('primary_levels') and slot.get('type') == 'primary' and lvl in old_list) %}
@@ -135,12 +160,12 @@
                                             {% set has_reserves = (res_list|length > 0) or (not slot.get('reserve_levels') and slot.get('type') == 'reserve' and old_list|length > 0) %}
                                             <button type="button" class="btn btn-sm btn-warning text-dark fw-bold mb-2 shadow-sm" 
                                                     data-bs-toggle="collapse" data-bs-target="#res_col_{{ day_idx }}_{{ slot_idx }}">
-                                                🔽 عرض المستويات الاحتياطية (انقر للفتح)
+                                                {{ _('🔽 عرض المستويات الاحتياطية (انقر للفتح)') }}
                                             </button>
 
                                             <div class="collapse {% if has_reserves %}show{% endif %}" id="res_col_{{ day_idx }}_{{ slot_idx }}">
                                                 <div class="p-3 border border-warning rounded" style="background-color: #fffdf5;">
-                                                    <label class="fw-bold text-warning text-dark mb-2 d-block">⏳ مستويات معنية كفترة احتياطية:</label>
+                                                    <label class="fw-bold text-warning text-dark mb-2 d-block">{{ _('⏳ مستويات معنية كفترة احتياطية:') }}</label>
                                                     <div class="d-flex flex-wrap gap-2">
                                                         {% for lvl in db.levels %}
                                                             {% set is_reserve = (lvl in res_list) or (not slot.get('reserve_levels') and slot.get('type') == 'reserve' and lvl in old_list) %}
@@ -163,11 +188,11 @@
                                     {% if slots %}
                                         <div class="text-center mt-4">
                                             <button type="submit" class="btn btn-primary btn-lg w-75 fw-bold shadow">
-                                                💾 حفظ توزيع المستويات على فترات هذا اليوم
+                                                {{ _('💾 حفظ توزيع المستويات على فترات هذا اليوم') }}
                                             </button>
                                         </div>
                                     {% else %}
-                                        <div class="alert alert-warning text-center">لا توجد فترات مضافة في هذا اليوم.</div>
+                                        <div class="alert alert-warning text-center">{{ _('لا توجد فترات مضافة في هذا اليوم.') }}</div>
                                     {% endif %}
                                 </form>
 
@@ -188,7 +213,7 @@
             </div>
         {% else %}
             <div class="alert alert-info text-center mt-3">
-                لم يتم إضافة أي أيام بعد. ابدأ باختيار تاريخ من التقويم في الأعلى.
+                {{ _('لم يتم إضافة أي أيام بعد. ابدأ باختيار تاريخ من التقويم في الأعلى.') }}
             </div>
         {% endif %}
 
@@ -256,7 +281,8 @@ async function silentSubmit(event, form) {
     // التأثير البصري للزر فقط للنماذج التي تحتوي على زر ظاهر
     if (submitBtn) {
         originalText = submitBtn.innerHTML;
-        submitBtn.innerHTML = '⏳...';
+        // ✨ استخدام علامة Backtick لتفادي المشاكل ✨
+        submitBtn.innerHTML = `{{ _('⏳...') }}`;
         submitBtn.disabled = true;
     }
     document.body.style.cursor = 'wait';
@@ -300,7 +326,7 @@ async function silentSubmit(event, form) {
         window.scrollTo(0, scrollY);
         
         if (submitBtn) {
-            submitBtn.innerHTML = '✅ تم';
+            submitBtn.innerHTML = `{{ _('✅ تم') }}`;
             submitBtn.classList.add('btn-success');
             setTimeout(() => {
                 submitBtn.innerHTML = originalText;
@@ -310,7 +336,7 @@ async function silentSubmit(event, form) {
         }
 
     } catch (error) {
-        alert("حدث خطأ أثناء الاتصال بالخادم.");
+        alert(`{{ _('حدث خطأ أثناء الاتصال بالخادم.') }}`);
         if (submitBtn) {
             submitBtn.innerHTML = originalText;
             submitBtn.disabled = false;

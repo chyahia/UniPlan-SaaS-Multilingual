@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify, session, render_template, redirect
 from app.database import db, ExamTeacher, ExamRoom, ExamLevel, ExamSubject
+from flask_babel import _
 
 # تغيير اسم الـ Blueprint لمنع أي تضارب
 exams_basic_data_bp = Blueprint('exams_basic_data', __name__)
@@ -57,7 +58,7 @@ def get_subjects():
     data = []
     for s in subjects:
         # ✨ التعديل: جلب كل المستويات ودمجها بعلامة +
-        level_names = " + ".join([l.name for l in s.levels]) if hasattr(s, 'levels') and s.levels else "غير محدد"
+        level_names = " + ".join([l.name for l in s.levels]) if hasattr(s, 'levels') and s.levels else _("غير محدد")
         data.append({
             "id": s.id, 
             "name": s.name, 
@@ -142,11 +143,11 @@ def add_subjects():
     subjects = data.get('subjects', [])
     
     if not level_ids:
-        return jsonify({'success': False, 'message': 'لا بد من تحديد مستوى واحد على الأقل من القائمة'})
+        return jsonify({'success': False, 'message': _('لا بد من تحديد مستوى واحد على الأقل من القائمة')})
         
     levels = ExamLevel.query.filter(ExamLevel.id.in_(level_ids), ExamLevel.tenant_id == tenant_id).all()
     if not levels: 
-        return jsonify({'success': False, 'message': 'المستويات المحددة غير موجودة'})
+        return jsonify({'success': False, 'message': _('المستويات المحددة غير موجودة')})
 
     added, duplicates = 0, 0
     
@@ -177,7 +178,7 @@ def add_subjects():
 @exams_basic_data_bp.route('/exams/api/sync-from-teaching', methods=['POST'])
 def sync_from_teaching():
     tenant_id = session.get('tenant_id')
-    if not tenant_id: return jsonify({"error": "غير مصرح"}), 403
+    if not tenant_id: return jsonify({"error": _("غير مصرح")}), 403
     
     added_profs, added_levels, added_subjects, added_assignments = 0, 0, 0, 0
     
@@ -187,8 +188,8 @@ def sync_from_teaching():
         # ✨ تم الحفاظ على: جلب الرموز لاستبعاد الأعمال الموجهة والتطبيقية
         td_setting = Setting.query.filter_by(key='symbol_td', tenant_id=tenant_id).first()
         tp_setting = Setting.query.filter_by(key='symbol_tp', tenant_id=tenant_id).first()
-        sym_td = td_setting.value if td_setting and td_setting.value else "[أم]"
-        sym_tp = tp_setting.value if tp_setting and tp_setting.value else "[أت]"
+        sym_td = td_setting.value if td_setting and td_setting.value else _("[أم]")
+        sym_tp = tp_setting.value if tp_setting and tp_setting.value else _("[أت]")
 
         # 1. استيراد الأساتذة
         for tp in Teacher.query.filter_by(tenant_id=tenant_id).all():

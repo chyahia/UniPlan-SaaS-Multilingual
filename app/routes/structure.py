@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify, session
 from app.database import db, Setting, Room
 import json
+from flask_babel import _ # ✨ استيراد دالة الترجمة تحسباً لأي استخدام مستقبلي
 
 structure_bp = Blueprint('structure', __name__)
 

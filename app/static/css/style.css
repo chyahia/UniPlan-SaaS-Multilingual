@@ -3,8 +3,7 @@ body {
     font-family: 'Tajawal', 'Cairo', 'Segoe UI', Tahoma, Arial, sans-serif; 
     background-color: #f4f7f6; 
     margin: 0; 
-    padding: 0; 
-    direction: rtl; 
+    padding: 0;  
 }
 
 /* 1. تكبير خط صندوق المستويات ونوع القاعات في المرحلة 1 */
@@ -26,7 +25,6 @@ body {
 #generation-log, 
 #log-window, 
 .log-container {
-    direction: rtl !important;
     text-align: center !important; /* التعديل هنا: محاذاة للوسط */
     font-size: 16px !important;
     line-height: 1.6;

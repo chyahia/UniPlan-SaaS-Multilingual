@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, session, redirect, url_for, jsonify, request
 from app.database import db, Teacher, Course, Setting, TeacherRequest, ExamSetting, ExamTeacher
 import json
+from flask_babel import _ # ✨ استيراد دالة الترجمة
 
 teacher_portal_bp = Blueprint('teacher_portal', __name__)
 
@@ -12,13 +13,13 @@ def teacher_dashboard():
 
 @teacher_portal_bp.route('/api/teacher/data')
 def get_teacher_data():
-    if session.get('role') != 'teacher': return jsonify({"error": "غير مصرح"}), 403
+    if session.get('role') != 'teacher': return jsonify({"error": _("غير مصرح")}), 403
     
     teacher_id = session.get('teacher_id')
     tenant_id = session.get('tenant_id')
     
     teacher = Teacher.query.filter_by(id=teacher_id, tenant_id=tenant_id).first()
-    if not teacher: return jsonify({"error": "الأستاذ غير موجود"}), 404
+    if not teacher: return jsonify({"error": _("الأستاذ غير موجود")}), 404
         
     teacher_name = teacher.name
     show_assigned = getattr(teacher, 'show_assigned', 0)
@@ -28,7 +29,7 @@ def get_teacher_data():
     grouped_courses = {}
     for c in courses:
         if c.teacher_id is None:
-            levels_str = "، ".join([l.name for l in c.levels])
+            levels_str = _("، ").join([l.name for l in c.levels]) # ✨ ترجمة الفاصلة
             if levels_str not in grouped_courses:
                 grouped_courses[levels_str] = []
             grouped_courses[levels_str].append({
@@ -61,7 +62,7 @@ def get_teacher_data():
                                 "slot_index": s_idx, "name": lec.get('name'), "room": lec.get('room'), "level": lvl
                             })
 
-    assigned_courses = [{"name": c.name, "level": "، ".join([l.name for l in c.levels])} for c in courses if c.teacher_id == teacher_id]
+    assigned_courses = [{"name": c.name, "level": _("، ").join([l.name for l in c.levels])} for c in courses if c.teacher_id == teacher_id]
     
     cond_setting = Setting.query.filter_by(key='schedule_conditions', tenant_id=tenant_id).first()
     cond = json.loads(cond_setting.value) if cond_setting and cond_setting.value else {}
@@ -99,7 +100,7 @@ def get_teacher_data():
             if exam_teacher:
                 for s in exam_teacher.subjects:
                     levels_list = sorted([l.name for l in s.levels]) if hasattr(s, 'levels') and s.levels else []
-                    c_level = " + ".join(levels_list) if levels_list else "بدون مستوى"
+                    c_level = _(" + ").join(levels_list) if levels_list else _("بدون مستوى")
                     owned_subjects.append((s.name, c_level))
 
             # تفريغ الجدول واستخراج حصص الأستاذ فقط
@@ -110,8 +111,8 @@ def get_teacher_data():
                         is_owner = (exam.get('subject'), exam.get('level')) in owned_subjects
                         
                         if is_guard or is_owner:
-                            role = "حارس" if is_guard else "أستاذ المادة"
-                            if is_guard and is_owner: role = "حارس + أستاذ المادة"
+                            role = _("حارس") if is_guard else _("أستاذ المادة")
+                            if is_guard and is_owner: role = _("حارس + أستاذ المادة")
                             halls = ", ".join([h['name'] for h in exam.get('halls', [])])
                             
                             my_exam_schedule.append({
@@ -158,9 +159,9 @@ def get_teacher_data():
                                 my_rooms.append(room)
                                 
                         if is_guard or is_owner:
-                            role = "حارس" if is_guard else "أستاذ المادة"
-                            if is_guard and is_owner: role = "حارس + أستاذ المادة"
-                            halls_str = "، ".join(my_rooms) if my_rooms else "متابعة عامة"
+                            role = _("حارس") if is_guard else _("أستاذ المادة")
+                            if is_guard and is_owner: role = _("حارس + أستاذ المادة")
+                            halls_str = _("، ").join(my_rooms) if my_rooms else _("متابعة عامة")
                             
                             my_resit_schedule.append({
                                 "date": date,
@@ -201,7 +202,7 @@ def get_teacher_data():
 
 @teacher_portal_bp.route('/api/teacher/submit', methods=['POST'])
 def submit_request():
-    if session.get('role') != 'teacher': return jsonify({"error": "غير مصرح"}), 403
+    if session.get('role') != 'teacher': return jsonify({"error": _("غير مصرح")}), 403
     
     teacher_id = session.get('teacher_id')
     tenant_id = session.get('tenant_id')
@@ -214,10 +215,10 @@ def submit_request():
     if req:
         req.requested_courses = courses_json
         req.requested_days = days_json
-        req.status = 'قيد المراجعة'
+        req.status = 'قيد المراجعة' # تبقى كقيمة حالة للقاعدة
     else:
         req = TeacherRequest(teacher_id=teacher_id, requested_courses=courses_json, requested_days=days_json, tenant_id=tenant_id)
         db.session.add(req)
         
     db.session.commit()
-    return jsonify({"success": True, "message": "تم حفظ الرغبات بنجاح"})
+    return jsonify({"success": True, "message": _("تم حفظ الرغبات بنجاح")})

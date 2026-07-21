@@ -72,7 +72,7 @@ function renderProfConstraintsTable(settings) {
         let unavailable = savedUnavailables[p.name] || [];
 
         // إنشاء مربعات اختيار التواريخ
-        let datesHtml = allExamDates.length === 0 ? '<span style="color:#999; font-size:12px;">أضف أياماً في المرحلة 4</span>' : '';
+        let datesHtml = allExamDates.length === 0 ? `<span style="color:#999; font-size:12px;">${_t('أضف أياماً في المرحلة 4')}</span>` : '';
         allExamDates.forEach(date => {
             const isChecked = unavailable.includes(date) ? 'checked' : '';
             datesHtml += `
@@ -87,11 +87,11 @@ function renderProfConstraintsTable(settings) {
                 <td style="padding:10px; border-bottom:1px solid #eee; font-weight:bold;">${p.name}</td>
                 <td style="padding:10px; border-bottom:1px solid #eee;">
                     <select class="pattern-select" style="padding:5px; border-radius:4px; font-size:13px; font-weight:bold;">
-                        <option value="one_day_only" ${pattern==='one_day_only'?'selected':''}>يوم واحد فقط</option>
-                        <option value="flexible_2_days" ${pattern==='flexible_2_days'?'selected':''}>مرن (يومان)</option>
-                        <option value="consecutive_strict" ${pattern==='consecutive_strict'?'selected':''}>يومان متتاليان (إلزامي)</option>
-                        <option value="flexible_3_days" ${pattern==='flexible_3_days'?'selected':''}>مرن (2 أو 3 أيام)</option>
-                        <option value="unlimited" ${pattern==='unlimited'?'selected':''} style="color: #28a745;">غير محدد (بدون قيود)</option>
+                        <option value="one_day_only" ${pattern==='one_day_only'?'selected':''}>${_t('يوم واحد فقط')}</option>
+                        <option value="flexible_2_days" ${pattern==='flexible_2_days'?'selected':''}>${_t('مرن (يومان)')}</option>
+                        <option value="consecutive_strict" ${pattern==='consecutive_strict'?'selected':''}>${_t('يومان متتاليان (إلزامي)')}</option>
+                        <option value="flexible_3_days" ${pattern==='flexible_3_days'?'selected':''}>${_t('مرن (2 أو 3 أيام)')}</option>
+                        <option value="unlimited" ${pattern==='unlimited'?'selected':''} style="color: #28a745;">${_t('غير محدد (بدون قيود)')}</option>
                     </select>
                 </td>
                 <td style="padding:10px; border-bottom:1px solid #eee;">${datesHtml}</td>
@@ -104,8 +104,8 @@ function renderProfConstraintsTable(settings) {
 function populatePairDropdowns() {
     const s1 = document.getElementById('prof-pair-1');
     const s2 = document.getElementById('prof-pair-2');
-    s1.innerHTML = '<option value="">-- اختر الأستاذ 1 --</option>';
-    s2.innerHTML = '<option value="">-- اختر الأستاذ 2 --</option>';
+    s1.innerHTML = `<option value="">${_t('-- اختر الأستاذ 1 --')}</option>`;
+    s2.innerHTML = `<option value="">${_t('-- اختر الأستاذ 2 --')}</option>`;
     
     const partnered = currentProfessorPartnerships.flat();
     allProfsData.filter(p => !partnered.includes(p.name)).forEach(p => {
@@ -117,7 +117,7 @@ function populatePairDropdowns() {
 function addProfPair() {
     const p1 = document.getElementById('prof-pair-1').value;
     const p2 = document.getElementById('prof-pair-2').value;
-    if(!p1 || !p2 || p1 === p2) return showNotification('اختر أستاذين مختلفين', 'error');
+    if(!p1 || !p2 || p1 === p2) return showNotification(_t('اختر أستاذين مختلفين'), 'error');
     currentProfessorPartnerships.push([p1, p2]);
     renderPairsList();
     populatePairDropdowns();
@@ -130,7 +130,7 @@ function renderPairsList() {
         list.innerHTML += `
             <li style="padding:10px; border-bottom:1px solid #eee; display:flex; justify-content:space-between;">
                 <span>${pair[0]} + ${pair[1]}</span>
-                <button onclick="removePair(${idx})" style="background:#dc3545; color:white; border:none; border-radius:3px; cursor:pointer;">حذف</button>
+                <button onclick="removePair(${idx})" style="background:#dc3545; color:white; border:none; border-radius:3px; cursor:pointer;">${_t('حذف')}</button>
             </li>`;
     });
 }
@@ -144,8 +144,8 @@ function removePair(idx) {
 function populateExclusiveDropdowns() {
     const s1 = document.getElementById('prof-exclusive-1');
     const s2 = document.getElementById('prof-exclusive-2');
-    s1.innerHTML = '<option value="">-- اختر الأستاذ 1 --</option>';
-    s2.innerHTML = '<option value="">-- اختر الأستاذ 2 --</option>';
+    s1.innerHTML = `<option value="">${_t('-- اختر الأستاذ 1 --')}</option>`;
+    s2.innerHTML = `<option value="">${_t('-- اختر الأستاذ 2 --')}</option>`;
     
     allProfsData.forEach(p => {
         s1.innerHTML += `<option value="${p.name}">${p.name}</option>`;
@@ -156,15 +156,15 @@ function populateExclusiveDropdowns() {
 function addExclusivePair() {
     const p1 = document.getElementById('prof-exclusive-1').value;
     const p2 = document.getElementById('prof-exclusive-2').value;
-    if(!p1 || !p2 || p1 === p2) return showNotification('اختر أستاذين مختلفين', 'error');
+    if(!p1 || !p2 || p1 === p2) return showNotification(_t('اختر أستاذين مختلفين'), 'error');
     
     // التحقق من عدم إضافة تنافر لأساتذة مشتركين للعمل معاً (منع التضارب المنطقي)
     const isPartnered = currentProfessorPartnerships.some(pair => (pair[0] === p1 && pair[1] === p2) || (pair[0] === p2 && pair[1] === p1));
-    if (isPartnered) return showNotification('تضارب منطقي! هذان الأستاذان مشتركان للعمل معاً.', 'error');
+    if (isPartnered) return showNotification(_t('تضارب منطقي! هذان الأستاذان مشتركان للعمل معاً.'), 'error');
 
     // التحقق من التكرار
     const exists = currentExclusiveProfessors.some(pair => (pair[0] === p1 && pair[1] === p2) || (pair[0] === p2 && pair[1] === p1));
-    if (exists) return showNotification('هذا التنافر مضاف مسبقاً', 'error');
+    if (exists) return showNotification(_t('هذا التنافر مضاف مسبقاً'), 'error');
 
     currentExclusiveProfessors.push([p1, p2]);
     renderExclusivePairsList();
@@ -178,7 +178,7 @@ function renderExclusivePairsList() {
         list.innerHTML += `
             <li style="padding:10px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; background: #fff5f5;">
                 <span style="color: #dc3545; font-weight: bold;">${pair[0]} - ${pair[1]}</span>
-                <button onclick="removeExclusivePair(${idx})" style="background:#6c757d; color:white; border:none; border-radius:3px; cursor:pointer; padding: 4px 10px;">حذف</button>
+                <button onclick="removeExclusivePair(${idx})" style="background:#6c757d; color:white; border:none; border-radius:3px; cursor:pointer; padding: 4px 10px;">${_t('حذف')}</button>
             </li>`;
     });
 }
@@ -198,7 +198,7 @@ function addCustomTarget() {
     const l = parseInt(document.getElementById('custom-target-large').value) || 0;
     const o = parseInt(document.getElementById('custom-target-other').value) || 0;
     const c = parseInt(document.getElementById('custom-target-prof-count').value);
-    if(isNaN(c) || c <= 0) return showNotification('أدخل عدد أساتذة صحيح', 'error');
+    if(isNaN(c) || c <= 0) return showNotification(_t('أدخل عدد أساتذة صحيح'), 'error');
     
     customTargetPatterns.push({ large: l, other: o, count: c });
     renderCustomTargetsTable();
@@ -216,9 +216,8 @@ function renderCustomTargetsTable() {
         const row = document.createElement('tr');
         row.innerHTML = `
             <td style="padding: 10px; border: 1px solid #eee;">${pattern.count}</td>
-            <td style="padding: 10px; border: 1px solid #eee;">${pattern.large} كبيرة + ${pattern.other} أخرى</td>
+            <td style="padding: 10px; border: 1px solid #eee;">${pattern.large}${_t(' كبيرة + ')}${pattern.other}${_t(' أخرى')}</td>
             <td style="padding: 10px; border: 1px solid #eee;">
-                <!-- ✨ التعديل هنا: استدعاء دالتك الأصلية removeCustomTarget ✨ -->
                 <button type="button" onclick="removeCustomTarget(${index})" style="background: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">&times;</button>
             </td>
         `;
@@ -236,23 +235,23 @@ function renderCustomTargetsTable() {
     const allProfsCountElement = document.getElementById('stat-prof-count');
     const allProfsCount = allProfsCountElement ? parseInt(allProfsCountElement.innerText) : 0;
 
-    totalProfsP.textContent = `الإجمالي: ${totalCustomProfs} أستاذًا في الأنماط المخصصة.`;
+    totalProfsP.textContent = `${_t('الإجمالي: ')}${totalCustomProfs}${_t(' أستاذًا في الأنماط المخصصة.')}`;
 
     if (totalCustomProfs > allProfsCount) {
         totalProfsP.style.color = '#dc3545'; // أحمر (خطأ)
         totalProfsP.style.borderColor = '#dc3545';
         totalProfsP.style.backgroundColor = '#f8d7da';
-        totalProfsP.textContent += ` (تحذير: العدد يتجاوز إجمالي الأساتذة ${allProfsCount}!)`;
+        totalProfsP.textContent += `${_t(' (تحذير: العدد يتجاوز إجمالي الأساتذة ')}${allProfsCount}${_t('!)')}`;
     } else if (totalCustomProfs < allProfsCount) {
         totalProfsP.style.color = '#e67e22'; // برتقالي (تنبيه)
         totalProfsP.style.borderColor = '#e67e22';
         totalProfsP.style.backgroundColor = '#fff3cd';
-        totalProfsP.textContent += ` (ملاحظة: العدد أقل من إجمالي الأساتذة ${allProfsCount}. سيتم توزيع الباقي تلقائياً.)`;
+        totalProfsP.textContent += `${_t(' (ملاحظة: العدد أقل من إجمالي الأساتذة ')}${allProfsCount}${_t('. سيتم توزيع الباقي تلقائياً.)')}`;
     } else {
         totalProfsP.style.color = '#28a745'; // أخضر (ممتاز)
         totalProfsP.style.borderColor = '#28a745';
         totalProfsP.style.backgroundColor = '#d4edda';
-        totalProfsP.textContent += ` (ممتاز: تم تحديد أنماط لجميع الأساتذة ${allProfsCount} بدقة.)`;
+        totalProfsP.textContent += `${_t(' (ممتاز: تم تحديد أنماط لجميع الأساتذة ')}${allProfsCount}${_t(' بدقة.)')}`;
     }
 }
 
@@ -311,6 +310,7 @@ function autofillCalculator() {
             let otherGuardsForThisSubject = 0;
 
             uniqueHalls.forEach((type, hallId) => {
+                // بقيت الكلمات في الشروط كما هي لأنها تمثل قيم من قاعدة البيانات
                 if (type === 'كبيرة') {
                     largeGuardsForThisSubject += guardsPerLarge;
                 } else if (type === 'متوسطة') {
@@ -327,11 +327,11 @@ function autofillCalculator() {
         // د) عرض النتائج النهائية في الواجهة
         document.getElementById('calc-large').value = totalLargeDuties;
         document.getElementById('calc-other').value = totalOtherDuties;
-        showNotification("تم الحساب بدقة بناءً على المواد وقاعات مستوياتها المشتركة.", 'success');
+        showNotification(_t("تم الحساب بدقة بناءً على المواد وقاعات مستوياتها المشتركة."), 'success');
         
     }).catch(err => {
         console.error(err);
-        showNotification("حدث خطأ أثناء الجلب التلقائي للبيانات.", 'error');
+        showNotification(_t("حدث خطأ أثناء الجلب التلقائي للبيانات."), 'error');
     });
 }
 
@@ -342,10 +342,10 @@ function runCalculator() {
     const factor = parseFloat(document.getElementById('calc-factor').value);
 
     if (isNaN(profs) || isNaN(largeSlots) || isNaN(otherSlots) || isNaN(factor)) {
-        return showNotification("الرجاء ملء جميع الحقول بأرقام صحيحة.", 'error');
+        return showNotification(_t("الرجاء ملء جميع الحقول بأرقام صحيحة."), 'error');
     }
     if (profs <= 0) {
-        return showNotification("عدد الأساتذة يجب أن يكون أكبر من صفر.", 'error');
+        return showNotification(_t("عدد الأساتذة يجب أن يكون أكبر من صفر."), 'error');
     }
 
     const results = suggestFairDistribution(profs, largeSlots, otherSlots, factor);
@@ -409,7 +409,7 @@ function suggestFairDistribution(totalProfs, largeHallSlots, otherHallSlots, wor
 function displayCalculationResults(results) {
     const container = document.getElementById('calculator-results');
     if (results.length === 0) {
-        container.innerHTML = "<p>لا توجد نتائج لعرضها.</p>";
+        container.innerHTML = `<p>${_t('لا توجد نتائج لعرضها.')}</p>`;
         return;
     }
 
@@ -417,10 +417,10 @@ function displayCalculationResults(results) {
         <table style="width: 100%; border-collapse: collapse; text-align: center; background: #fff;">
             <thead style="background-color: #e9ecef;">
                 <tr>
-                    <th style="border: 1px solid #ccc; padding: 10px;">عدد الأساتذة</th>
-                    <th style="border: 1px solid #ccc; padding: 10px;">حراسات (كبيرة)</th>
-                    <th style="border: 1px solid #ccc; padding: 10px;">حراسات (أخرى)</th>
-                    <th style="border: 1px solid #ccc; padding: 10px;">نقاط العبء للفرد</th>
+                    <th style="border: 1px solid #ccc; padding: 10px;">${_t('عدد الأساتذة')}</th>
+                    <th style="border: 1px solid #ccc; padding: 10px;">${_t('حراسات (كبيرة)')}</th>
+                    <th style="border: 1px solid #ccc; padding: 10px;">${_t('حراسات (أخرى)')}</th>
+                    <th style="border: 1px solid #ccc; padding: 10px;">${_t('نقاط العبء للفرد')}</th>
                 </tr>
             </thead>
             <tbody>
@@ -494,11 +494,11 @@ async function saveAllConditions(showMsg = true) {
         });
         const data = await saveRes.json();
         if(data.success && showMsg) {
-            showNotification(data.message || 'تم حفظ القيود والشروط بنجاح.', 'success');
+            showNotification(data.message || _t('تم حفظ القيود والشروط بنجاح.'), 'success');
         }
     } catch (e) {
         console.error('خطأ في حفظ القيود:', e);
-        if(showMsg) showNotification('حدث خطأ أثناء حفظ القيود.', 'error');
+        if(showMsg) showNotification(_t('حدث خطأ أثناء حفظ القيود.'), 'error');
     }
 }
 
@@ -506,10 +506,10 @@ async function saveAllConditions(showMsg = true) {
 function addIsolationGroup() {
     const nameInput = document.getElementById('isolation-group-name');
     const name = nameInput.value.trim();
-    if(!name) return showNotification('الرجاء إدخال اسم للمجموعة', 'error');
+    if(!name) return showNotification(_t('الرجاء إدخال اسم للمجموعة'), 'error');
     
     const selectedLvls = Array.from(document.querySelectorAll('.iso-lvl-chk:checked')).map(cb => cb.value);
-    if(selectedLvls.length === 0) return showNotification('يجب اختيار مستوى واحد على الأقل', 'error');
+    if(selectedLvls.length === 0) return showNotification(_t('يجب اختيار مستوى واحد على الأقل'), 'error');
 
     currentIsolationGroups[name] = selectedLvls;
     nameInput.value = '';
@@ -523,7 +523,7 @@ function renderIsolationGroupsList() {
     container.innerHTML = '';
     
     if (Object.keys(currentIsolationGroups).length === 0) {
-        container.innerHTML = '<span style="color: #999; font-size: 13px;">لا توجد مجموعات مسجلة. (جميع المستويات عبارة عن "جوكر" حرة).</span>';
+        container.innerHTML = `<span style="color: #999; font-size: 13px;">${_t('لا توجد مجموعات مسجلة. (جميع المستويات عبارة عن جوكر حرة).')}</span>`;
         return;
     }
 
@@ -532,7 +532,7 @@ function renderIsolationGroupsList() {
             <div style="border: 1px solid #343a40; border-radius: 5px; overflow: hidden; min-width: 220px; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
                 <div style="background: #343a40; color: white; padding: 8px 12px; display: flex; justify-content: space-between; align-items: center;">
                     <strong style="font-size: 14px;">${gName}</strong>
-                    <button onclick="removeIsolationGroup('${gName}')" title="حذف وفك العزل" style="background: none; border: none; color: #ff6b6b; cursor: pointer; font-size: 16px;">✖</button>
+                    <button onclick="removeIsolationGroup('${gName}')" title="${_t('حذف وفك العزل')}" style="background: none; border: none; color: #ff6b6b; cursor: pointer; font-size: 16px;">✖</button>
                 </div>
                 <div style="padding: 12px; background: #f8f9fa; font-size: 13px; line-height: 1.8;">
                     ${gLevels.map(l => `<span style="background: #e9ecef; padding: 3px 8px; border-radius: 4px; border: 1px solid #ccc; display: inline-block; margin: 2px;">${l}</span>`).join('')}

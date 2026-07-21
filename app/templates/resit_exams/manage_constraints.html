@@ -2,11 +2,11 @@
 
 {% block content %}
 <h2 class="text-center text-primary mb-4 border border-primary p-3 rounded bg-light">
-    القيود والشروط (الاستدراكية)
+    {{ _('القيود والشروط (الاستدراكية)') }}
 </h2>
 
 <div class="alert alert-info shadow-sm mb-4">
-    💡 <strong>تنبيه:</strong> الخوارزمية تعطي الأولوية المطلقة لعدم تعارض المستويات (قيد صارم)، ثم لتجميع مواد الأساتذة ذوي الأولوية في أقل عدد من الأيام (أقوى قيد مرن).
+    <strong>{{ _('💡 تنبيه:') }}</strong> {{ _('الخوارزمية تعطي الأولوية المطلقة لعدم تعارض المستويات (قيد صارم)، ثم لتجميع مواد الأساتذة ذوي الأولوية في أقل عدد من الأيام (أقوى قيد مرن).') }}
 </div>
 
 <!-- ✨ تغليف كل المحتوى بهذه الحاوية ليتم تحديثها صمتاً ✨ -->
@@ -15,41 +15,42 @@
     <!-- 1. تعارض المستويات -->
     <div class="col-md-6">
         <div class="card border-danger shadow-sm h-100">
-            <div class="card-header bg-danger text-white fw-bold">❌ تعارض المستويات (قيد صارم)</div>
+            <div class="card-header bg-danger text-white fw-bold">{{ _('❌ تعارض المستويات (قيد صارم)') }}</div>
             <div class="card-body">
                 <form method="POST" class="mb-3" onsubmit="silentSubmit(event, this)">
                     <input type="hidden" name="action" value="add_incompatible">
                     <div class="d-flex gap-2 mb-2">
                         <select class="form-select" name="level1" required>
-                            <option value="">المستوى الأول...</option>
+                            <option value="">{{ _('المستوى الأول...') }}</option>
                             {% for l in db.levels %}<option value="{{ l }}">{{ l }}</option>{% endfor %}
                         </select>
                         <select class="form-select" name="level2" required>
-                            <option value="">المستوى الثاني...</option>
+                            <option value="">{{ _('المستوى الثاني...') }}</option>
                             {% for l in db.levels %}<option value="{{ l }}">{{ l }}</option>{% endfor %}
                         </select>
                     </div>
-                    <button type="submit" class="btn btn-outline-danger w-100 fw-bold">➕ إضافة قيد تعارض</button>
+                    <button type="submit" class="btn btn-outline-danger w-100 fw-bold">{{ _('➕ إضافة قيد تعارض') }}</button>
                 </form>
 
                 <form method="POST" class="mb-3 mt-2" onsubmit="silentSubmit(event, this)">
                     <input type="hidden" name="action" value="auto_extract_incompatible">
-                    <button type="submit" class="btn btn-danger w-100 fw-bold shadow-sm" onclick="return confirm('هل أنت متأكد؟ سيقوم النظام بالبحث عن أي مستوى يحتوي على علامة (+) وإضافة قيد تعارض بينه وبين مستوياته الفرعية آلياً.');">
-                        🤖 استخراج آلي للمستويات المشتركة
+                    <!-- ✨ التعديل السحري الأول ✨ -->
+                    <button type="submit" class="btn btn-danger w-100 fw-bold shadow-sm" data-confirm="{{ _('هل أنت متأكد؟ سيقوم النظام بالبحث عن أي مستوى يحتوي على علامة (+) وإضافة قيد تعارض بينه وبين مستوياته الفرعية آلياً.') }}" onclick="return confirm(this.getAttribute('data-confirm'));">
+                        {{ _('🤖 استخراج آلي للمستويات المشتركة') }}
                     </button>
                 </form>
                 <hr>
                 <ul class="list-group">
                     {% for pair in c_db.incompatible_levels %}
                     <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <span>{{ pair[0] }} <strong>ضد</strong> {{ pair[1] }}</span>
+                        <span>{{ pair[0] }} <strong>{{ _('ضد') }}</strong> {{ pair[1] }}</span>
                         <form method="POST" class="m-0" onsubmit="silentSubmit(event, this)">
                             <input type="hidden" name="action" value="del_incompatible">
                             <input type="hidden" name="idx" value="{{ loop.index0 }}">
-                            <button type="submit" class="btn btn-sm btn-danger border-0">حذف</button>
+                            <button type="submit" class="btn btn-sm btn-danger border-0">{{ _('حذف') }}</button>
                         </form>
                     </li>
-                    {% else %}<li class="list-group-item text-muted text-center">لا توجد قيود مسجلة</li>{% endfor %}
+                    {% else %}<li class="list-group-item text-muted text-center">{{ _('لا توجد قيود مسجلة') }}</li>{% endfor %}
                 </ul>
             </div>
         </div>
@@ -58,14 +59,14 @@
     <!-- 2. أساتذة ذوو أولوية -->
     <div class="col-md-6">
         <div class="card border-success shadow-sm h-100">
-            <div class="card-header bg-success text-white fw-bold">🌟 أساتذة ذوو أولوية (تجميع الأيام)</div>
+            <div class="card-header bg-success text-white fw-bold">{{ _('🌟 أساتذة ذوو أولوية (تجميع الأيام)') }}</div>
             <div class="card-body">
                 <div class="d-flex flex-column gap-2 mb-3">
                     
                     <form method="POST" class="w-100 mb-1" onsubmit="silentSubmit(event, this)">
                         <input type="hidden" name="action" value="add_prioritized">
                         
-                        <small class="text-muted fw-bold mb-1 d-block">أشّر على أستاذ أو أكثر:</small>
+                        <small class="text-muted fw-bold mb-1 d-block">{{ _('أشّر على أستاذ أو أكثر:') }}</small>
                         <div class="border rounded p-2 bg-white shadow-inner mb-2" style="max-height: 110px; overflow-y: auto; border-color: #ced4da; display: flex; flex-direction: column; gap: 6px;">
                             {% set available_teachers = [] %}
                             {% for t in db.teachers %}
@@ -79,18 +80,18 @@
                             {% endfor %}
                             
                             {% if not available_teachers %}
-                                <div class="text-center text-muted small py-2">جميع الأساتذة في القائمة بالفعل.</div>
+                                <div class="text-center text-muted small py-2">{{ _('جميع الأساتذة في القائمة بالفعل.') }}</div>
                             {% endif %}
                         </div>
 
                         <div class="d-flex gap-2">
                             <select class="form-select" name="pref" style="max-width: 110px; font-weight: bold;">
-                                <option value="flexible">مرن</option>
-                                <option value="consecutive">تتابع</option>
-                                <option value="separated">انفصال</option>
+                                <option value="flexible">{{ _('مرن') }}</option>
+                                <option value="consecutive">{{ _('تتابع') }}</option>
+                                <option value="separated">{{ _('انفصال') }}</option>
                             </select>
                             <button type="submit" class="btn btn-outline-success fw-bold flex-grow-1" {% if not available_teachers %}disabled{% endif %}>
-                                ➕ إضافة المحددين
+                                {{ _('➕ إضافة المحددين') }}
                             </button>
                         </div>
                     </form>
@@ -98,12 +99,13 @@
                     <form method="POST" class="d-flex gap-2 m-0 w-100 border-top pt-2 mt-1" onsubmit="silentSubmit(event, this)">
                         <input type="hidden" name="action" value="add_all_prioritized">
                         <select class="form-select form-select-sm" name="pref" style="max-width: 110px; font-weight: bold;">
-                            <option value="flexible">مرن</option>
-                            <option value="consecutive">تتابع</option>
-                            <option value="separated">انفصال</option>
+                            <option value="flexible">{{ _('مرن') }}</option>
+                            <option value="consecutive">{{ _('تتابع') }}</option>
+                            <option value="separated">{{ _('انفصال') }}</option>
                         </select>
-                        <button type="submit" class="btn btn-sm btn-success fw-bold flex-grow-1" onclick="return confirm('هل أنت متأكد من إضافة جميع الأساتذة المتبقين دفعة واحدة؟');" {% if not available_teachers %}disabled{% endif %}>
-                            ✨ إضافة البقية دفعة واحدة
+                        <!-- ✨ التعديل السحري الثاني ✨ -->
+                        <button type="submit" class="btn btn-sm btn-success fw-bold flex-grow-1" data-confirm="{{ _('هل أنت متأكد من إضافة جميع الأساتذة المتبقين دفعة واحدة؟') }}" onclick="return confirm(this.getAttribute('data-confirm'));" {% if not available_teachers %}disabled{% endif %}>
+                            {{ _('✨ إضافة البقية دفعة واحدة') }}
                         </button>
                     </form>
                 </div>
@@ -116,21 +118,21 @@
                             <div>
                                 <span class="fw-bold" style="font-size: 14px;">{{ t }}</span>
                                 {% if pref == 'consecutive' %}
-                                    <span class="badge bg-primary ms-2 shadow-sm" style="font-size: 11px;">تتابع</span>
+                                    <span class="badge bg-primary ms-2 shadow-sm" style="font-size: 11px;">{{ _('تتابع') }}</span>
                                 {% elif pref == 'separated' %}
-                                    <span class="badge bg-warning text-dark ms-2 shadow-sm" style="font-size: 11px;">انفصال</span>
+                                    <span class="badge bg-warning text-dark ms-2 shadow-sm" style="font-size: 11px;">{{ _('انفصال') }}</span>
                                 {% else %}
-                                    <span class="badge bg-secondary ms-2 shadow-sm" style="font-size: 11px;">مرن</span>
+                                    <span class="badge bg-secondary ms-2 shadow-sm" style="font-size: 11px;">{{ _('مرن') }}</span>
                                 {% endif %}
                             </div>
                             <form method="POST" class="m-0" onsubmit="silentSubmit(event, this)">
                                 <input type="hidden" name="action" value="del_prioritized">
                                 <input type="hidden" name="teacher" value="{{ t }}">
-                                <button type="submit" class="btn btn-sm text-danger border-0 p-0 shadow-none fs-5 bg-transparent" title="حذف">✖</button>
+                                <button type="submit" class="btn btn-sm text-danger border-0 p-0 shadow-none fs-5 bg-transparent" title="{{ _('حذف') }}">✖</button>
                             </form>
                         </li>
                         {% else %}
-                        <li class="list-group-item text-muted text-center bg-transparent border-0">لا توجد قيود مسجلة</li>
+                        <li class="list-group-item text-muted text-center bg-transparent border-0">{{ _('لا توجد قيود مسجلة') }}</li>
                         {% endfor %}
                     </ul>
                 </div>
@@ -141,34 +143,34 @@
     <!-- 3. المرافقة -->
     <div class="col-md-6">
         <div class="card border-primary shadow-sm h-100">
-            <div class="card-header bg-primary text-white fw-bold">🚗 المرافقة (سيارة واحدة)</div>
+            <div class="card-header bg-primary text-white fw-bold">{{ _('🚗 المرافقة (سيارة واحدة)') }}</div>
             <div class="card-body">
                 <form method="POST" class="mb-3" onsubmit="silentSubmit(event, this)">
                     <input type="hidden" name="action" value="add_carpool">
                     <div class="d-flex gap-2 mb-2">
                         <select class="form-select" name="t1" required>
-                            <option value="">الأستاذ الأول...</option>
+                            <option value="">{{ _('الأستاذ الأول...') }}</option>
                             {% for t in db.teachers %}<option value="{{ t }}">{{ t }}</option>{% endfor %}
                         </select>
                         <select class="form-select" name="t2" required>
-                            <option value="">الأستاذ الثاني...</option>
+                            <option value="">{{ _('الأستاذ الثاني...') }}</option>
                             {% for t in db.teachers %}<option value="{{ t }}">{{ t }}</option>{% endfor %}
                         </select>
                     </div>
-                    <button type="submit" class="btn btn-outline-primary w-100 fw-bold">➕ إضافة قيد مرافقة</button>
+                    <button type="submit" class="btn btn-outline-primary w-100 fw-bold">{{ _('➕ إضافة قيد مرافقة') }}</button>
                 </form>
                 <hr>
                 <ul class="list-group">
                     {% for pair in c_db.carpool_pairs %}
                     <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <span>{{ pair[0] }} <strong>مع</strong> {{ pair[1] }}</span>
+                        <span>{{ pair[0] }} <strong>{{ _('مع') }}</strong> {{ pair[1] }}</span>
                         <form method="POST" class="m-0" onsubmit="silentSubmit(event, this)">
                             <input type="hidden" name="action" value="del_carpool">
                             <input type="hidden" name="idx" value="{{ loop.index0 }}">
-                            <button type="submit" class="btn btn-sm btn-danger border-0">حذف</button>
+                            <button type="submit" class="btn btn-sm btn-danger border-0">{{ _('حذف') }}</button>
                         </form>
                     </li>
-                    {% else %}<li class="list-group-item text-muted text-center">لا توجد قيود مسجلة</li>{% endfor %}
+                    {% else %}<li class="list-group-item text-muted text-center">{{ _('لا توجد قيود مسجلة') }}</li>{% endfor %}
                 </ul>
             </div>
         </div>
@@ -177,34 +179,34 @@
     <!-- 4. قيد الانفصال -->
     <div class="col-md-6">
         <div class="card border-secondary shadow-sm h-100">
-            <div class="card-header bg-secondary text-white fw-bold">⚡ قيد الانفصال (لا يشتركان في يوم)</div>
+            <div class="card-header bg-secondary text-white fw-bold">{{ _('⚡ قيد الانفصال (لا يشتركان في يوم)') }}</div>
             <div class="card-body">
                 <form method="POST" class="mb-3" onsubmit="silentSubmit(event, this)">
                     <input type="hidden" name="action" value="add_conflict">
                     <div class="d-flex gap-2 mb-2">
                         <select class="form-select" name="t1" required>
-                            <option value="">الأستاذ الأول...</option>
+                            <option value="">{{ _('الأستاذ الأول...') }}</option>
                             {% for t in db.teachers %}<option value="{{ t }}">{{ t }}</option>{% endfor %}
                         </select>
                         <select class="form-select" name="t2" required>
-                            <option value="">الأستاذ الثاني...</option>
+                            <option value="">{{ _('الأستاذ الثاني...') }}</option>
                             {% for t in db.teachers %}<option value="{{ t }}">{{ t }}</option>{% endfor %}
                         </select>
                     </div>
-                    <button type="submit" class="btn btn-outline-secondary w-100 fw-bold">➕ إضافة قيد انفصال</button>
+                    <button type="submit" class="btn btn-outline-secondary w-100 fw-bold">{{ _('➕ إضافة قيد انفصال') }}</button>
                 </form>
                 <hr>
                 <ul class="list-group">
                     {% for pair in c_db.conflict_pairs %}
                     <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <span>{{ pair[0] }} <strong>عكس</strong> {{ pair[1] }}</span>
+                        <span>{{ pair[0] }} <strong>{{ _('عكس') }}</strong> {{ pair[1] }}</span>
                         <form method="POST" class="m-0" onsubmit="silentSubmit(event, this)">
                             <input type="hidden" name="action" value="del_conflict">
                             <input type="hidden" name="idx" value="{{ loop.index0 }}">
-                            <button type="submit" class="btn btn-sm btn-danger border-0">حذف</button>
+                            <button type="submit" class="btn btn-sm btn-danger border-0">{{ _('حذف') }}</button>
                         </form>
                     </li>
-                    {% else %}<li class="list-group-item text-muted text-center">لا توجد قيود مسجلة</li>{% endfor %}
+                    {% else %}<li class="list-group-item text-muted text-center">{{ _('لا توجد قيود مسجلة') }}</li>{% endfor %}
                 </ul>
             </div>
         </div>
@@ -213,15 +215,15 @@
     <!-- 5. إعفاء من الحصة الأولى -->
     <div class="col-md-12">
         <div class="card border-warning shadow-sm h-100">
-            <div class="card-header bg-warning text-dark fw-bold">😴 إعفاء من الحصة الأولى في كل الأيام</div>
+            <div class="card-header bg-warning text-dark fw-bold">{{ _('😴 إعفاء من الحصة الأولى في كل الأيام') }}</div>
             <div class="card-body">
                 <form method="POST" class="mb-3 d-flex gap-2" onsubmit="silentSubmit(event, this)">
                     <input type="hidden" name="action" value="add_no_first">
                     <select class="form-select w-50" name="teacher" required>
-                        <option value="">اختر أستاذاً للإعفاء...</option>
+                        <option value="">{{ _('اختر أستاذاً للإعفاء...') }}</option>
                         {% for t in db.teachers %}<option value="{{ t }}">{{ t }}</option>{% endfor %}
                     </select>
-                    <button type="submit" class="btn btn-outline-warning text-dark fw-bold text-nowrap">➕ إضافة إعفاء</button>
+                    <button type="submit" class="btn btn-outline-warning text-dark fw-bold text-nowrap">{{ _('➕ إضافة إعفاء') }}</button>
                 </form>
                 <hr>
                 <div class="d-flex flex-wrap gap-2">
@@ -231,10 +233,10 @@
                         <form method="POST" class="m-0" onsubmit="silentSubmit(event, this)">
                             <input type="hidden" name="action" value="del_no_first">
                             <input type="hidden" name="teacher" value="{{ t }}">
-                            <button type="submit" class="btn btn-sm text-danger p-0 m-0 border-0 bg-transparent" title="إلغاء الإعفاء">❌</button>
+                            <button type="submit" class="btn btn-sm text-danger p-0 m-0 border-0 bg-transparent" title="{{ _('إلغاء الإعفاء') }}">❌</button>
                         </form>
                     </div>
-                    {% else %}<div class="text-muted text-center w-100">لا توجد إعفاءات مسجلة</div>{% endfor %}
+                    {% else %}<div class="text-muted text-center w-100">{{ _('لا توجد إعفاءات مسجلة') }}</div>{% endfor %}
                 </div>
             </div>
         </div>
@@ -244,19 +246,19 @@
     <div class="col-12 mt-4">
         <div class="card border-dark shadow-lg">
             <div class="card-header bg-dark text-white fw-bold fs-5">
-                🛡️ إدارة مجموعات العزل (تشفير الفترات الاحتياطية)
+                {{ _('🛡️ إدارة مجموعات العزل (تشفير الفترات الاحتياطية)') }}
             </div>
             <div class="card-body bg-light">
                 <div class="alert alert-secondary border-secondary shadow-sm">
-                    <strong>💡 القاعدة الذهبية:</strong> أي مستوى تضعه في مجموعة سيقوم باحتكار فترته الاحتياطية لمجموعته فقط. <br>
-                    <strong>🃏 المستوى الجوكر:</strong> المستويات التي لا تنتمي لأي مجموعة (حرة) يمكنها دخول أي فترة احتياطية لأي مجموعة دون أن تطرد أحداً.
+                    <strong>{{ _('💡 القاعدة الذهبية:') }}</strong> {{ _('أي مستوى تضعه في مجموعة سيقوم باحتكار فترته الاحتياطية لمجموعته فقط.') }} <br>
+                    <strong>{{ _('🃏 المستوى الجوكر:') }}</strong> {{ _('المستويات التي لا تنتمي لأي مجموعة (حرة) يمكنها دخول أي فترة احتياطية لأي مجموعة دون أن تطرد أحداً.') }}
                 </div>
                 
                 <form method="POST" class="mb-4 border border-secondary p-3 bg-white rounded shadow-sm" onsubmit="silentSubmit(event, this)">
                     <input type="hidden" name="action" value="add_isolation_group">
                     <div class="row align-items-center">
                         <div class="col-md-3 mb-2 mb-md-0">
-                            <input type="text" class="form-control border-dark" name="group_name" placeholder="اسم المجموعة (مثال: مجموعة 1)" required>
+                            <input type="text" class="form-control border-dark" name="group_name" placeholder="{{ _('اسم المجموعة (مثال: مجموعة 1)') }}" required>
                         </div>
                         <div class="col-md-7 mb-2 mb-md-0">
                             <div class="d-flex flex-wrap gap-2">
@@ -269,23 +271,23 @@
                             </div>
                         </div>
                         <div class="col-md-2">
-                            <button type="submit" class="btn btn-dark w-100 fw-bold">➕ إنشاء المجموعة</button>
+                            <button type="submit" class="btn btn-dark w-100 fw-bold">{{ _('➕ إنشاء المجموعة') }}</button>
                         </div>
                     </div>
                 </form>
 
-                <h5 class="fw-bold mb-3 border-bottom pb-2">المجموعات المعزولة حالياً:</h5>
+                <h5 class="fw-bold mb-3 border-bottom pb-2">{{ _('المجموعات المعزولة حالياً:') }}</h5>
                 <div class="row g-3">
                     {% for g_name, g_levels in c_db.get('isolation_groups', {}).items() %}
                     <div class="col-md-4">
                         <div class="card border-dark h-100 shadow-sm">
                             <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center py-2">
                                 <span class="fw-bold fs-6">{{ g_name }}</span>
-                                <!-- ✨ تعديل: نقل رسالة التأكيد إلى الزر نفسه ✨ -->
+                                <!-- ✨ التعديل السحري الثالث ✨ -->
                                 <form method="POST" class="m-0" onsubmit="silentSubmit(event, this)">
                                     <input type="hidden" name="action" value="del_isolation_group">
                                     <input type="hidden" name="group_name" value="{{ g_name }}">
-                                    <button type="submit" class="btn btn-sm text-white p-0 m-0 border-0 bg-transparent" title="فك العزل وحذف المجموعة" onclick="return confirm('هل أنت متأكد من حذف هذه المجموعة؟ ستصبح مستوياتها حرة.');">❌</button>
+                                    <button type="submit" class="btn btn-sm text-white p-0 m-0 border-0 bg-transparent" title="{{ _('فك العزل وحذف المجموعة') }}" data-confirm="{{ _('هل أنت متأكد من حذف هذه المجموعة؟ ستصبح مستوياتها حرة.') }}" onclick="return confirm(this.getAttribute('data-confirm'));">❌</button>
                                 </form>
                             </div>
                             <div class="card-body py-3">
@@ -298,7 +300,7 @@
                         </div>
                     </div>
                     {% else %}
-                    <div class="text-center text-muted fw-bold w-100 py-3">لا توجد مجموعات عزل مسجلة حالياً. (جميع المستويات عبارة عن "جوكر" حرة).</div>
+                    <div class="text-center text-muted fw-bold w-100 py-3">{{ _('لا توجد مجموعات عزل مسجلة حالياً. (جميع المستويات عبارة عن "جوكر" حرة).') }}</div>
                     {% endfor %}
                 </div>
             </div>
@@ -319,7 +321,7 @@
         let originalText = '';
         if (submitBtn) {
             originalText = submitBtn.innerHTML;
-            submitBtn.innerHTML = '⏳...';
+            submitBtn.innerHTML = "{{ _('⏳...') }}";
             submitBtn.disabled = true;
         }
         document.body.style.cursor = 'wait';
@@ -347,7 +349,7 @@
             window.scrollTo(0, scrollY);
 
         } catch (error) {
-            alert("حدث خطأ أثناء الاتصال بالخادم.");
+            alert("{{ _('حدث خطأ أثناء الاتصال بالخادم.') }}");
             if (submitBtn) {
                 submitBtn.innerHTML = originalText;
                 submitBtn.disabled = false;

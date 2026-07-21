@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', async () => {
              if (settings.vnsK) document.getElementById('vns-k').value = settings.vnsK;
         }
     } catch (e) {
-        console.error('لم يتم العثور على إعدادات محفوظة مسبقاً للخوارزميات:', e);
+        console.error(_t('لم يتم العثور على إعدادات محفوظة مسبقاً للخوارزميات:'), e);
     }
 
     // --- 2. أزرار النسخ الاحتياطي والاستعادة ---
@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         backupBtn.addEventListener('click', async () => {
             try {
                 const response = await fetch('/exams/api/backup');
-                if (!response.ok) throw new Error('فشل النسخ الاحتياطي');
+                if (!response.ok) throw new Error(_t('فشل النسخ الاحتياطي'));
                 
                 const blob = await response.blob();
                 const url = window.URL.createObjectURL(blob);
@@ -37,8 +37,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 a.click();
                 window.URL.revokeObjectURL(url);
                 a.remove();
-                showNotification('تم تحميل النسخة الاحتياطية بنجاح.', 'success');
-            } catch (error) { showNotification('حدث خطأ أثناء تصدير النسخة.', 'error'); }
+                showNotification(_t('تم تحميل النسخة الاحتياطية بنجاح.'), 'success');
+            } catch (error) { showNotification(_t('حدث خطأ أثناء تصدير النسخة.'), 'error'); }
         });
     }
 
@@ -59,7 +59,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (!file) return;
             
             // رسالة تأكيد تطمئن رئيس القسم
-            if (!confirm("⚠️ تحذير: سيتم مسح بيانات الامتحانات الحالية (فقط) واستبدالها ببيانات الملف المرفوع.\n\n(لن تتأثر الجداول الدراسية وقوائم التدريس إطلاقاً).\n\nهل أنت متأكد من الاستمرار؟")) {
+            if (!confirm(_t("⚠️ تحذير: سيتم مسح بيانات الامتحانات الحالية (فقط) واستبدالها ببيانات الملف المرفوع.\n\n(لن تتأثر الجداول الدراسية وقوائم التدريس إطلاقاً).\n\nهل أنت متأكد من الاستمرار؟"))) {
                 fileInput.value = ''; 
                 return;
             }
@@ -83,7 +83,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         }
                     });
                 } catch (error) { 
-                    showNotification('ملف غير صالح.', 'error'); 
+                    showNotification(_t('ملف غير صالح.'), 'error'); 
                 }
             };
             reader.readAsText(file);
@@ -92,7 +92,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if(resetBtn) {
         resetBtn.addEventListener('click', () => {
-            if (confirm("تحذير خطير! هل أنت متأكد من مسح جميع بيانات امتحانات القسم نهائياً للبدء من الصفر؟")) {
+            if (confirm(_t("تحذير خطير! هل أنت متأكد من مسح جميع بيانات امتحانات القسم نهائياً للبدء من الصفر؟"))) {
                 fetch('/exams/api/reset-all', { method: 'POST' }).then(res => res.json()).then(res => {
                     if(res.success) { alert(res.message); location.reload(); }
                     else { showNotification(res.error, 'error'); }
@@ -105,7 +105,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const saveSettingsBtn = document.getElementById('save-settings-btn');
     if (saveSettingsBtn) {
         saveSettingsBtn.addEventListener('click', async () => {
-            saveSettingsBtn.textContent = '⏳ جاري الحفظ الشامل...';
+            saveSettingsBtn.textContent = _t('⏳ جاري الحفظ الشامل...');
             
             try {
                 // الخطوة 1: حفظ المرحلة 5 بانتظار (await) لضمان دمجها في قاعدة البيانات أولاً
@@ -140,14 +140,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                 // إشعار نجاح مجمع
                 setTimeout(() => {
-                    showNotification('تم حفظ جميع البيانات والإعدادات في كافة المراحل بنجاح! 💾', 'success');
+                    showNotification(_t('تم حفظ جميع البيانات والإعدادات في كافة المراحل بنجاح! 💾'), 'success');
                 }, 500);
                 
             } catch (e) {
                 console.error(e);
-                showNotification('حدث خطأ أثناء الحفظ الشامل.', 'error');
+                showNotification(_t('حدث خطأ أثناء الحفظ الشامل.'), 'error');
             } finally {
-                saveSettingsBtn.textContent = '💾 حفظ الإعدادات';
+                saveSettingsBtn.textContent = _t('💾 حفظ الإعدادات');
             }
         });
     }
@@ -177,35 +177,35 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('about-button')?.addEventListener('click', () => {
         const aboutContent = `
             <div style="text-align: center; padding: 10px;">
-                <h2 style="color: #3f51b5; margin-bottom: 5px; margin-top: 0;">🎓 نظام حراسة الامتحانات</h2>
+                <h2 style="color: #3f51b5; margin-bottom: 5px; margin-top: 0;">${_t('🎓 نظام حراسة الامتحانات')}</h2>
                 <p style="color: #666; margin-top: 0; font-size: 14px;">(Smart Exam Invigilation Scheduler - SaaS Edition)</p>
-                <span style="display: inline-block; background: #e8f5e9; color: #2e7d32; padding: 5px 15px; border-radius: 20px; font-weight: bold; margin: 10px 0;">الإصدار السحابي 2.0</span>
+                <span style="display: inline-block; background: #e8f5e9; color: #2e7d32; padding: 5px 15px; border-radius: 20px; font-weight: bold; margin: 10px 0;">${_t('الإصدار السحابي 2.0')}</span>
                 <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
-                <p style="font-size: 16px; margin-bottom: 5px;">تم تصميم وتطوير هذا النظام السحابي المدمج بواسطة:</p>
-                <h3 style="color: #d32f2f; margin: 0;">الدكتور شعيب يحيى</h3>
-                <p style="color: #888; font-size: 13px; margin-top: 25px; margin-bottom: 0;">جميع الحقوق محفوظة © 2026</p>
+                <p style="font-size: 16px; margin-bottom: 5px;">${_t('تم تصميم وتطوير هذا النظام السحابي المدمج بواسطة:')}</p>
+                <h3 style="color: #d32f2f; margin: 0;">${_t('الدكتور شعيب يحيى')}</h3>
+                <p style="color: #888; font-size: 13px; margin-top: 25px; margin-bottom: 0;">${_t('جميع الحقوق محفوظة © 2026')}</p>
             </div>
         `;
-        openCustomModal('ℹ️ عن البرنامج', aboutContent);
+        openCustomModal(_t('ℹ️ عن البرنامج'), aboutContent);
     });
 
     document.getElementById('help-button')?.addEventListener('click', () => {
         const helpContent = `
-            <p style="font-weight: bold; color: #3f51b5; margin-top: 0;">💡 دليل استخدام النظام - مراحل العمل:</p>
+            <p style="font-weight: bold; color: #3f51b5; margin-top: 0;">${_t('💡 دليل استخدام النظام - مراحل العمل:')}</p>
             <ul style="padding-right: 20px; margin-bottom: 20px; list-style-type: none;">
-                <li style="margin-bottom: 12px;"><b>1️⃣ المرحلة 1 (البيانات الأساسية):</b> إدخال قوائم الأساتذة، القاعات، المستويات، والمواد.</li>
-                <li style="margin-bottom: 12px;"><b>2️⃣ المرحلة 2 (إدارة البيانات):</b> مراجعة، تعديل، أو حذف البيانات التي تم إدخالها.</li>
-                <li style="margin-bottom: 12px;"><b>3️⃣ المرحلة 3 (الإسناد والقاعات):</b> إسناد المواد لأساتذتها، وتحديد القاعات المخصصة لكل مستوى.</li>
-                <li style="margin-bottom: 12px;"><b>4️⃣ المرحلة 4 (الأيام والأوقات):</b> بناء الهيكل الزمني وتحديد أيام وفترات الامتحانات.</li>
-                <li style="margin-bottom: 12px;"><b>5️⃣ المرحلة 5 (القيود والشروط):</b> ضبط غيابات الأساتذة، أنماط العمل، التنافر، والحدود القصوى.</li>
-                <li style="margin-bottom: 12px;"><b>6️⃣ المرحلة 6 (التوليد والتصدير):</b> تشغيل الخوارزميات الذكية لإنشاء جداول الحراسة وتصديرها.</li>
-                <li style="margin-bottom: 12px;"><b>7️⃣ المرحلة 7 (النسخ الاحتياطي):</b> أخذ نسخة احتياطية من جميع البيانات.</li>
+                <li style="margin-bottom: 12px;">${_t('<b>1️⃣ المرحلة 1 (البيانات الأساسية):</b> إدخال قوائم الأساتذة، القاعات، المستويات، والمواد.')}</li>
+                <li style="margin-bottom: 12px;">${_t('<b>2️⃣ المرحلة 2 (إدارة البيانات):</b> مراجعة، تعديل، أو حذف البيانات التي تم إدخالها.')}</li>
+                <li style="margin-bottom: 12px;">${_t('<b>3️⃣ المرحلة 3 (الإسناد والقاعات):</b> إسناد المواد لأساتذتها، وتحديد القاعات المخصصة لكل مستوى.')}</li>
+                <li style="margin-bottom: 12px;">${_t('<b>4️⃣ المرحلة 4 (الأيام والأوقات):</b> بناء الهيكل الزمني وتحديد أيام وفترات الامتحانات.')}</li>
+                <li style="margin-bottom: 12px;">${_t('<b>5️⃣ المرحلة 5 (القيود والشروط):</b> ضبط غيابات الأساتذة، أنماط العمل، التنافر، والحدود القصوى.')}</li>
+                <li style="margin-bottom: 12px;">${_t('<b>6️⃣ المرحلة 6 (التوليد والتصدير):</b> تشغيل الخوارزميات الذكية لإنشاء جداول الحراسة وتصديرها.')}</li>
+                <li style="margin-bottom: 12px;">${_t('<b>7️⃣ المرحلة 7 (النسخ الاحتياطي):</b> أخذ نسخة احتياطية من جميع البيانات.')}</li>
             </ul>
             <div style="background: #fff3cd; color: #856404; padding: 12px; border-radius: 5px; border: 1px solid #ffeeba; font-size: 14px;">
-                <b>⚠️ تلميح هام:</b> تأكد من حفظ إعدادات كل مرحلة (عبر زر الحفظ الأخضر) قبل الانتقال للمرحلة التي تليها!
+                ${_t('<b>⚠️ تلميح هام:</b> تأكد من حفظ إعدادات كل مرحلة (عبر زر الحفظ الأخضر) قبل الانتقال للمرحلة التي تليها!')}
             </div>
         `;
-        openCustomModal('❓ مساعدة ودليل الاستخدام', helpContent);
+        openCustomModal(_t('❓ مساعدة ودليل الاستخدام'), helpContent);
     });
 });
 
@@ -220,13 +220,13 @@ document.addEventListener('DOMContentLoaded', () => {
         exportFinalExcelBtn.addEventListener('click', () => {
             // المتغير lastGeneratedSchedule يتم تعريفه في generation.js
             if (typeof lastGeneratedSchedule === 'undefined' || !lastGeneratedSchedule) {
-                showNotification("لا يوجد جدول جاهز للتصدير. الرجاء توليد الجدول في المرحلة 6 أولاً.", "error");
+                showNotification(_t("لا يوجد جدول جاهز للتصدير. الرجاء توليد الجدول في المرحلة 6 أولاً."), "error");
                 return;
             }
             
             const originalText = exportFinalExcelBtn.textContent;
             exportFinalExcelBtn.disabled = true;
-            exportFinalExcelBtn.textContent = '⏳ جاري التصدير...';
+            exportFinalExcelBtn.textContent = _t('⏳ جاري التصدير...');
 
             fetch('/exams/api/export-final-excel', {
                 method: 'POST',
@@ -234,20 +234,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify(lastGeneratedSchedule)
             })
             .then(res => {
-                if (!res.ok) throw new Error("فشل التصدير");
+                if (!res.ok) throw new Error(_t("فشل التصدير"));
                 return res.blob();
             })
             .then(blob => {
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = 'الجدول_النهائي_للحراسة.xlsx';
+                a.download = _t('الجدول_النهائي_للحراسة.xlsx');
                 document.body.appendChild(a);
                 a.click();
                 a.remove();
-                showNotification("تم تصدير الجدول بنجاح", 'success');
+                showNotification(_t("تم تصدير الجدول بنجاح"), 'success');
             })
-            .catch(err => showNotification("حدث خطأ أثناء تصدير الجدول", "error"))
+            .catch(err => showNotification(_t("حدث خطأ أثناء تصدير الجدول"), "error"))
             .finally(() => {
                 exportFinalExcelBtn.disabled = false;
                 exportFinalExcelBtn.textContent = originalText;
@@ -263,18 +263,18 @@ document.addEventListener('DOMContentLoaded', () => {
         importFinalExcelBtn.addEventListener('click', () => {
             const file = importFinalExcelInput.files[0];
             if (!file) {
-                showNotification("الرجاء اختيار ملف إكسل أولاً.", "error");
+                showNotification(_t("الرجاء اختيار ملف إكسل أولاً."), "error");
                 return;
             }
             
-            if (!confirm("هل أنت متأكد؟ سيتم استيراد هذا الجدول واعتماده ونشره فوراً للأساتذة.")) return;
+            if (!confirm(_t("هل أنت متأكد؟ سيتم استيراد هذا الجدول واعتماده ونشره فوراً للأساتذة."))) return;
 
             const formData = new FormData();
             formData.append('file', file);
 
             const originalText = importFinalExcelBtn.textContent;
             importFinalExcelBtn.disabled = true;
-            importFinalExcelBtn.textContent = '⏳ جاري الاستيراد والنشر...';
+            importFinalExcelBtn.textContent = _t('⏳ جاري الاستيراد والنشر...');
 
             fetch('/exams/api/import-final-excel', {
                 method: 'POST',
@@ -289,10 +289,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         lastGeneratedSchedule = data.schedule; 
                     }
                 } else {
-                    showNotification(data.error || "حدث خطأ أثناء الاستيراد", "error");
+                    showNotification(data.error || _t("حدث خطأ أثناء الاستيراد"), "error");
                 }
             })
-            .catch(err => showNotification("خطأ في الاتصال بالخادم", "error"))
+            .catch(err => showNotification(_t("خطأ في الاتصال بالخادم"), "error"))
             .finally(() => {
                 importFinalExcelBtn.disabled = false;
                 importFinalExcelBtn.textContent = originalText;

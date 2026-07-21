@@ -1,15 +1,17 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<!-- ✨ تحديد لغة واتجاه الصفحة ديناميكياً -->
+<html lang="{{ session.get('lang', 'ar') }}" dir="{{ 'ltr' if session.get('lang') in ['en', 'fr'] else 'rtl' }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>إعداد النظام - موزع الجداول الذكي</title>
+    <title>{{ _('إعداد النظام - موزع الجداول الذكي') }}</title>
     <style>
         body { font-family: 'Tajawal', 'Cairo', sans-serif; background-color: #f4f7f6; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
         .setup-container { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; border-top: 5px solid #27ae60; }
         h2 { color: #2c3e50; margin-bottom: 10px; }
         p { color: #7f8c8d; font-size: 14px; margin-bottom: 25px; line-height: 1.6; }
-        .input-group { margin-bottom: 20px; text-align: right; }
+        /* ✨ استخدام text-align: start بدلاً من right للتجاوب مع الاتجاهين */
+        .input-group { margin-bottom: 20px; text-align: start; }
         .input-group label { display: block; margin-bottom: 8px; color: #555; font-weight: bold; font-size: 14px; }
         .input-group input { width: 100%; padding: 10px 15px; border: 1px solid #ccc; border-radius: 6px; font-size: 16px; font-family: inherit; box-sizing: border-box; }
         .btn-setup { width: 100%; padding: 12px; background: #27ae60; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; transition: background 0.3s; }
@@ -22,18 +24,18 @@
 <body>
 
 <div class="setup-container">
-    <h2>🚀 مرحباً بك في موزع الجداول</h2>
-    <p>يبدو أن هذه هي المرة الأولى لتشغيل النظام. يرجى إعداد حساب المدير الخاص بك للبدء في استخدام البرنامج.</p>
+    <h2>🚀 {{ _('مرحباً بك في موزع الجداول') }}</h2>
+    <p>{{ _('يبدو أن هذه هي المرة الأولى لتشغيل النظام. يرجى إعداد حساب المدير الخاص بك للبدء في استخدام البرنامج.') }}</p>
     
     <div class="input-group">
-        <label>اختر اسم مستخدم (للدخول):</label>
-        <input type="text" id="setup-username" placeholder="مثال: admin">
+        <label>{{ _('اختر اسم مستخدم (للدخول):') }}</label>
+        <input type="text" id="setup-username" placeholder="{{ _('مثال: admin') }}">
     </div>
     <div class="input-group">
-        <label>اختر كلمة مرور قوية:</label>
-        <input type="password" id="setup-password" placeholder="أدخل كلمة المرور...">
+        <label>{{ _('اختر كلمة مرور قوية:') }}</label>
+        <input type="password" id="setup-password" placeholder="{{ _('أدخل كلمة المرور...') }}">
     </div>
-    <button class="btn-setup" onclick="setupAdmin()">حفظ والبدء</button>
+    <button class="btn-setup" onclick="setupAdmin()">{{ _('حفظ والبدء') }}</button>
     <div id="msg-box"></div>
 </div>
 
@@ -45,7 +47,7 @@
         
         if(!user || !pass) {
             msgBox.className = 'error';
-            msgBox.innerText = 'يرجى إدخال اسم المستخدم وكلمة المرور.';
+            msgBox.innerText = "{{ _('يرجى إدخال اسم المستخدم وكلمة المرور.') }}";
             msgBox.style.display = 'block';
             return;
         }
@@ -59,7 +61,7 @@
         .then(data => {
             if(data.success) {
                 msgBox.className = 'success';
-                msgBox.innerText = '✅ تم الإعداد بنجاح! جاري التوجيه لصفحة الدخول...';
+                msgBox.innerText = "{{ _('✅ تم الإعداد بنجاح! جاري التوجيه لصفحة الدخول...') }}";
                 msgBox.style.display = 'block';
                 // توجيه لصفحة الدخول بعد ثانية ونصف
                 setTimeout(() => window.location.href = '/login', 1500);
@@ -70,7 +72,7 @@
             }
         }).catch(err => {
             msgBox.className = 'error';
-            msgBox.innerText = 'حدث خطأ في الاتصال بالخادم.';
+            msgBox.innerText = "{{ _('حدث خطأ في الاتصال بالخادم.') }}";
             msgBox.style.display = 'block';
         });
     }

@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify, session
 import json
 from app.database import db, ExamSetting
+from flask_babel import _
 
 # استخدمنا اسم exams_times_bp لكي لا يتعارض مع مسار الأوقات في برنامج الجداول
 exams_times_bp = Blueprint('exams_times', __name__)
@@ -10,7 +11,7 @@ def get_exam_schedule():
     """جلب جدول الامتحانات المحفوظ مسبقاً (معزول بالقسم)"""
     tenant_id = session.get('tenant_id')
     if not tenant_id:
-        return jsonify({"error": "غير مصرح"}), 403
+        return jsonify({"error": _("غير مصرح")}), 403
 
     setting = ExamSetting.query.filter_by(key='exam_schedule', tenant_id=tenant_id).first()
     
@@ -23,7 +24,7 @@ def save_exam_schedule():
     """حفظ هيكل جدول الامتحانات (الأيام، الفترات، والمستويات)"""
     tenant_id = session.get('tenant_id')
     if not tenant_id:
-        return jsonify({"error": "غير مصرح"}), 403
+        return jsonify({"error": _("غير مصرح")}), 403
 
     schedule_data = request.json
     value_str = json.dumps(schedule_data)
@@ -37,4 +38,4 @@ def save_exam_schedule():
         db.session.add(new_setting)
         
     db.session.commit()
-    return jsonify({'success': True, 'message': 'تم حفظ هيكل جدول الامتحانات بنجاح.'})
+    return jsonify({'success': True, 'message': _('تم حفظ هيكل جدول الامتحانات بنجاح.')})

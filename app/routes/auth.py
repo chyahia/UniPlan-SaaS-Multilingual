@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify, session, render_template, redirect, url_for
 from werkzeug.security import generate_password_hash, check_password_hash
 from app.database import db, User, Teacher
+from flask_babel import _ # ✨ استيراد دالة الترجمة
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -24,7 +25,7 @@ def setup():
     password = data.get('password')
     
     if not username or not password:
-        return jsonify({"success": False, "error": "يرجى ملء جميع الحقول."})
+        return jsonify({"success": False, "error": _("يرجى ملء جميع الحقول.")})
         
     hashed_pw = generate_password_hash(password)
     # إضافة المدير العام (لا يتبع لأي قسم tenant_id = None)
@@ -32,7 +33,7 @@ def setup():
     db.session.add(new_admin)
     db.session.commit()
     
-    return jsonify({"success": True, "message": "تم إعداد النظام وإنشاء المدير العام بنجاح!"})
+    return jsonify({"success": True, "message": _("تم إعداد النظام وإنشاء المدير العام بنجاح!")})
 
 # --- مسار صفحة وعملية تسجيل الدخول ---
 @auth_bp.route('/login', methods=['GET', 'POST'])
@@ -60,7 +61,7 @@ def login():
         session['teacher_id'] = user.teacher_id
         return jsonify({"success": True, "role": user.role})
     
-    return jsonify({"success": False, "error": "اسم المستخدم أو كلمة المرور غير صحيحة"}), 401
+    return jsonify({"success": False, "error": _("اسم المستخدم أو كلمة المرور غير صحيحة")}), 401
 
 @auth_bp.route('/logout', methods=['GET', 'POST'])
 def logout():
@@ -73,7 +74,7 @@ def logout():
 @auth_bp.route('/api/manage_account/<int:teacher_id>', methods=['GET'])
 def get_teacher_account(teacher_id):
     if session.get('role') != 'tenant_admin': 
-        return jsonify({"error": "غير مصرح"}), 403
+        return jsonify({"error": _("غير مصرح")}), 403
     
     # العزل: يجب أن يتأكد أن الأستاذ ينتمي لنفس القسم
     user = User.query.filter_by(teacher_id=teacher_id, tenant_id=session.get('tenant_id')).first()
@@ -85,7 +86,7 @@ def get_teacher_account(teacher_id):
 @auth_bp.route('/api/manage_account', methods=['POST'])
 def save_teacher_account():
     if session.get('role') != 'tenant_admin': 
-        return jsonify({"error": "غير مصرح"}), 403
+        return jsonify({"error": _("غير مصرح")}), 403
     
     data = request.json
     teacher_id = data.get('teacher_id')
@@ -94,12 +95,12 @@ def save_teacher_account():
     tenant_id = session.get('tenant_id')
     
     if not username or not password:
-        return jsonify({"error": "اسم المستخدم وكلمة المرور مطلوبان"}), 400
+        return jsonify({"error": _("اسم المستخدم وكلمة المرور مطلوبان")}), 400
         
     # التأكد من أن اسم المستخدم غير محجوز لشخص آخر في النظام
     existing = User.query.filter(User.username == username, User.teacher_id != teacher_id).first()
     if existing:
-        return jsonify({"error": "اسم المستخدم هذا محجوز لأستاذ آخر، جرب اسماً مختلفاً."}), 400
+        return jsonify({"error": _("اسم المستخدم هذا محجوز لأستاذ آخر، جرب اسماً مختلفاً.")}), 400
         
     hashed_pw = generate_password_hash(password)
     user = User.query.filter_by(teacher_id=teacher_id, tenant_id=tenant_id).first()
@@ -112,24 +113,24 @@ def save_teacher_account():
         db.session.add(new_user)
         
     db.session.commit()
-    return jsonify({"success": True, "message": "✅ تم حفظ بيانات دخول الأستاذ بنجاح!"})
+    return jsonify({"success": True, "message": _("✅ تم حفظ بيانات دخول الأستاذ بنجاح!")})
 
 @auth_bp.route('/api/admin/credentials', methods=['POST'])
 def update_admin_credentials():
     # يسمح بتغيير الرقم السري لرئيس القسم أو المدير العام
     if session.get('role') not in ['tenant_admin', 'super_admin']: 
-        return jsonify({"error": "غير مصرح"}), 403
+        return jsonify({"error": _("غير مصرح")}), 403
     
     data = request.json
     new_username = data.get('username')
     new_password = data.get('password')
     
     if not new_username or not new_password:
-        return jsonify({"error": "يرجى ملء جميع الحقول"}), 400
+        return jsonify({"error": _("يرجى ملء جميع الحقول")}), 400
         
     existing = User.query.filter(User.username == new_username, User.id != session.get('user_id')).first()
     if existing:
-        return jsonify({"error": "اسم المستخدم هذا محجوز لشخص آخر، يرجى اختيار اسم مختلف."}), 400
+        return jsonify({"error": _("اسم المستخدم هذا محجوز لشخص آخر، يرجى اختيار اسم مختلف.")}), 400
         
     user = User.query.get(session.get('user_id'))
     user.username = new_username
@@ -138,4 +139,4 @@ def update_admin_credentials():
     
     session['username'] = new_username
     
-    return jsonify({"success": True, "message": "✅ تم تحديث بيانات الدخول بنجاح!"})
+    return jsonify({"success": True, "message": _("✅ تم تحديث بيانات الدخول بنجاح!")})

@@ -2,7 +2,7 @@
 
 {% block content %}
 <h2 class="text-center text-primary mb-4 border border-primary p-3 rounded bg-light">
-    التوزيع الذكي والتصدير
+    {{ _('التوزيع الذكي والتصدير') }}
 </h2>
 
 <div class="card shadow-sm border-primary mb-5">
@@ -13,56 +13,56 @@
             {% set saved_algo = c_dict.get('algo_choice', 'lns') %}
             {% set saved_strategy = c_dict.get('strategy', 'teacher') %}
             
-            <h5 class="fw-bold mb-3">🧠 اختر نوع الخوارزمية:</h5>
+            <h5 class="fw-bold mb-3">{{ _('🧠 اختر نوع الخوارزمية:') }}</h5>
             <div class="d-flex gap-4 mb-3">
                 <div class="form-check">
                     <input class="form-check-input" type="radio" name="algo_choice" id="algo_single" value="single" onchange="toggleLnsSettings()" {% if saved_algo == 'single' %}checked{% endif %}>
                     <label class="form-check-label" for="algo_single">
-                        المسار الواحد (سريعة جداً)
+                        {{ _('المسار الواحد (سريعة جداً)') }}
                     </label>
                 </div>
                 <div class="form-check">
                     <input class="form-check-input" type="radio" name="algo_choice" id="algo_lns" value="lns" onchange="toggleLnsSettings()" {% if saved_algo == 'lns' %}checked{% endif %}>
                     <label class="form-check-label fw-bold text-success" for="algo_lns">
-                        LNS للبحث العميق (موصى به)
+                        {{ _('LNS للبحث العميق (موصى به)') }}
                     </label>
                 </div>
             </div>
 
             <div id="lnsSettings" class="alert alert-success border-success mb-4 p-3" {% if saved_algo == 'lns' %}style="display: block;"{% else %}style="display: none;"{% endif %}>
-                <h6 class="fw-bold mb-3">⚙️ إعدادات خوارزمية LNS (البحث العميق):</h6>
+                <h6 class="fw-bold mb-3">{{ _('⚙️ إعدادات خوارزمية LNS (البحث العميق):') }}</h6>
                 <div class="row align-items-center">
                     <div class="col-md-6 mb-3">
-                        <label class="form-label text-dark fw-bold">⏳ مدة البحث الأقصى (ثواني):</label>
+                        <label class="form-label text-dark fw-bold">{{ _('⏳ مدة البحث الأقصى (ثواني):') }}</label>
                         <input type="number" class="form-control" id="lns_duration" name="lns_duration" value="{{ c_dict.get('duration', 10) }}" min="1" max="300" required>
                     </div>
                     <div class="col-md-6 mb-3">
-                        <label class="form-label text-dark fw-bold">💥 نسبة التدمير (%):</label>
+                        <label class="form-label text-dark fw-bold">{{ _('💥 نسبة التدمير (%%):') }}</label>
                         <input type="number" class="form-control" id="lns_destruction" name="lns_destruction" value="{{ c_dict.get('destruction_rate', 20) }}" min="1" max="99" required>
                     </div>
                     <div class="col-12">
                         <small class="text-muted d-block">
-                            📌 <strong>تلميح:</strong> نسبة التدمير تحدد حجم "تخريب" الجدول في كل محاولة لإعادة بنائه بشكل أفضل (ينصح بقيمة بين 15% و 30%).
+                            <strong>{{ _('📌 تلميح:') }}</strong> {{ _('نسبة التدمير تحدد حجم "تخريب" الجدول في كل محاولة لإعادة بنائه بشكل أفضل (ينصح بقيمة بين 15%% و 30%%).') }}
                         </small>
                     </div>
                 </div>
             </div>
 
-            <h5 class="fw-bold mb-3 mt-4">🎯 استراتيجية التوزيع:</h5>
+            <h5 class="fw-bold mb-3 mt-4">{{ _('🎯 استراتيجية التوزيع:') }}</h5>
             <div class="d-flex flex-column gap-2 mb-4">
                 <div class="form-check">
                     <input class="form-check-input" type="radio" name="strategy" id="strat_teacher" value="teacher" {% if saved_strategy == 'teacher' %}checked{% endif %}>
-                    <label class="form-check-label" for="strat_teacher">👨‍🏫 تفضيل تجميع مواد الأستاذ</label>
+                    <label class="form-check-label" for="strat_teacher">{{ _('👨‍🏫 تفضيل تجميع مواد الأستاذ') }}</label>
                 </div>
                 <div class="form-check">
                     <input class="form-check-input" type="radio" name="strategy" id="strat_student" value="student" {% if saved_strategy == 'student' %}checked{% endif %}>
-                    <label class="form-check-label" for="strat_student">🎓 تفضيل تفادي تشتت الطلبة</label>
+                    <label class="form-check-label" for="strat_student">{{ _('🎓 تفضيل تفادي تشتت الطلبة') }}</label>
                 </div>
             </div>
 
             <!-- ✨ التعديل هنا: تحويل الزر إلى submit ليتوافق مع النموذج ✨ -->
             <button type="submit" class="btn btn-primary btn-lg w-100 fw-bold shadow-sm" id="btnStart">
-                🚀 بدء التوزيع وسجل المتابعة الحي
+                {{ _('🚀 بدء التوزيع وسجل المتابعة الحي') }}
             </button>
         </form>
     </div>
@@ -70,12 +70,12 @@
 
 <div class="card shadow-lg border-warning mb-5" id="progressSection" style="display: none;">
     <div class="card-header bg-warning text-dark fs-5 fw-bold text-center">
-        ⏳ سجل المتابعة الحي لعملية التوزيع...
+        {{ _('⏳ سجل المتابعة الحي لعملية التوزيع...') }}
     </div>
     <div class="card-body p-4 bg-light">
         
-        <div class="mb-2 fw-bold text-dark text-start">🖥️ شاشة المتابعة الحية لمحرك البحث (Terminal View):</div>
-        <div id="terminal_box" class="p-3 rounded mb-4 shadow-sm" style="height: 200px; overflow-y: auto; background-color: #0a0e14 !important; color: #39ff14 !important; font-family: 'Courier New', Courier, monospace; font-size: 13px; text-align: right; direction: rtl; border: 2px solid #1a2332;">
+        <div class="mb-2 fw-bold text-dark text-start">{{ _('🖥️ شاشة المتابعة الحية لمحرك البحث (Terminal View):') }}</div>
+        <div id="terminal_box" class="p-3 rounded mb-4 shadow-sm" style="height: 200px; overflow-y: auto; background-color: #0a0e14 !important; color: #39ff14 !important; font-family: 'Courier New', Courier, monospace; font-size: 13px; text-align: start; border: 2px solid #1a2332;">
             <div id="terminal_content"></div>
         </div>
 
@@ -85,55 +85,55 @@
         
         <div class="row text-center mt-2">
             <div class="col-4 border-end">
-                <h6 class="text-danger fw-bold">❌ نقص (مواد غير مبرمجة)</h6>
+                <h6 class="text-danger fw-bold">{{ _('❌ نقص (مواد غير مبرمجة)') }}</h6>
                 <h3 id="unassignedCount" class="text-danger">0</h3>
             </div>
             <div class="col-4 border-end">
-                <h6 class="text-danger fw-bold">❌ تعارضات (قيود صارمة)</h6>
+                <h6 class="text-danger fw-bold">{{ _('❌ تعارضات (قيود صارمة)') }}</h6>
                 <h3 id="hardCount" class="text-danger">0</h3>
             </div>
             <div class="col-4">
-                <h6 class="text-warning fw-bold">⚠️ تشتت (قيود مرنة)</h6>
+                <h6 class="text-warning fw-bold">{{ _('⚠️ تشتت (قيود مرنة)') }}</h6>
                 <h3 id="softCount" class="text-warning">0</h3>
             </div>
         </div>
-        <p class="text-center text-muted mt-3 mb-0 fw-bold" id="timeLog">الوقت المنقضي: 0.0 ثانية</p>
+        <p class="text-center text-muted mt-3 mb-0 fw-bold" id="timeLog">{{ _('الوقت المنقضي: 0.0 ثانية') }}</p>
     </div>
 </div>
 
 <div class="card shadow-lg border-success mb-5" id="resultsSection" style="display: none;">
-    <div class="card-header bg-success text-white fs-4 fw-bold text-center">🎉 اكتمل التوزيع بنجاح!</div>
+    <div class="card-header bg-success text-white fs-4 fw-bold text-center">{{ _('🎉 اكتمل التوزيع بنجاح!') }}</div>
     <div class="card-body p-4">
         
         <div id="violationsWrapper"></div>
 
         <hr class="my-4">
-        <h4 class="mb-4 text-center text-secondary fw-bold">📥 تصدير الجداول</h4>
+        <h4 class="mb-4 text-center text-secondary fw-bold">{{ _('📥 تصدير الجداول') }}</h4>
         
         <!-- ✨ صندوق اختيار لغة التصدير ✨ -->
         <div style="margin: 0 auto 20px auto; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 20px; background: #e8f4f8; padding: 10px 20px; border-radius: 6px; border: 1px solid #3498db; width: fit-content;">
-            <strong style="color: #2c3e50;">🌐 لغة التصدير (Export Language):</strong>
+            <strong style="color: #2c3e50;">{{ _('🌐 لغة التصدير (Export Language):') }}</strong>
             <label style="cursor: pointer; font-weight: bold; color: #2980b9; display: flex; align-items: center; gap: 5px;">
                 <input type="radio" name="resit_export_lang" value="ar" checked style="transform: scale(1.2); margin: 0;">
-                <span>العربية</span>
+                <span>{{ _('العربية') }}</span>
             </label>
             <label style="cursor: pointer; font-weight: bold; color: #27ae60; display: flex; align-items: center; gap: 5px; direction: ltr;">
                 <input type="radio" name="resit_export_lang" value="en" style="transform: scale(1.2); margin: 0;">
-                <span>English</span>
+                <span>{{ _('English') }}</span>
             </label>
             <label style="cursor: pointer; font-weight: bold; color: #8e44ad; display: flex; align-items: center; gap: 5px; direction: ltr;">
                 <input type="radio" name="resit_export_lang" value="fr" style="transform: scale(1.2); margin: 0;">
-                <span>Français</span>
+                <span>{{ _('Français') }}</span>
             </label>
         </div>
         <!-- ✨ نهاية صندوق اللغة ✨ -->
 
         <div class="row g-4">
             <div class="col-md-6">
-                <button onclick="downloadResitDoc('levels')" class="btn btn-outline-primary btn-lg w-100 fw-bold">📄 جداول المستويات</button>
+                <button onclick="downloadResitDoc('levels')" class="btn btn-outline-primary btn-lg w-100 fw-bold">{{ _('📄 جداول المستويات') }}</button>
             </div>
             <div class="col-md-6">
-                <button onclick="downloadResitDoc('teachers')" class="btn btn-outline-success btn-lg w-100 fw-bold">👨‍🏫 جداول الأساتذة</button>
+                <button onclick="downloadResitDoc('teachers')" class="btn btn-outline-success btn-lg w-100 fw-bold">{{ _('👨‍🏫 جداول الأساتذة') }}</button>
             </div>
         </div>
     </div>
@@ -163,7 +163,7 @@
         isStartedPrinted = false;
         let terminal = document.getElementById('terminal_content');
         if (terminal) {
-            terminal.innerHTML = `<div>&gt; [SYSTEM] النظام في حالة جاهزية كاملة...</div><div>&gt; [SYSTEM] بانتظار إطلاق الخوارزمية لبدء معالجة التعارضات وتجميع الإسناد...</div>`;
+            terminal.innerHTML = `<div>&gt; {{ _('[SYSTEM] النظام في حالة جاهزية كاملة...') }}</div><div>&gt; {{ _('[SYSTEM] بانتظار إطلاق الخوارزمية لبدء معالجة التعارضات وتجميع الإسناد...') }}</div>`;
         }
 
         const data = {
@@ -194,11 +194,11 @@
                         document.getElementById('unassignedCount').innerText = prog.unassigned;
                         document.getElementById('hardCount').innerText = prog.hard;
                         document.getElementById('softCount').innerText = prog.soft;
-                        document.getElementById('timeLog').innerText = `الوقت المنقضي: ${prog.elapsed.toFixed(1)} / ${prog.duration} ثانية`;
+                        document.getElementById('timeLog').innerText = `{{ _('الوقت المنقضي:') }} ${prog.elapsed.toFixed(1)} / ${prog.duration} {{ _('ثانية') }}`;
 
                         if (terminal) {
                             if (prog.elapsed > 0 && !isStartedPrinted) {
-                                terminal.innerHTML += `<div style="color: #00ffff; margin-top: 5px;">&gt; [START] تم إطلاق خوارزمية LNS بنجاح... جاري بناء الحل الأولي...</div>`;
+                                terminal.innerHTML += `<div style="color: #00ffff; margin-top: 5px;">&gt; {{ _('[START] تم إطلاق خوارزمية LNS بنجاح... جاري بناء الحل الأولي...') }}</div>`;
                                 isStartedPrinted = true;
                             }
 
@@ -210,7 +210,7 @@
                                 activeLine.style.fontWeight = 'bold';
                                 terminal.appendChild(activeLine);
                             }
-                            activeLine.innerHTML = `⏳ الوقت المنقضي: ${prog.elapsed.toFixed(1)} ثانية | الخوارزمية تعمل بقوة وتختبر آلاف الاحتمالات...`;
+                            activeLine.innerHTML = `{{ _('⏳ الوقت المنقضي:') }} ${prog.elapsed.toFixed(1)} {{ _('ثانية | الخوارزمية تعمل بقوة وتختبر آلاف الاحتمالات...') }}`;
 
                             if (prog.elapsed !== lastElapsed || prog.unassigned !== lastUnassigned || prog.hard !== lastHard || prog.soft !== lastSoft) {
                                 let minutes = Math.floor(prog.elapsed / 60).toString().padStart(2, '0');
@@ -218,7 +218,7 @@
                                 let timeStr = `${minutes}:${seconds}`;
 
                                 if (prog.elapsed > 0 && !prog.done) {
-                                    let logLine = `&gt; [توقيت ${timeStr}] 🤖 جاري التحسين واختزال الأخطاء &gt;&gt; نقص: <span class="text-danger fw-bold">${prog.unassigned}</span> | صارم: <span class="text-danger fw-bold">${prog.hard}</span> | مرن: <span style="color: #ffc107;">${prog.soft}</span>`;
+                                    let logLine = `&gt; [{{ _('توقيت') }} ${timeStr}] {{ _('🤖 جاري التحسين واختزال الأخطاء &gt;&gt; نقص:') }} <span class="text-danger fw-bold">${prog.unassigned}</span> | {{ _('صارم:') }} <span class="text-danger fw-bold">${prog.hard}</span> | {{ _('مرن:') }} <span style="color: #ffc107;">${prog.soft}</span>`;
                                     let div = document.createElement('div');
                                     div.innerHTML = logLine;
                                     terminal.insertBefore(div, activeLine);
@@ -242,13 +242,13 @@
                         if (terminal) {
                             let activeLine = document.getElementById('active-progress');
                             if (activeLine) activeLine.remove(); 
-                            terminal.innerHTML += `<div style="color: #ffff00; font-weight: bold; margin-top: 5px;">&gt; [SUCCESS] 🎉 اكتملت عملية التوزيع بنجاح تام!</div>`;
+                            terminal.innerHTML += `<div style="color: #ffff00; font-weight: bold; margin-top: 5px;">&gt; {{ _('[SUCCESS] 🎉 اكتملت عملية التوزيع بنجاح تام!') }}</div>`;
                             terminal.scrollTop = terminal.scrollHeight;
                         }
 
                         clearInterval(pollInterval);
                         if(prog.error) {
-                            alert("حدث خطأ: " + prog.error);
+                            alert("{{ _('حدث خطأ: ') }}" + prog.error);
                             document.getElementById('btnStart').disabled = false;
                         } else {
                             sessionStorage.setItem('resit_violations', JSON.stringify(prog.violations || []));
@@ -267,12 +267,12 @@
         let violWrap = document.getElementById('violationsWrapper');
         
         if (violations && violations.length > 0) {
-            let vHtml = '<div class="alert alert-warning shadow-sm"><h5 class="fw-bold">⚠️ انتهى التوزيع مع وجود (' + violations.length + ') قيود لم تتحقق:</h5><ul class="mb-0 mt-2">';
+            let vHtml = '<div class="alert alert-warning shadow-sm"><h5 class="fw-bold">{{ _("⚠️ انتهى التوزيع مع وجود (") }}' + violations.length + '{{ _(") قيود لم تتحقق:") }}</h5><ul class="mb-0 mt-2">';
             violations.forEach(v => { vHtml += '<li>' + v + '</li>'; });
             vHtml += '</ul></div>';
             violWrap.innerHTML = vHtml;
         } else {
-            violWrap.innerHTML = '<div class="alert alert-success shadow-sm text-center"><h5 class="fw-bold m-0">✨ اكتمل التوزيع بمثالية! 100% من القيود محققة.</h5></div>';
+            violWrap.innerHTML = '<div class="alert alert-success shadow-sm text-center"><h5 class="fw-bold m-0">{{ _("✨ اكتمل التوزيع بمثالية! 100%% من القيود محققة.") }}</h5></div>';
         }
         
         resSec.style.display = 'block';

@@ -17,10 +17,11 @@ from flask import session
 
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
+from flask_babel import _ # ✨ استيراد دالة الترجمة لرسائل النظام
 
 export_bp = Blueprint('export', __name__)
 
-# ================== قاموس الترجمة الموحد ==================
+# ================== قاموس الترجمة الموحد (للملفات المصدرة) ==================
 TRANSLATIONS = {
     'ar': {
         'time': 'الوقت', 'day': 'اليوم', 'teacher': 'الأستاذ', 'course': 'المادة', 'nature': 'طبيعة المادة', 'room': 'القاعة',
@@ -51,7 +52,6 @@ def create_word_document_with_table(doc, title, headers, data, lang='ar'):
     heading = doc.add_heading(title, level=1)
     heading.alignment = WD_ALIGN_PARAGRAPH.CENTER
     
-    # تطبيق اتجاه اليمين-لليسار فقط إذا كانت اللغة عربية
     if lang == 'ar':
         pPr = heading._element.get_or_add_pPr()
         bidi = OxmlElement('w:bidi')
@@ -98,7 +98,6 @@ def process_and_format_sheet(writer, df, sheet_name, lang='ar'):
     df.to_excel(writer, sheet_name=sheet_name)
     worksheet = writer.sheets[sheet_name]
     
-    # تحديد اتجاه الشيت حسب اللغة
     worksheet.sheet_view.rightToLeft = (lang == 'ar')
     reading_order = 2 if lang == 'ar' else 1
     
@@ -133,7 +132,8 @@ def export_all_levels_word():
     lang = data.get('lang', 'ar')
     
     if not all([schedules_by_level, days, slots]):
-        return jsonify({"error": "بيانات التصدير غير كاملة"}), 400
+        # ✨ تغليف رسالة الخطأ بـ _
+        return jsonify({"error": _("بيانات التصدير غير كاملة")}), 400
 
     t = TRANSLATIONS.get(lang, TRANSLATIONS['ar'])
     translated_days = [t['days'].get(d, d) for d in days]
@@ -180,7 +180,8 @@ def export_all_professors_word():
     lang = data.get('lang', 'ar')
 
     if not all([schedules_by_prof, days, slots]):
-        return jsonify({"error": "بيانات التصدير غير كاملة"}), 400
+        # ✨ تغليف رسالة الخطأ
+        return jsonify({"error": _("بيانات التصدير غير كاملة")}), 400
 
     t = TRANSLATIONS.get(lang, TRANSLATIONS['ar'])
     translated_days = [t['days'].get(d, d) for d in days]
@@ -227,7 +228,8 @@ def export_free_rooms():
     lang = data.get('lang', 'ar')
     
     if not all([free_rooms_grid, days, slots]): 
-        return jsonify({"error": "بيانات التصدير غير كاملة"}), 400
+        # ✨ تغليف رسالة الخطأ
+        return jsonify({"error": _("بيانات التصدير غير كاملة")}), 400
     
     t = TRANSLATIONS.get(lang, TRANSLATIONS['ar'])
     translated_days = [t['days'].get(d, d) for d in days]
@@ -358,7 +360,8 @@ def export_teaching_load():
     except Exception as e:
         import traceback
         traceback.print_exc()
-        return jsonify({"error": f"فشل إنشاء الملف: {e}"}), 500
+        # ✨ تغليف رسالة الخطأ المتغيرة
+        return jsonify({"error": _("فشل إنشاء الملف: {error}").format(error=str(e))}), 500
     
 # =====================================================================
 # 5. تصدير القائمة الشاملة (Excel - Flat Table)
@@ -366,7 +369,8 @@ def export_teaching_load():
 @export_bp.route('/api/export/comprehensive-list', methods=['POST'])
 def export_comprehensive_list():
     if 'tenant_id' not in session:
-        return jsonify({"error": "غير مصرح"}), 403
+        # ✨ تغليف رسالة الخطأ
+        return jsonify({"error": _("غير مصرح")}), 403
 
     data = request.get_json()
     schedule = data.get('schedule', {})
@@ -375,7 +379,8 @@ def export_comprehensive_list():
     lang = data.get('lang', 'ar')
     
     if not all([schedule, days, slots]): 
-        return jsonify({"error": "بيانات التصدير غير كاملة"}), 400
+        # ✨ تغليف رسالة الخطأ
+        return jsonify({"error": _("بيانات التصدير غير كاملة")}), 400
     
     t = TRANSLATIONS.get(lang, TRANSLATIONS['ar'])
     

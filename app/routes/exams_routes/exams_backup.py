@@ -3,6 +3,7 @@ import json
 import io
 from datetime import datetime
 from app.database import db, ExamTeacher, ExamRoom, ExamLevel, ExamSubject, ExamDay, ExamSetting
+from flask_babel import _
 
 exams_backup_bp = Blueprint('exams_backup', __name__)
 
@@ -13,7 +14,7 @@ exams_backup_bp = Blueprint('exams_backup', __name__)
 def backup_data():
     tenant_id = session.get('tenant_id')
     if not tenant_id:
-        return jsonify({"error": "غير مصرح"}), 403
+        return jsonify({"error": _("غير مصرح")}), 403
         
     try:
         # جلب كافة بيانات الامتحانات للقسم الحالي فقط
@@ -51,11 +52,11 @@ def backup_data():
 def restore_exams():
     tenant_id = session.get('tenant_id')
     if not tenant_id:
-        return jsonify({"error": "غير مصرح"}), 403
+        return jsonify({"error": _("غير مصرح")}), 403
 
     data = request.get_json()
     if not data:
-        return jsonify({"success": False, "error": "ملف فارغ أو غير صالح"}), 400
+        return jsonify({"success": False, "error": _("ملف فارغ أو غير صالح")}), 400
 
     try:
         # أ. مسح بيانات الامتحانات السابقة للقسم المعني فقط (تهيئة الساحة)
@@ -116,11 +117,11 @@ def restore_exams():
                     if room: level.rooms.append(room)
 
         db.session.commit()
-        return jsonify({"success": True, "message": "✅ تم استعادة بيانات الامتحانات بنجاح!"})
+        return jsonify({"success": True, "message": _("✅ تم استعادة بيانات الامتحانات بنجاح!")})
 
     except Exception as e:
         db.session.rollback()
-        return jsonify({"success": False, "error": f"حدث خطأ أثناء الاستعادة: {str(e)}"}), 500
+        return jsonify({"success": False, "error": _("حدث خطأ أثناء الاستعادة: {e}").format(e=str(e))}), 500
 
 
 # ==========================================
@@ -130,7 +131,7 @@ def restore_exams():
 def reset_all_data():
     tenant_id = session.get('tenant_id')
     if not tenant_id:
-        return jsonify({"error": "غير مصرح"}), 403
+        return jsonify({"error": _("غير مصرح")}), 403
 
     try:
         # مسح العلاقات أولاً ثم الكائنات الخاصة بالامتحانات للقسم الحالي فقط
@@ -149,7 +150,7 @@ def reset_all_data():
         ExamSetting.query.filter_by(tenant_id=tenant_id).delete()
         
         db.session.commit()
-        return jsonify({"success": True, "message": "تم مسح جميع بيانات الامتحانات بنجاح. سيتم إعادة تحميل الصفحة."})
+        return jsonify({"success": True, "message": _("تم مسح جميع بيانات الامتحانات بنجاح. سيتم إعادة تحميل الصفحة.")})
     except Exception as e: 
         db.session.rollback()
-        return jsonify({"error": f"حدث خطأ أثناء مسح البيانات: {str(e)}"}), 500
+        return jsonify({"error": _("حدث خطأ أثناء مسح البيانات: {e}").format(e=str(e))}), 500

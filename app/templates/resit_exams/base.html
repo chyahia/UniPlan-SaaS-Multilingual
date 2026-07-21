@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="{{ session.get('lang', 'ar') }}" dir="{{ 'ltr' if session.get('lang') == 'en' else 'rtl' }}"></html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>{% block title %}نظام الامتحانات الاستدراكية{% endblock %}</title>
+    <title>{% block title %}{{ _('نظام الامتحانات الاستدراكية') }}{% endblock %}</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css">
@@ -81,12 +81,12 @@
         .dropbtn { background-color: #34495e; color: white; padding: 6px 12px; font-size: 18px; border: none; cursor: pointer; border-radius: 4px; transition: 0.2s; font-weight: bold; }
         .dropbtn:hover { background-color: #1abc9c; }
         .dropdown-content { 
-            display: none; position: absolute; left: 0; background-color: #ffffff; min-width: 180px; 
+            display: none; position: absolute; inset-inline-end: 0; background-color: #ffffff; min-width: 180px; 
             box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2); z-index: 10001; border-radius: 6px; 
-            overflow: hidden; margin-top: 8px; text-align: right; border: 1px solid #ecf0f1;
+            overflow: hidden; margin-top: 8px; text-align: start; border: 1px solid #ecf0f1;
         }
         .dropdown-item {
-            width: 100%; text-align: right; background: none; border: none; color: #2c3e50; 
+            width: 100%; text-align: start; background: none; border: none; color: #2c3e50; 
             padding: 12px 16px; font-size: 14px; font-weight: bold; font-family: inherit; 
             cursor: pointer; transition: background 0.2s; display: block; text-decoration: none;
         }
@@ -123,69 +123,69 @@
     <header id="main-admin-header">
         <div style="display: flex; align-items: center; justify-content: center; gap: 15px;">
             <img src="{{ url_for('static', filename='images/chy_logo.png') }}" 
-                alt="شعار المؤسسة" 
+                alt="{{ _('شعار المؤسسة') }}" 
                 style="height: 45px; width: auto; object-fit: contain;">
-            <h1 style="margin: 0 !important; padding: 0 !important; font-size: 28px !important; font-weight: 900 !important; letter-spacing: 1px !important; color: #ffffff !important; line-height: 1.2 !important; border: none !important;">📋 نظام الامتحانات الاستدراكية</h1>
+            <h1 style="margin: 0 !important; padding: 0 !important; font-size: 28px !important; font-weight: 900 !important; letter-spacing: 1px !important; color: #ffffff !important; line-height: 1.2 !important; border: none !important;">{{ _('📋 نظام الامتحانات الاستدراكية') }}</h1>
         </div>
         
         <div id="admin-header-btns" style="display: flex; gap: 10px; align-items: center;">
-            <button class="header-btn btn-green" onclick="confirmSave(this)">💾 حفظ الإعدادات</button>
-            <a href="/" class="header-btn btn-blue">🏠 العودة للبوابة</a>
-            <a href="/logout" class="header-btn btn-red">🚪 خروج</a>
+            <button class="header-btn btn-green" onclick="confirmSave(this)">{{ _('💾 حفظ الإعدادات') }}</button>
+            <a href="/" class="header-btn btn-blue">{{ _('🏠 العودة للبوابة') }}</a>
+            <a href="/logout" class="header-btn btn-red">{{ _('🚪 خروج') }}</a>
             
             <div class="dropdown">
-                <button class="dropbtn" onclick="toggleDropdown()" title="خيارات إضافية">⋮</button>
+                <button class="dropbtn" onclick="toggleDropdown()" title="{{ _('خيارات إضافية') }}">⋮</button>
                 <div id="myDropdown" class="dropdown-content">
-                    <button id="help-button" class="dropdown-item">❓ المساعدة ودليل الاستخدام</button>
+                    <button id="help-button" class="dropdown-item">{{ _('❓ المساعدة ودليل الاستخدام') }}</button>
                     <div style="border-top: 1px solid #ecf0f1; margin: 5px 0;"></div>
-                    <button id="about-button" class="dropdown-item">ℹ️ عن البرنامج</button>
+                    <button id="about-button" class="dropdown-item">{{ _('ℹ️ عن البرنامج') }}</button>
                 </div>
             </div>
         </div>
     </header>
 
     <div id="aboutModal" style="display: none; position: fixed; z-index: 10001; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px);">
-        <div style="background-color: #fff; margin: 10% auto; padding: 30px; width: 350px; border-radius: 12px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3); position: relative; color: #333; direction: rtl;">
+        <div style="background-color: #fff; margin: 10% auto; padding: 30px; width: 350px; border-radius: 12px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3); position: relative; color: #333;">
             <span id="closeAboutBtn" style="position: absolute; top: 10px; left: 15px; font-size: 28px; font-weight: bold; color: #aaa; cursor: pointer;" onmouseover="this.style.color='#e74c3c'" onmouseout="this.style.color='#aaa'">&times;</span>
-            <h3 style="color: #2c3e50; margin-top: 0; margin-bottom: 10px; font-size: 22px;">نظام الامتحانات الاستدراكية</h3>
-            <p style="font-size: 15px; color: #7f8c8d; margin: 0;">الإصدار 3.0 (النسخة السحابية)</p>
+            <h3 style="color: #2c3e50; margin-top: 0; margin-bottom: 10px; font-size: 22px;">{{ _('نظام الامتحانات الاستدراكية') }}</h3>
+            <p style="font-size: 15px; color: #7f8c8d; margin: 0;">{{ _('الإصدار 4.0 (النسخة السحابية)') }}</p>
             <hr style="border-top: 1px solid #ecf0f1; margin: 20px 0;">
-            <p style="font-size: 16px; margin-bottom: 5px;">تم تصميم وتطوير هذا النظام بواسطة:</p>
-            <p style="font-size: 24px; font-weight: bold; color: #2980b9; margin: 0;">الدكتور شعيب يحيى</p>
-            <p style="font-size: 13px; color: #95a5a6; margin-top: 25px; margin-bottom: 0;">جميع الحقوق محفوظة &copy; 2026</p>
+            <p style="font-size: 16px; margin-bottom: 5px;">{{ _('تم تصميم وتطوير هذا النظام بواسطة:') }}</p>
+            <p style="font-size: 24px; font-weight: bold; color: #2980b9; margin: 0;">{{ _('الدكتور شعيب يحيى') }}</p>
+            <p style="font-size: 13px; color: #95a5a6; margin-top: 25px; margin-bottom: 0;">{{ _('جميع الحقوق محفوظة &copy; 2026') }}</p>
         </div>
     </div>
 
     <!-- نافذة المساعدة ودليل الاستخدام -->
     <div id="helpModal" style="display: none; position: fixed; z-index: 10001; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px);">
-        <div style="background-color: #fff; margin: 5% auto; padding: 30px; width: 90%; max-width: 600px; max-height: 85vh; overflow-y: auto; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); position: relative; color: #333; direction: rtl; text-align: right;">
+        <div style="background-color: #fff; margin: 5% auto; padding: 30px; width: 90%; max-width: 600px; max-height: 85vh; overflow-y: auto; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); position: relative; color: #333; text-align: start;">
             <span id="closeHelpBtn" style="position: absolute; top: 10px; left: 15px; font-size: 28px; font-weight: bold; color: #aaa; cursor: pointer;" onmouseover="this.style.color='#e74c3c'" onmouseout="this.style.color='#aaa'">&times;</span>
-            <h3 style="color: #2c3e50; margin-top: 0; margin-bottom: 20px; font-size: 22px; text-align: center; border-bottom: 2px solid #ecf0f1; padding-bottom: 10px;">❓ المساعدة ودليل الاستخدام</h3>
-            <p style="font-weight: bold; color: #3498db; margin-top: 0; font-size: 16px;">💡 مراحل العمل في نظام الاستدراكي:</p>
+            <h3 style="color: #2c3e50; margin-top: 0; margin-bottom: 20px; font-size: 22px; text-align: center; border-bottom: 2px solid #ecf0f1; padding-bottom: 10px;">{{ _('❓ المساعدة ودليل الاستخدام') }}</h3>
+            <p style="font-weight: bold; color: #3498db; margin-top: 0; font-size: 16px;">{{ _('💡 مراحل العمل في نظام الاستدراكي:') }}</p>
             <ul style="padding-right: 20px; margin-bottom: 20px; list-style-type: none; font-size: 15px; line-height: 1.6;">
-                <li style="margin-bottom: 12px;"><b>1️⃣ المرحلة 1 (إدخال البيانات):</b> إضافة الأساتذة، القاعات، المستويات والمواد الأساسية.</li>
-                <li style="margin-bottom: 12px;"><b>2️⃣ المرحلة 2 (إسناد المواد):</b> ربط وتخصيص كل مادة بالأستاذ الذي يدرسها.</li>
-                <li style="margin-bottom: 12px;"><b>3️⃣ المرحلة 3 (تخصيص القاعات):</b> تحديد القاعات المخصصة لامتحان كل مستوى دراسي.</li>
-                <li style="margin-bottom: 12px;"><b>4️⃣ المرحلة 4 (الأيام والأوقات):</b> بناء الهيكل الزمني وجدولة أيام وفترات الامتحانات.</li>
-                <li style="margin-bottom: 12px;"><b>5️⃣ المرحلة 5 (القيود والشروط):</b> إدراج تعارضات المستويات (آلياً)، المرافقة، الإعفاءات، وتجميع الأيام.</li>
-                <li style="margin-bottom: 12px;"><b>6️⃣ المرحلة 6 (التوزيع والتصدير):</b> إطلاق الخوارزمية الذكية لتوليد الجدول وتصدير مسودات الوورد.</li>
-                <li style="margin-bottom: 12px;"><b>7️⃣ المرحلة 7 (الإدارة والنشر):</b> التعديل اليدوي الدقيق عبر الإكسل، والنشر الرسمي في بوابة الأساتذة.</li>
+                <li style="margin-bottom: 12px;"><b>{{ _('1️⃣ المرحلة 1 (إدخال البيانات):') }}</b> {{ _('إضافة الأساتذة، القاعات، المستويات والمواد الأساسية.') }}</li>
+                <li style="margin-bottom: 12px;"><b>{{ _('2️⃣ المرحلة 2 (إسناد المواد):') }}</b> {{ _('ربط وتخصيص كل مادة بالأستاذ الذي يدرسها.') }}</li>
+                <li style="margin-bottom: 12px;"><b>{{ _('3️⃣ المرحلة 3 (تخصيص القاعات):') }}</b> {{ _('تحديد القاعات المخصصة لامتحان كل مستوى دراسي.') }}</li>
+                <li style="margin-bottom: 12px;"><b>{{ _('4️⃣ المرحلة 4 (الأيام والأوقات):') }}</b> {{ _('بناء الهيكل الزمني وجدولة أيام وفترات الامتحانات.') }}</li>
+                <li style="margin-bottom: 12px;"><b>{{ _('5️⃣ المرحلة 5 (القيود والشروط):') }}</b> {{ _('إدراج تعارضات المستويات (آلياً)، المرافقة، الإعفاءات، وتجميع الأيام.') }}</li>
+                <li style="margin-bottom: 12px;"><b>{{ _('6️⃣ المرحلة 6 (التوزيع والتصدير):') }}</b> {{ _('إطلاق الخوارزمية الذكية لتوليد الجدول وتصدير مسودات الوورد.') }}</li>
+                <li style="margin-bottom: 12px;"><b>{{ _('7️⃣ المرحلة 7 (الإدارة والنشر):') }}</b> {{ _('التعديل اليدوي الدقيق عبر الإكسل، والنشر الرسمي في بوابة الأساتذة.') }}</li>
             </ul>
             <div style="background: #fff3cd; color: #856404; padding: 12px; border-radius: 5px; border: 1px solid #ffeeba; font-size: 14px; text-align: center;">
-                <b>⚠️ تلميح هام:</b> احرص على احترام تسلسل المراحل، وتأكد من اكتمال البيانات في كل مرحلة قبل الانتقال للتي تليها!
+                <b>{{ _('⚠️ تلميح هام:') }}</b> {{ _('احرص على احترام تسلسل المراحل، وتأكد من اكتمال البيانات في كل مرحلة قبل الانتقال للتي تليها!') }}
             </div>
         </div>
     </div>
 
     <nav class="tabs-nav">
-        <a href="{{ url_for('resit_exams.index') }}" class="tab-btn {% if request.endpoint == 'resit_exams.index' %}active{% endif %}">الرئيسية</a>
-        <a href="{{ url_for('resit_exams.manage_data') }}" class="tab-btn {% if request.endpoint == 'resit_exams.manage_data' %}active{% endif %}">1. إدخال البيانات</a>
-        <a href="{{ url_for('resit_exams.assign_subjects') }}" class="tab-btn {% if request.endpoint == 'resit_exams.assign_subjects' %}active{% endif %}">2. إسناد المواد</a>
-        <a href="{{ url_for('resit_exams.assign_rooms') }}" class="tab-btn {% if request.endpoint == 'resit_exams.assign_rooms' %}active{% endif %}">3. تخصيص القاعات</a>
-        <a href="{{ url_for('resit_exams.manage_schedule') }}" class="tab-btn {% if request.endpoint == 'resit_exams.manage_schedule' %}active{% endif %}">4. الأيام والأوقات</a>
-        <a href="{{ url_for('resit_exams.manage_constraints') }}" class="tab-btn {% if request.endpoint == 'resit_exams.manage_constraints' %}active{% endif %}">5. القيود والشروط</a>
-        <a href="{{ url_for('resit_exams.generate_schedule') }}" class="tab-btn {% if request.endpoint == 'resit_exams.generate_schedule' %}active{% endif %}">6. التوزيع والتصدير</a>
-        <a href="{{ url_for('resit_exams.phase7') }}" class="tab-btn {% if request.endpoint == 'resit_exams.phase7' %}active{% endif %}">7. الإدارة والنشر</a>
+        <a href="{{ url_for('resit_exams.index') }}" class="tab-btn {% if request.endpoint == 'resit_exams.index' %}active{% endif %}">{{ _('الرئيسية') }}</a>
+        <a href="{{ url_for('resit_exams.manage_data') }}" class="tab-btn {% if request.endpoint == 'resit_exams.manage_data' %}active{% endif %}">{{ _('1. إدخال البيانات') }}</a>
+        <a href="{{ url_for('resit_exams.assign_subjects') }}" class="tab-btn {% if request.endpoint == 'resit_exams.assign_subjects' %}active{% endif %}">{{ _('2. إسناد المواد') }}</a>
+        <a href="{{ url_for('resit_exams.assign_rooms') }}" class="tab-btn {% if request.endpoint == 'resit_exams.assign_rooms' %}active{% endif %}">{{ _('3. تخصيص القاعات') }}</a>
+        <a href="{{ url_for('resit_exams.manage_schedule') }}" class="tab-btn {% if request.endpoint == 'resit_exams.manage_schedule' %}active{% endif %}">{{ _('4. الأيام والأوقات') }}</a>
+        <a href="{{ url_for('resit_exams.manage_constraints') }}" class="tab-btn {% if request.endpoint == 'resit_exams.manage_constraints' %}active{% endif %}">{{ _('5. القيود والشروط') }}</a>
+        <a href="{{ url_for('resit_exams.generate_schedule') }}" class="tab-btn {% if request.endpoint == 'resit_exams.generate_schedule' %}active{% endif %}">{{ _('6. التوزيع والتصدير') }}</a>
+        <a href="{{ url_for('resit_exams.phase7') }}" class="tab-btn {% if request.endpoint == 'resit_exams.phase7' %}active{% endif %}">{{ _('7. الإدارة والنشر') }}</a>
     </nav>
 
     <div class="container mt-4">
@@ -210,7 +210,7 @@
         // دالة زر الحفظ في الشريط العلوي
         function confirmSave(btn) {
             let originalText = btn.innerHTML;
-            btn.innerHTML = '✅ تم الحفظ!';
+            btn.innerHTML = "{{ _('✅ تم الحفظ!') }}";
             btn.style.setProperty('background-color', '#34495e', 'important'); // لون داكن عند النقر
             
             // إعادة الزر لشكله الطبيعي بعد ثانية ونصف
@@ -227,7 +227,7 @@
         // دالة الزر الذكي لإعطاء تأكيد بصري بحفظ الإعدادات
         function confirmSave(btn) {
             let originalText = btn.innerHTML;
-            btn.innerHTML = '✅ تم حفظ الإعدادات بنجاح!';
+            btn.innerHTML = "{{ _('✅ تم حفظ الإعدادات بنجاح!') }}";
             btn.classList.remove('btn-success');
             btn.classList.add('btn-dark');
             

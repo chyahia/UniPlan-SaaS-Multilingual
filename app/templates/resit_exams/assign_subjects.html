@@ -51,7 +51,7 @@
 </style>
 
 <h2 class="text-center text-primary mb-4 border border-primary p-3 rounded bg-light">
-    إسناد المواد للأساتذة
+    {{ _('إسناد المواد للأساتذة') }}
 </h2>
 
 <div class="row g-4 mb-5 align-items-center">
@@ -60,11 +60,11 @@
     <div class="col-md-5">
         <div class="card shadow-sm border-primary" style="height: 550px;">
             <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                <span>👨‍🏫 الأساتذة</span>
-                <small>(نقرة مزدوجة لإلغاء مواده)</small>
+                <span>{{ _('👨‍🏫 الأساتذة') }}</span>
+                <small>{{ _('(نقرة مزدوجة لإلغاء مواده)') }}</small>
             </div>
             <div class="card-body p-2 d-flex flex-column">
-                <input type="text" id="teacherSearch" class="form-control mb-2" placeholder="🔍 بحث عن أستاذ..." onkeyup="filterList('teacherSearch', 'teacherList')">
+                <input type="text" id="teacherSearch" class="form-control mb-2" placeholder="{{ _('🔍 بحث عن أستاذ...') }}" onkeyup="filterList('teacherSearch', 'teacherList')">
                 
                 <div class="list-group flex-grow-1" id="teacherList" style="overflow-y: auto; max-height: 450px;">
                     {% for teacher in db.teachers %}
@@ -75,7 +75,7 @@
                                  id="t_box_{{ loop.index }}"
                                  onclick="selectTeacher('{{ teacher }}', 't_box_{{ loop.index }}')"
                                  ondblclick="unassignTeacher('{{ teacher }}')"
-                                 title="انقر للتحديد، انقر مرتين لإلغاء مواده">
+                                 title="{{ _('انقر للتحديد، انقر مرتين لإلغاء مواده') }}">
                                  
                                 <span>{{ teacher }}</span>
                                 
@@ -97,7 +97,7 @@
                             {% endif %}
                         </div>
                     {% else %}
-                        <div class="alert alert-secondary">لا يوجد أساتذة مسجلين.</div>
+                        <div class="alert alert-secondary">{{ _('لا يوجد أساتذة مسجلين.') }}</div>
                     {% endfor %}
                 </div>
             </div>
@@ -106,9 +106,9 @@
 
     <!-- العمود الثاني: زر التخصيص -->
     <div class="col-md-1 d-flex justify-content-center px-0">
-        <button id="middle-assign-btn" class="btn-middle-assign" onclick="submitAssignment()" title="تخصيص المواد للأستاذ المختار">
+        <button id="middle-assign-btn" class="btn-middle-assign" onclick="submitAssignment()" title="{{ _('تخصيص المواد للأستاذ المختار') }}">
             <span style="font-size: 22px;">🔗</span>
-            <span id="assign-btn-text">تخصيص</span>
+            <span id="assign-btn-text">{{ _('تخصيص') }}</span>
         </button>
     </div>
 
@@ -116,12 +116,12 @@
     <div class="col-md-6">
         <div class="card shadow-sm border-primary" style="height: 550px;">
             <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                <span>📚 المواد</span>
-                <small>(نقرة مزدوجة لإلغاء المادة)</small>
+                <span>{{ _('📚 المواد') }}</span>
+                <small>{{ _('(نقرة مزدوجة لإلغاء المادة)') }}</small>
             </div>
             <div class="card-body p-2 d-flex flex-column">
                 
-                <input type="text" id="subjectSearch" class="form-control mb-2" placeholder="🔍 بحث عن مادة..." onkeyup="filterList('subjectSearch', 'subjectList')">
+                <input type="text" id="subjectSearch" class="form-control mb-2" placeholder="{{ _('🔍 بحث عن مادة...') }}" onkeyup="filterList('subjectSearch', 'subjectList')">
                 
                 <div id="subjectList" class="p-1 flex-grow-1" style="overflow-y: auto; max-height: 450px;">
                     {% for sub in db.subjects %}
@@ -132,7 +132,7 @@
                              id="s_box_{{ loop.index }}"
                              onclick="toggleSubject('{{ full_name }}', 's_box_{{ loop.index }}')"
                              ondblclick="unassignSubject('{{ full_name }}')"
-                             title="انقر لتحديد المادة، انقر مرتين لإلغاء إسنادها">
+                             title="{{ _('انقر لتحديد المادة، انقر مرتين لإلغاء إسنادها') }}">
                              
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
@@ -145,7 +145,7 @@
                             </div>
                         </div>
                     {% else %}
-                        <div class="alert alert-secondary">لا توجد مواد مسجلة.</div>
+                        <div class="alert alert-secondary">{{ _('لا توجد مواد مسجلة.') }}</div>
                     {% endfor %}
                 </div>
                 
@@ -185,7 +185,7 @@ async function silentSubmit(formId) {
     // إظهار حالة التحميل
     document.body.style.cursor = 'wait';
     let btnText = document.getElementById('assign-btn-text');
-    if (btnText) btnText.innerText = '⏳...';
+    if (btnText) btnText.innerText = "{{ _('⏳...') }}";
 
     try {
         // إرسال الطلب في الخلفية
@@ -220,17 +220,17 @@ async function silentSubmit(formId) {
         filterList('subjectSearch', 'subjectList');
         
     } catch (error) {
-        alert("حدث خطأ أثناء الاتصال بالخادم.");
+        alert("{{ _('حدث خطأ أثناء الاتصال بالخادم.') }}");
     } finally {
         document.body.style.cursor = 'default';
-        if (btnText) btnText.innerText = 'تخصيص';
+        if (btnText) btnText.innerText = "{{ _('تخصيص') }}";
     }
 }
 
 // دالة إرسال التخصيص
 function submitAssignment() {
-    if (!selectedTeacher) { alert("⚠️ الرجاء تحديد أستاذ من القائمة اليمنى أولاً."); return; }
-    if (selectedSubjects.length === 0) { alert("⚠️ الرجاء تحديد مادة واحدة على الأقل من القائمة اليسرى."); return; }
+    if (!selectedTeacher) { alert("{{ _('⚠️ الرجاء تحديد أستاذ من القائمة اليمنى أولاً.') }}"); return; }
+    if (selectedSubjects.length === 0) { alert("{{ _('⚠️ الرجاء تحديد مادة واحدة على الأقل من القائمة اليسرى.') }}"); return; }
 
     document.getElementById('assign_t_name').value = selectedTeacher;
     document.getElementById('assign_s_list').value = JSON.stringify(selectedSubjects);
@@ -239,7 +239,7 @@ function submitAssignment() {
 
 // دالة النقر المزدوج (الأستاذ)
 function unassignTeacher(tName) {
-    if(confirm('هل أنت متأكد من إفراغ جميع مواد الأستاذ ' + tName + '؟')) {
+    if(confirm("{{ _('هل أنت متأكد من إفراغ جميع مواد الأستاذ') }} " + tName + "؟")) {
         document.getElementById('unassign_t_name').value = tName;
         silentSubmit('form_unassign_teacher');
     }
@@ -247,7 +247,7 @@ function unassignTeacher(tName) {
 
 // دالة النقر المزدوج (المادة)
 function unassignSubject(sName) {
-    if(confirm('هل أنت متأكد من إلغاء إسناد هذه المادة؟')) {
+    if(confirm("{{ _('هل أنت متأكد من إلغاء إسناد هذه المادة؟') }}")) {
         document.getElementById('unassign_s_name').value = sName;
         silentSubmit('form_unassign_subject');
     }

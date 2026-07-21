@@ -5,25 +5,26 @@ from docx.enum.section import WD_ORIENT
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
+from flask_babel import _
 
 # ================== قاموس الترجمة للامتحانات الاستدراكية ==================
 RESIT_TRANSLATIONS = {
     'ar': {
-        'title_levels': 'جداول الامتحانات الاستدراكية - حسب المستويات',
-        'title_teachers': 'جداول الامتحانات الاستدراكية - للأساتذة',
-        'level': 'المستوى:',
-        'time_period': 'الفترة الزمنية',
-        'unknown_subject': 'مادة غير معروفة',
-        'unspecified': 'غير محدد',
-        'subject': 'المادة:',
-        'subject_teacher': 'أستاذ المادة:',
-        'guarding': 'الحراسة:\n',
-        'location': 'المكان:',
-        'no_guards': 'بدون حراس',
-        'teacher': 'الأستاذ(ة):',
-        'assigned_subjects': 'المواد المسندة:',
-        'no_subject': 'بدون مادة',
-        'days_map': {'الأحد': 'الأحد', 'الإثنين': 'الإثنين', 'الثلاثاء': 'الثلاثاء', 'الأربعاء': 'الأربعاء', 'الخميس': 'الخميس', 'الجمعة': 'الجمعة', 'السبت': 'السبت'}
+        'title_levels': _('جداول الامتحانات الاستدراكية - حسب المستويات'),
+        'title_teachers': _('جداول الامتحانات الاستدراكية - للأساتذة'),
+        'level': _('المستوى:'),
+        'time_period': _('الفترة الزمنية'),
+        'unknown_subject': _('مادة غير معروفة'),
+        'unspecified': _('غير محدد'),
+        'subject': _('المادة:'),
+        'subject_teacher': _('أستاذ المادة:'),
+        'guarding': _('الحراسة:\n'),
+        'location': _('المكان:'),
+        'no_guards': _('بدون حراس'),
+        'teacher': _('الأستاذ(ة):'),
+        'assigned_subjects': _('المواد المسندة:'),
+        'no_subject': _('بدون مادة'),
+        'days_map': {'الأحد': _('الأحد'), 'الإثنين': _('الإثنين'), 'الثلاثاء': _('الثلاثاء'), 'الأربعاء': _('الأربعاء'), 'الخميس': _('الخميس'), 'الجمعة': _('الجمعة'), 'السبت': _('السبت')}
     },
     'en': {
         'title_levels': 'Resit Exams Schedule - By Levels',

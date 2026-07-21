@@ -2,6 +2,7 @@ import json
 from flask import session
 from sqlalchemy.orm.attributes import flag_modified
 from app.database import db, ResitExamData  # تأكد من مسار الاستيراد الصحيح
+from flask_babel import _
 
 # ==========================================
 # دوال استدعاء وحفظ الحالة الشاملة للقسم (SaaS)
@@ -11,11 +12,11 @@ def get_tenant_state(tenant_id_override=None):
     # نستخدم الرقم الممرر من السيليري، أو نأخذه من الجلسة للمستخدم العادي
     tenant_id = tenant_id_override or session.get('tenant_id')
     if not tenant_id:
-        raise Exception("حدث خطأ: لا يوجد قسم مسجل في الجلسة الحالية.")
+        raise Exception(_("حدث خطأ: لا يوجد قسم مسجل في الجلسة الحالية."))
     
     state = ResitExamData.query.filter_by(tenant_id=tenant_id).first()
     if not state:
-        defaults = {"teachers": [], "rooms": {}, "levels": [], "subjects": [], "teacher_subjects": {}, "level_rooms": {}, "schedule": {}, "constraints": {"invigilators_per_room": {"قاعة كبيرة": 3, "قاعة متوسطة": 2, "قاعة صغيرة": 1},"max_shifts_per_day": 0,"max_large_hall_shifts": 0,"teacher_patterns": {},"incompatible_levels": [],"prioritized_teachers": [],"carpool_pairs": [],"conflict_pairs": [],"no_first_slot_teachers": []}}
+        defaults = {"teachers": [], "rooms": {}, "levels": [], "subjects": [], "teacher_subjects": {}, "level_rooms": {}, "schedule": {}, "constraints": {"invigilators_per_room": {_("قاعة كبيرة"): 3, _("قاعة متوسطة"): 2, _("قاعة صغيرة"): 1},"max_shifts_per_day": 0,"max_large_hall_shifts": 0,"teacher_patterns": {},"incompatible_levels": [],"prioritized_teachers": [],"carpool_pairs": [],"conflict_pairs": [],"no_first_slot_teachers": []}}
         state = ResitExamData(tenant_id=tenant_id, db_dict=defaults)
         db.session.add(state)
         db.session.commit()

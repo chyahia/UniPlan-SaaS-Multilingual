@@ -1,6 +1,7 @@
 import random
 import time
 import copy
+from flask_babel import _
 
 def validate_schedule(db, final_dist):
     violations = []
@@ -19,7 +20,7 @@ def validate_schedule(db, final_dist):
             levels_in_this_slot = list(levels_dict.keys())
             for inc in incompatibles:
                 if inc[0] in levels_in_this_slot and inc[1] in levels_in_this_slot:
-                    violations.append(f"❌ [قيد صارم]: اجتماع '{inc[0]}' مع '{inc[1]}' في نفس الوقت ({day} - {time_val}).")
+                    violations.append(_("❌ [قيد صارم]: اجتماع '{inc_0}' مع '{inc_1}' في نفس الوقت ({day} - {time_val}).").format(inc_0=inc[0], inc_1=inc[1], day=day, time_val=time_val))
 
     teacher_days = {t: set() for t in db.get('teachers', [])}
     teacher_first_slots = {t: set() for t in db.get('teachers', [])}
@@ -43,11 +44,11 @@ def validate_schedule(db, final_dist):
             has_consecutive = any(day_indices[i] - day_indices[i-1] == 1 for i in range(1, len(day_indices)))
             
             if pref == 'consecutive' and not has_consecutive:
-                violations.append(f"⚠️ [الأولوية - تتابع]: الأستاذ '{t}' تفرقت مواده في أيام غير متتالية.")
+                violations.append(_("⚠️ [الأولوية - تتابع]: الأستاذ '{t}' تفرقت مواده في أيام غير متتالية.").format(t=t))
             elif pref == 'separated' and has_consecutive:
-                violations.append(f"⚠️ [الأولوية - انفصال]: الأستاذ '{t}' اجتمعت مواده في أيام متتالية (طلب انفصال).")
+                violations.append(_("⚠️ [الأولوية - انفصال]: الأستاذ '{t}' اجتمعت مواده في أيام متتالية (طلب انفصال).").format(t=t))
             elif pref == 'flexible':
-                violations.append(f"⚠️ [تجميع الأيام - مرن]: الأستاذ '{t}' تفرقت مواده على {len(days)} أيام.")
+                violations.append(_("⚠️ [تجميع الأيام - مرن]: الأستاذ '{t}' تفرقت مواده على {days_len} أيام.").format(t=t, days_len=len(days)))
             
     for pair in carpool_pairs:
         t1, t2 = pair[0], pair[1]
@@ -55,18 +56,18 @@ def validate_schedule(db, final_dist):
         if days1 and days2: 
             shared_days = days1.intersection(days2)
             if not shared_days:
-                violations.append(f"⚠️ [المرافقة]: الأستاذ '{t1}' والأستاذ '{t2}' لم يجمعهما أي يوم مشترك.")
+                violations.append(_("⚠️ [المرافقة]: الأستاذ '{t1}' والأستاذ '{t2}' لم يجمعهما أي يوم مشترك.").format(t1=t1, t2=t2))
 
     for pair in conflict_pairs:
         t1, t2 = pair[0], pair[1]
         shared_days = teacher_days.get(t1, set()).intersection(teacher_days.get(t2, set()))
         if shared_days:
-            violations.append(f"⚠️ [الانفصال]: الأستاذ '{t1}' والأستاذ '{t2}' اشتركا في يوم ({', '.join(shared_days)}).")
+            violations.append(_("⚠️ [الانفصال]: الأستاذ '{t1}' والأستاذ '{t2}' اشتركا في يوم ({shared}).").format(t1=t1, t2=t2, shared=', '.join(shared_days)))
 
     for t in no_first_slot:
         if teacher_first_slots.get(t, set()):
             days_str = ", ".join(teacher_first_slots[t])
-            violations.append(f"⚠️ [الحصة الأولى]: الأستاذ '{t}' تمت برمجته في الحصة الأولى من يوم ({days_str}).")
+            violations.append(_("⚠️ [الحصة الأولى]: الأستاذ '{t}' تمت برمجته في الحصة الأولى من يوم ({days_str}).").format(t=t, days_str=days_str))
             
     return violations
 
@@ -76,7 +77,7 @@ def optimize_unified_rooms(final_dist):
             teacher_to_levels = {}
             for lvl, data in levels_dict.items():
                 for t in data.get("subject_teachers", []):
-                    if t != "غير محدد":
+                    if t != _("غير محدد"):
                         if t not in teacher_to_levels:
                             teacher_to_levels[t] = []
                         teacher_to_levels[t].append(lvl)
@@ -88,7 +89,7 @@ def optimize_unified_rooms(final_dist):
                     if primary_rooms:
                         unified_room = list(primary_rooms.keys())[0]
                     else:
-                        unified_room = "قاعة مدمجة"
+                        unified_room = _("قاعة مدمجة")
                     for lvl in lvls:
                         levels_dict[lvl]["rooms"] = {unified_room: [t]}
     return final_dist
@@ -138,7 +139,7 @@ def build_teacher_focused_schedule(db, sub_info_list, randomize=False, destructi
     # -----------------------------------------------------------------
                 
     teacher_placements = {t: {'times': set(), 'days': set()} for t in db.get('teachers', [])}
-    teacher_placements["غير محدد"] = {'times': set(), 'days': set()} 
+    teacher_placements[_("غير محدد")] = {'times': set(), 'days': set()} 
     slot_contents = {}
     unassigned_subjects = []
     score_accumulator = 0
@@ -208,7 +209,7 @@ def build_teacher_focused_schedule(db, sub_info_list, randomize=False, destructi
             day, time_val = slot
             score = 0
             
-            if t != "غير محدد":
+            if t != _("غير محدد"):
                 slot_key = f"{day}_{time_val}"
                 is_first_slot = (time_val == first_slots.get(day))
                 bonus = 2 if t in prioritized_teachers else 1
@@ -261,9 +262,9 @@ def build_teacher_focused_schedule(db, sub_info_list, randomize=False, destructi
         if best_slot not in slot_contents: slot_contents[best_slot] = []
         slot_contents[best_slot].append(lvl)
         
-        rooms = level_rooms.get(lvl, ["قاعة غير محددة"])
-        room_dict = {r.split(' (')[0] if ' (' in r else r: [t] if t != "غير محدد" else [] for r in rooms}
-        final_dist[b_day][b_time][lvl] = {"subject": s['name'], "subject_teachers": [t] if t != "غير محدد" else [], "rooms": room_dict}
+        rooms = level_rooms.get(lvl, [_("قاعة غير محددة")])
+        room_dict = {r.split(' (')[0] if ' (' in r else r: [t] if t != _("غير محدد") else [] for r in rooms}
+        final_dist[b_day][b_time][lvl] = {"subject": s['name'], "subject_teachers": [t] if t != _("غير محدد") else [], "rooms": room_dict}
         
     return final_dist, unassigned_subjects, score_accumulator
 
@@ -310,7 +311,7 @@ def build_student_focused_schedule(db, sub_info_list, randomize=False, destructi
     # -----------------------------------------------------------------
                 
     teacher_placements = {t: {'times': set(), 'days': set()} for t in db.get('teachers', [])}
-    teacher_placements["غير محدد"] = {'times': set(), 'days': set()} 
+    teacher_placements[_("غير محدد")] = {'times': set(), 'days': set()} 
     slot_contents = {}
     unassigned_subjects = []
     score_accumulator = 0
@@ -391,7 +392,7 @@ def build_student_focused_schedule(db, sub_info_list, randomize=False, destructi
             if next_time and lvl in slot_contents.get((day, next_time), []):
                 score += (500 * bonus)
 
-            if t != "غير محدد":
+            if t != _("غير محدد"):
                 slot_key = f"{day}_{time_val}"
                 is_first_slot = (time_val == first_slots.get(day))
                 
@@ -448,9 +449,9 @@ def build_student_focused_schedule(db, sub_info_list, randomize=False, destructi
         if best_slot not in slot_contents: slot_contents[best_slot] = []
         slot_contents[best_slot].append(lvl)
         
-        rooms = level_rooms.get(lvl, ["قاعة غير محددة"])
-        room_dict = {r.split(' (')[0] if ' (' in r else r: [t] if t != "غير محدد" else [] for r in rooms}
-        final_dist[b_day][b_time][lvl] = {"subject": s['name'], "subject_teachers": [t] if t != "غير محدد" else [], "rooms": room_dict}
+        rooms = level_rooms.get(lvl, [_("قاعة غير محددة")])
+        room_dict = {r.split(' (')[0] if ' (' in r else r: [t] if t != _("غير محدد") else [] for r in rooms}
+        final_dist[b_day][b_time][lvl] = {"subject": s['name'], "subject_teachers": [t] if t != _("غير محدد") else [], "rooms": room_dict}
         
     return final_dist, unassigned_subjects, score_accumulator
 
@@ -465,7 +466,7 @@ def run_distribution(db, use_lns=True, duration=5, destruction_rate=25, progress
     
     sub_info = [] 
     for sub in subjects:
-        teacher = "غير محدد"
+        teacher = _("غير محدد")
         formatted_sub_name = f"{sub['name']} ({sub['level']})"
         for t, t_subs in teacher_subjects.items():
             if formatted_sub_name in t_subs:
@@ -482,7 +483,7 @@ def run_distribution(db, use_lns=True, duration=5, destruction_rate=25, progress
     build_func = build_teacher_focused_schedule if is_teacher_focused else build_student_focused_schedule
 
     if not use_lns:
-        best_dist, unassigned, _ = build_func(db, sub_info, randomize=False, destruction_rate=0)
+        best_dist, unassigned, _dummy = build_func(db, sub_info, randomize=False, destruction_rate=0)
     else:
         best_dist = {}
         best_unassigned = sub_info.copy()
@@ -525,10 +526,11 @@ def run_distribution(db, use_lns=True, duration=5, destruction_rate=25, progress
     final_violations = []
     unassigned_list = best_unassigned if use_lns else unassigned
     for s in unassigned_list:
-        final_violations.append(f"❌ المادة '{s['name']}' ({s['level']}): لم تُبرمج! كل الأوقات المتاحة تسبب تعارضاً.")
+        final_violations.append(_("❌ المادة '{s_name}' ({s_level}): لم تُبرمج! كل الأوقات المتاحة تسبب تعارضاً.").format(s_name=s['name'], s_level=s['level']))
 
     if best_dist:
         eval_violations = validate_schedule(db, best_dist)
         final_violations.extend(eval_violations)
         
     return best_dist, final_violations
+

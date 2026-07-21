@@ -1,11 +1,12 @@
-from flask import Flask, render_template, jsonify, session, redirect, url_for
+from flask import Flask, render_template, jsonify, session, redirect, url_for, request, has_request_context
 import os
 import sys
 from dotenv import load_dotenv
-from app.database import db  # استيراد db من الهيكلة الجديدة
+from app.database import db
 from flask_migrate import Migrate
+from flask_babel import Babel  # ✨ استيراد مكتبة الترجمة
 
-# استيراد المسارات (نفسها دون تغيير)
+# استيراد المسارات
 from app.routes.basic_data import basic_data_bp
 from app.routes.manage_data import manage_data_bp
 from app.routes.assignments import assignments_bp
@@ -24,95 +25,109 @@ def create_app():
     app = Flask(__name__)
     
     # 1. الإعدادات الأساسية
-    # ✨ مفتاح تشغيل ميزة الدومينو (ضع علامة # قبل السطر لتعطيل الميزة وإخفائها بالكامل)
     app.config['ENABLE_DOMINO_FEATURE'] = True
-
-    # ✨ مفتاح تشغيل ميزة التدخل الجراحي (المشرط)
     app.config['ENABLE_SURGICAL_FEATURE'] = True
-    
     app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'chy_secret_key_2026_fallback')
-    # التعرف التلقائي الذكي على البيئة (Desktop vs Web)
+    
     if getattr(sys, 'frozen', False):
-        # إذا كان النظام يعمل كملف تنفيذي (exe)، فهو حتماً في بيئة سطح المكتب
         app.config['APP_MODE'] = 'desktop'
     else:
-        # إذا كان يعمل كسكريبت بايثون (على استضافة أو للتطوير)، نقرأ من ملف .env
         app.config['APP_MODE'] = os.environ.get('APP_MODE', 'production')
 
     # ==========================================
-    # 🌟 الكود الذكي لتحديد مسار قاعدة البيانات 
+    # ✨ إعدادات اللغات والترجمة (Flask-Babel)
+    # ==========================================
+    app.config['BABEL_DEFAULT_LOCALE'] = 'ar'
+    
+    # التعديل هنا: تحديد المسار المطلق لمجلد الترجمات
+    base_dir = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
+    app.config['BABEL_TRANSLATION_DIRECTORIES'] = os.path.join(base_dir, 'translations')
+
+    def get_locale():
+        # نتحقق أولاً إذا كنا داخل طلب ويب (Request) لتجنب أخطاء المهام الخلفية
+        if has_request_context():
+            # 1. إذا كانت اللغة محفوظة في الجلسة مسبقاً
+            if 'lang' in session:
+                return session['lang']
+            
+            # 2. إذا كانت أول زيارة، نفرض العربية في الجلسة ونعيدها
+            session['lang'] = 'ar'
+            return 'ar'
+        
+        # اللغة الافتراضية إذا كان الكود يعمل في الخلفية (Threads/Celery)
+        return 'ar'
+
+    # تفعيل Babel وربطه بالتطبيق
+    babel = Babel(app, locale_selector=get_locale)
+
+    # ==========================================
+    # الكود الذكي لتحديد مسار قاعدة البيانات 
     # ==========================================
     def get_db_path():
-        # تحديد المسار الرئيسي للبرنامج (سواء كان سكربت بايثون أو ملف exe)
         if getattr(sys, 'frozen', False):
             base_dir = os.path.dirname(sys.executable)
         else:
             base_dir = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
             
-        # التحقق مما إذا كان المسار يحتوي على Program Files
         if "Program Files" in base_dir or "ProgramFiles" in base_dir:
-            # توجيه قاعدة البيانات إلى مجلد AppData/Roaming الآمن
             appdata = os.environ.get('APPDATA')
             db_dir = os.path.join(appdata, 'UniPlanSaaS') 
             if not os.path.exists(db_dir):
                 os.makedirs(db_dir)
             return os.path.join(db_dir, 'saas_database.db')
         else:
-            # ✨ التعديل هنا: توجيه المسار إلى مجلد instance كما كان في السابق
             instance_dir = os.path.join(base_dir, 'instance')
             if not os.path.exists(instance_dir):
                 os.makedirs(instance_dir)
             return os.path.join(instance_dir, 'saas_database.db')
             
-    # توليد المسار النهائي
     db_path = get_db_path()
 
-    # 2. إعدادات قاعدة البيانات (PostgreSQL سحابي أو SQLite محلي)
     app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', f'sqlite:///{db_path}')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-    # 3. ربط قاعدة البيانات بالتطبيق
     db.init_app(app)
-    # ✨ تهيئة Flask-Migrate مع تفعيل ميزة Batch لكي تقبل SQLite حذف الأعمدة
     migrate = Migrate(app, db, render_as_batch=True)
 
-    # 4. إنشاء الجداول تلقائياً
     with app.app_context():
         db.create_all()
 
     # ==========================================
-    # 🌟 الروابط الأساسية للمنصة (تم التحديث هنا)
+    # مسار جديد لتغيير لغة النظام ديناميكياً
+    # ==========================================
+    @app.route('/set_lang/<lang>')
+    def set_lang(lang):
+        # نقبل فقط اللغات المدعومة
+        if lang in ['ar', 'en']:
+            session['lang'] = lang
+        # نعود بالمستخدم إلى الصفحة التي كان فيها (أو الرئيسية)
+        return redirect(request.referrer or url_for('portal'))
+
+    # ==========================================
+    # الروابط الأساسية للمنصة
     # ==========================================
 
     @app.route('/')
     def portal():
-        # التأكد من تسجيل الدخول أولاً
         if 'user_id' not in session:
             return redirect(url_for('auth.login')) 
             
-        # توجيه الأستاذ والمدير العام لشاشاتهم
         if session.get('role') == 'teacher':
             return redirect(url_for('teacher_portal.teacher_dashboard'))
             
         if session.get('role') == 'super_admin':
-            return redirect(url_for('super_admin'))
+            return redirect(url_for('super_admin_api.super_admin')) # تم التصحيح هنا لربط مسار super admin الأصلي
 
-        # ✨ جلب بيانات القسم للتحقق من التراخيص
         from app.database import Tenant
         current_tenant = Tenant.query.get(session.get('tenant_id'))
         
-        # ✨ التعديل: توجيه رئيس القسم إلى البوابة الجديدة ذات البطاقتين
         return render_template('hod_portal.html', tenant=current_tenant)
         
-            
-
     @app.route('/teaching')
     def teaching_index():
-        # حماية المسار: التأكد أن المستخدم رئيس قسم
         if 'user_id' not in session or session.get('role') in ['teacher', 'super_admin']:
             return redirect(url_for('portal'))
             
-        # فتح نظام الجداول الدراسية
         return render_template('index.html')
 
     @app.route('/super_admin')
@@ -122,7 +137,7 @@ def create_app():
         return render_template('super_admin.html')    
 
     # ==========================================
-    # 5. تسجيل المسارات (Blueprints)
+    # تسجيل المسارات (Blueprints)
     # ==========================================
     app.register_blueprint(basic_data_bp)
     app.register_blueprint(manage_data_bp)
@@ -137,9 +152,7 @@ def create_app():
     app.register_blueprint(admin_requests_bp)
     app.register_blueprint(super_admin_bp)
 
-    # ==========================================
-    # 🌟 تسجيل مسارات برنامج الامتحانات (بشكل معزول)
-    # ==========================================
+    # مسارات برنامج الامتحانات السداسية
     from .routes.exams_routes.exams_basic_data import exams_basic_data_bp
     app.register_blueprint(exams_basic_data_bp)
 
@@ -164,14 +177,12 @@ def create_app():
     from .routes.exams_routes.exams_export import exams_export_bp
     app.register_blueprint(exams_export_bp)
 
-    # ==========================================
-    # 🌟 تسجيل مسارات برنامج الامتحانات الاستدراكية
-    # ==========================================
+    # مسارات برنامج الامتحانات الاستدراكية
     from .routes.resit_exams_routes import resit_exams_bp
     app.register_blueprint(resit_exams_bp)
 
     # ==========================================
-    # 🌟 مسار الإغلاق الآمن للنظام (يعمل في وضع سطح المكتب و VS Code)
+    # مسار الإغلاق الآمن للنظام 
     # ==========================================
     @app.route('/shutdown', methods=['POST'])
     def shutdown():
@@ -179,34 +190,14 @@ def create_app():
         import subprocess
         import threading
         
-        # التحقق من أن النظام يعمل في بيئة سطح المكتب أو التطوير المحلي
         if app.config.get('APP_MODE') == 'desktop':
-            
-            # دالة الإغلاق الشامل
             def terminate_all_processes():
-                # 1. قنص وإغلاق خادم المهام (Celery) بالاسم أينما كان
-                subprocess.run(
-                    ['taskkill', '/F', '/IM', 'celery.exe'],
-                    stdout=subprocess.DEVNULL,
-                    stderr=subprocess.DEVNULL,
-                    creationflags=subprocess.CREATE_NO_WINDOW
-                )
-                
-                # 2. إغلاق البرنامج الرئيسي (Flask) وشجرة عملياته
-                subprocess.run(
-                    ['taskkill', '/F', '/T', '/PID', str(os.getpid())],
-                    stdout=subprocess.DEVNULL,
-                    stderr=subprocess.DEVNULL,
-                    creationflags=subprocess.CREATE_NO_WINDOW
-                )
+                subprocess.run(['taskkill', '/F', '/IM', 'celery.exe'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, creationflags=subprocess.CREATE_NO_WINDOW)
+                subprocess.run(['taskkill', '/F', '/T', '/PID', str(os.getpid())], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, creationflags=subprocess.CREATE_NO_WINDOW)
 
-            # نضبط مؤقت زمني لثانية واحدة لكي يرد الخادم على المتصفح أولاً
             threading.Timer(1.0, terminate_all_processes).start()
-            
             return jsonify({"success": True})
         
-        # إذا كان على استضافة حقيقية، نرفض طلب الإغلاق
         return jsonify({"success": False, "error": "ميزة الإغلاق معطلة في النسخة السحابية الحية."}), 403
 
-    
     return app

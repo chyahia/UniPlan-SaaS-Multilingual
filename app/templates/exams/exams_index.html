@@ -2,57 +2,57 @@
 
 {% block content %}
     <div id="tab-home" class="tab-content active-tab">
-        <h2 style="color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; margin-bottom: 20px;">🏠 لوحة المعلومات والإحصائيات</h2>
+        <h2 style="color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; margin-bottom: 20px;">{{ _('🏠 لوحة المعلومات والإحصائيات') }}</h2>
         
         <!-- البطاقات الإحصائية (Dashboard) -->
         <div style="display: flex; gap: 15px; margin-bottom: 25px; flex-wrap: wrap; text-align: center;">
             <div style="flex: 1; min-width: 200px; background: #fff; padding: 20px; border-radius: 8px; border-bottom: 4px solid #3f51b5; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
                 <h1 id="stat-prof-count" style="margin: 0; color: #3f51b5; font-size: 36px;">0</h1>
-                <p style="margin: 5px 0 0 0; color: #555; font-weight: bold;">👨‍🏫 أستاذ مسجل</p>
+                <p style="margin: 5px 0 0 0; color: #555; font-weight: bold;">{{ _('👨‍🏫 أستاذ مسجل') }}</p>
             </div>
             <div style="flex: 1; min-width: 200px; background: #fff; padding: 20px; border-radius: 8px; border-bottom: 4px solid #2e7d32; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
                 <h1 id="stat-hall-count" style="margin: 0; color: #2e7d32; font-size: 36px;">0</h1>
-                <p style="margin: 5px 0 0 0; color: #555; font-weight: bold;">🏫 قاعة متاحة</p>
+                <p style="margin: 5px 0 0 0; color: #555; font-weight: bold;">{{ _('🏫 قاعة متاحة') }}</p>
             </div>
             <div style="flex: 1; min-width: 200px; background: #fff; padding: 20px; border-radius: 8px; border-bottom: 4px solid #6a1b9a; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
                 <h1 id="stat-level-count" style="margin: 0; color: #6a1b9a; font-size: 36px;">0</h1>
-                <p style="margin: 5px 0 0 0; color: #555; font-weight: bold;">🏗️ مستوى دراسي</p>
+                <p style="margin: 5px 0 0 0; color: #555; font-weight: bold;">{{ _('🏗️ مستوى دراسي') }}</p>
             </div>
             <div style="flex: 1; min-width: 200px; background: #fff; padding: 20px; border-radius: 8px; border-bottom: 4px solid #ef6c00; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
                 <h1 id="stat-subject-count" style="margin: 0; color: #ef6c00; font-size: 36px;">0</h1>
-                <p style="margin: 5px 0 0 0; color: #555; font-weight: bold;">📚 مادة مسجلة</p>
+                <p style="margin: 5px 0 0 0; color: #555; font-weight: bold;">{{ _('📚 مادة مسجلة') }}</p>
             </div>
         </div>
 
         <!-- رسالة ترحيبية وتوجيهية للمستخدم -->
         <div style="background: #e8f4f8; padding: 20px; border-radius: 8px; border-right: 5px solid #3498db; margin-top: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-            <h3 style="color: #2980b9; margin-top: 0;">مرحباً بك في نظام حراسة الامتحانات 🎓</h3>
+            <h3 style="color: #2980b9; margin-top: 0;">{{ _('مرحباً بك في نظام حراسة الامتحانات 🎓') }}</h3>
             <p style="color: #555; font-size: 15px; line-height: 1.8;">
-                هذا النظام مصمم لتسهيل عملية توزيع حراسات الامتحانات على الأساتذة بعدالة تامة باستخدام خوارزميات الذكاء الاصطناعي. <br>
-                للبدء، يرجى الانتقال إلى تبويبة <b>"1. البيانات الأساسية"</b> لإدخال قوائم الأساتذة والقاعات والمواد، ثم اتبع المراحل بالتسلسل خطوة بخطوة حتى تصل إلى التوليد والتصدير النهائي.
+                {{ _('هذا النظام مصمم لتسهيل عملية توزيع حراسات الامتحانات على الأساتذة بعدالة تامة باستخدام خوارزميات الذكاء الاصطناعي.') }} <br>
+                {{ _('للبدء، يرجى الانتقال إلى تبويبة') }} <b>{{ _('“1. البيانات الأساسية”') }}</b> {{ _('لإدخال قوائم الأساتذة والقاعات والمواد، ثم اتبع المراحل بالتسلسل خطوة بخطوة حتى تصل إلى التوليد والتصدير النهائي.') }}
             </p>
         </div>
     </div>
 
     <div id="tab1" class="tab-content">
         <div style="display: flex; justify-content: space-between; align-items: center; background: #e8f4f8; padding: 10px 20px; border-radius: 8px; border-right: 5px solid #3498db; margin-bottom: 20px;">
-            <h2 style="margin: 0; color: #2c3e50;">المرحلة 1: إدخال البيانات الأساسية</h2>
+            <h2 style="margin: 0; color: #2c3e50;">{{ _('المرحلة 1: إدخال البيانات الأساسية') }}</h2>
             
             <button onclick="syncFromTeachingSystem(event)" style="background: #27ae60; color: white; border: none; padding: 10px 20px; border-radius: 6px; font-size: 14px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: all 0.3s ease;">
-                🔄 استيراد الأساتذة والمستويات والمواد من التدريس
+                {{ _('🔄 استيراد الأساتذة والمستويات والمواد من التدريس') }}
             </button>
         </div>
         
         <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-top: 20px;">
             <div style="flex: 1; min-width: 250px; background: #fff; padding: 20px; border-radius: 8px; border: 1px solid #ddd; box-shadow: 0 2px 4px rgba(0,0,0,0.05); display: flex; flex-direction: column;">
                 <form id="add-professors-form" class="data-form">
-                    <h3 style="background-color: #e3f2fd; color: #1565c0; padding: 10px 15px; border-radius: 5px; margin-top: 0; border-right: 5px solid #1976d2;">👨‍🏫 إضافة أساتذة</h3>
-                    <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #555;">أسماء الأساتذة (كل اسم في سطر):</label>
+                    <h3 style="background-color: #e3f2fd; color: #1565c0; padding: 10px 15px; border-radius: 5px; margin-top: 0; border-right: 5px solid #1976d2;">{{ _('👨‍🏫 إضافة أساتذة') }}</h3>
+                    <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #555;">{{ _('أسماء الأساتذة (كل اسم في سطر):') }}</label>
                     <textarea id="professors-input" rows="5" style="width: 100%; box-sizing: border-box; margin-bottom: 15px; padding: 10px; border: 1px solid #ccc; border-radius: 4px; resize: vertical;"></textarea>
-                    <button type="submit" class="action-button" style="width: 100%; padding: 10px; background-color: #3f51b5; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">إضافة الأساتذة</button>
+                    <button type="submit" class="action-button" style="width: 100%; padding: 10px; background-color: #3f51b5; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">{{ _('إضافة الأساتذة') }}</button>
                 </form>
                 <div style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px;">
-                    <label style="font-weight: bold; color: #555;">📋 معاينة قائمة الأساتذة المدخلة:</label>
+                    <label style="font-weight: bold; color: #555;">{{ _('📋 معاينة قائمة الأساتذة المدخلة:') }}</label>
                     <div id="professors-preview-list" style="max-height: 200px; overflow-y: auto; background-color: #f9f9f9; padding: 10px; border: 1px solid #e0e0e0; border-radius: 4px; margin-top: 10px;">
                         </div>
                 </div>
@@ -60,19 +60,19 @@
 
             <div style="flex: 1; min-width: 250px; background: #fff; padding: 20px; border-radius: 8px; border: 1px solid #ddd; box-shadow: 0 2px 4px rgba(0,0,0,0.05); display: flex; flex-direction: column;">
                 <form id="add-halls-form" class="data-form">
-                    <h3 style="background-color: #e8f5e9; color: #2e7d32; padding: 10px 15px; border-radius: 5px; margin-top: 0; border-right: 5px solid #388e3c;">🏫 إضافة قاعات للامتحان</h3>
-                    <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #555;">نوع القاعة:</label>
+                    <h3 style="background-color: #e8f5e9; color: #2e7d32; padding: 10px 15px; border-radius: 5px; margin-top: 0; border-right: 5px solid #388e3c;">{{ _('🏫 إضافة قاعات للامتحان') }}</h3>
+                    <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #555;">{{ _('نوع القاعة:') }}</label>
                     <select id="hall-type-select" style="width: 100%; box-sizing: border-box; margin-bottom: 15px; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
-                        <option value="صغيرة">صغيرة</option>
-                        <option value="متوسطة">متوسطة</option>
-                        <option value="كبيرة">كبيرة</option>
+                        <option value="صغيرة">{{ _('صغيرة') }}</option>
+                        <option value="متوسطة">{{ _('متوسطة') }}</option>
+                        <option value="كبيرة">{{ _('كبيرة') }}</option>
                     </select>
-                    <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #555;">أسماء القاعات (كل قاعة في سطر):</label>
+                    <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #555;">{{ _('أسماء القاعات (كل قاعة في سطر):') }}</label>
                     <textarea id="halls-input" rows="5" style="width: 100%; box-sizing: border-box; margin-bottom: 15px; padding: 10px; border: 1px solid #ccc; border-radius: 4px; resize: vertical;"></textarea>
-                    <button type="submit" class="action-button" style="width: 100%; padding: 10px; background-color: #3f51b5; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">إضافة القاعات</button>
+                    <button type="submit" class="action-button" style="width: 100%; padding: 10px; background-color: #3f51b5; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">{{ _('إضافة القاعات') }}</button>
                 </form>
                 <div style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px;">
-                    <label style="font-weight: bold; color: #555;">📋 معاينة قائمة القاعات المدخلة:</label>
+                    <label style="font-weight: bold; color: #555;">{{ _('📋 معاينة قائمة القاعات المدخلة:') }}</label>
                     <div id="halls-preview-list" style="max-height: 200px; overflow-y: auto; background-color: #f9f9f9; padding: 10px; border: 1px solid #e0e0e0; border-radius: 4px; margin-top: 10px;">
                         </div>
                 </div>
@@ -81,13 +81,13 @@
             <div style="display: flex; gap: 20px; flex-wrap: wrap; width: 100%;">
                 <div style="flex: 1; min-width: 250px; background: #fff; padding: 20px; border-radius: 8px; border: 1px solid #ddd; box-shadow: 0 2px 4px rgba(0,0,0,0.05); display: flex; flex-direction: column;">
                     <form id="add-levels-form" class="data-form">
-                        <h3 style="background-color: #f3e5f5; color: #6a1b9a; padding: 10px 15px; border-radius: 5px; margin-top: 0; border-right: 5px solid #8e24aa;">🏗️ إضافة مستويات دراسية</h3>
-                        <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #555;">أسماء المستويات (مثل: السنة الأولى) كل اسم في سطر:</label>
+                        <h3 style="background-color: #f3e5f5; color: #6a1b9a; padding: 10px 15px; border-radius: 5px; margin-top: 0; border-right: 5px solid #8e24aa;">{{ _('🏗️ إضافة مستويات دراسية') }}</h3>
+                        <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #555;">{{ _('أسماء المستويات (مثل: السنة الأولى) كل اسم في سطر:') }}</label>
                         <textarea id="levels-input" rows="5" style="width: 100%; box-sizing: border-box; margin-bottom: 15px; padding: 10px; border: 1px solid #ccc; border-radius: 4px; resize: vertical;"></textarea>
-                        <button type="submit" class="action-button" style="width: 100%; padding: 10px; background-color: #3f51b5; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">إضافة المستويات</button>
+                        <button type="submit" class="action-button" style="width: 100%; padding: 10px; background-color: #3f51b5; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">{{ _('إضافة المستويات') }}</button>
                     </form>
                     <div style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px;">
-                        <label style="font-weight: bold; color: #555;">📋 معاينة قائمة المستويات المدخلة:</label>
+                        <label style="font-weight: bold; color: #555;">{{ _('📋 معاينة قائمة المستويات المدخلة:') }}</label>
                         <div id="levels-preview-list" style="max-height: 200px; overflow-y: auto; background-color: #f9f9f9; padding: 10px; border: 1px solid #e0e0e0; border-radius: 4px; margin-top: 10px;">
                             </div>
                     </div>
@@ -95,16 +95,16 @@
                 
                 <div style="flex: 1; min-width: 250px; background: #fff; padding: 20px; border-radius: 8px; border: 1px solid #ddd; box-shadow: 0 2px 4px rgba(0,0,0,0.05); display: flex; flex-direction: column;">
                     <form id="add-subjects-form" class="data-form">
-                        <h3 style="background-color: #fff3e0; color: #ef6c00; padding: 10px 15px; border-radius: 5px; margin-top: 0; border-right: 5px solid #f57c00;">📚 إضافة مواد للامتحان</h3>
-                        <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #555;">المستويات الدراسية (أشّر على المستويات المعنية):</label>
+                        <h3 style="background-color: #fff3e0; color: #ef6c00; padding: 10px 15px; border-radius: 5px; margin-top: 0; border-right: 5px solid #f57c00;">{{ _('📚 إضافة مواد للامتحان') }}</h3>
+                        <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #555;">{{ _('المستويات الدراسية (أشّر على المستويات المعنية):') }}</label>
                         <div id="subject-levels-checkboxes" style="background: #fff; padding: 10px; border: 1px solid #ccc; border-radius: 4px; max-height: 150px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; margin-bottom: 15px;">
                             </div>
-                        <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #555;">أسماء المواد (كل مادة في سطر):</label>
+                        <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #555;">{{ _('أسماء المواد (كل مادة في سطر):') }}</label>
                         <textarea id="subjects-input" rows="5" style="width: 100%; box-sizing: border-box; margin-bottom: 15px; padding: 10px; border: 1px solid #ccc; border-radius: 4px; resize: vertical;"></textarea>
-                        <button type="submit" class="action-button" style="width: 100%; padding: 10px; background-color: #3f51b5; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">إضافة المواد للمستوى</button>
+                        <button type="submit" class="action-button" style="width: 100%; padding: 10px; background-color: #3f51b5; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">{{ _('إضافة المواد للمستوى') }}</button>
                     </form>
                     <div style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px;">
-                        <label style="font-weight: bold; color: #555;">📋 معاينة كافة المواد حسب المستويات:</label>
+                        <label style="font-weight: bold; color: #555;">{{ _('📋 معاينة كافة المواد حسب المستويات:') }}</label>
                         <div id="subjects-preview-list" style="max-height: 200px; overflow-y: auto; background-color: #f9f9f9; padding: 10px; border: 1px solid #e0e0e0; border-radius: 4px; margin-top: 10px;">
                             </div>
                     </div>
@@ -114,17 +114,17 @@
     </div>
 
     <div id="tab2" class="tab-content">
-        <h2>المرحلة 2: إدارة البيانات (تعديل وحذف)</h2>
-        <button type="button" onclick="manualRefreshData(this)" class="action-button" style="margin-bottom: 20px; background-color: #28a745; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; transition: 0.3s;">🔄 تحديث الجداول</button>
+        <h2>{{ _('المرحلة 2: إدارة البيانات (تعديل وحذف)') }}</h2>
+        <button type="button" onclick="manualRefreshData(this)" class="action-button" style="margin-bottom: 20px; background-color: #28a745; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; transition: 0.3s;">{{ _('🔄 تحديث الجداول') }}</button>
         
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px;">
             
             <div class="data-table-container" style="background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-                <h3 id="title-manage-profs" style="background-color: #e3f2fd; color: #1565c0; padding: 10px 15px; border-radius: 5px; margin-top: 0; border-right: 5px solid #1976d2;">👨‍🏫 قائمة الأساتذة</h3>
+                <h3 id="title-manage-profs" style="background-color: #e3f2fd; color: #1565c0; padding: 10px 15px; border-radius: 5px; margin-top: 0; border-right: 5px solid #1976d2;">{{ _('👨‍🏫 قائمة الأساتذة') }}</h3>
                 <div style="max-height: 300px; overflow-y: auto;">
                     <table style="width: 100%; border-collapse: collapse; text-align: right;">
                         <thead style="background: #f1f1f1; position: sticky; top: 0;">
-                            <tr><th>الاسم</th><th style="width: 120px; text-align: center;">إجراءات</th></tr>
+                            <tr><th>{{ _('الاسم') }}</th><th style="width: 120px; text-align: center;">{{ _('إجراءات') }}</th></tr>
                         </thead>
                         <tbody id="manage-professors-tbody"></tbody>
                     </table>
@@ -132,11 +132,11 @@
             </div>
 
             <div class="data-table-container" style="background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-                <h3 id="title-manage-halls" style="background-color: #e8f5e9; color: #2e7d32; padding: 10px 15px; border-radius: 5px; margin-top: 0; border-right: 5px solid #388e3c;">🏫 قائمة القاعات</h3>
+                <h3 id="title-manage-halls" style="background-color: #e8f5e9; color: #2e7d32; padding: 10px 15px; border-radius: 5px; margin-top: 0; border-right: 5px solid #388e3c;">{{ _('🏫 قائمة القاعات') }}</h3>
                 <div style="max-height: 300px; overflow-y: auto;">
                     <table style="width: 100%; border-collapse: collapse; text-align: right;">
                         <thead style="background: #f1f1f1; position: sticky; top: 0;">
-                            <tr><th>الاسم</th><th>النوع</th><th style="width: 120px; text-align: center;">إجراءات</th></tr>
+                            <tr><th>{{ _('الاسم') }}</th><th>{{ _('النوع') }}</th><th style="width: 120px; text-align: center;">{{ _('إجراءات') }}</th></tr>
                         </thead>
                         <tbody id="manage-halls-tbody"></tbody>
                     </table>
@@ -144,11 +144,11 @@
             </div>
 
             <div class="data-table-container" style="background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-                <h3 id="title-manage-levels" style="background-color: #f3e5f5; color: #6a1b9a; padding: 10px 15px; border-radius: 5px; margin-top: 0; border-right: 5px solid #8e24aa;">🏗️ قائمة المستويات الدراسية</h3>
+                <h3 id="title-manage-levels" style="background-color: #f3e5f5; color: #6a1b9a; padding: 10px 15px; border-radius: 5px; margin-top: 0; border-right: 5px solid #8e24aa;">{{ _('🏗️ قائمة المستويات الدراسية') }}</h3>
                 <div style="max-height: 300px; overflow-y: auto;">
                     <table style="width: 100%; border-collapse: collapse; text-align: right;">
                         <thead style="background: #f1f1f1; position: sticky; top: 0;">
-                            <tr><th>المستوى</th><th style="width: 120px; text-align: center;">إجراءات</th></tr>
+                            <tr><th>{{ _('المستوى') }}</th><th style="width: 120px; text-align: center;">{{ _('إجراءات') }}</th></tr>
                         </thead>
                         <tbody id="manage-levels-tbody"></tbody>
                     </table>
@@ -156,11 +156,11 @@
             </div>
 
             <div class="data-table-container" style="background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-                <h3 id="title-manage-subjects" style="background-color: #fff3e0; color: #ef6c00; padding: 10px 15px; border-radius: 5px; margin-top: 0; border-right: 5px solid #f57c00;">📚 قائمة المواد</h3>
+                <h3 id="title-manage-subjects" style="background-color: #fff3e0; color: #ef6c00; padding: 10px 15px; border-radius: 5px; margin-top: 0; border-right: 5px solid #f57c00;">{{ _('📚 قائمة المواد') }}</h3>
                 <div style="max-height: 300px; overflow-y: auto;">
                     <table style="width: 100%; border-collapse: collapse; text-align: right;">
                         <thead style="background: #f1f1f1; position: sticky; top: 0;">
-                            <tr><th>المادة</th><th>المستوى التابعة له</th><th style="width: 120px; text-align: center;">إجراءات</th></tr>
+                            <tr><th>{{ _('المادة') }}</th><th>{{ _('المستوى التابعة له') }}</th><th style="width: 120px; text-align: center;">{{ _('إجراءات') }}</th></tr>
                         </thead>
                         <tbody id="manage-subjects-tbody"></tbody>
                     </table>
@@ -171,107 +171,107 @@
     </div>
 
     <div id="tab3" class="tab-content">
-        <h2>المرحلة 3: الإسناد وتحديد القاعات</h2>
+        <h2>{{ _('المرحلة 3: الإسناد وتحديد القاعات') }}</h2>
         
         <div class="section-block" style="background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 30px;">
-            <h3 style="color: #3f51b5; border-bottom: 2px solid #3f51b5; padding-bottom: 5px;">أ. إسناد المواد للأساتذة</h3>
+            <h3 style="color: #3f51b5; border-bottom: 2px solid #3f51b5; padding-bottom: 5px;">{{ _('أ. إسناد المواد للأساتذة') }}</h3>
             
             <div style="display: flex; gap: 15px; margin-top: 15px;">
                 <div style="flex: 1;">
-                    <input type="text" id="search-prof" placeholder="🔍 ابحث عن أستاذ..." onkeyup="renderProfs()" style="width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+                    <input type="text" id="search-prof" placeholder="{{ _('🔍 ابحث عن أستاذ...') }}" onkeyup="renderProfs()" style="width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
                     <div id="prof-list" class="interactive-list"></div>
                 </div>
 
                 <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 10px;">
                     <button onclick="assignSelected()" style="background: #28a745; color: white; border: none; padding: 15px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
-                        ◀ تخصيص ◀
+                        {{ _('◀ تخصيص ◀') }}
                     </button>
                     <button onclick="unassignSelected()" style="background: #dc3545; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-size: 13px;">
-                        إلغاء الإسناد
+                        {{ _('إلغاء الإسناد') }}
                     </button>
                 </div>
 
                 <div style="flex: 1;">
-                    <input type="text" id="search-subj" placeholder="🔍 ابحث عن مادة أو مستوى..." onkeyup="renderSubjs()" style="width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+                    <input type="text" id="search-subj" placeholder="{{ _('🔍 ابحث عن مادة أو مستوى...') }}" onkeyup="renderSubjs()" style="width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
                     <div id="subj-list" class="interactive-list"></div>
                 </div>
             </div>
         </div>
 
         <div class="section-block" style="background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-            <h3 style="color: #3f51b5; border-bottom: 2px solid #3f51b5; padding-bottom: 5px;">ب. تحديد قاعات الامتحانات لكل مستوى</h3>
+            <h3 style="color: #3f51b5; border-bottom: 2px solid #3f51b5; padding-bottom: 5px;">{{ _('ب. تحديد قاعات الامتحانات لكل مستوى') }}</h3>
             
             <div style="max-height: 400px; overflow-y: auto; border: 1px solid #ccc; border-radius: 5px; margin-top: 15px;">
                 <table style="width: 100%; border-collapse: collapse; text-align: right;">
                     <thead style="background: #f1f1f1; position: sticky; top: 0;">
                         <tr>
-                            <th style="padding: 12px; border-bottom: 2px solid #ddd; width: 25%; border-left: 1px solid #ddd;">المستوى</th>
-                            <th style="padding: 12px; border-bottom: 2px solid #ddd;">القاعات المتاحة (أشّر على القاعات المخصصة)</th>
+                            <th style="padding: 12px; border-bottom: 2px solid #ddd; width: 25%; border-left: 1px solid #ddd;">{{ _('المستوى') }}</th>
+                            <th style="padding: 12px; border-bottom: 2px solid #ddd;">{{ _('القاعات المتاحة (أشّر على القاعات المخصصة)') }}</th>
                         </tr>
                     </thead>
                     <tbody id="level-halls-table-body">
                         </tbody>
                 </table>
             </div>
-            <button onclick="saveBulkLevelHalls()" style="margin-top: 15px; background: #3f51b5; color: white; border: none; padding: 12px 25px; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 15px;">💾 حفظ قاعات كل المستويات</button>
+            <button onclick="saveBulkLevelHalls()" style="margin-top: 15px; background: #3f51b5; color: white; border: none; padding: 12px 25px; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 15px;">{{ _('💾 حفظ قاعات كل المستويات') }}</button>
         </div>
     </div>
 
     <div id="tab4" class="tab-content">
-        <h2>المرحلة 4: إعداد أيام وأوقات الامتحانات</h2>
+        <h2>{{ _('المرحلة 4: إعداد أيام وأوقات الامتحانات') }}</h2>
         
         <div class="section-block" style="background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 30px;">
             <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #3f51b5; padding-bottom: 10px; margin-bottom: 20px;">
-                <h3 style="color: #3f51b5; margin: 0;">أ) تحديد أيام وتوقيت الامتحانات</h3>
-                <button onclick="saveExamSchedule()" class="action-button" style="background-color: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">💾 حفظ الهيكل الزمني</button>
+                <h3 style="color: #3f51b5; margin: 0;">{{ _('أ) تحديد أيام وتوقيت الامتحانات') }}</h3>
+                <button onclick="saveExamSchedule()" class="action-button" style="background-color: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">{{ _('💾 حفظ الهيكل الزمني') }}</button>
             </div>
             
-            <p style="color: #666; margin-bottom: 20px;">أضف أيام الامتحانات، ثم حدد الفترات الزمنية لكل يوم والمستويات التي ستُمتحن في كل فترة. يمكنك تحديد ما إذا كانت الفترة "أساسية" أو "احتياطية" للمواد المتبقية.</p>
+            <p style="color: #666; margin-bottom: 20px;">{{ _('أضف أيام الامتحانات، ثم حدد الفترات الزمنية لكل يوم والمستويات التي ستُمتحن في كل فترة. يمكنك تحديد ما إذا كانت الفترة "أساسية" أو "احتياطية" للمواد المتبقية.') }}</p>
             
             <div id="exam-days-container" style="display: flex; flex-direction: column; gap: 20px; margin-bottom: 20px;">
                 <!-- سيتم حقن الأيام هنا بواسطة الجافاسكربت -->
             </div>
             
-            <button id="add-exam-day-button" class="action-button" style="width: 100%; background: #3f51b5; color: white; border: none; padding: 15px; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 16px; border: 2px dashed #283593;">➕ إضافة يوم امتحان جديد</button>
+            <button id="add-exam-day-button" class="action-button" style="width: 100%; background: #3f51b5; color: white; border: none; padding: 15px; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 16px; border: 2px dashed #283593;">{{ _('➕ إضافة يوم امتحان جديد') }}</button>
         </div>
     </div>
 
     <div id="tab5" class="tab-content">
-        <h2>المرحلة 5: القيود والشروط</h2>
+        <h2>{{ _('المرحلة 5: القيود والشروط') }}</h2>
         <div style="display: flex; justify-content: flex-end; margin-bottom: 15px;">
-            <button onclick="saveAllConditions()" class="action-button" style="background-color: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 16px;">💾 حفظ جميع القيود</button>
+            <button onclick="saveAllConditions()" class="action-button" style="background-color: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 16px;">{{ _('💾 حفظ جميع القيود') }}</button>
         </div>
 
         <!-- 🌟 لوحة توضيحية للقيود (جدول الصارمة والمرنة) 🌟 -->
         <div class="section-block" style="background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 30px; border: 1px solid #e0e0e0;">
-            <h3 style="color: #3f51b5; margin-top: 0; text-align: center; border-bottom: 2px solid #3f51b5; padding-bottom: 10px;">📋 دليل القيود المعتمدة في الخوارزمية</h3>
+            <h3 style="color: #3f51b5; margin-top: 0; text-align: center; border-bottom: 2px solid #3f51b5; padding-bottom: 10px;">{{ _('📋 دليل القيود المعتمدة في الخوارزمية') }}</h3>
             
-            <table style="width: 100%; border-collapse: collapse; margin-top: 15px; text-align: right; background: #fafafa; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+            <table style="width: 100%; border-collapse: collapse; margin-top: 15px; text-align: start; background: #fafafa; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
                 <thead>
                     <tr>
-                        <th style="width: 50%; padding: 15px; border: 1px solid #ccc; background-color: #ffeeba; color: #856404; font-size: 16px; border-radius: 0 4px 0 0;">🔴 القيود الصارمة (Hard Constraints)<br><span style="font-size: 12px; font-weight: normal;">(خرقها يفسد الجدول وتمنعه الخوارزمية تماماً)</span></th>
-                        <th style="width: 50%; padding: 15px; border: 1px solid #ccc; background-color: #d4edda; color: #155724; font-size: 16px; border-radius: 4px 0 0 0;">🟢 القيود المرنة (Soft Constraints)<br><span style="font-size: 12px; font-weight: normal;">(خرقها مسموح لكن الخوارزمية تحاربه لتقليل العقوبة)</span></th>
+                        <th style="width: 50%; padding: 15px; border: 1px solid #ccc; background-color: #ffeeba; color: #856404; font-size: 16px; border-radius: 0 4px 0 0;">{{ _('🔴 القيود الصارمة (Hard Constraints)') }}<br><span style="font-size: 12px; font-weight: normal;">{{ _('(خرقها يفسد الجدول وتمنعه الخوارزمية تماماً)') }}</span></th>
+                        <th style="width: 50%; padding: 15px; border: 1px solid #ccc; background-color: #d4edda; color: #155724; font-size: 16px; border-radius: 4px 0 0 0;">{{ _('🟢 القيود المرنة (Soft Constraints)') }}<br><span style="font-size: 12px; font-weight: normal;">{{ _('(خرقها مسموح لكن الخوارزمية تحاربه لتقليل العقوبة)') }}</span></th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
                         <td style="padding: 15px; border: 1px solid #ccc; vertical-align: top; background: #fff;">
-                            <ul style="margin: 0; padding-right: 20px; line-height: 1.9; color: #333;">
-                                <li><b>عدم الاستنساخ:</b> منع حراسة الأستاذ في امتحانين بنفس اليوم والفترة.</li>
-                                <li><b>أيام الغياب:</b> احترام الأيام المحددة كإجازة/غير متاحة للأستاذ.</li>
-                                <li><b>الحد الأقصى الإجمالي:</b> عدم تجاوز سقف الحصص المحدد لكل أستاذ.</li>
-                                <li><b>الحد الأقصى للقاعات الكبيرة:</b> عدم تجاوز السقف المسموح للحراسات الشاقة.</li>
-                                <li><b>نمط أيام الحراسة:</b> الالتزام الصارم بالنمط (يوم، مرن يومان، متتاليان، مرن 3 أيام).</li>
-                                <li><b>اشتراك الأساتذة:</b> تطابق أيام العمل للأساتذة "الشركاء" تماماً.</li>
-                                <li><b>تنافر الأساتذة:</b> منع التقاطع في أيام العمل للأساتذة في قائمة "المنع".</li>
-                                <li style="color: #dc3545; list-style-type: square;"><b>جبر النقص:</b> النظام يعتبر تغطية نقص الحراس الأولوية الصارمة القصوى.</li>
+                            <ul style="margin: 0; padding-inline-start: 20px; line-height: 1.9; color: #333;">
+                                <li><b>{{ _('عدم الاستنساخ:') }}</b> {{ _('منع حراسة الأستاذ في امتحانين بنفس اليوم والفترة.') }}</li>
+                                <li><b>{{ _('أيام الغياب:') }}</b> {{ _('احترام الأيام المحددة كإجازة/غير متاحة للأستاذ.') }}</li>
+                                <li><b>{{ _('الحد الأقصى الإجمالي:') }}</b> {{ _('عدم تجاوز سقف الحصص المحدد لكل أستاذ.') }}</li>
+                                <li><b>{{ _('الحد الأقصى للقاعات الكبيرة:') }}</b> {{ _('عدم تجاوز السقف المسموح للحراسات الشاقة.') }}</li>
+                                <li><b>{{ _('نمط أيام الحراسة:') }}</b> {{ _('الالتزام الصارم بالنمط (يوم، مرن يومان، متتاليان، مرن 3 أيام).') }}</li>
+                                <li><b>{{ _('اشتراك الأساتذة:') }}</b> {{ _('تطابق أيام العمل للأساتذة "الشركاء" تماماً.') }}</li>
+                                <li><b>{{ _('تنافر الأساتذة:') }}</b> {{ _('منع التقاطع في أيام العمل للأساتذة في قائمة "المنع".') }}</li>
+                                <li style="color: #dc3545; list-style-type: square;"><b>{{ _('جبر النقص:') }}</b> {{ _('النظام يعتبر تغطية نقص الحراس الأولوية الصارمة القصوى.') }}</li>
                             </ul>
                         </td>
                         <td style="padding: 15px; border: 1px solid #ccc; vertical-align: top; background: #fff;">
                             <ul style="margin: 0; padding-right: 20px; line-height: 1.9; color: #333;">
-                                <li><b>توازن العبء (الانحراف):</b> السعي لتقليل الفارق في التعب بين الأساتذة إلى (0.00) بناءً على نقاط القاعات، وهو الهدف الأساسي.</li>
-                                <li><b>كفاءة الحضور (تطابق الأيام):</b> محاولة جعل أيام حراسة الأستاذ هي نفسها أيام امتحان مواده.<br><span style="color: #666; font-size: 13px; background: #f8f9fa; padding: 2px 5px; border-radius: 3px;">(عقوبة: 10 نقاط عن كل يوم يحضر فيه لمادته فقط دون حراسة).</span></li>
-                                <li><b>منع تشتت المواد:</b> السعي لجدولة امتحانات مواد الأستاذ في يومين كحد أقصى.<br><span style="color: #666; font-size: 13px; background: #f8f9fa; padding: 2px 5px; border-radius: 3px;">(عقوبة: 5 نقاط عن كل يوم إضافي بعد اليوم الثاني).</span></li>
+                                <li><b>{{ _('توازن العبء (الانحراف):') }}</b> {{ _('السعي لتقليل الفارق في التعب بين الأساتذة إلى (0.00) بناءً على نقاط القاعات، وهو الهدف الأساسي.') }}</li>
+                                <li><b>{{ _('كفاءة الحضور (تطابق الأيام):') }}</b> {{ _('محاولة جعل أيام حراسة الأستاذ هي نفسها أيام امتحان مواده.') }}<br><span style="color: #666; font-size: 13px; background: #f8f9fa; padding: 2px 5px; border-radius: 3px;">{{ _('(عقوبة: 10 نقاط عن كل يوم يحضر فيه لمادته فقط دون حراسة).') }}</span></li>
+                                <li><b>{{ _('منع تشتت المواد:') }}</b> {{ _('السعي لجدولة امتحانات مواد الأستاذ في يومين كحد أقصى.') }}<br><span style="color: #666; font-size: 13px; background: #f8f9fa; padding: 2px 5px; border-radius: 3px;">{{ _('(عقوبة: 5 نقاط عن كل يوم إضافي بعد اليوم الثاني).') }}</span></li>
                             </ul>
                         </td>
                     </tr>
@@ -281,78 +281,78 @@
 
         <!-- 1. القيود العامة -->
         <div class="section-block" style="background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 20px;">
-            <h3 style="color: #3f51b5; border-bottom: 1px solid #eee; padding-bottom: 10px;">أ. القيود العامة والتنظيمية</h3>
+            <h3 style="color: #3f51b5; border-bottom: 1px solid #eee; padding-bottom: 10px;">{{ _('أ. القيود العامة والتنظيمية') }}</h3>
             
             <label style="display: block; margin: 15px 0; font-weight: bold; cursor: pointer; background: #e8f5e9; padding: 10px; border-radius: 5px;">
                 <input type="checkbox" id="assign-owner-as-guard-checkbox" style="vertical-align: middle;">
-                **إلزامي**: تعيين أستاذ المادة لحراسة آخر مادة له في الجدول
+                {{ _('**إلزامي**: تعيين أستاذ المادة لحراسة آخر مادة له في الجدول') }}
             </label>
 
             <label style="display: block; margin: 15px 0; font-weight: bold; cursor: pointer; background: #e3f2fd; padding: 10px; border-radius: 5px;">
                 <input type="checkbox" id="group-subjects-checkbox" style="vertical-align: middle;" checked>
-                **تفعيل المرحلة 1.5**: محاولة تجميع مواد الأستاذ الواحد في أقل عدد من الأيام
+                {{ _('**تفعيل المرحلة 1.5**: محاولة تجميع مواد الأستاذ الواحد في أقل عدد من الأيام') }}
             </label>
 
             <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-top: 20px;">
                 <div style="flex: 1; min-width: 250px;">
-                    <h5 style="margin-bottom: 10px;">سقف عدد حصص الحراسة لكل أستاذ:</h5>
+                    <h5 style="margin-bottom: 10px;">{{ _('سقف عدد حصص الحراسة لكل أستاذ:') }}</h5>
                     <select id="max-shifts-limit" style="width: 100%; padding: 8px; border-radius: 4px;">
-                        <option value="4">4 حصص</option>
-                        <option value="5">5 حصص</option>
-                        <option value="6">6 حصص</option>
-                        <option value="0" selected>بدون سقف (مطلق)</option>
+                        <option value="4">{{ _('4 حصص') }}</option>
+                        <option value="5">{{ _('5 حصص') }}</option>
+                        <option value="6">{{ _('6 حصص') }}</option>
+                        <option value="0" selected>{{ _('بدون سقف (مطلق)') }}</option>
                     </select>
                 </div>
                 <div style="flex: 1; min-width: 250px;">
-                    <h5 style="margin-bottom: 10px;">الحد الأقصى للحراسة في القاعة الكبيرة:</h5>
+                    <h5 style="margin-bottom: 10px;">{{ _('الحد الأقصى للحراسة في القاعة الكبيرة:') }}</h5>
                     <select id="max-large-hall-shifts" style="width: 100%; padding: 8px; border-radius: 4px;">
-                        <option value="1">مرة واحدة</option>
-                        <option value="2" selected>مرتان</option>
-                        <option value="3">3 مرات</option>
-                        <option value="4">4 مرات</option>
-                        <option value="0">بدون حد</option>
+                        <option value="1">{{ _('مرة واحدة') }}</option>
+                        <option value="2" selected>{{ _('مرتان') }}</option>
+                        <option value="3">{{ _('3 مرات') }}</option>
+                        <option value="4">{{ _('4 مرات') }}</option>
+                        <option value="0">{{ _('بدون حد') }}</option>
                     </select>
                 </div>
             </div>
 
             <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-top: 20px;">
                 <div style="flex: 1; min-width: 250px;">
-                    <h5 style="margin-bottom: 10px;">عدد الحراس المطلوب لكل نوع قاعة:</h5>
+                    <h5 style="margin-bottom: 10px;">{{ _('عدد الحراس المطلوب لكل نوع قاعة:') }}</h5>
                     <div style="display: flex; gap: 10px;">
-                        <label>كبيرة: <input type="number" id="guards-large-hall" value="4" min="1" style="width: 60px; padding: 5px;"></label>
-                        <label>متوسطة: <input type="number" id="guards-medium-hall" value="2" min="1" style="width: 60px; padding: 5px;"></label>
-                        <label>صغيرة: <input type="number" id="guards-small-hall" value="1" min="1" style="width: 60px; padding: 5px;"></label>
+                        <label>{{ _('كبيرة:') }} <input type="number" id="guards-large-hall" value="4" min="1" style="width: 60px; padding: 5px;"></label>
+                        <label>{{ _('متوسطة:') }} <input type="number" id="guards-medium-hall" value="2" min="1" style="width: 60px; padding: 5px;"></label>
+                        <label>{{ _('صغيرة:') }} <input type="number" id="guards-small-hall" value="1" min="1" style="width: 60px; padding: 5px;"></label>
                     </div>
                 </div>
                 <div style="flex: 1; min-width: 250px;">
-                    <h5 style="margin-bottom: 10px;">منع التوزيع في آخر يوم/حصة للامتحانات:</h5>
+                    <h5 style="margin-bottom: 10px;">{{ _('منع التوزيع في آخر يوم/حصة للامتحانات:') }}</h5>
                     <select id="last_day_restriction" style="width: 100%; padding: 8px; border-radius: 4px;">
-                        <option value="none" selected>لا يوجد تقييد</option>
-                        <option value="last_1">منع المواد والحراسة في آخر حصة</option>
-                        <option value="last_2">منع المواد والحراسة في آخر حصتين</option>
-                        <option value="last_3">منع المواد والحراسة في آخر 3 حصص</option>
+                        <option value="none" selected>{{ _('لا يوجد تقييد') }}</option>
+                        <option value="last_1">{{ _('منع المواد والحراسة في آخر حصة') }}</option>
+                        <option value="last_2">{{ _('منع المواد والحراسة في آخر حصتين') }}</option>
+                        <option value="last_3">{{ _('منع المواد والحراسة في آخر 3 حصص') }}</option>
                     </select>
                 </div>
             </div>
             
             <div style="margin-top: 20px;">
-                <h5 style="margin-bottom: 10px;">معايير موازنة الجهد (Workload Weights):</h5>
-                <label>نقاط القاعة الكبيرة: <input type="number" id="large-hall-weight" value="3" min="1" step="0.5" style="width: 60px; padding: 5px;"></label>
-                <label style="margin-right: 20px;">نقاط القاعات الأخرى: <input type="number" id="other-hall-weight" value="1" min="1" step="0.5" style="width: 60px; padding: 5px;"></label>
+                <h5 style="margin-bottom: 10px;">{{ _('معايير موازنة الجهد (Workload Weights):') }}</h5>
+                <label>{{ _('نقاط القاعة الكبيرة:') }} <input type="number" id="large-hall-weight" value="3" min="1" step="0.5" style="width: 60px; padding: 5px;"></label>
+                <label style="margin-right: 20px;">{{ _('نقاط القاعات الأخرى:') }} <input type="number" id="other-hall-weight" value="1" min="1" step="0.5" style="width: 60px; padding: 5px;"></label>
             </div>
         </div>
 
         <!-- 2. قيود الأساتذة الفردية (الأنماط والغيابات) -->
         <div class="section-block" style="background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 20px;">
-            <h3 style="color: #3f51b5; border-bottom: 1px solid #eee; padding-bottom: 10px;">ب. قيود الأساتذة (أنماط الحراسة والأيام غير المتاحة)</h3>
-            <p style="color: #666; font-size: 14px;">ملاحظة: تظهر تواريخ الامتحانات هنا بناءً على ما تم إعداده في المرحلة 4.</p>
+            <h3 style="color: #3f51b5; border-bottom: 1px solid #eee; padding-bottom: 10px;">{{ _('ب. قيود الأساتذة (أنماط الحراسة والأيام غير المتاحة)') }}</h3>
+            <p style="color: #666; font-size: 14px;">{{ _('ملاحظة: تظهر تواريخ الامتحانات هنا بناءً على ما تم إعداده في المرحلة 4.') }}</p>
             <div style="max-height: 400px; overflow-y: auto; border: 1px solid #ccc; border-radius: 5px;">
                 <table style="width: 100%; border-collapse: collapse; text-align: right;">
                     <thead style="background: #f1f1f1; position: sticky; top: 0;">
                         <tr>
-                            <th style="padding: 10px; border-bottom: 1px solid #ddd;">الأستاذ</th>
-                            <th style="padding: 10px; border-bottom: 1px solid #ddd;">نمط أيام الحراسة</th>
-                            <th style="padding: 10px; border-bottom: 1px solid #ddd;">الأيام غير المتاحة (غياب)</th>
+                            <th style="padding: 10px; border-bottom: 1px solid #ddd;">{{ _('الأستاذ') }}</th>
+                            <th style="padding: 10px; border-bottom: 1px solid #ddd;">{{ _('نمط أيام الحراسة') }}</th>
+                            <th style="padding: 10px; border-bottom: 1px solid #ddd;">{{ _('الأيام غير المتاحة (غياب)') }}</th>
                         </tr>
                     </thead>
                     <tbody id="prof-constraints-tbody"></tbody>
@@ -362,63 +362,63 @@
 
         <!-- 3. اشتراك الأساتذة -->
         <div class="section-block" style="background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 20px;">
-            <h3 style="color: #3f51b5; border-bottom: 1px solid #eee; padding-bottom: 10px;">ج. اشتراك الأساتذة (للعمل في نفس الأيام)</h3>
+            <h3 style="color: #3f51b5; border-bottom: 1px solid #eee; padding-bottom: 10px;">{{ _('ج. اشتراك الأساتذة (للعمل في نفس الأيام)') }}</h3>
             <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 15px;">
                 <select id="prof-pair-1" style="padding: 8px; border-radius: 4px; flex: 1; font-weight: bold; color: #1565c0; font-size: 15px; border: 2px solid #bbdefb; background-color: #f8fbff; outline: none;"></select>
                 <span style="font-weight: bold; font-size: 20px; color: #1565c0;">+</span>
                 <select id="prof-pair-2" style="padding: 8px; border-radius: 4px; flex: 1; font-weight: bold; color: #1565c0; font-size: 15px; border: 2px solid #bbdefb; background-color: #f8fbff; outline: none;"></select>
-                <button onclick="addProfPair()" style="background: #007bff; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 14px;">إضافة</button>
+                <button onclick="addProfPair()" style="background: #007bff; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 14px;">{{ _('إضافة') }}</button>
             </div>
             <ul id="prof-pairs-list" style="list-style: none; padding: 0; margin: 0; border: 1px solid #eee; border-radius: 4px;"></ul>
         </div>
 
         <!-- 4. عدم اشتراك الأساتذة -->
         <div class="section-block" style="background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 20px;">
-            <h3 style="color: #dc3545; border-bottom: 1px solid #eee; padding-bottom: 10px;">د. عدم اشتراك الأساتذة (منع العمل في نفس الأيام)</h3>
-            <p style="color: #666; font-size: 14px;">يضمن هذا القيد ألا يعمل هذان الأستاذان في نفس اليوم أبداً (مثال: للتناوب على مهام أخرى).</p>
+            <h3 style="color: #dc3545; border-bottom: 1px solid #eee; padding-bottom: 10px;">{{ _('د. عدم اشتراك الأساتذة (منع العمل في نفس الأيام)') }}</h3>
+            <p style="color: #666; font-size: 14px;">{{ _('يضمن هذا القيد ألا يعمل هذان الأستاذان في نفس اليوم أبداً (مثال: للتناوب على مهام أخرى).') }}</p>
             <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 15px;">
                 <select id="prof-exclusive-1" style="padding: 8px; border-radius: 4px; flex: 1; font-weight: bold; color: #b71c1c; font-size: 15px; border: 2px solid #ffcdd2; background-color: #fffafa; outline: none;"></select>
                 <span style="font-weight: bold; color: #dc3545; font-size: 24px;">-</span>
                 <select id="prof-exclusive-2" style="padding: 8px; border-radius: 4px; flex: 1; font-weight: bold; color: #b71c1c; font-size: 15px; border: 2px solid #ffcdd2; background-color: #fffafa; outline: none;"></select>
-                <button onclick="addExclusivePair()" style="background: #dc3545; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 14px;">إضافة</button>
+                <button onclick="addExclusivePair()" style="background: #dc3545; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 14px;">{{ _('إضافة') }}</button>
             </div>
             <ul id="prof-exclusive-list" style="list-style: none; padding: 0; margin: 0; border: 1px solid #eee; border-radius: 4px;"></ul>
         </div>
 
         <!-- 6. إدارة مجموعات العزل (تشفير الفترات الاحتياطية) -->
         <div class="section-block" style="background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 20px;">
-            <h3 style="color: #343a40; border-bottom: 1px solid #eee; padding-bottom: 10px;">هـ. إدارة مجموعات العزل (تشفير الفترات الاحتياطية)</h3>
+            <h3 style="color: #343a40; border-bottom: 1px solid #eee; padding-bottom: 10px;">{{ _('هـ. إدارة مجموعات العزل (تشفير الفترات الاحتياطية)') }}</h3>
             
             <div class="alert alert-secondary" style="background-color: #f8f9fa; border: 1px solid #ddd; padding: 10px; border-radius: 5px; margin-bottom: 15px;">
-                <strong>💡 القاعدة الذهبية:</strong> أي مستوى تضعه في مجموعة سيقوم باحتكار فترته الاحتياطية لمجموعته فقط، ولن يسمح للغرباء بالدخول.<br>
-                <strong>🃏 المستوى الجوكر:</strong> المستويات التي لا تنتمي لأي مجموعة (حرة) يمكنها الدخول كـ "جوكر" في أي فترة احتياطية لأي مجموعة دون أن تطرد أحداً.
+                <strong>{{ _('💡 القاعدة الذهبية:') }}</strong> {{ _('أي مستوى تضعه في مجموعة سيقوم باحتكار فترته الاحتياطية لمجموعته فقط، ولن يسمح للغرباء بالدخول.') }}<br>
+                <strong>{{ _('🃏 المستوى الجوكر:') }}</strong> {{ _('المستويات التي لا تنتمي لأي مجموعة (حرة) يمكنها الدخول كـ "جوكر" في أي فترة احتياطية لأي مجموعة دون أن تطرد أحداً.') }}
             </div>
             
             <div style="display: flex; gap: 10px; align-items: flex-start; margin-bottom: 20px; flex-wrap: wrap;">
-                <input type="text" id="isolation-group-name" placeholder="اسم المجموعة (مثال: مجموعة السنة الأولى)" style="padding: 12px; border-radius: 5px; border: 2px solid #343a40; flex: 1; min-width: 200px; font-weight: bold; color: #212529; font-size: 15px; outline: none; background-color: #f8f9fa;">
+                <input type="text" id="isolation-group-name" placeholder="{{ _('اسم المجموعة (مثال: مجموعة السنة الأولى)') }}" style="padding: 12px; border-radius: 5px; border: 2px solid #343a40; flex: 1; min-width: 200px; font-weight: bold; color: #212529; font-size: 15px; outline: none; background-color: #f8f9fa;">
                 <div id="isolation-levels-container" style="flex: 3; border: 2px solid #dee2e6; padding: 10px; border-radius: 5px; max-height: 120px; overflow-y: auto; display: flex; flex-wrap: wrap; gap: 8px; background: #fff;">
                     <!-- سيتم حقن مربعات المستويات هنا عبر JS -->
                 </div>
-                <button onclick="addIsolationGroup()" style="background: #343a40; color: white; border: none; padding: 12px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; font-family: inherit; font-size: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: 0.2s;">➕ إنشاء المجموعة</button>
+                <button onclick="addIsolationGroup()" style="background: #343a40; color: white; border: none; padding: 12px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; font-family: inherit; font-size: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: 0.2s;">{{ _('➕ إنشاء المجموعة') }}</button>
             </div>
             
-            <h5 style="margin-bottom: 15px; color: #212529; font-weight: bold; font-size: 16px; border-bottom: 1px dashed #ced4da; padding-bottom: 8px;">🛡️ المجموعات المعزولة حالياً:</h5>
+            <h5 style="margin-bottom: 15px; color: #212529; font-weight: bold; font-size: 16px; border-bottom: 1px dashed #ced4da; padding-bottom: 8px;">{{ _('🛡️ المجموعات المعزولة حالياً:') }}</h5>
             <div id="isolation-groups-list" style="display: flex; flex-wrap: wrap; gap: 15px;"></div>
         </div>
 
         <!-- 5. أداة حساب التوزيع العادل والأنماط المخصصة -->
         <div class="section-block" style="background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 20px;">
-            <h3 style="color: #3f51b5; border-bottom: 1px solid #eee; padding-bottom: 10px;">و. أداة حساب التوزيع العادل والأنماط المخصصة</h3>
+            <h3 style="color: #3f51b5; border-bottom: 1px solid #eee; padding-bottom: 10px;">{{ _('و. أداة حساب التوزيع العادل والأنماط المخصصة') }}</h3>
             
             <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; border: 1px solid #dee2e6; margin-bottom: 20px;">
-                <h4 style="margin-top: 0;">📊 حاسبة التخطيط (محاكاة التوزيع)</h4>
+                <h4 style="margin-top: 0;">{{ _('📊 حاسبة التخطيط (محاكاة التوزيع)') }}</h4>
                 <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
-                    <label>الأساتذة: <input type="number" id="calc-profs" style="width: 70px; padding: 5px;"></label>
-                    <label>حراسات كبيرة: <input type="number" id="calc-large" style="width: 70px; padding: 5px;"></label>
-                    <label>حراسات أخرى: <input type="number" id="calc-other" style="width: 70px; padding: 5px;"></label>
-                    <label>معامل العبء: <input type="number" id="calc-factor" value="2.0" step="0.5" style="width: 70px; padding: 5px;"></label>
-                    <button onclick="autofillCalculator()" style="background: #17a2b8; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer;">⚙️ جلب الأرقام</button>
-                    <button onclick="runCalculator()" style="background: #28a745; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer;">احسب</button>
+                    <label>{{ _('الأساتذة:') }} <input type="number" id="calc-profs" style="width: 70px; padding: 5px;"></label>
+                    <label>{{ _('حراسات كبيرة:') }} <input type="number" id="calc-large" style="width: 70px; padding: 5px;"></label>
+                    <label>{{ _('حراسات أخرى:') }} <input type="number" id="calc-other" style="width: 70px; padding: 5px;"></label>
+                    <label>{{ _('معامل العبء:') }} <input type="number" id="calc-factor" value="2.0" step="0.5" style="width: 70px; padding: 5px;"></label>
+                    <button onclick="autofillCalculator()" style="background: #17a2b8; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer;">{{ _('⚙️ جلب الأرقام') }}</button>
+                    <button onclick="runCalculator()" style="background: #28a745; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer;">{{ _('احسب') }}</button>
                 </div>
                 <div id="calculator-results" style="margin-top: 15px;"></div>
             </div>
@@ -426,20 +426,20 @@
             <div style="background: #fff3cd; padding: 15px; border-radius: 5px; border: 1px solid #ffeeba;">
                 <label style="font-weight: bold; cursor: pointer;">
                     <input type="checkbox" id="enable-custom-targets-checkbox" onchange="toggleCustomTargets()" style="vertical-align: middle;">
-                    تحديد أنماط التوزيع المستهدفة يدوياً (يتجاوز الموازنة التلقائية للخوارزمية)
+                    {{ _('تحديد أنماط التوزيع المستهدفة يدوياً (يتجاوز الموازنة التلقائية للخوارزمية)') }}
                 </label>
                 <div id="custom-targets-controls" style="display: none; margin-top: 15px;">
                     <div style="display: flex; gap: 10px; align-items: center;">
-                        <input type="number" id="custom-target-large" placeholder="حصص كبيرة" style="width: 100px; padding: 5px;">
+                        <input type="number" id="custom-target-large" placeholder="{{ _('حصص كبيرة') }}" style="width: 100px; padding: 5px;">
                         <span>+</span>
-                        <input type="number" id="custom-target-other" placeholder="حصص أخرى" style="width: 100px; padding: 5px;">
-                        <span>لـِ</span>
-                        <input type="number" id="custom-target-prof-count" placeholder="عدد الأساتذة" style="width: 100px; padding: 5px;">
-                        <button onclick="addCustomTarget()" style="background: #007bff; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer;">إضافة النمط</button>
+                        <input type="number" id="custom-target-other" placeholder="{{ _('حصص أخرى') }}" style="width: 100px; padding: 5px;">
+                        <span>{{ _('لـِ') }}</span>
+                        <input type="number" id="custom-target-prof-count" placeholder="{{ _('عدد الأساتذة') }}" style="width: 100px; padding: 5px;">
+                        <button onclick="addCustomTarget()" style="background: #007bff; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer;">{{ _('إضافة النمط') }}</button>
                     </div>
                     <table style="width: 100%; border-collapse: collapse; margin-top: 15px; background: #fff; text-align: center;">
                         <thead style="background: #f1f1f1;">
-                            <tr><th>عدد الأساتذة</th><th>النمط</th><th>حذف</th></tr>
+                            <tr><th>{{ _('عدد الأساتذة') }}</th><th>{{ _('النمط') }}</th><th>{{ _('حذف') }}</th></tr>
                         </thead>
                         <tbody id="custom-targets-tbody"></tbody>
                     </table>
@@ -452,22 +452,22 @@
     </div>
 
     <div id="tab6" class="tab-content">
-        <h2>المرحلة 6: التوليد وعرض الجداول</h2>
+        <h2>{{ _('المرحلة 6: التوليد وعرض الجداول') }}</h2>
         
         <div class="section-block" style="background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 20px;">
-            <h3 style="color: #3f51b5; border-bottom: 1px solid #eee; padding-bottom: 10px;">⚙️ اختيار وإعداد الخوارزميات (Pipeline)</h3>
-            <p style="color: #666; font-size: 14px; margin-bottom: 15px;">يمكنك اختيار خوارزمية واحدة أو دمج عدة خوارزميات لتعمل بشكل متسلسل (مثلاً: استخدام LNS لجبر النقص، ثم VNS لتقليل الانحراف).</p>
+            <h3 style="color: #3f51b5; border-bottom: 1px solid #eee; padding-bottom: 10px;">{{ _('⚙️ اختيار وإعداد الخوارزميات (Pipeline)') }}</h3>
+            <p style="color: #666; font-size: 14px; margin-bottom: 15px;">{{ _('يمكنك اختيار خوارزمية واحدة أو دمج عدة خوارزميات لتعمل بشكل متسلسل (مثلاً: استخدام LNS لجبر النقص، ثم VNS لتقليل الانحراف).') }}</p>
             
             <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 20px;">
                 <!-- 🌟 التعديل هنا: نقلنا كلمة checked إلى المحرك الشامل 🌟 -->
                 <label style="background: #e8f5e9; padding: 10px 15px; border-radius: 5px; border: 1px solid #c8e6c9; cursor: pointer; font-weight: bold; flex: 1;">
-                    <input type="checkbox" id="chk-unified" value="unified" onchange="toggleAlgoSettings('unified')" checked> المحرك الشامل (Unified LNS)
+                    <input type="checkbox" id="chk-unified" value="unified" onchange="toggleAlgoSettings('unified')" checked> {{ _('المحرك الشامل (Unified LNS)') }}
                 </label>
                 <label style="background: #e3f2fd; padding: 10px 15px; border-radius: 5px; border: 1px solid #bbdefb; cursor: pointer; font-weight: bold; flex: 1;">
-                    <input type="checkbox" id="chk-lns" value="lns" onchange="toggleAlgoSettings('lns')"> البحث الجواري الواسع (LNS)
+                    <input type="checkbox" id="chk-lns" value="lns" onchange="toggleAlgoSettings('lns')"> {{ _('البحث الجواري الواسع (LNS)') }}
                 </label>
                 <label style="background: #fff3e0; padding: 10px 15px; border-radius: 5px; border: 1px solid #ffe0b2; cursor: pointer; font-weight: bold; flex: 1;">
-                    <input type="checkbox" id="chk-vns" value="vns" onchange="toggleAlgoSettings('vns')"> البحث الجواري المتغير (VNS)
+                    <input type="checkbox" id="chk-vns" value="vns" onchange="toggleAlgoSettings('vns')"> {{ _('البحث الجواري المتغير (VNS)') }}
                 </label>
             </div>
 
@@ -475,54 +475,54 @@
             <div id="algo-settings" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; background: #f8f9fa; padding: 15px; border-radius: 5px; border: 1px solid #ddd;">
                 <!-- 🌟 التعديل هنا: جعلنا إعدادات المحرك الشامل display: block وإعدادات LNS display: none 🌟 -->
                 <div id="setting-unified" style="display: block; background: #fff; padding: 10px; border-radius: 5px; border-right: 4px solid #4caf50;">
-                    <h4 style="margin: 0 0 10px 0; color: #2e7d32;">إعدادات المحرك الشامل</h4>
-                    <label style="display: block; margin-bottom: 5px; font-size: 13px;">الدورات: <input type="number" id="unified-iter" value="300" style="width: 60px; padding: 3px;"></label>
-                    <label style="display: block; font-size: 13px;">نسبة التدمير: <input type="number" id="unified-destroy" value="0.2" step="0.05" style="width: 60px; padding: 3px;"></label>
+                    <h4 style="margin: 0 0 10px 0; color: #2e7d32;">{{ _('إعدادات المحرك الشامل') }}</h4>
+                    <label style="display: block; margin-bottom: 5px; font-size: 13px;">{{ _('الدورات:') }} <input type="number" id="unified-iter" value="300" style="width: 60px; padding: 3px;"></label>
+                    <label style="display: block; font-size: 13px;">{{ _('نسبة التدمير:') }} <input type="number" id="unified-destroy" value="0.2" step="0.05" style="width: 60px; padding: 3px;"></label>
                 </div>
                 <div id="setting-lns" style="display: none; background: #fff; padding: 10px; border-radius: 5px; border-right: 4px solid #2196f3;">
-                    <h4 style="margin: 0 0 10px 0; color: #1565c0;">إعدادات LNS</h4>
-                    <label style="display: block; margin-bottom: 5px; font-size: 13px;">الدورات: <input type="number" id="lns-iter" value="100" style="width: 60px; padding: 3px;"></label>
-                    <label style="display: block; font-size: 13px;">نسبة التدمير: <input type="number" id="lns-destroy" value="0.2" step="0.05" style="width: 60px; padding: 3px;"></label>
+                    <h4 style="margin: 0 0 10px 0; color: #1565c0;">{{ _('إعدادات LNS') }}</h4>
+                    <label style="display: block; margin-bottom: 5px; font-size: 13px;">{{ _('الدورات:') }} <input type="number" id="lns-iter" value="100" style="width: 60px; padding: 3px;"></label>
+                    <label style="display: block; font-size: 13px;">{{ _('نسبة التدمير:') }} <input type="number" id="lns-destroy" value="0.2" step="0.05" style="width: 60px; padding: 3px;"></label>
                 </div>
                 <div id="setting-vns" style="display: none; background: #fff; padding: 10px; border-radius: 5px; border-right: 4px solid #ff9800;">
-                    <h4 style="margin: 0 0 10px 0; color: #ef6c00;">إعدادات VNS</h4>
-                    <label style="display: block; margin-bottom: 5px; font-size: 13px;">الدورات: <input type="number" id="vns-iter" value="100" style="width: 60px; padding: 3px;"></label>
-                    <label style="display: block; font-size: 13px;">حجم الجوار (K): <input type="number" id="vns-k" value="25" style="width: 60px; padding: 3px;"></label>
+                    <h4 style="margin: 0 0 10px 0; color: #ef6c00;">{{ _('إعدادات VNS') }}</h4>
+                    <label style="display: block; margin-bottom: 5px; font-size: 13px;">{{ _('الدورات:') }} <input type="number" id="vns-iter" value="100" style="width: 60px; padding: 3px;"></label>
+                    <label style="display: block; font-size: 13px;">{{ _('حجم الجوار (K):') }} <input type="number" id="vns-k" value="25" style="width: 60px; padding: 3px;"></label>
                 </div>
             </div>
 
             <div style="display: flex; gap: 15px; align-items: center; margin: 20px 0; justify-content: center;">
-                <button id="btn-start-gen" onclick="startGeneration()" style="background: #28a745; color: white; border: none; padding: 15px 40px; border-radius: 4px; font-weight: bold; font-size: 18px; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.2);">🚀 بدء التوليد والتسلسل</button>
-                <button id="btn-stop-gen" onclick="stopGeneration()" style="background: #dc3545; color: white; border: none; padding: 15px 40px; border-radius: 4px; font-weight: bold; font-size: 18px; cursor: pointer; display: none;">🛑 إيقاف الخوارزمية</button>
+                <button id="btn-start-gen" onclick="startGeneration()" style="background: #28a745; color: white; border: none; padding: 15px 40px; border-radius: 4px; font-weight: bold; font-size: 18px; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.2);">{{ _('🚀 بدء التوليد والتسلسل') }}</button>
+                <button id="btn-stop-gen" onclick="stopGeneration()" style="background: #dc3545; color: white; border: none; padding: 15px 40px; border-radius: 4px; font-weight: bold; font-size: 18px; cursor: pointer; display: none;">{{ _('🛑 إيقاف الخوارزمية') }}</button>
             </div>
             
             <!-- قسم التوزيع اليدوي للمواد -->
             <div class="section-block" style="background: #e9ecef; padding: 15px; border-radius: 8px; margin: 20px 0; text-align: center; border: 1px dashed #adb5bd;">
-                <h4 style="margin-top: 0; color: #3f51b5;">التوزيع اليدوي للمواد (اختياري)</h4>
-                <p style="color: #666; font-size: 14px;">يتيح لك هذا الخيار تصدير مخطط مبدئي للمواد، تعديله يدوياً في Excel، ثم إعادة استيراده لتثبيته قبل توليد الحراسة.</p>
+                <h4 style="margin-top: 0; color: #3f51b5;">{{ _('التوزيع اليدوي للمواد (اختياري)') }}</h4>
+                <p style="color: #666; font-size: 14px;">{{ _('يتيح لك هذا الخيار تصدير مخطط مبدئي للمواد، تعديله يدوياً في Excel، ثم إعادة استيراده لتثبيته قبل توليد الحراسة.') }}</p>
                 <div style="display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;">
-                    <button id="export-manual-dist-btn" class="action-button" style="background-color: #5c6bc0; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-weight: bold;">📤 تصدير مخطط المواد</button>
-                    <button id="import-manual-dist-btn" class="action-button" style="background-color: #26a69a; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-weight: bold;">📥 استيراد المخطط</button>
-                    <button id="clear-manual-dist-btn" class="action-button" style="background-color: #6c757d; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-weight: bold;">🔄 العودة للوضع التلقائي</button>
+                    <button id="export-manual-dist-btn" class="action-button" style="background-color: #5c6bc0; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-weight: bold;">{{ _('📤 تصدير مخطط المواد') }}</button>
+                    <button id="import-manual-dist-btn" class="action-button" style="background-color: #26a69a; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-weight: bold;">{{ _('📥 استيراد المخطط') }}</button>
+                    <button id="clear-manual-dist-btn" class="action-button" style="background-color: #6c757d; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-weight: bold;">{{ _('🔄 العودة للوضع التلقائي') }}</button>
                 </div>
                 <input type="file" id="import-manual-dist-input" style="display: none;" accept=".xlsx">
                 <p id="manual-dist-status" style="margin-top: 10px; font-weight: bold; color: green;"></p>
             </div>
 
-            <h4 style="margin-bottom: 5px; color: #555;">🖥️ شاشة المراقبة الحية:</h4>
+            <h4 style="margin-bottom: 5px; color: #555;">{{ _('🖥️ شاشة المراقبة الحية:') }}</h4>
             <div style="background: #000; color: #0f0; font-family: monospace; padding: 15px; border-radius: 5px; height: 300px; overflow-y: auto; direction: rtl; text-align: center; line-height: 1.8; font-size: 16px; font-weight: bold;" id="live-log-box">
-[System Ready] قم بضبط الإعدادات واضغط بدء التوليد...
+{{ _('[System Ready] قم بضبط الإعدادات واضغط بدء التوليد...') }}
             </div>
 
             <div id="violation-report-container" style="display: none; margin-top: 20px; border: 1px solid #ddd; border-radius: 5px; background: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-                <h3 style="margin: 0; padding: 10px 15px; background: #f8f9fa; border-bottom: 1px solid #ddd; font-size: 16px; color: #333;">📊 تقرير الأخطاء والملاحظات بعد التوليد</h3>
+                <h3 style="margin: 0; padding: 10px 15px; background: #f8f9fa; border-bottom: 1px solid #ddd; font-size: 16px; color: #333;">{{ _('📊 تقرير الأخطاء والملاحظات بعد التوليد') }}</h3>
                 <div style="padding: 15px; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px;">
                     <div style="background: #ffebee; border: 1px solid #ffcdd2; border-radius: 5px; padding: 10px;">
-                        <h4 style="color: #c62828; margin-top: 0; margin-bottom: 10px; font-size: 14px;">🔴 أخطاء صارمة ونقص (يجب الانتباه لها)</h4>
+                        <h4 style="color: #c62828; margin-top: 0; margin-bottom: 10px; font-size: 14px;">{{ _('🔴 أخطاء صارمة ونقص (يجب الانتباه لها)') }}</h4>
                         <ul id="strict-errors-list" style="margin: 0; padding-right: 20px; font-size: 14px; color: #b71c1c; line-height: 1.6;"></ul>
                     </div>
                     <div style="background: #fff8e1; border: 1px solid #ffecb3; border-radius: 5px; padding: 10px;">
-                        <h4 style="color: #f57f17; margin-top: 0; margin-bottom: 10px; font-size: 14px;">🟠 ملاحظات مرنة (تجاوزات إدارية)</h4>
+                        <h4 style="color: #f57f17; margin-top: 0; margin-bottom: 10px; font-size: 14px;">{{ _('🟠 ملاحظات مرنة (تجاوزات إدارية)') }}</h4>
                         <ul id="soft-warnings-list" style="margin: 0; padding-right: 20px; font-size: 14px; color: #e65100; line-height: 1.6;"></ul>
                     </div>
                 </div>
@@ -531,22 +531,22 @@
             <div id="generation-results-area" style="margin-top: 30px; display: none;">
                 
                 <!-- 1. شريط العنوان وأزرار التصدير الثلاثة فقط -->
-                <h3 style="color: #3f51b5; border-bottom: 2px solid #3f51b5; padding-bottom: 5px;">🎉 النتائج النهائية:</h3>
+                <h3 style="color: #3f51b5; border-bottom: 2px solid #3f51b5; padding-bottom: 5px;">{{ _('🎉 النتائج النهائية:') }}</h3>
                 
                 <!-- ✨ صندوق اختيار لغة التصدير ✨ -->
                 <div style="margin: 0 0 20px 0; display: inline-flex; flex-wrap: wrap; align-items: center; gap: 20px; background: #e8f4f8; padding: 10px 20px; border-radius: 6px; border: 1px solid #3498db; width: 100%; box-sizing: border-box;">
-                    <strong style="color: #2c3e50;">🌐 لغة التصدير (Export Language):</strong>
+                    <strong style="color: #2c3e50;">{{ _('🌐 لغة التصدير (Export Language):') }}</strong>
                     <label style="cursor: pointer; font-weight: bold; color: #2980b9; display: flex; align-items: center; gap: 5px;">
                         <input type="radio" name="export_lang" value="ar" checked style="transform: scale(1.2); margin: 0;">
-                        <span>العربية</span>
+                        <span>{{ _('العربية') }}</span>
                     </label>
                     <label style="cursor: pointer; font-weight: bold; color: #27ae60; display: flex; align-items: center; gap: 5px; direction: ltr;">
                         <input type="radio" name="export_lang" value="en" style="transform: scale(1.2); margin: 0;">
-                        <span>English</span>
+                        <span>{{ _('English') }}</span>
                     </label>
                     <label style="cursor: pointer; font-weight: bold; color: #8e44ad; display: flex; align-items: center; gap: 5px; direction: ltr;">
                         <input type="radio" name="export_lang" value="fr" style="transform: scale(1.2); margin: 0;">
-                        <span>Français</span>
+                        <span>{{ _('Français') }}</span>
                     </label>
                 </div>
                 <!-- ✨ نهاية صندوق اللغة ✨ -->
@@ -555,41 +555,41 @@
                     
                     <!-- المجموعة الأولى (أقصى اليمين): أزرار التصدير الثلاثة -->
                     <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                        <button id="export-schedule-word-button" class="action-button" style="background-color: #2a5599; color: white; border: none; padding: 10px 15px; border-radius: 4px; font-weight: bold; cursor: pointer;">تصدير الامتحانات (Word)</button>
-                        <button id="export-prof-word-button" class="action-button" style="background-color: #2a5599; color: white; border: none; padding: 10px 15px; border-radius: 4px; font-weight: bold; cursor: pointer;">تصدير الأساتذة (Word)</button>
-                        <button id="export-prof-anonymous-word-button" class="action-button" style="background-color: #5a9955; color: white; border: none; padding: 10px 15px; border-radius: 4px; font-weight: bold; cursor: pointer;">تصدير الأساتذة (مُبسَّط)</button>
+                        <button id="export-schedule-word-button" class="action-button" style="background-color: #2a5599; color: white; border: none; padding: 10px 15px; border-radius: 4px; font-weight: bold; cursor: pointer;">{{ _('تصدير الامتحانات (Word)') }}</button>
+                        <button id="export-prof-word-button" class="action-button" style="background-color: #2a5599; color: white; border: none; padding: 10px 15px; border-radius: 4px; font-weight: bold; cursor: pointer;">{{ _('تصدير الأساتذة (Word)') }}</button>
+                        <button id="export-prof-anonymous-word-button" class="action-button" style="background-color: #5a9955; color: white; border: none; padding: 10px 15px; border-radius: 4px; font-weight: bold; cursor: pointer;">{{ _('تصدير الأساتذة (مُبسَّط)') }}</button>
                     </div>
 
                     <!-- المجموعة الثانية (أقصى اليسار): أزرار النشر والسحب -->
                     <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                        <button id="publish-schedule-button" class="action-button" onclick="publishExamSchedule()" style="background-color: #ff9800; color: white; border: none; padding: 10px 15px; border-radius: 4px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">📢 نشر الجدول للأساتذة</button>
-                        <button id="unpublish-schedule-button" class="action-button" onclick="unpublishExamSchedule()" style="background-color: #e74c3c; color: white; border: none; padding: 10px 15px; border-radius: 4px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">🚫 سحب الجداول</button>
+                        <button id="publish-schedule-button" class="action-button" onclick="publishExamSchedule()" style="background-color: #ff9800; color: white; border: none; padding: 10px 15px; border-radius: 4px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">{{ _('📢 نشر الجدول للأساتذة') }}</button>
+                        <button id="unpublish-schedule-button" class="action-button" onclick="unpublishExamSchedule()" style="background-color: #e74c3c; color: white; border: none; padding: 10px 15px; border-radius: 4px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">{{ _('🚫 سحب الجداول') }}</button>
                     </div>
 
                 </div>
 
                 <!-- 2. شريط البحث -->
                 <div id="results-search-container" style="margin-bottom: 20px;">
-                    <input type="text" id="results-search-input" placeholder="🔍 ابحث عن اسم أستاذ أو مادة لتظليلها في الجداول..." style="width: 100%; padding: 10px; border-radius: 4px; border: 1px solid #ccc; font-weight: bold;">
+                    <input type="text" id="results-search-input" placeholder="{{ _('🔍 ابحث عن اسم أستاذ أو مادة لتظليلها في الجداول...') }}" style="width: 100%; padding: 10px; border-radius: 4px; border: 1px solid #ccc; font-weight: bold;">
                 </div>
 
                 <div id="balance-report-area"></div>
                 
                 <!-- 3. لوحة الإحصائيات -->
                 <div id="stats-dashboard-container" style="display: none; margin-bottom: 30px;">
-                    <h3 style="color: #3f51b5; border-bottom: 2px solid #3f51b5; padding-bottom: 5px;">📊 لوحة المعلومات الإحصائية</h3>
+                    <h3 style="color: #3f51b5; border-bottom: 2px solid #3f51b5; padding-bottom: 5px;">{{ _('📊 لوحة المعلومات الإحصائية') }}</h3>
                     <div id="stats-dashboard" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;"></div>
                 </div>
 
                 <!-- 3. لوحة الإحصائيات -->
                 <div id="stats-dashboard-container" style="display: none; margin-bottom: 30px;">
-                    <h3 style="color: #3f51b5; border-bottom: 2px solid #3f51b5; padding-bottom: 5px;">📊 لوحة المعلومات الإحصائية</h3>
+                    <h3 style="color: #3f51b5; border-bottom: 2px solid #3f51b5; padding-bottom: 5px;">{{ _('📊 لوحة المعلومات الإحصائية') }}</h3>
                     <div id="stats-dashboard" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;"></div>
                 </div>
 
                 <!-- 👇 الحاوية الجديدة للرسم البياني 👇 -->
                 <div id="chart-container" style="width: 100%; height: 400px; margin: 40px auto; display: none; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); box-sizing: border-box;">
-                    <h3 style="text-align: center; color: #3f51b5; margin-top: 0;">📈 رسم بياني لتوزيع عبء الحراسة</h3>
+                    <h3 style="text-align: center; color: #3f51b5; margin-top: 0;">{{ _('📈 رسم بياني لتوزيع عبء الحراسة') }}</h3>
                     <canvas id="workload-chart"></canvas>
                 </div>
 
@@ -602,47 +602,47 @@
 
     <!-- المرحلة 7: إدارة النظام والنسخ الاحتياطي -->
     <div id="tab7" class="tab-content">
-        <h2>المرحلة 7: غرفة التحكم المركزية (الاستيراد، النشر، والنسخ الاحتياطي)</h2>
-        <p style="font-size: 14px; color: #7f8c8d; margin-bottom: 20px;">هذه المساحة مخصصة لإدارة قاعدة البيانات، رفع التعديلات اليدوية النهائية عبر الإكسل، ونشر جداول الحراسة للأساتذة.</p>
+        <h2>{{ _('المرحلة 7: غرفة التحكم المركزية (الاستيراد، النشر، والنسخ الاحتياطي)') }}</h2>
+        <p style="font-size: 14px; color: #7f8c8d; margin-bottom: 20px;">{{ _('هذه المساحة مخصصة لإدارة قاعدة البيانات، رفع التعديلات اليدوية النهائية عبر الإكسل، ونشر جداول الحراسة للأساتذة.') }}</p>
 
         <div style="display: flex; gap: 20px; flex-wrap: wrap;">
             
             <div style="flex: 1; min-width: 300px; background: #fffdf5; padding: 25px; border-radius: 8px; border: 2px solid #f1c40f; text-align: right; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
-                <h3 style="margin-top: 0; color: #d35400; border-bottom: 2px solid #f1c40f; padding-bottom: 10px;">💾 إدارة قاعدة البيانات (.json)</h3>
+                <h3 style="margin-top: 0; color: #d35400; border-bottom: 2px solid #f1c40f; padding-bottom: 10px;">{{ _('💾 إدارة قاعدة البيانات (.json)') }}</h3>
                 
                 <div style="margin-bottom: 15px;">
-                    <strong style="display: block; color: #2c3e50; margin-bottom: 5px;">📥 تحميل البيانات من الموقع:</strong>
-                    <button id="backup-btn" style="width: 100%; background: #f39c12; color: white; padding: 10px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; font-family: inherit; font-size: 14px; transition: 0.3s;">تحميل نسخة احتياطية للقسم (.json)</button>
+                    <strong style="display: block; color: #2c3e50; margin-bottom: 5px;">{{ _('📥 تحميل البيانات من الموقع:') }}</strong>
+                    <button id="backup-btn" style="width: 100%; background: #f39c12; color: white; padding: 10px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; font-family: inherit; font-size: 14px; transition: 0.3s;">{{ _('تحميل نسخة احتياطية للقسم (.json)') }}</button>
                 </div>
                 
                 <div style="padding-top: 15px; border-top: 1px dashed #f1c40f;">
-                    <strong style="display: block; color: #2c3e50; margin-bottom: 5px;">📤 رفع واستعادة البيانات:</strong>
+                    <strong style="display: block; color: #2c3e50; margin-bottom: 5px;">{{ _('📤 رفع واستعادة البيانات:') }}</strong>
                     <input type="file" id="restore-file-input" accept=".json" style="display: block; margin-bottom: 10px; padding: 6px; border: 1px dashed #d35400; width: 90%; background: #fff; border-radius: 4px;">
-                    <button id="restore-btn" style="width: 100%; background: #d35400; color: white; padding: 10px; border: none; border-radius: 4px; cursor: pointer; font-family: inherit; font-weight: bold; font-size: 14px;">رفع واستعادة البيانات (.json)</button>
+                    <button id="restore-btn" style="width: 100%; background: #d35400; color: white; padding: 10px; border: none; border-radius: 4px; cursor: pointer; font-family: inherit; font-weight: bold; font-size: 14px;">{{ _('رفع واستعادة البيانات (.json)') }}</button>
                 </div>
             </div>
 
             <div style="flex: 1; min-width: 300px; background: #f4fdf8; padding: 25px; border-radius: 8px; border: 2px solid #2ecc71; text-align: right; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
-                <h3 style="margin-top: 0; color: #27ae60; border-bottom: 2px solid #2ecc71; padding-bottom: 10px;">⬆️ التعديل اليدوي والنشر (للأساتذة)</h3>
+                <h3 style="margin-top: 0; color: #27ae60; border-bottom: 2px solid #2ecc71; padding-bottom: 10px;">{{ _('⬆️ التعديل اليدوي والنشر (للأساتذة)') }}</h3>
                 
                 <div style="margin-bottom: 15px;">
-                    <strong style="display: block; color: #2c3e50; margin-bottom: 5px;">📥 تصدير الجدول النهائي (Excel):</strong>
-                    <p style="font-size: 12px; color: #555; margin-bottom: 10px;">حمل الجدول النهائي لتعديل الحراس والقاعات يدوياً.</p>
-                    <button id="export-final-excel-btn" style="width: 100%; background: #207245; color: white; padding: 10px; border: none; border-radius: 4px; font-weight: bold; font-family: inherit; cursor: pointer;">تصدير الجدول النهائي (Excel)</button>
+                    <strong style="display: block; color: #2c3e50; margin-bottom: 5px;">{{ _('📥 تصدير الجدول النهائي (Excel):') }}</strong>
+                    <p style="font-size: 12px; color: #555; margin-bottom: 10px;">{{ _('حمل الجدول النهائي لتعديل الحراس والقاعات يدوياً.') }}</p>
+                    <button id="export-final-excel-btn" style="width: 100%; background: #207245; color: white; padding: 10px; border: none; border-radius: 4px; font-weight: bold; font-family: inherit; cursor: pointer;">{{ _('تصدير الجدول النهائي (Excel)') }}</button>
                 </div>
 
                 <div style="padding-top: 15px; border-top: 1px dashed #2ecc71; margin-bottom: 15px;">
-                    <strong style="display: block; color: #2c3e50; margin-bottom: 5px;">📂 استيراد الجدول المُعدل:</strong>
+                    <strong style="display: block; color: #2c3e50; margin-bottom: 5px;">{{ _('📂 استيراد الجدول المُعدل:') }}</strong>
                     <input type="file" id="import-final-excel-file" accept=".xlsx" style="display: block; margin-bottom: 10px; padding: 8px; border: 1px dashed #27ae60; width: 90%; background: #fff; border-radius: 4px;">
-                    <button id="import-final-excel-btn" style="width: 100%; background: #27ae60; color: white; padding: 10px; border: none; border-radius: 4px; font-weight: bold; font-family: inherit; cursor: pointer;">استيراد الجداول (Excel)</button>
+                    <button id="import-final-excel-btn" style="width: 100%; background: #27ae60; color: white; padding: 10px; border: none; border-radius: 4px; font-weight: bold; font-family: inherit; cursor: pointer;">{{ _('استيراد الجداول (Excel)') }}</button>
                 </div>
 
                 <div style="padding-top: 15px; border-top: 1px dashed #2ecc71; display: flex; gap: 10px;">
                     <div style="flex: 1;">
-                        <button onclick="publishExamSchedule()" style="width: 100%; background: #3498db; color: white; padding: 12px; border: none; border-radius: 4px; cursor: pointer; font-family: inherit; font-weight: bold;">📢 إرسال للأساتذة</button>
+                        <button onclick="publishExamSchedule()" style="width: 100%; background: #3498db; color: white; padding: 12px; border: none; border-radius: 4px; cursor: pointer; font-family: inherit; font-weight: bold;">{{ _('📢 إرسال للأساتذة') }}</button>
                     </div>
                     <div style="flex: 1;">
-                        <button onclick="unpublishExamSchedule()" style="width: 100%; background: #7f8c8d; color: white; padding: 12px; border: none; border-radius: 4px; cursor: pointer; font-family: inherit; font-weight: bold;">🔕 سحب الجداول</button>
+                        <button onclick="unpublishExamSchedule()" style="width: 100%; background: #7f8c8d; color: white; padding: 12px; border: none; border-radius: 4px; cursor: pointer; font-family: inherit; font-weight: bold;">{{ _('🔕 سحب الجداول') }}</button>
                     </div>
                 </div>
             </div>
@@ -650,19 +650,19 @@
         </div>
 
         <div style="margin-top: 30px; padding: 25px; border: 2px dashed #e74c3c; border-radius: 8px; background-color: #fdf2f2; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.02);">
-            <h3 style="color: #c0392b; margin-top: 0; margin-bottom: 10px;">⚠️ منطقة الحذر</h3>
-            <p style="color: #7f8c8d; font-size: 14px; margin-bottom: 20px;">استخدم هذا الزر فقط إذا أردت مسح كل بيانات الامتحانات للعودة لنقطة الصفر وبدء سداسي جديد.</p>
-            <button id="reset-all-btn" style="background: #c0392b; color: white; padding: 12px 30px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 16px; font-family: inherit; transition: 0.3s; box-shadow: 0 4px 10px rgba(192, 57, 43, 0.2);">⚠️ ضبط المصنع (مسح شامل)</button>
+            <h3 style="color: #c0392b; margin-top: 0; margin-bottom: 10px;">{{ _('⚠️ منطقة الحذر') }}</h3>
+            <p style="color: #7f8c8d; font-size: 14px; margin-bottom: 20px;">{{ _('استخدم هذا الزر فقط إذا أردت مسح كل بيانات الامتحانات للعودة لنقطة الصفر وبدء سداسي جديد.') }}</p>
+            <button id="reset-all-btn" style="background: #c0392b; color: white; padding: 12px 30px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 16px; font-family: inherit; transition: 0.3s; box-shadow: 0 4px 10px rgba(192, 57, 43, 0.2);">{{ _('⚠️ ضبط المصنع (مسح شامل)') }}</button>
         </div>
     </div>
 
     <script>
         function syncFromTeachingSystem(event) {
-            if(!confirm("⚠️ هل أنت متأكد من سحب البيانات من نظام التدريس؟\nسيتم استيراد الأساتذة، المستويات، والمواد بشكل ذكي وتجنب التكرار.")) return;
+            if(!confirm("{{ _('⚠️ هل أنت متأكد من سحب البيانات من نظام التدريس؟\\nسيتم استيراد الأساتذة، المستويات، والمواد بشكل ذكي وتجنب التكرار.') }}")) return;
 
             const btn = event.target;
             const originalText = btn.innerHTML;
-            btn.innerHTML = "⏳ جاري السحب والمزامنة...";
+            btn.innerHTML = "{{ _('⏳ جاري السحب والمزامنة...') }}";
             btn.disabled = true;
 
             fetch('/exams/api/sync-from-teaching', { method: 'POST' })
@@ -671,16 +671,16 @@
                 btn.innerHTML = originalText;
                 btn.disabled = false;
                 if(data.success) {
-                    alert(`✅ تم الاستيراد بنجاح!\n👨‍🏫 أساتذة جدد: ${data.added_profs}\n📚 مستويات جديدة: ${data.added_levels}\n📝 مواد جديدة: ${data.added_subjects}\n🔗 إسنادات جديدة: ${data.added_assignments}`);
+                    alert("{{ _('✅ تم الاستيراد بنجاح!') }}\n{{ _('👨‍🏫 أساتذة جدد:') }} " + data.added_profs + "\n{{ _('📚 مستويات جديدة:') }} " + data.added_levels + "\n{{ _('📝 مواد جديدة:') }} " + data.added_subjects + "\n{{ _('🔗 إسنادات جديدة:') }} " + data.added_assignments);
                     window.location.reload();
                 } else {
-                    alert("❌ خطأ: " + data.error);
+                    alert("{{ _('❌ خطأ: ') }}" + data.error);
                 }
             })
             .catch(err => {
                 btn.innerHTML = originalText;
                 btn.disabled = false;
-                alert("حدث خطأ في الاتصال بالخادم.");
+                alert("{{ _('حدث خطأ في الاتصال بالخادم.') }}");
             });
         }
     </script>

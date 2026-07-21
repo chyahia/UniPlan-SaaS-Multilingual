@@ -21,12 +21,15 @@ function loadInitialScheduleData() {
     });
 }
 
-// دالة مساعدة لمعرفة اسم اليوم بالعربية
+// دالة مساعدة لمعرفة اسم اليوم باللغة المحددة
 function getArabicDayName(dateString) {
-    if (!dateString) return "يوم جديد";
+    if (!dateString) return _t("يوم جديد");
     const date = new Date(dateString);
-    if (isNaN(date)) return "يوم غير محدد";
-    return date.toLocaleDateString('ar-EG', { weekday: 'long' });
+    if (isNaN(date)) return _t("يوم غير محدد");
+    
+    // استخدام لغة الصفحة الحالية لتوليد اسم اليوم بشكل ديناميكي
+    const currentLang = document.documentElement.lang || 'ar';
+    return date.toLocaleDateString(currentLang, { weekday: 'long' });
 }
 
 function setupExamScheduleBuilder() { 
@@ -72,7 +75,7 @@ function addExamDayUI() {
     const tabBtn = document.createElement('button');
     tabBtn.id = `tab-btn-${dayId}`;
     tabBtn.className = 'day-tab-btn';
-    tabBtn.innerText = `يوم جديد`;
+    tabBtn.innerText = _t('يوم جديد');
     tabBtn.style.cssText = 'padding: 8px 15px; border: none; background: #e0e0e0; color: #333; cursor: pointer; border-radius: 5px 5px 0 0; font-weight: bold; white-space: nowrap;';
     tabBtn.onclick = (e) => { e.preventDefault(); activateDayTab(dayId); };
     tabsBar.appendChild(tabBtn);
@@ -86,16 +89,16 @@ function addExamDayUI() {
     dayDiv.innerHTML = `
         <div class="exam-day-header">
             <div style="display: flex; align-items: center; gap: 15px;">
-                <label style="font-weight: bold; color: #3f51b5;">التاريخ:</label>
+                <label style="font-weight: bold; color: #3f51b5;">${_t('التاريخ:')}</label>
                 <input type="date" class="exam-date-input" required style="border: 2px solid #3f51b5; padding: 8px; border-radius: 4px; font-weight:bold;">
             </div>
             <div>
-                <button class="duplicate-day-btn" title="تكرار هذا اليوم مع فتراته">🔄</button>
-                <button class="remove-day-btn" title="حذف هذا اليوم">&times;</button>
+                <button class="duplicate-day-btn" title="${_t('تكرار هذا اليوم مع فتراته')}">🔄</button>
+                <button class="remove-day-btn" title="${_t('حذف هذا اليوم')}">&times;</button>
             </div>
         </div>
         <div class="time-slots-container"></div>
-        <button class="add-timeslot-button" style="width: 100%; padding: 8px; background-color: #6c757d; color: white; border: none; border-radius: 4px; margin-top: 10px; cursor: pointer;">+ إضافة فترة زمنية</button>
+        <button class="add-timeslot-button" style="width: 100%; padding: 8px; background-color: #6c757d; color: white; border: none; border-radius: 4px; margin-top: 10px; cursor: pointer;">${_t('+ إضافة فترة زمنية')}</button>
     `;
     
     // تحديث اسم التبويب عند تغيير التاريخ
@@ -173,18 +176,18 @@ function addTimeSlotUI(container) {
     
     headerDiv.innerHTML = `
         <div style="display: flex; align-items: center; gap: 5px;">
-            <span style="color: white; font-weight: bold; white-space: nowrap;">من:</span>
+            <span style="color: white; font-weight: bold; white-space: nowrap;">${_t('من:')}</span>
             <input type="time" class="time-start" required value="09:00" style="padding: 6px; border-radius: 4px; border: none; outline: none; width: auto;">
         </div>
         
         <div style="display: flex; align-items: center; gap: 5px;">
-            <span style="color: white; font-weight: bold; white-space: nowrap;">إلى:</span>
+            <span style="color: white; font-weight: bold; white-space: nowrap;">${_t('إلى:')}</span>
             <input type="time" class="time-end" required value="10:30" style="padding: 6px; border-radius: 4px; border: none; outline: none; width: auto;">
         </div>
         
         <div style="flex-grow: 1;"></div> 
         
-        <button type="button" class="remove-timeslot-btn" title="حذف الفترة" style="background: #e74c3c; color: white; border: none; border-radius: 4px; padding: 6px 15px; cursor: pointer; font-weight: bold; white-space: nowrap; font-size: 14px;">❌ حذف</button>
+        <button type="button" class="remove-timeslot-btn" title="${_t('حذف الفترة')}" style="background: #e74c3c; color: white; border: none; border-radius: 4px; padding: 6px 15px; cursor: pointer; font-weight: bold; white-space: nowrap; font-size: 14px;">${_t('❌ حذف')}</button>
     `;
 
     // 2. المحتوى السفلي (المستويات والطي)
@@ -193,14 +196,14 @@ function addTimeSlotUI(container) {
     
     bodyDiv.innerHTML = `
         <div style="margin-bottom: 15px; padding: 12px; border: 1px solid #c8e6c9; border-radius: 5px; background: #fff;">
-            <strong style="color: #2e7d32; display: block; margin-bottom: 10px; font-size: 15px;">🎯 مستويات معنية كفترة أساسية:</strong>
+            <strong style="color: #2e7d32; display: block; margin-bottom: 10px; font-size: 15px;">${_t('🎯 مستويات معنية كفترة أساسية:')}</strong>
             <div>${primaryLevelsHtml}</div>
         </div>
         
         <details style="padding: 12px; border: 1px solid #ffeeba; border-radius: 5px; background: #fffdf5; cursor: pointer; transition: 0.3s;">
-            <summary style="color: #856404; font-weight: bold; outline: none; user-select: none; font-size: 15px;">🔽 عرض المستويات الاحتياطية (انقر للفتح أو الطي)</summary>
+            <summary style="color: #856404; font-weight: bold; outline: none; user-select: none; font-size: 15px;">${_t('🔽 عرض المستويات الاحتياطية (انقر للفتح أو الطي)')}</summary>
             <div style="margin-top: 15px; cursor: default; padding-top: 12px; border-top: 1px dashed #ffeeba;">
-                <strong style="color: #856404; display: block; margin-bottom: 10px; font-size: 14px;">⏳ حدد المستويات الاحتياطية:</strong>
+                <strong style="color: #856404; display: block; margin-bottom: 10px; font-size: 14px;">${_t('⏳ حدد المستويات الاحتياطية:')}</strong>
                 <div>${reserveLevelsHtml}</div>
             </div>
         </details>
@@ -211,7 +214,7 @@ function addTimeSlotUI(container) {
     
     // تفعيل زر الحذف
     headerDiv.querySelector('.remove-timeslot-btn').addEventListener('click', (e) => {
-        if(confirm('هل أنت متأكد من حذف هذه الفترة؟')) {
+        if(confirm(_t('هل أنت متأكد من حذف هذه الفترة؟'))) {
             e.currentTarget.closest('.time-slot').remove();
         }
     });
@@ -291,11 +294,11 @@ function saveExamSchedule() {
     });
 
     if (hasErrors) {
-        return showNotification('يوجد أيام بدون تاريخ! يرجى تحديد التاريخ لكل يوم.', 'error');
+        return showNotification(_t('يوجد أيام بدون تاريخ! يرجى تحديد التاريخ لكل يوم.'), 'error');
     }
 
     if (Object.keys(examSchedule).length === 0) {
-        return showNotification('لا يوجد بيانات لحفظها. أضف يوماً وفترة واحدة ومستوى واحداً على الأقل.', 'error');
+        return showNotification(_t('لا يوجد بيانات لحفظها. أضف يوماً وفترة واحدة ومستوى واحداً على الأقل.'), 'error');
     }
 
     fetch('/exams/api/exam-schedule', {

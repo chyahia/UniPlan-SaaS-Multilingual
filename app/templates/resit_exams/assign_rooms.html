@@ -19,16 +19,16 @@
 </style>
 
 <h2 class="text-center text-primary mb-4 border border-primary p-3 rounded bg-light">
-    تخصيص القاعات للمستويات
+    {{ _('تخصيص القاعات للمستويات') }}
 </h2>
 
 {% if not db.levels or not db.rooms %}
     <div class="alert alert-warning text-center fs-5 border-warning shadow-sm">
-        ⚠️ يرجى إدخال المستويات والقاعات في المرحلة الأولى أولاً لتتمكن من تخصيصها.
+        {{ _('⚠️ يرجى إدخال المستويات والقاعات في المرحلة الأولى أولاً لتتمكن من تخصيصها.') }}
     </div>
 {% else %}
     <div class="alert alert-info border-info mb-4">
-        قم بالتأشير على القاعات المخصصة لكل مستوى، ثم اضغط على زر الحفظ في الأسفل.
+        {{ _('قم بالتأشير على القاعات المخصصة لكل مستوى، ثم اضغط على زر الحفظ في الأسفل.') }}
     </div>
 
     <!-- ✨ تحويل النموذج لمنع الإرسال التقليدي وتشغيل دالة الجافاسكريبت ✨ -->
@@ -44,9 +44,9 @@
                 <div class="col-12">
                     <div class="card shadow-sm border-primary">
                         <div class="card-header bg-primary text-white fs-5 fw-bold d-flex justify-content-between align-items-center">
-                            <span>📚 المستوى: {{ level }}</span>
+                            <span>{{ _('📚 المستوى:') }} {{ level }}</span>
                             <span class="badge bg-light text-primary border rounded-pill">
-                                {{ saved_rooms | length }} قاعات مخصصة
+                                {{ saved_rooms | length }} {{ _('قاعات مخصصة') }}
                             </span>
                         </div>
                         <div class="card-body">
@@ -83,7 +83,7 @@
         
         <div class="sticky-bottom bg-white p-3 border-top shadow-lg rounded mb-5 text-center" style="z-index: 1000;">
             <button type="submit" id="save-btn" class="btn btn-primary btn-lg w-75 fw-bold shadow transition-all">
-                💾 حفظ تخصيص القاعات لجميع المستويات
+                {{ _('💾 حفظ تخصيص القاعات لجميع المستويات') }}
             </button>
         </div>
     </form>
@@ -114,7 +114,7 @@
         const originalText = btn.innerHTML;
 
         // 1. تغيير حالة الزر لمنع النقر المزدوج وإظهار التحميل
-        btn.innerHTML = '⏳ جاري الحفظ...';
+        btn.innerHTML = "{{ _('⏳ جاري الحفظ...') }}";
         btn.disabled = true;
         document.body.style.cursor = 'wait';
 
@@ -140,7 +140,7 @@
             window.scrollTo(0, scrollY);
 
             // 7. تأثير بصري ذكي لزر الحفظ (تأكيد النجاح)
-            btn.innerHTML = '✅ تم الحفظ بنجاح!';
+            btn.innerHTML = "{{ _('✅ تم الحفظ بنجاح!') }}";
             btn.classList.remove('btn-primary');
             btn.classList.add('btn-success');
             
@@ -153,7 +153,7 @@
             }, 2000);
 
         } catch (error) {
-            alert("حدث خطأ أثناء الاتصال بالخادم.");
+            alert("{{ _('حدث خطأ أثناء الاتصال بالخادم.') }}");
             btn.innerHTML = originalText;
             btn.disabled = false;
         } finally {

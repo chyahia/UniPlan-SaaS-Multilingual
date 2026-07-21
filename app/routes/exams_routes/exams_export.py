@@ -16,19 +16,20 @@ import pandas as pd
 from app.services.exams_algorithms import _run_initial_subject_placement, clean_string_for_matching
 from openpyxl.utils import get_column_letter
 from openpyxl.styles import Alignment
+from flask_babel import _
 
 exams_export_bp = Blueprint('exams_export', __name__)
 
 # ================== قاموس الترجمة للامتحانات ==================
 EXAM_TRANSLATIONS = {
     'ar': {
-        'period': 'الفترة', 'date_day': 'اليوم/التاريخ', 'exam_schedule': 'جدول امتحانات',
-        'guard_schedule': 'جدول الحراسة', 'simplified': '(مُبسَّط)',
-        'course_prof': 'أستاذ المادة', 'guarding': 'الحراسة:', 'large_hall': 'القاعة الكبيرة',
-        'other_halls': 'القاعات الأخرى', 'not_specified': 'غير محدد', 'no_level': 'بدون مستوى',
-        'no_guards': '(لا يوجد)', 'shortage_alert': 'نقص!', 'empty': '- فراغ -',
-        'is_guarding': '(حراسة)', 'no_guarding': '(دون حراسة)', 'assigned_guard': '(تكليف بحراسة)',
-        'days': ["الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"]
+        'period': _('الفترة'), 'date_day': _('اليوم/التاريخ'), 'exam_schedule': _('جدول امتحانات'),
+        'guard_schedule': _('جدول الحراسة'), 'simplified': _('(مُبسَّط)'),
+        'course_prof': _('أستاذ المادة'), 'guarding': _('الحراسة:'), 'large_hall': _('القاعة الكبيرة'),
+        'other_halls': _('القاعات الأخرى'), 'not_specified': _('غير محدد'), 'no_level': _('بدون مستوى'),
+        'no_guards': _('(لا يوجد)'), 'shortage_alert': _('نقص!'), 'empty': _('- فراغ -'),
+        'is_guarding': _('(حراسة)'), 'no_guarding': _('(دون حراسة)'), 'assigned_guard': _('(تكليف بحراسة)'),
+        'days': [_("الأحد"), _("الاثنين"), _("الثلاثاء"), _("الأربعاء"), _("الخميس"), _("الجمعة"), _("السبت")]
     },
     'en': {
         'period': 'Time Slot', 'date_day': 'Day / Date', 'exam_schedule': 'Exams Schedule',
@@ -110,7 +111,7 @@ def create_word_document_with_table(doc, title, headers, data_grid, lang='ar'):
 @exams_export_bp.route('/exams/api/export/word/all-exams', methods=['POST'])
 def export_exams_word():
     tenant_id = session.get('tenant_id')
-    if not tenant_id: return jsonify({"error": "غير مصرح"}), 403
+    if not tenant_id: return jsonify({"error": _("غير مصرح")}), 403
 
     schedule_data = request.get_json()
     if not schedule_data: return jsonify({"error": "No schedule data provided"}), 400
@@ -168,17 +169,17 @@ def export_exams_word():
                     halls_by_type = defaultdict(list)
                     for h in exam.get('halls', []): halls_by_type[h['type']].append(h['name'])
                     
-                    guards_copy = [g for g in exam.get('guards', []) if g != "**نقص**"]
+                    guards_copy = [g for g in exam.get('guards', []) if g != _("**نقص**")]
 
-                    if halls_by_type.get('كبيرة'):
-                        num_guards_needed = len(halls_by_type['كبيرة']) * guards_large
+                    if halls_by_type.get(_('كبيرة')):
+                        num_guards_needed = len(halls_by_type[_('كبيرة')]) * guards_large
                         g_list = guards_copy[:num_guards_needed]
                         guards_copy = guards_copy[num_guards_needed:]
-                        hall_names = ", ".join(halls_by_type['كبيرة'])
+                        hall_names = ", ".join(halls_by_type[_('كبيرة')])
                         guard_text = '\n'.join(g_list) if g_list else t['no_guards']
                         content += f"\n{t['large_hall']}: {hall_names}\n{guard_text}"
                     
-                    other_hall_names = halls_by_type.get('متوسطة', []) + halls_by_type.get('صغيرة', [])
+                    other_hall_names = halls_by_type.get(_('متوسطة'), []) + halls_by_type.get(_('صغيرة'), [])
                     if other_hall_names:
                         guard_text = '\n'.join(guards_copy) if guards_copy else t['no_guards']
                         content += f"\n{t['other_halls']}: {', '.join(other_hall_names)}\n{guard_text}"
@@ -199,7 +200,7 @@ def export_exams_word():
 @exams_export_bp.route('/exams/api/export/word/all-profs', methods=['POST'])
 def export_profs_word():
     tenant_id = session.get('tenant_id')
-    if not tenant_id: return jsonify({"error": "غير مصرح"}), 403
+    if not tenant_id: return jsonify({"error": _("غير مصرح")}), 403
 
     schedule_data = request.get_json()
     if not schedule_data: return jsonify({"error": "No schedule data provided"}), 400
@@ -330,7 +331,7 @@ def export_profs_word():
 @exams_export_bp.route('/exams/api/export/word/all-profs-anonymous', methods=['POST'])
 def export_profs_anonymous_word():
     tenant_id = session.get('tenant_id')
-    if not tenant_id: return jsonify({"error": "غير مصرح"}), 403
+    if not tenant_id: return jsonify({"error": _("غير مصرح")}), 403
 
     schedule_data = request.get_json()
     if not schedule_data: return jsonify({"error": "No schedule data provided"}), 400
@@ -464,7 +465,7 @@ def export_profs_anonymous_word():
 @exams_export_bp.route('/exams/api/export-manual-distribution-template', methods=['POST'])
 def export_manual_distribution_template():
     tenant_id = session.get('tenant_id')
-    if not tenant_id: return jsonify({"error": "غير مصرح"}), 403
+    if not tenant_id: return jsonify({"error": _("غير مصرح")}), 403
 
     try:
         row_sched = ExamSetting.query.filter_by(key='exam_schedule', tenant_id=tenant_id).first()
@@ -474,7 +475,7 @@ def export_manual_distribution_template():
         all_times = sorted(list(set(time for slots in exam_schedule.values() for slot in slots for time in [slot['time']])))
         
         if not all_dates or not all_times:
-            return jsonify({"error": "الرجاء حفظ جدول الأيام والفترات في المرحلة 4 أولاً لتتمكن من تصدير المخطط."}), 400
+            return jsonify({"error": _("الرجاء حفظ جدول الأيام والفترات في المرحلة 4 أولاً لتتمكن من تصدير المخطط.")}), 400
 
         all_levels_list = [l.name for l in ExamLevel.query.filter_by(tenant_id=tenant_id).all()]
         
@@ -482,7 +483,7 @@ def export_manual_distribution_template():
         original_subject_map = {} 
         for s in ExamSubject.query.filter_by(tenant_id=tenant_id).all():
             levels_list = sorted([l.name for l in s.levels]) if hasattr(s, 'levels') and s.levels else []
-            combined_level = " + ".join(levels_list) if levels_list else "بدون مستوى"
+            combined_level = " + ".join(levels_list) if levels_list else _("بدون مستوى")
             all_subjects.append({'name': s.name, 'level': combined_level, 'levels': levels_list})
             
             c_name = clean_string_for_matching(s.name)
@@ -516,12 +517,12 @@ def export_manual_distribution_template():
         import re 
         
         if not all_levels_list:
-            df_empty = pd.DataFrame(["لا توجد مستويات مدخلة بعد"])
-            df_empty.to_excel(writer, sheet_name="فارغ")
+            df_empty = pd.DataFrame([_("لا توجد مستويات مدخلة بعد")])
+            df_empty.to_excel(writer, sheet_name=_("فارغ"))
             
         for level_name in sorted(all_levels_list):
             df_level = pd.DataFrame(index=all_times, columns=all_dates)
-            df_level.index.name = "الفترة"
+            df_level.index.name = _("الفترة")
             c_level_name = clean_string_for_matching(level_name)
             
             for date, slots in initial_schedule.items():
@@ -557,12 +558,12 @@ def export_manual_distribution_template():
                         unplaced_subjects.append(s)
 
             if unplaced_subjects:
-                unplaced_row_name = "--- مواد غير موزعة ---"
+                unplaced_row_name = _("--- مواد غير موزعة ---")
                 df_level.loc[unplaced_row_name] = ''
                 cell_texts = []
                 for s in unplaced_subjects:
                     s_tuple = tuple(sorted([clean_string_for_matching(l) for l in s.get('levels', [])]))
-                    owner = subject_owners.get((clean_string_for_matching(s['name']), s_tuple), 'غير محدد')
+                    owner = subject_owners.get((clean_string_for_matching(s['name']), s_tuple), _('غير محدد'))
                     cell_texts.append(f"{s['name']}\n::: {owner}\n::: {s['level']}")
                 if all_dates:
                     df_level.at[unplaced_row_name, all_dates[0]] = "\n\n====================\n\n".join(cell_texts)
@@ -589,7 +590,7 @@ def export_manual_distribution_template():
                     cell.alignment = wrap_alignment
 
         writer.close()
-        return send_file(io.BytesIO(output.getvalue()), as_attachment=True, download_name='مخطط_توزيع_المواد_للتعديل.xlsx', mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        return send_file(io.BytesIO(output.getvalue()), as_attachment=True, download_name=_('مخطط_توزيع_المواد_للتعديل.xlsx'), mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     except Exception as e:
         import traceback; traceback.print_exc()
         return jsonify({"error": str(e)}), 500
@@ -600,9 +601,9 @@ def export_manual_distribution_template():
 @exams_export_bp.route('/exams/api/import-manual-distribution', methods=['POST'])
 def import_manual_distribution():
     tenant_id = session.get('tenant_id')
-    if not tenant_id: return jsonify({"error": "غير مصرح"}), 403
+    if not tenant_id: return jsonify({"error": _("غير مصرح")}), 403
 
-    if 'file' not in request.files: return jsonify({"error": "لم يتم العثور على ملف."}), 400
+    if 'file' not in request.files: return jsonify({"error": _("لم يتم العثور على ملف.")}), 400
     file = request.files['file']
     try:
         xls = pd.read_excel(file, sheet_name=None, index_col=0, dtype=str)
@@ -631,7 +632,7 @@ def import_manual_distribution():
                             if ':::' in clean_block:
                                 try:
                                     parts = [part.strip() for part in clean_block.split(':::')]
-                                    if len(parts) >= 3 and date and time and "مواد غير موزعة" not in time:
+                                    if len(parts) >= 3 and date and time and _("مواد غير موزعة") not in time:
                                         subject_name, professor_name, level_name = parts[0], parts[1], parts[2]
                                         halls_details = level_hall_assignments.get(level_name, [])
                                         levels_list = level_name.split(' + ') if ' + ' in level_name else [level_name]
@@ -650,7 +651,7 @@ def import_manual_distribution():
         if setting: setting.value = value_str
         else: db.session.add(ExamSetting(key='pinned_subject_schedule', value=value_str, tenant_id=tenant_id))
         db.session.commit()
-        return jsonify({"success": True, "message": f"تم استيراد وتثبيت {pinned_count} مادة بنجاح."})
+        return jsonify({"success": True, "message": _("تم استيراد وتثبيت {pinned_count} مادة بنجاح.").format(pinned_count=pinned_count)})
     except Exception as e: return jsonify({"error": str(e)}), 500
 
 # ==============================================================
@@ -659,14 +660,14 @@ def import_manual_distribution():
 @exams_export_bp.route('/exams/api/clear-manual-distribution', methods=['POST'])
 def clear_manual_distribution():
     tenant_id = session.get('tenant_id')
-    if not tenant_id: return jsonify({"error": "غير مصرح"}), 403
+    if not tenant_id: return jsonify({"error": _("غير مصرح")}), 403
 
     try:
         setting = ExamSetting.query.filter_by(key='pinned_subject_schedule', tenant_id=tenant_id).first()
         if setting:
             db.session.delete(setting)
             db.session.commit()
-        return jsonify({"success": True, "message": "تم مسح الجدول اليدوي. سيعتمد التشغيل القادم على التوزيع التلقائي."})
+        return jsonify({"success": True, "message": _("تم مسح الجدول اليدوي. سيعتمد التشغيل القادم على التوزيع التلقائي.")})
     except Exception as e: db.session.rollback(); return jsonify({"error": str(e)}), 500
 
 # ==============================================================
@@ -675,10 +676,10 @@ def clear_manual_distribution():
 @exams_export_bp.route('/exams/api/export-final-excel', methods=['POST'])
 def export_final_excel():
     tenant_id = session.get('tenant_id')
-    if not tenant_id: return jsonify({"error": "غير مصرح"}), 403
+    if not tenant_id: return jsonify({"error": _("غير مصرح")}), 403
 
     schedule_data = request.json
-    if not schedule_data: return jsonify({"error": "لا توجد بيانات للجدول. قم بالتوليد أولاً."}), 400
+    if not schedule_data: return jsonify({"error": _("لا توجد بيانات للجدول. قم بالتوليد أولاً.")}), 400
 
     try:
         output = io.BytesIO()
@@ -691,7 +692,7 @@ def export_final_excel():
         import re
         for level_name in all_levels:
             df_level = pd.DataFrame(index=all_times, columns=all_dates)
-            df_level.index.name = "الفترة"
+            df_level.index.name = _("الفترة")
             
             for date, slots in schedule_data.items():
                 for time, exams in slots.items():
@@ -731,7 +732,7 @@ def export_final_excel():
                     cell.alignment = wrap_alignment
 
         writer.close()
-        return send_file(io.BytesIO(output.getvalue()), as_attachment=True, download_name='الجدول_النهائي_للحراسة.xlsx', mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        return send_file(io.BytesIO(output.getvalue()), as_attachment=True, download_name=_('الجدول_النهائي_للحراسة.xlsx'), mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     except Exception as e:
         import traceback; traceback.print_exc()
         return jsonify({"error": str(e)}), 500
@@ -742,9 +743,9 @@ def export_final_excel():
 @exams_export_bp.route('/exams/api/import-final-excel', methods=['POST'])
 def import_final_excel():
     tenant_id = session.get('tenant_id')
-    if not tenant_id: return jsonify({"error": "غير مصرح"}), 403
+    if not tenant_id: return jsonify({"error": _("غير مصرح")}), 403
 
-    if 'file' not in request.files: return jsonify({"error": "لم يتم العثور على ملف."}), 400
+    if 'file' not in request.files: return jsonify({"error": _("لم يتم العثور على ملف.")}), 400
     file = request.files['file']
     
     try:
@@ -775,7 +776,7 @@ def import_final_excel():
                                         "subject": parts[0], "level": parts[2],
                                         "levels_list": [clean_string_for_matching(l) for l in (parts[2].split(' + ') if ' + ' in parts[2] else [parts[2]])],
                                         "professor": parts[1], 
-                                        "halls": [{'name': h.strip(), 'type': 'غير محدد'} for h in parts[3].split('،') if h.strip()],
+                                        "halls": [{'name': h.strip(), 'type': _('غير محدد')} for h in parts[3].split('،') if h.strip()],
                                         "guards": [g.strip() for g in parts[4].split('،') if g.strip()]
                                     }
                                     final_schedule[exam['date']][exam['time']].append(exam)
@@ -790,7 +791,7 @@ def import_final_excel():
         else: db.session.add(ExamSetting(key='is_exam_published', value='1', tenant_id=tenant_id))
 
         db.session.commit()
-        return jsonify({"success": True, "message": "تم استيراد الجدول النهائي ونشره للأساتذة بنجاح!", "schedule": final_schedule})
+        return jsonify({"success": True, "message": _("تم استيراد الجدول النهائي ونشره للأساتذة بنجاح!"), "schedule": final_schedule})
     except Exception as e:
         import traceback; traceback.print_exc()
         return jsonify({"error": str(e)}), 500

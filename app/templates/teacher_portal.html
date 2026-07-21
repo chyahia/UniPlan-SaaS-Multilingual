@@ -1,13 +1,18 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<!-- ✨ لغة واتجاه ديناميكيان -->
+<html lang="{{ session.get('lang', 'ar') }}" dir="{{ 'ltr' if session.get('lang') == 'en' else 'rtl' }}"></html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>بوابة الأستاذ - اختيار الرغبات</title>
+    <title>{{ _('بوابة الأستاذ - اختيار الرغبات') }}</title>
     <style>
         body { font-family: 'Tajawal', 'Cairo', sans-serif; background-color: #f4f7f6; margin: 0; padding: 0; color: #2c3e50; }
         .header { background: #2c3e50; color: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; }
         .btn-logout { background: #e74c3c; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; text-decoration: none; font-weight: bold; }
+        .lang-btn { text-decoration: none; font-weight: bold; padding: 4px 10px; border-radius: 4px; transition: 0.3s; font-size: 14px; }
+        .lang-btn.active { background: #3498db; color: #fff; border: 1px solid #3498db; }
+        .lang-btn.inactive { background: transparent; color: white; border: 1px solid rgba(255,255,255,0.4); }
+        .lang-btn:hover { background: rgba(255,255,255,0.2); color: white; }
         .container { max-width: 800px; margin: 30px auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
         .status-badge { display: inline-block; padding: 5px 12px; border-radius: 15px; font-size: 14px; font-weight: bold; margin-bottom: 20px; }
         .section-title { border-bottom: 2px solid #3498db; padding-bottom: 8px; margin-top: 30px; }
@@ -38,7 +43,8 @@
         @media print {
             body * { visibility: hidden; }
             #schedule-section, #schedule-section * { visibility: visible; }
-            #schedule-section { position: absolute; left: 0; top: 0; width: 100%; margin: 0; padding: 0; }
+            /* ✨ inset-inline-start بدلاً من left */
+            #schedule-section { position: absolute; inset-inline-start: 0; top: 0; width: 100%; margin: 0; padding: 0; }
             button, .scroll-hint { display: none !important; }
             tr { page-break-inside: avoid; break-inside: avoid; }
             * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
@@ -48,57 +54,66 @@
 <body>
 
     <div class="header">
-        <h2>🎓 بوابة الأستاذ</h2>
-        <a href="/logout" class="btn-logout">تسجيل الخروج</a>
+        <h2>🎓 {{ _('بوابة الأستاذ') }}</h2>
+        <div style="display: flex; gap: 15px; align-items: center;">
+            <!-- أزرار اللغات مفصولة بخط خفيف -->
+            <div style="display: flex; gap: 5px; margin-inline-end: 15px; border-inline-end: 1px solid rgba(255,255,255,0.3); padding-inline-end: 15px;">
+                <a href="{{ url_for('set_lang', lang='ar') }}" class="lang-btn {{ 'active' if session.get('lang', 'ar') == 'ar' else 'inactive' }}">AR</a>
+                <a href="{{ url_for('set_lang', lang='en') }}" class="lang-btn {{ 'active' if session.get('lang') == 'en' else 'inactive' }}">EN</a>
+            </div>
+            <a href="/logout" class="btn-logout">{{ _('تسجيل الخروج') }}</a>
+        </div>
     </div>
 
     <div class="container">
-        <h1 id="welcome-msg">مرحباً بك أستاذ...</h1>
+        <h1 id="welcome-msg">{{ _('مرحباً بك أستاذ...') }}</h1>
         
         <div style="background: #e8f4f8; border: 1px solid #3498db; padding: 15px; border-radius: 8px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
             <span style="font-size: 24px;">📚</span>
-            <strong style="color: #2980b9; font-size: 16px;">عدد المواد التي تم إسنادها إليك رسمياً حتى الآن: <span id="assigned-counter" style="background: #3498db; color: white; padding: 2px 10px; border-radius: 12px; font-size: 18px;">0</span>.</strong>
+            <strong style="color: #2980b9; font-size: 16px;">{{ _('عدد المواد التي تم إسنادها إليك رسمياً حتى الآن:') }} <span id="assigned-counter" style="background: #3498db; color: white; padding: 2px 10px; border-radius: 12px; font-size: 18px;">0</span>.</strong>
         </div>
 
         <div id="assigned-courses-box" style="display: none; background: #f0faff; border: 1px solid #a3dcff; padding: 20px; border-radius: 8px; margin-bottom: 25px; box-shadow: 0 2px 8px rgba(41, 128, 185, 0.05);">
-            <h3 style="margin-top: 0; color: #2980b9; font-size: 16px; border-bottom: 1px solid #a3dcff; padding-bottom: 8px; margin-bottom: 12px;">📖 تفاصيل أسماء المواد المُسندة إليك من قِبل الإدارة:</h3>
-            <ul id="assigned-courses-list" style="margin: 0; padding-right: 20px; color: #2c3e50; font-size: 14px; line-height: 2;">
+            <h3 style="margin-top: 0; color: #2980b9; font-size: 16px; border-bottom: 1px solid #a3dcff; padding-bottom: 8px; margin-bottom: 12px;">📖 {{ _('تفاصيل أسماء المواد المُسندة إليك من قِبل الإدارة:') }}</h3>
+            <!-- ✨ padding-inline-start بدلاً من padding-right -->
+            <ul id="assigned-courses-list" style="margin: 0; padding-inline-start: 20px; color: #2c3e50; font-size: 14px; line-height: 2;">
                 </ul>
-            <p style="margin: 12px 0 0 0; font-size: 12px; color: #7f8c8d; font-style: italic; border-top: 1px dashed #cde7f7; padding-top: 8px;">💡 ملاحظة: هذه المواد أُسندت إليك مبدئياً، وسيظهر توزيعها الزمني الكامل فور نشر الجداول الرسمية.</p>
+            <p style="margin: 12px 0 0 0; font-size: 12px; color: #7f8c8d; font-style: italic; border-top: 1px dashed #cde7f7; padding-top: 8px;">💡 {{ _('ملاحظة: هذه المواد أُسندت إليك مبدئياً، وسيظهر توزيعها الزمني الكامل فور نشر الجداول الرسمية.') }}</p>
         </div>
 
         <div id="request-status-container" style="display: none; background-color: #d4edda; color: #155724; padding: 15px; border-radius: 8px; border: 1px solid #c3e6cb; margin-bottom: 25px; font-weight: bold; font-size: 15px;">
-            📥 تم استلام رغباتك بنجاح، وهي قيد الدراسة من قِبل الإدارة.
+            📥 {{ _('تم استلام رغباتك بنجاح، وهي قيد الدراسة من قِبل الإدارة.') }}
         </div>
 
         <div style="background-color: #fff3cd; color: #856404; padding: 15px; border-radius: 8px; border: 1px solid #ffeeba; margin-top: 20px; margin-bottom: 25px; line-height: 1.6;">
-            <h4 style="margin: 0 0 10px 0; color: #856404;">📌 ملاحظات هامة:</h4>
-            <ul style="margin: 0; padding-right: 20px; font-weight: bold; font-size: 15px;">
-                <li>لا تُؤخذ بعين الاعتبار الاستمارات ناقصة البيانات.</li>
-                <li>بطاقة الرغبات استشارية وليست إلزامية (تخضع لمتطلبات التوزيع البيداغوجي).</li>
+            <h4 style="margin: 0 0 10px 0; color: #856404;">📌 {{ _('ملاحظات هامة:') }}</h4>
+            <!-- ✨ padding-inline-start بدلاً من padding-right -->
+            <ul style="margin: 0; padding-inline-start: 20px; font-weight: bold; font-size: 15px;">
+                <li>{{ _('لا تُؤخذ بعين الاعتبار الاستمارات ناقصة البيانات.') }}</li>
+                <li>{{ _('بطاقة الرغبات استشارية وليست إلزامية (تخضع لمتطلبات التوزيع البيداغوجي).') }}</li>
             </ul>
         </div>
 
         <div id="request-section">
-            <h3 class="section-title">📅 1. اختر أيام العمل المتاحة لك</h3>
-            <p style="color: #666; font-size: 14px;">حدد الأيام التي يمكنك التدريس فيها (الرجاء اختيار يومين على الأقل لتسهيل التوزيع).</p>
+            <h3 class="section-title">📅 1. {{ _('اختر أيام العمل المتاحة لك') }}</h3>
+            <p style="color: #666; font-size: 14px;">{{ _('حدد الأيام التي يمكنك التدريس فيها (الرجاء اختيار يومين على الأقل لتسهيل التوزيع).') }}</p>
             <div id="days-container" class="checkbox-grid"></div>
 
-            <h3 class="section-title">📚 2. اختر المواد التي ترغب بتدريسها</h3>
-            <input type="text" id="search-course" placeholder="ابحث عن مادة..." onkeyup="filterCourses()">
+            <h3 class="section-title">📚 2. {{ _('اختر المواد التي ترغب بتدريسها') }}</h3>
+            <input type="text" id="search-course" placeholder="{{ _('ابحث عن مادة...') }}" onkeyup="filterCourses()">
             <div id="courses-container" style="max-height: 450px; overflow-y: auto; padding: 10px 0;"></div>
 
-            <button class="btn-submit" onclick="submitPreferences()">✅ إرسال الرغبات للإدارة</button>
+            <button class="btn-submit" onclick="submitPreferences()">✅ {{ _('إرسال الرغبات للإدارة') }}</button>
         </div>
     </div>
 
     <div id="schedule-section" style="display: none; margin-top: 20px;">
         <div style="background: #27ae60; color: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center; box-shadow: 0 4px 10px rgba(39, 174, 96, 0.3);">
-            <h2 style="margin: 0;">🎉 تم إصدار الجدول النهائي!</h2>
-            <p style="margin: 5px 0 0 0; font-size: 14px;">هذا هو جدول حصصك المعتمد رسمياً من الإدارة للموسم الحالي.</p>
+            <h2 style="margin: 0;">🎉 {{ _('تم إصدار الجدول النهائي!') }}</h2>
+            <p style="margin: 5px 0 0 0; font-size: 14px;">{{ _('هذا هو جدول حصصك المعتمد رسمياً من الإدارة للموسم الحالي.') }}</p>
         </div>
         <p class="scroll-hint" style="color: #e67e22; font-size: 13px; font-weight: bold; margin-bottom: 10px; text-align: center;">
-            👈 اسحب الجدول يميناً ويساراً لعرض باقي الأيام 👉
+            👈 {{ _('اسحب الجدول يميناً ويساراً لعرض باقي الأيام') }} 👉
         </p>
 
         <div style="overflow-x: auto; -webkit-overflow-scrolling: touch; background: white; padding: 15px; border-radius: 8px; border: 1px solid #ddd; box-shadow: inset 0 0 10px rgba(0,0,0,0.02);">
@@ -107,15 +122,16 @@
                 <tbody></tbody>
             </table>
         </div>
-        <div style="text-align: left; margin-top: 20px;">
-            <button onclick="window.print()" style="background: #2c3e50; color: white; padding: 12px 25px; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: bold; font-family: inherit;">🖨️ طباعة الجدول</button>
+        <!-- ✨ text-align: end بدلاً من text-align: left -->
+        <div style="text-align: end; margin-top: 20px;">
+            <button onclick="window.print()" style="background: #2c3e50; color: white; padding: 12px 25px; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: bold; font-family: inherit;">🖨️ {{ _('طباعة الجدول') }}</button>
         </div>
     </div>
 
     <div id="exam-schedule-section" style="display: none; margin-top: 30px;">
         <div style="background: #e67e22; color: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center; box-shadow: 0 4px 10px rgba(230, 126, 34, 0.3);">
-            <h2 style="margin: 0;">📋 جدول مهام الحراسة للامتحانات</h2>
-            <p style="margin: 5px 0 0 0; font-size: 14px;">تم نشر المهام الموكلة إليك من إدارة القسم للامتحانات القادمة.</p>
+            <h2 style="margin: 0;">📋 {{ _('جدول مهام الحراسة للامتحانات') }}</h2>
+            <p style="margin: 5px 0 0 0; font-size: 14px;">{{ _('تم نشر المهام الموكلة إليك من إدارة القسم للامتحانات القادمة.') }}</p>
         </div>
         <div style="overflow-x: auto; background: white; padding: 15px; border-radius: 8px; border: 1px solid #ddd; box-shadow: inset 0 0 10px rgba(0,0,0,0.02);">
             <table id="teacher-exam-timetable" style="width: 100%; border-collapse: collapse; text-align: center; min-width: 600px;">
@@ -131,8 +147,8 @@
 
     <div id="resit-schedule-section" style="display: none; margin-top: 30px;">
         <div style="background: #8e44ad; color: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center; box-shadow: 0 4px 10px rgba(142, 68, 173, 0.3);">
-            <h2 style="margin: 0;">⚠️ جدول الامتحانات الاستدراكية</h2>
-            <p style="margin: 5px 0 0 0; font-size: 14px;">تم نشر مهامك للامتحانات الاستدراكية للموسم الحالي.</p>
+            <h2 style="margin: 0;">⚠️ {{ _('جدول الامتحانات الاستدراكية') }}</h2>
+            <p style="margin: 5px 0 0 0; font-size: 14px;">{{ _('تم نشر مهامك للامتحانات الاستدراكية للموسم الحالي.') }}</p>
         </div>
         <div style="overflow-x: auto; background: white; padding: 15px; border-radius: 8px; border: 1px solid #ddd; box-shadow: inset 0 0 10px rgba(0,0,0,0.02);">
             <table id="teacher-resit-timetable" style="width: 100%; border-collapse: collapse; text-align: center; min-width: 600px;">
@@ -149,7 +165,7 @@
         
         // جلب البيانات عند فتح الصفحة
         fetch('/api/teacher/data').then(res => res.json()).then(data => {
-            document.getElementById('welcome-msg').innerText = `مرحباً بك الأستاذ(ة): ${data.teacher_name}`;
+            document.getElementById('welcome-msg').innerText = `{{ _('مرحباً بك الأستاذ(ة):') }} ${data.teacher_name}`;
             
             // تحديث العداد
             document.getElementById('assigned-counter').innerText = data.assigned_count;
@@ -159,21 +175,20 @@
             if (data.show_assigned && data.assigned_courses && data.assigned_courses.length > 0) {
                 coursesBox.style.display = 'block';
                 const listEl = document.getElementById('assigned-courses-list');
+                
+                // ✨ margin-inline-end بدلاً من margin-right & direction ديناميكي
                 listEl.innerHTML = data.assigned_courses.map(c => `
-                    <li style="margin-bottom: 5px;">مقياس: <strong style="color: #2c3e50; font-size: 15px;">${c.name}</strong> <span style="background: #e67e22; color: white; padding: 1px 7px; border-radius: 4px; font-size: 11px; font-weight: bold; margin-right: 8px; display: inline-block; direction: rtl;">${c.level}</span></li>
+                    <li style="margin-bottom: 5px;">{{ _('مقياس:') }} <strong style="color: #2c3e50; font-size: 15px;">${c.name}</strong> <span style="background: #e67e22; color: white; padding: 1px 7px; border-radius: 4px; font-size: 11px; font-weight: bold; margin-inline-end: 8px; display: inline-block; direction: {{ 'ltr' if session.get('lang') in ['en', 'fr'] else 'rtl' }};">${c.level}</span></li>
                 `).join('');
             } else {
                 coursesBox.style.display = 'none';
             }
 
-            // التحول الذكي: إذا تم نشر الجداول، نخفي واجهة الطلبات ونعرض الجدول
             const requestSection = document.getElementById('request-section');
             const scheduleSection = document.getElementById('schedule-section');
             const statusContainer = document.getElementById('request-status-container');
 
-            // التحول الذكي: التبديل بين قسم الرغبات وقسم الجدول النهائي
             if (data.is_published) {
-                // حالة نشر الجدول: إخفاء الرغبات وإظهار الجدول
                 if(requestSection) requestSection.style.display = 'none';
                 if(statusContainer) statusContainer.style.display = 'none';
                 if(scheduleSection) {
@@ -181,41 +196,34 @@
                     renderMyTimetable(data.my_schedule, data.structure);
                 }
             } else {
-                // حالة سحب الجدول (الوضع الأولي): إخفاء الجدول وإظهار الرغبات
                 if(scheduleSection) scheduleSection.style.display = 'none';
                 if(requestSection) requestSection.style.display = 'block';
                 
-                // إظهار رسالة الاستلام إذا كان هناك طلب مسبق ولم يُنشر الجدول بعد
                 if(data.request.has_submitted && statusContainer) {
                     statusContainer.style.display = 'block';
                 }
             }
 
-            // 🌟 رسم جدول الامتحانات إذا كان منشوراً 🌟
             const examSection = document.getElementById('exam-schedule-section');
             if (data.is_exam_published) {
                 if (examSection) {
                     examSection.style.display = 'block';
-                    // تمرير المتغيرات الجديدة لرسم الشبكة
                     renderMyExamTimetable(data.my_exam_schedule, data.exam_dates, data.exam_times);
                 }
             } else {
                 if (examSection) examSection.style.display = 'none';
             }
 
-            // 🌟 رسم الجدول الاستدراكي إذا كان منشوراً 🌟
             const resitSection = document.getElementById('resit-schedule-section');
             if (data.is_resit_published) {
                 if (resitSection) {
                     resitSection.style.display = 'block';
-                    // نستخدم نفس دالة الرسم التي صممناها سابقاً لأنها تدعم نفس الهيكل
                     renderMyExamTimetable(data.my_resit_schedule, data.resit_dates, data.resit_times, 'resit-table-header', 'resit-table-body');
                 }
             } else {
                 if (resitSection) resitSection.style.display = 'none';
             }
 
-            // رسم الأيام
             const daysDiv = document.getElementById('days-container');
             daysDiv.innerHTML = data.days.map(d => `
                 <label class="checkbox-label">
@@ -224,23 +232,18 @@
                 </label>
             `).join('');
 
-            // رسم المواد مجمعة
             renderCourses(data.grouped_courses, data.request.courses);
 
-            // 🔒 الإضافة الجديدة: فحص حالة القفل وتطبيق الإغلاق إن لزم الأمر
             if (data.requests_locked && !data.is_published) {
                 const reqSection = document.getElementById('request-section');
                 
-                // إضافة رسالة الإغلاق البارزة
                 if (!document.getElementById('lock-msg-container')) {
-                    reqSection.insertAdjacentHTML('afterbegin', '<div id="lock-msg-container" style="background-color: #f8d7da; color: #721c24; padding: 15px; border-radius: 8px; border: 1px solid #f5c6cb; margin-bottom: 20px; font-weight: bold; font-size: 15px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">🔒 عذراً، تم إغلاق فترة تقديم الرغبات من قِبل الإدارة للبدء في معالجة الجداول.</div>');
+                    reqSection.insertAdjacentHTML('afterbegin', `<div id="lock-msg-container" style="background-color: #f8d7da; color: #721c24; padding: 15px; border-radius: 8px; border: 1px solid #f5c6cb; margin-bottom: 20px; font-weight: bold; font-size: 15px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">🔒 {{ _('عذراً، تم إغلاق فترة تقديم الرغبات من قِبل الإدارة للبدء في معالجة الجداول.') }}</div>`);
                 }
                 
-                // إخفاء زر الإرسال
                 const submitBtn = document.querySelector('.btn-submit');
                 if (submitBtn) submitBtn.style.display = 'none';
                 
-                // تعطيل جميع مربعات الاختيار (الأيام والمواد) لجعلها للقراءة فقط
                 document.querySelectorAll('input[type="checkbox"]').forEach(chk => {
                     chk.disabled = true;
                     if (chk.parentElement) {
@@ -275,7 +278,6 @@
             coursesDiv.innerHTML = htmlContent;
         }
 
-        // بحث سريع عن المواد مع إخفاء المستويات الفارغة
         function filterCourses() {
             const query = document.getElementById('search-course').value.toLowerCase();
             const groups = document.querySelectorAll('.level-group');
@@ -298,13 +300,12 @@
             });
         }
 
-        // إرسال البيانات
         function submitPreferences() {
             const selectedDays = Array.from(document.querySelectorAll('.chk-day:checked')).map(cb => cb.value);
             const selectedCourses = Array.from(document.querySelectorAll('.chk-course:checked')).map(cb => cb.value);
 
-            if(selectedDays.length === 0) return alert("يرجى اختيار يوم واحد للعمل على الأقل!");
-            if(selectedCourses.length === 0) return alert("يرجى اختيار مادة واحدة على الأقل!");
+            if(selectedDays.length === 0) return alert("{{ _('يرجى اختيار يوم واحد للعمل على الأقل!') }}");
+            if(selectedCourses.length === 0) return alert("{{ _('يرجى اختيار مادة واحدة على الأقل!') }}");
 
             fetch('/api/teacher/submit', {
                 method: 'POST',
@@ -315,48 +316,40 @@
             .then(data => {
                 if(data.success) {
                     alert(data.message);
-                    window.location.reload(); // تحديث الصفحة لإظهار حالة "قيد المراجعة"
+                    window.location.reload(); 
                 } else {
-                    alert("خطأ: " + data.error);
+                    alert("{{ _('خطأ: ') }}" + data.error);
                 }
             });
         }
 
-        // دالة رسم الجدول الاحترافي للأستاذ (الأيام أعمدة والحصص صفوف)
         function renderMyTimetable(schedule, structure) {
             const thead = document.querySelector('#teacher-timetable thead');
             const tbody = document.querySelector('#teacher-timetable tbody');
             
-            // 1. حساب أقصى عدد من الحصص لمعرفة عدد الصفوف
             let maxSlots = 0;
             structure.forEach(day => { if(day.slots && day.slots.length > maxSlots) maxSlots = day.slots.length; });
 
-            // 2. بناء الرأس (الأيام كأعمدة)
             let headHtml = `<tr style="background: #34495e; color: white;">
-                <th style="padding: 12px; border: 1px solid #2c3e50; min-width: 100px;">الحصة / اليوم</th>`;
+                <th style="padding: 12px; border: 1px solid #2c3e50; min-width: 100px;">{{ _('الحصة / اليوم') }}</th>`;
             structure.forEach(dayObj => {
-                // تقسيم العرض بالتساوي على الأيام
                 headHtml += `<th style="padding: 12px; border: 1px solid #2c3e50; width: ${100 / structure.length}%;">${dayObj.name}</th>`;
             });
             headHtml += `</tr>`;
             thead.innerHTML = headHtml;
 
-            // 3. بناء الجسم (الحصص كصفوف)
             let bodyHtml = '';
             for(let slotIndex = 0; slotIndex < maxSlots; slotIndex++) {
                 
-                // استخراج التوقيت الحقيقي للحصة (من اليوم الأول لأن التوقيت موحد لكل الأيام)
-                let timeStr = `الحصة ${slotIndex + 1}`;
+                let timeStr = `{{ _('الحصة') }} ${slotIndex + 1}`;
                 if (structure.length > 0 && structure[0].slots && structure[0].slots[slotIndex]) {
                     let startTime = structure[0].slots[slotIndex].start;
                     let endTime = structure[0].slots[slotIndex].end;
                     timeStr = `${startTime} - ${endTime}`;
                 }
 
-                // بداية الصف: التوقيت (أضفنا direction: ltr لمنع انقلاب الأرقام في المتصفح)
                 bodyHtml += `<tr><td style="background: #ecf0f1; font-weight: bold; padding: 15px; border: 1px solid #bdc3c7; white-space: nowrap;"><span style="direction: ltr; display: inline-block;">${timeStr}</span></td>`;
                 
-                // المرور على الأيام (لإملاء الأعمدة في هذا الصف)
                 structure.forEach((dayObj, dayIndex) => {
                     let cellContent = '-';
                     let cellStyle = 'padding: 10px; border: 1px solid #bdc3c7; color: #7f8c8d;';
@@ -365,12 +358,12 @@
                         const lecs = schedule[dayIndex][slotIndex];
                         cellContent = lecs.map(l => `<div style="margin-bottom: 5px;">
                             <strong style="font-size: 14px; color: #2c3e50;">${l.name}</strong><br>
-                            <span style="font-size: 12px; color: #e67e22; font-weight: bold;">📍 ${l.room || 'بدون قاعة'}</span><br>
+                            <span style="font-size: 12px; color: #e67e22; font-weight: bold;">📍 ${l.room || "{{ _('بدون قاعة') }}"}</span><br>
                             <span style="font-size: 12px; color: #7f8c8d;">${l.level || ''}</span>
                         </div>`).join('<hr style="margin: 5px 0; border-top: 1px dashed #3498db;">');
                         cellStyle = 'padding: 10px; border: 1px solid #bdc3c7; background: #e8f4f8; vertical-align: top;';
                     } else if (!dayObj.slots || slotIndex >= dayObj.slots.length) {
-                        cellStyle = 'padding: 10px; border: 1px solid #bdc3c7; background: #f9f9f9;'; // حصة غير مبرمجة في هذا اليوم
+                        cellStyle = 'padding: 10px; border: 1px solid #bdc3c7; background: #f9f9f9;'; 
                     }
                     bodyHtml += `<td style="${cellStyle}">${cellContent}</td>`;
                 });
@@ -379,56 +372,44 @@
             tbody.innerHTML = bodyHtml;
         }
         
-        // دالة رسم جدول حراسة الامتحانات (بشكل شبكي)
         function renderMyExamTimetable(exams, examDates, examTimes, headId = 'exam-table-header', bodyId = 'exam-table-body') {
             const theadTr = document.getElementById(headId);
             const tbody = document.getElementById(bodyId);
 
             if (!examDates || examDates.length === 0) {
-                theadTr.innerHTML = '<th>رسالة</th>';
-                tbody.innerHTML = '<tr><td style="padding: 20px; color: #7f8c8d; font-weight: bold;">لا توجد بيانات متاحة لجدول الامتحانات.</td></tr>';
+                theadTr.innerHTML = `<th>{{ _('رسالة') }}</th>`;
+                tbody.innerHTML = `<tr><td style="padding: 20px; color: #7f8c8d; font-weight: bold;">{{ _('لا توجد بيانات متاحة لجدول الامتحانات.') }}</td></tr>`;
                 return;
             }
 
-            // 1. بناء رأس الجدول (التواريخ)
-            let headerHtml = `<th style="padding: 12px; border: 1px solid #2c3e50; width: 120px; background: #2c3e50; color: white;">الفترة \\ التاريخ</th>`;
+            let headerHtml = `<th style="padding: 12px; border: 1px solid #2c3e50; width: 120px; background: #2c3e50; color: white;">{{ _('الفترة \\ التاريخ') }}</th>`;
             examDates.forEach(date => {
                 headerHtml += `<th style="padding: 12px; border: 1px solid #2c3e50; background: #34495e; color: white; direction: ltr;">${date}</th>`;
             });
             theadTr.innerHTML = headerHtml;
 
-            // 2. بناء جسم الجدول (الصفوف والأعمدة)
             let bodyHtml = '';
             examTimes.forEach(time => {
                 bodyHtml += `<tr>`;
-                // العمود الأول: الفترة
                 bodyHtml += `<td style="padding: 12px; border: 1px solid #bdc3c7; background: #ecf0f1; font-weight: bold;">${time}</td>`;
 
-                // باقي الأعمدة: التواريخ
                 examDates.forEach(date => {
-                    // جلب أي مهام للأستاذ في هذا اليوم وهذه الفترة
                     const slotExams = exams.filter(ex => ex.date === date && ex.time === time);
 
                     if (slotExams.length === 0) {
-                        // خلية فارغة
                         bodyHtml += `<td style="padding: 12px; border: 1px solid #bdc3c7; color: #ccc; background: #fdfdfd;">-</td>`;
                     } else {
-                        // تطبيق القواعد التي طلبتها
                         let cellContents = slotExams.map(ex => {
                             if (ex.role === "حارس") {
-                                // القاعدة 1: حراسة فقط -> عبارة "تكليف بالحراسة" بدون اسم مادة أو قاعة
-                                return `<span style="display:inline-block; padding: 6px 12px; background: #fadbd8; color: #c0392b; border-radius: 4px; font-weight: bold; font-size: 14px;">تكليف بالحراسة</span>`;
+                                return `<span style="display:inline-block; padding: 6px 12px; background: #fadbd8; color: #c0392b; border-radius: 4px; font-weight: bold; font-size: 14px;">{{ _('تكليف بالحراسة') }}</span>`;
                             } else if (ex.role === "حارس + أستاذ المادة") {
-                                // القاعدة 2: يدرس ويحرس -> اسم المادة + "تكليف بالحراسة"
-                                return `<strong style="color:#2c3e50; font-size: 15px;">${ex.subject}</strong><br><span style="display:inline-block; margin-top:5px; padding: 4px 8px; background: #fadbd8; color: #c0392b; border-radius: 4px; font-weight: bold; font-size: 13px;">تكليف بالحراسة</span>`;
+                                return `<strong style="color:#2c3e50; font-size: 15px;">${ex.subject}</strong><br><span style="display:inline-block; margin-top:5px; padding: 4px 8px; background: #fadbd8; color: #c0392b; border-radius: 4px; font-weight: bold; font-size: 13px;">{{ _('تكليف بالحراسة') }}</span>`;
                             } else if (ex.role === "أستاذ المادة") {
-                                // القاعدة 3: يدرس ولا يحرس -> اسم المادة + "دون حراسة"
-                                return `<strong style="color:#2c3e50; font-size: 15px;">${ex.subject}</strong><br><span style="display:inline-block; margin-top:5px; padding: 4px 8px; background: #fcf3cf; color: #d4ac0d; border-radius: 4px; font-weight: bold; font-size: 13px;">دون حراسة</span>`;
+                                return `<strong style="color:#2c3e50; font-size: 15px;">${ex.subject}</strong><br><span style="display:inline-block; margin-top:5px; padding: 4px 8px; background: #fcf3cf; color: #d4ac0d; border-radius: 4px; font-weight: bold; font-size: 13px;">{{ _('دون حراسة') }}</span>`;
                             }
                             return '';
                         });
 
-                        // دمج الخلايا في حال تواجد مهمتين في نفس الفترة (نادر ولكن محتمل)
                         bodyHtml += `<td style="padding: 12px; border: 1px solid #bdc3c7; vertical-align: middle; background: white;">${cellContents.join('<hr style="border-top: 1px dashed #ecf0f1; margin: 8px 0;">')}</td>`;
                     }
                 });

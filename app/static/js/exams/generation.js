@@ -11,7 +11,7 @@ function startGeneration() {
     
 
     if(selectedAlgos.length === 0) {
-        showNotification('الرجاء اختيار خوارزمية واحدة على الأقل!', 'error');
+        showNotification(_t('الرجاء اختيار خوارزمية واحدة على الأقل!'), 'error');
         return;
     }
 
@@ -58,7 +58,7 @@ function startGeneration() {
                     const data = JSON.parse(jsonStr);
                     if (data.success) {
                         lastGeneratedSchedule = data.schedule;
-                        logBox.innerHTML += '<br><span style="color:#28a745; font-weight:bold;">[System] تم استلام الجدول النهائي ورسمه بنجاح!</span><br>';
+                        logBox.innerHTML += `<br><span style="color:#28a745; font-weight:bold;">${_t('[System] تم استلام الجدول النهائي ورسمه بنجاح!')}</span><br>`;
                         resultsArea.style.display = 'block';
                         displayStatsDashboard(data.stats);
                         displayBalanceReport(data.stats.balance_report_data);
@@ -79,7 +79,7 @@ function startGeneration() {
 
                                 // تعبئة الأخطاء الصارمة
                                 if (data.violations.strict.length === 0) {
-                                    strictList.innerHTML = '<li>✅ ممتاز! لا توجد أي أخطاء صارمة أو نقص في الحراس. الجدول سليم أساسياً.</li>';
+                                    strictList.innerHTML = `<li>${_t('✅ ممتاز! لا توجد أي أخطاء صارمة أو نقص في الحراس. الجدول سليم أساسياً.')}</li>`;
                                 } else {
                                     data.violations.strict.forEach(err => {
                                         strictList.innerHTML += `<li style="margin-bottom: 5px;">${err}</li>`;
@@ -88,7 +88,7 @@ function startGeneration() {
 
                                 // تعبئة الملاحظات المرنة
                                 if (data.violations.soft.length === 0) {
-                                    softList.innerHTML = '<li>✅ رائع! جميع القيود المرنة والحدود القصوى محترمة 100%.</li>';
+                                    softList.innerHTML = `<li>${_t('✅ رائع! جميع القيود المرنة والحدود القصوى محترمة 100%.')}</li>`;
                                 } else {
                                     data.violations.soft.forEach(warn => {
                                         softList.innerHTML += `<li style="margin-bottom: 5px;">${warn}</li>`;
@@ -102,7 +102,7 @@ function startGeneration() {
                         logBox.innerHTML += `<br><span style="color:red;">[Error] ${data.message}</span><br>`;
                     }
                 } catch(e) {
-                    logBox.innerHTML += '<br><span style="color:red;">[Error] فشل في قراءة البيانات النهائية.</span><br>';
+                    logBox.innerHTML += `<br><span style="color:red;">${_t('فشل في قراءة البيانات النهائية.')}</span><br>`;
                 }
                 logBox.scrollTop = logBox.scrollHeight;
                 return;
@@ -113,7 +113,7 @@ function startGeneration() {
         };
 
         eventSource.onerror = function() {
-            logBox.innerHTML += '<br><span style="color:red;">[Network] انقطع الاتصال بمحرك التوليد.</span><br>';
+            logBox.innerHTML += `<br><span style="color:red;">${_t('[Network] انقطع الاتصال بمحرك التوليد.')}</span><br>`;
             eventSource.close();
             btnStart.style.display = 'block';
             btnStop.style.display = 'none';
@@ -123,7 +123,7 @@ function startGeneration() {
 
 function stopGeneration() {
     fetch('/exams/api/stop-generation', { method: 'POST' }).then(() => {
-        document.getElementById('btn-stop-gen').textContent = "جاري الإيقاف...";
+        document.getElementById('btn-stop-gen').textContent = _t("جاري الإيقاف...");
     });
 }
 
@@ -156,7 +156,7 @@ function renderScheduleTables(schedule) {
 
         const sortedLevels = [...allLevels].sort();
         const sortedTimes = [...allTimes].sort();
-        const dayNames = ["الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"];
+        const dayNames = [_t("الأحد"), _t("الاثنين"), _t("الثلاثاء"), _t("الأربعاء"), _t("الخميس"), _t("الجمعة"), _t("السبت")];
 
         sortedLevels.forEach(level => {
             const levelExams = allExams.filter(exam => exam.level === level);
@@ -164,14 +164,14 @@ function renderScheduleTables(schedule) {
 
             const levelContainer = document.createElement('div');
             levelContainer.className = 'level-schedule-container';
-            levelContainer.innerHTML = `<h4 class="level-schedule-title" style="background: #3f51b5; color: white; padding: 10px; border-radius: 4px 4px 0 0; margin: 0;">جدول امتحانات: ${level}</h4>`;
+            levelContainer.innerHTML = `<h4 class="level-schedule-title" style="background: #3f51b5; color: white; padding: 10px; border-radius: 4px 4px 0 0; margin: 0;">${_t('جدول امتحانات: ')}${level}</h4>`;
 
             const table = document.createElement('table');
             table.className = 'results-grid-table';
             
             const thead = table.createTHead();
             const headerRow = thead.insertRow();
-            headerRow.innerHTML = '<th style="background:#f1f1f1; padding:10px; border:1px solid #ccc; width:100px;">الفترة / اليوم</th>';
+            headerRow.innerHTML = `<th style="background:#f1f1f1; padding:10px; border:1px solid #ccc; width:100px;">${_t('الفترة / اليوم')}</th>`;
             allDates.forEach(dateStr => {
                 const dateObj = new Date(dateStr);
                 const utcDate = new Date(dateObj.valueOf() + dateObj.getTimezoneOffset() * 60000);
@@ -208,7 +208,7 @@ function renderScheduleTables(schedule) {
                                 const hallGuards = guardsCopy.splice(0, count);
 
                                 const styledGuards = hallGuards.map(guard => {
-                                    if (guard.includes('**نقص**')) return `<span style="color:#dc3545; font-weight:bold; background:#ffeeba; padding:2px 4px; border-radius:3px;">نقص!</span>`;
+                                    if (guard.includes('**نقص**')) return `<span style="color:#dc3545; font-weight:bold; background:#ffeeba; padding:2px 4px; border-radius:3px;">${_t('نقص!')}</span>`;
                                     return `<span style="display:inline-block; background:#e8f5e9; border:1px solid #c8e6c9; padding:2px 5px; border-radius:3px; margin:2px 0; font-size:13px;">${guard}</span>`;
                                 }).join(' ');
 
@@ -220,17 +220,17 @@ function renderScheduleTables(schedule) {
                             return '';
                         };
                         
-                        hallHtml += processHalls('كبيرة', 'كبيرة', 4);
-                        hallHtml += processHalls('متوسطة', 'متوسطة', 2);
-                        hallHtml += processHalls('صغيرة', 'صغيرة', 1);
+                        hallHtml += processHalls('كبيرة', _t('كبيرة'), 4);
+                        hallHtml += processHalls('متوسطة', _t('متوسطة'), 2);
+                        hallHtml += processHalls('صغيرة', _t('صغيرة'), 1);
 
                         cell.innerHTML = `
                             <div style="font-weight:bold; color:#1976d2; font-size:15px; margin-bottom:5px;">${exam.subject}</div>
-                            <div style="font-size:13px; color:#555; margin-bottom:5px;">أستاذ المادة: <strong>${exam.professor}</strong></div>
+                            <div style="font-size:13px; color:#555; margin-bottom:5px;">${_t('أستاذ المادة: ')}<strong>${exam.professor}</strong></div>
                             <div>${hallHtml}</div>
                         `;
                     } else {
-                        cell.innerHTML = `<div style="color:#ccc; text-align:center; padding:20px;">- فراغ -</div>`;
+                        cell.innerHTML = `<div style="color:#ccc; text-align:center; padding:20px;">${_t('- فراغ -')}</div>`;
                     }
                 });
             });
@@ -241,13 +241,13 @@ function renderScheduleTables(schedule) {
         });
     } catch (e) {
         console.error("خطأ فادح في دالة renderScheduleTables:", e);
-        tablesContainer.innerHTML = `<p style="color:red; font-weight:bold;">فشل عرض النتائج بسبب خطأ. راجع الـ Console.</p>`;
+        tablesContainer.innerHTML = `<p style="color:red; font-weight:bold;">${_t('فشل عرض النتائج بسبب خطأ. راجع الـ Console.')}</p>`;
     }
 }
 
 // دوال تصدير مؤقتة لمنع توقف السكربت 
-function exportSchedule() { showNotification("سيتم برمجة التصدير إلى Excel قريباً!", "success"); }
-function exportProfSchedule() { showNotification("سيتم برمجة تصدير جداول الأساتذة قريباً!", "success"); }
+function exportSchedule() { showNotification(_t("سيتم برمجة التصدير إلى Excel قريباً!"), "success"); }
+function exportProfSchedule() { showNotification(_t("سيتم برمجة تصدير جداول الأساتذة قريباً!"), "success"); }
 
 // ==========================================
 // 📊 رسم لوحة الإحصائيات
@@ -259,26 +259,26 @@ function displayStatsDashboard(stats) {
 
     let dashboardHTML = `
         <div class="stat-card">
-            <h4>إجمالي الحصص الموزعة</h4>
+            <h4>${_t('إجمالي الحصص الموزعة')}</h4>
             <p>${stats.total_duties}</p>
-            <div class="sub-stat">كبيرة: ${stats.total_large_duties} | أخرى: ${stats.total_other_duties}</div>
+            <div class="sub-stat">${_t('كبيرة: ')}${stats.total_large_duties}${_t(' | أخرى: ')}${stats.total_other_duties}</div>
         </div>
         <div class="stat-card">
-            <h4>متوسط الحصص لكل أستاذ</h4>
+            <h4>${_t('متوسط الحصص لكل أستاذ')}</h4>
             <p>${stats.avg_duties_per_prof.toFixed(2)}</p>
         </div>
         <div class="stat-card">
-            <h4>اليوم الأكثر ازدحاماً</h4>
+            <h4>${_t('اليوم الأكثر ازدحاماً')}</h4>
             <p>${stats.busiest_day.date}</p>
-            <div class="sub-stat">بمجموع ${stats.busiest_day.duties} حصص حراسة</div>
+            <div class="sub-stat">${_t('بمجموع ')}${stats.busiest_day.duties}${_t(' حصص حراسة')}</div>
         </div>
         <div class="stat-card">
-            <h4>أكثر 3 أساتذة عملاً 📈</h4>
-            <ul>${stats.most_burdened_profs.map(p => `<li>${p.name}: <b>${p.workload}</b> نقطة</li>`).join('')}</ul>
+            <h4>${_t('أكثر 3 أساتذة عملاً 📈')}</h4>
+            <ul>${stats.most_burdened_profs.map(p => `<li>${p.name}: <b>${p.workload}</b> ${_t(' نقطة')}</li>`).join('')}</ul>
         </div>
          <div class="stat-card">
-            <h4>أقل 3 أساتذة عملاً 📉</h4>
-            <ul>${stats.least_burdened_profs.map(p => `<li>${p.name}: <b>${p.workload}</b> نقطة</li>`).join('')}</ul>
+            <h4>${_t('أقل 3 أساتذة عملاً 📉')}</h4>
+            <ul>${stats.least_burdened_profs.map(p => `<li>${p.name}: <b>${p.workload}</b> ${_t(' نقطة')}</li>`).join('')}</ul>
         </div>
     `;
 
@@ -295,7 +295,7 @@ function displayStatsDashboard(stats) {
             const subjectItems = stats.unscheduled_subjects_report.map(item => `<li>${item}</li>`).join('');
             reportContentHTML += `
                 <div style="margin-bottom: 10px;">
-                    <h5 style="margin: 0 0 5px 0; color: #dc3545;">❌ مواد لم تتم جدولتها (${stats.unscheduled_subjects_report.length})</h5>
+                    <h5 style="margin: 0 0 5px 0; color: #dc3545;">${_t('❌ مواد لم تتم جدولتها (')}${stats.unscheduled_subjects_report.length}${_t(')')}</h5>
                     <ul style="color: #dc3545; padding-right: 15px; margin: 0; text-align: right;">${subjectItems}</ul>
                 </div>
             `;
@@ -305,18 +305,18 @@ function displayStatsDashboard(stats) {
             const guardItems = stats.shortage_reports.map(item => `<li>${item}</li>`).join('');
             reportContentHTML += `
                 <div>
-                    <h5 style="margin: 0 0 5px 0; color: #856404;">⚠️ نقص في الحراسة (${stats.shortage_reports.length})</h5>
+                    <h5 style="margin: 0 0 5px 0; color: #856404;">${_t('⚠️ نقص في الحراسة (')}${stats.shortage_reports.length}${_t(')')}</h5>
                     <ul style="color: #856404; padding-right: 15px; margin: 0; text-align: right;">${guardItems}</ul>
                 </div>
             `;
         }
     } else {
-        reportContentHTML = `<p style="font-size:16px; margin-top:20px; color:#28a745; font-weight:bold;">✅ الجدول مكتمل ومثالي!</p>`;
+        reportContentHTML = `<p style="font-size:16px; margin-top:20px; color:#28a745; font-weight:bold;">${_t('✅ الجدول مكتمل ومثالي!')}</p>`;
     }
 
     dashboardHTML += `
         <div class="${reportCardClass}" style="${(!hasGuardShortages && !hasUnscheduledSubjects) ? 'background:#e8f5e9; border-color:#c3e6cb;' : ''}">
-            <h4 style="${(!hasGuardShortages && !hasUnscheduledSubjects) ? 'color:#28a745;' : 'color:#856404;'}">تقارير الملاحظات والنقص</h4>
+            <h4 style="${(!hasGuardShortages && !hasUnscheduledSubjects) ? 'color:#28a745;' : 'color:#856404;'}">${_t('تقارير الملاحظات والنقص')}</h4>
             ${reportContentHTML}
         </div>
     `;
@@ -364,10 +364,10 @@ function displayWorkloadChart(chartData) {
 // ==========================================
 
 async function exportScheduleWord() {
-    if (!lastGeneratedSchedule) { alert("يرجى إنشاء جدول أولاً قبل التصدير."); return; }
+    if (!lastGeneratedSchedule) { alert(_t("يرجى إنشاء جدول أولاً قبل التصدير.")); return; }
     
     const button = document.getElementById('export-schedule-word-button');
-    button.disabled = true; button.textContent = 'جاري التصدير...';
+    button.disabled = true; button.textContent = _t('جاري التصدير...');
     
     const lang = document.querySelector('input[name="export_lang"]:checked')?.value || 'ar';
     let fileName = lang === 'en' ? 'Exams_Schedule.docx' : (lang === 'fr' ? 'Emplois_Examens.docx' : 'جداول_الامتحانات.docx');
@@ -377,7 +377,7 @@ async function exportScheduleWord() {
             method: 'POST', headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(lastGeneratedSchedule)
         });
-        if (!response.ok) throw new Error('فشل التصدير من الخادم');
+        if (!response.ok) throw new Error(_t('فشل التصدير من الخادم'));
 
         const blob = await response.blob();
         const url = window.URL.createObjectURL(blob);
@@ -385,15 +385,15 @@ async function exportScheduleWord() {
         a.style.display = 'none'; a.href = url; a.download = fileName;
         document.body.appendChild(a); a.click();
         window.URL.revokeObjectURL(url); document.body.removeChild(a);
-    } catch (err) { alert('حدث خطأ أثناء تصدير الملف.'); console.error(err); } 
-    finally { button.disabled = false; button.textContent = 'تصدير الامتحانات (Word)'; }
+    } catch (err) { alert(_t('حدث خطأ أثناء تصدير الملف.')); console.error(err); } 
+    finally { button.disabled = false; button.textContent = _t('تصدير الامتحانات (Word)'); }
 }
 
 async function exportProfScheduleWord() {
-    if (!lastGeneratedSchedule) { alert("يرجى إنشاء جدول أولاً قبل التصدير."); return; }
+    if (!lastGeneratedSchedule) { alert(_t("يرجى إنشاء جدول أولاً قبل التصدير.")); return; }
     
     const button = document.getElementById('export-prof-word-button');
-    button.disabled = true; button.textContent = 'جاري التصدير...';
+    button.disabled = true; button.textContent = _t('جاري التصدير...');
 
     const lang = document.querySelector('input[name="export_lang"]:checked')?.value || 'ar';
     let fileName = lang === 'en' ? 'Profs_Guarding_Schedule.docx' : (lang === 'fr' ? 'Emplois_Surveillance_Profs.docx' : 'جداول_الحراسة_للأساتذة.docx');
@@ -403,7 +403,7 @@ async function exportProfScheduleWord() {
             method: 'POST', headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(lastGeneratedSchedule)
         });
-        if (!response.ok) throw new Error('فشل التصدير من الخادم');
+        if (!response.ok) throw new Error(_t('فشل التصدير من الخادم'));
 
         const blob = await response.blob();
         const url = window.URL.createObjectURL(blob);
@@ -411,15 +411,15 @@ async function exportProfScheduleWord() {
         a.style.display = 'none'; a.href = url; a.download = fileName;
         document.body.appendChild(a); a.click();
         window.URL.revokeObjectURL(url); document.body.removeChild(a);
-    } catch (err) { alert('حدث خطأ أثناء تصدير الملف.'); console.error(err); } 
-    finally { button.disabled = false; button.textContent = 'تصدير الأساتذة (Word)'; }
+    } catch (err) { alert(_t('حدث خطأ أثناء تصدير الملف.')); console.error(err); } 
+    finally { button.disabled = false; button.textContent = _t('تصدير الأساتذة (Word)'); }
 }
 
 async function exportProfScheduleAnonymous() {
-    if (!lastGeneratedSchedule) { alert("يرجى إنشاء جدول أولاً قبل التصدير."); return; }
+    if (!lastGeneratedSchedule) { alert(_t("يرجى إنشاء جدول أولاً قبل التصدير.")); return; }
     
     const button = document.getElementById('export-prof-anonymous-word-button');
-    button.disabled = true; button.textContent = 'جاري التصدير...';
+    button.disabled = true; button.textContent = _t('جاري التصدير...');
 
     const lang = document.querySelector('input[name="export_lang"]:checked')?.value || 'ar';
     let fileName = lang === 'en' ? 'Profs_Schedule_Simplified.docx' : (lang === 'fr' ? 'Emplois_Surveillance_Simplifie.docx' : 'جداول_الحراسة_المبسطة.docx');
@@ -429,7 +429,7 @@ async function exportProfScheduleAnonymous() {
             method: 'POST', headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(lastGeneratedSchedule)
         });
-        if (!response.ok) throw new Error('فشل التصدير من الخادم');
+        if (!response.ok) throw new Error(_t('فشل التصدير من الخادم'));
 
         const blob = await response.blob();
         const url = window.URL.createObjectURL(blob);
@@ -437,8 +437,8 @@ async function exportProfScheduleAnonymous() {
         a.style.display = 'none'; a.href = url; a.download = fileName;
         document.body.appendChild(a); a.click();
         window.URL.revokeObjectURL(url); document.body.removeChild(a);
-    } catch (err) { alert('حدث خطأ أثناء تصدير الملف.'); console.error(err); } 
-    finally { button.disabled = false; button.textContent = 'تصدير الأساتذة (مُبسَّط)'; }
+    } catch (err) { alert(_t('حدث خطأ أثناء تصدير الملف.')); console.error(err); } 
+    finally { button.disabled = false; button.textContent = _t('تصدير الأساتذة (مُبسَّط)'); }
 }
 
 function displayBalanceReport(data) {
@@ -453,7 +453,7 @@ function displayBalanceReport(data) {
         if (!details) return '';
         return details.map(item => `
             <tr>
-                <td style="padding: 10px; border: 1px solid #ccc;">${item.pattern}</td>
+                <td style="padding: 10px; border: 1px solid #ccc;">${item.large_count} ${_t('كبيرة')} + ${item.other_count} ${_t(' أخرى')}</td>
                 <td style="padding: 10px; border: 1px solid #ccc;">${item.target_count}</td>
                 <td style="padding: 10px; border: 1px solid #ccc;">${item.actual_count}</td>
                 <td style="padding: 10px; border: 1px solid #ccc; font-weight: bold; color: ${item.deviation === 0 ? '#28a745' : '#dc3545'};">
@@ -465,15 +465,15 @@ function displayBalanceReport(data) {
 
     container.innerHTML = `
         <div class="target-distribution-report" style="background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 20px; margin-top: 20px;">
-            <h3 style="color: #3f51b5; border-bottom: 2px solid #3f51b5; padding-bottom: 5px; margin-top: 0;">⚖️ تقرير توازن توزيع الحراسة</h3>
+            <h3 style="color: #3f51b5; border-bottom: 2px solid #3f51b5; padding-bottom: 5px; margin-top: 0;">${_t('⚖️ تقرير توازن توزيع الحراسة')}</h3>
             
             <table class="distribution-table" style="width: 100%; border-collapse: collapse; text-align: center; margin-top: 15px;">
                 <thead style="background-color: #f1f1f1;">
                     <tr>
-                        <th style="padding: 10px; border: 1px solid #ccc;">نمط التوزيع</th>
-                        <th style="padding: 10px; border: 1px solid #ccc;">العدد المستهدف من الأساتذة</th>
-                        <th style="padding: 10px; border: 1px solid #ccc;">العدد الفعلي</th>
-                        <th style="padding: 10px; border: 1px solid #ccc;">الانحراف</th>
+                        <th style="padding: 10px; border: 1px solid #ccc;">${_t('نمط التوزيع')}</th>
+                        <th style="padding: 10px; border: 1px solid #ccc;">${_t('العدد المستهدف من الأساتذة')}</th>
+                        <th style="padding: 10px; border: 1px solid #ccc;">${_t('العدد الفعلي')}</th>
+                        <th style="padding: 10px; border: 1px solid #ccc;">${_t('الانحراف')}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -482,13 +482,13 @@ function displayBalanceReport(data) {
             </table>
             
             <div class="balance-indicator" style="margin-top: 20px; padding-top: 15px; border-top: 1px dashed #ccc;">
-                <span style="font-weight: bold; font-size: 16px; display: inline-block; margin-bottom: 10px;">مؤشر التوازن (العدالة): </span>
+                <span style="font-weight: bold; font-size: 16px; display: inline-block; margin-bottom: 10px;">${_t('مؤشر التوازن (العدالة): ')}</span>
                 <div class="progress-bar-container" style="background: #e9ecef; border-radius: 5px; width: 100%; height: 25px; overflow: hidden; border: 1px solid #ddd;">
                     <div class="progress" style="background-color: ${data.balance_score > 80 ? '#28a745' : (data.balance_score > 50 ? '#ffc107' : '#dc3545')}; width: ${data.balance_score}%; height: 100%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; transition: width 0.5s ease-in-out;">
                         ${data.balance_score}%
                     </div>
                 </div>
-                <p style="font-size: 12px; color: #666; margin-top: 5px;">* نسبة 100% تعني أن التوزيع الفعلي طابق الأهداف المرجوة تماماً.</p>
+                <p style="font-size: 12px; color: #666; margin-top: 5px;">${_t('* نسبة 100% تعني أن التوزيع الفعلي طابق الأهداف المرجوة تماماً.')}</p>
             </div>
         </div>
     `;
@@ -510,7 +510,7 @@ function setupManualDistributionListeners() {
     exportBtn.addEventListener('click', async () => {
         statusP.textContent = '';
         const originalText = exportBtn.textContent;
-        exportBtn.textContent = '⏳ جاري إنشاء الملف...';
+        exportBtn.textContent = _t('⏳ جاري إنشاء الملف...');
         exportBtn.disabled = true;
 
         try {
@@ -522,7 +522,7 @@ function setupManualDistributionListeners() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(settings)
             });
-            if (!response.ok) throw new Error('فشل التصدير من الخادم');
+            if (!response.ok) throw new Error(_t('فشل التصدير من الخادم'));
 
             const blob = await response.blob();
             const url = window.URL.createObjectURL(blob);
@@ -533,10 +533,10 @@ function setupManualDistributionListeners() {
             a.click();
             window.URL.revokeObjectURL(url);
             document.body.removeChild(a);
-            showNotification("تم تصدير الملف بنجاح. يمكنك الآن تعديله.", "success");
+            showNotification(_t("تم تصدير الملف بنجاح. يمكنك الآن تعديله."), "success");
         } catch (error) {
             console.error(error);
-            showNotification("حدث خطأ أثناء تصدير المخطط.", "error");
+            showNotification(_t("حدث خطأ أثناء تصدير المخطط."), "error");
         } finally {
             exportBtn.textContent = originalText;
             exportBtn.disabled = false;
@@ -566,20 +566,20 @@ function setupManualDistributionListeners() {
                 statusP.textContent = data.message;
                 statusP.style.color = 'green';
             } else {
-                showNotification(data.error || "فشل الاستيراد", 'error');
-                statusP.textContent = data.error || "فشل الاستيراد";
+                showNotification(data.error || _t("فشل الاستيراد"), 'error');
+                statusP.textContent = data.error || _t("فشل الاستيراد");
                 statusP.style.color = 'red';
             }
         })
         .catch(error => {
-            statusP.textContent = `خطأ: ${error.message}`;
+            statusP.textContent = `${_t('خطأ: ')}${error.message}`;
             statusP.style.color = 'red';
         })
         .finally(() => { fileInput.value = ''; });
     });
 
     clearBtn.addEventListener('click', () => {
-        if (!confirm("هل أنت متأكد؟ سيؤدي هذا إلى حذف الجدول اليدوي الذي استوردته والعودة إلى وضع التوزيع التلقائي للمواد.")) return;
+        if (!confirm(_t("هل أنت متأكد؟ سيؤدي هذا إلى حذف الجدول اليدوي الذي استوردته والعودة إلى وضع التوزيع التلقائي للمواد."))) return;
 
         fetch('/exams/api/clear-manual-distribution', { method: 'POST' })
         .then(res => res.json())
@@ -590,7 +590,7 @@ function setupManualDistributionListeners() {
         })
         .catch(error => {
             console.error(error);
-            showNotification("حدث خطأ", 'error');
+            showNotification(_t("حدث خطأ"), 'error');
         });
     });
 }
@@ -608,16 +608,16 @@ function toggleAlgoSettings(algoId) {
 // ==========================================
 function publishExamSchedule() {
     if (!lastGeneratedSchedule) {
-        showNotification("لا يوجد جدول جاهز لنشره. الرجاء توليد الجدول أولاً.", "error");
+        showNotification(_t("لا يوجد جدول جاهز لنشره. الرجاء توليد الجدول أولاً."), "error");
         return;
     }
     
-    if (!confirm("⚠️ هل أنت متأكد من نشر هذا الجدول؟ سيظهر فوراً في حسابات جميع الأساتذة.")) return;
+    if (!confirm(_t("⚠️ هل أنت متأكد من نشر هذا الجدول؟ سيظهر فوراً في حسابات جميع الأساتذة."))) return;
 
     const btn = document.getElementById('publish-schedule-button');
     const originalText = btn.textContent;
     btn.disabled = true;
-    btn.textContent = '⏳ جاري النشر...';
+    btn.textContent = _t('⏳ جاري النشر...');
 
     fetch('/exams/api/publish', {
         method: 'POST',
@@ -629,12 +629,12 @@ function publishExamSchedule() {
         if (data.success) {
             showNotification(data.message, 'success');
         } else {
-            showNotification(data.error || 'حدث خطأ أثناء النشر', 'error');
+            showNotification(data.error || _t('حدث خطأ أثناء النشر'), 'error');
         }
     })
     .catch(err => {
         console.error(err);
-        showNotification('حدث خطأ في الاتصال', 'error');
+        showNotification(_t('حدث خطأ في الاتصال'), 'error');
     })
     .finally(() => {
         btn.disabled = false;
@@ -646,12 +646,12 @@ function publishExamSchedule() {
 // 🚫 سحب وإلغاء جدول الحراسة من حسابات الأساتذة
 // ==========================================
 function unpublishExamSchedule() {
-    if (!confirm("⚠️ هل أنت متأكد من سحب الجدول؟ سيختفي الجدول فوراً من حسابات جميع الأساتذة، ولن يروه حتى تقوم بنشره من جديد.")) return;
+    if (!confirm(_t("⚠️ هل أنت متأكد من سحب الجدول؟ سيختفي الجدول فوراً من حسابات جميع الأساتذة، ولن يروه حتى تقوم بنشره من جديد."))) return;
 
     const btn = document.getElementById('unpublish-schedule-button');
     const originalText = btn.textContent;
     btn.disabled = true;
-    btn.textContent = '⏳ جاري السحب...';
+    btn.textContent = _t('⏳ جاري السحب...');
 
     fetch('/exams/api/unpublish', {
         method: 'POST',
@@ -662,12 +662,12 @@ function unpublishExamSchedule() {
         if (data.success) {
             showNotification(data.message, 'success');
         } else {
-            showNotification(data.error || 'حدث خطأ أثناء السحب', 'error');
+            showNotification(data.error || _t('حدث خطأ أثناء السحب'), 'error');
         }
     })
     .catch(err => {
         console.error(err);
-        showNotification('حدث خطأ في الاتصال بالخادم', 'error');
+        showNotification(_t('حدث خطأ في الاتصال بالخادم'), 'error');
     })
     .finally(() => {
         btn.disabled = false;

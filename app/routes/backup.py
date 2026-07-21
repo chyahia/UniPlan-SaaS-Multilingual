@@ -2,6 +2,7 @@ from flask import Blueprint, send_file, request, jsonify, session
 import json
 import io
 from app.database import db, Teacher, Room, Level, Course, CourseNature, Setting, TeacherRequest, User
+from flask_babel import _ # ✨ استيراد دالة الترجمة
 
 backup_bp = Blueprint('backup', __name__)
 
@@ -11,7 +12,7 @@ backup_bp = Blueprint('backup', __name__)
 @backup_bp.route('/api/backup/export', methods=['GET'])
 def export_db():
     if session.get('role') not in ['super_admin', 'tenant_admin']: 
-        return jsonify({"error": "غير مصرح بهذا الإجراء"}), 403
+        return jsonify({"error": _("غير مصرح بهذا الإجراء")}), 403
         
     tenant_id = session.get('tenant_id')
     
@@ -58,7 +59,8 @@ def export_db():
         return send_file(output, mimetype='application/json', as_attachment=True, download_name='uniplan_backup.json')
         
     except Exception as e:
-        return jsonify({"error": f"حدث خطأ أثناء التصدير: {str(e)}"}), 500
+        # ✨ تغليف الرسالة بشكل متوافق مع Babel
+        return jsonify({"error": _("حدث خطأ أثناء التصدير: {error}").format(error=str(e))}), 500
 
 
 # ==========================================
@@ -67,14 +69,14 @@ def export_db():
 @backup_bp.route('/api/backup/import', methods=['POST'])
 def import_db():
     if session.get('role') not in ['super_admin', 'tenant_admin']: 
-        return jsonify({"error": "غير مصرح"}), 403
+        return jsonify({"error": _("غير مصرح")}), 403
         
     if 'file' not in request.files:
-        return jsonify({"error": "لم يتم إرفاق ملف"}), 400
+        return jsonify({"error": _("لم يتم إرفاق ملف")}), 400
         
     file = request.files['file']
     if file.filename == '' or not file.filename.endswith('.json'):
-        return jsonify({"error": "صيغة الملف غير صالحة. يجب رفع ملف بصيغة .json"}), 400
+        return jsonify({"error": _("صيغة الملف غير صالحة. يجب رفع ملف بصيغة .json")}), 400
         
     tenant_id = session.get('tenant_id')
     
@@ -152,11 +154,12 @@ def import_db():
                 db.session.add(new_req)
 
         db.session.commit()
-        return jsonify({"success": True, "message": "تم استعادة النسخة الاحتياطية بنجاح وتحديث النظام بالكامل!"})
+        return jsonify({"success": True, "message": _("تم استعادة النسخة الاحتياطية بنجاح وتحديث النظام بالكامل!")})
         
     except Exception as e:
         db.session.rollback()
-        return jsonify({"error": f"حدث خطأ أثناء الاستعادة. تأكد من سلامة الملف. التفاصيل: {str(e)}"}), 500
+        # ✨ تغليف الرسالة بشكل متوافق مع Babel
+        return jsonify({"error": _("حدث خطأ أثناء الاستعادة. تأكد من سلامة الملف. التفاصيل: {error}").format(error=str(e))}), 500
 
 
 # ==========================================
@@ -165,7 +168,7 @@ def import_db():
 @backup_bp.route('/api/admin/factory_reset', methods=['POST'])
 def factory_reset():
     if session.get('role') not in ['super_admin', 'tenant_admin']: 
-        return jsonify({"error": "غير مصرح بهذا الإجراء"}), 403
+        return jsonify({"error": _("غير مصرح بهذا الإجراء")}), 403
     
     try:
         tenant_id = session.get('tenant_id')
@@ -183,8 +186,9 @@ def factory_reset():
         Setting.query.filter_by(tenant_id=tenant_id).delete()
         
         db.session.commit()
-        return jsonify({"success": True, "message": "تم مسح جميع بيانات القسم بنجاح. النظام الآن فارغ كلياً."})
+        return jsonify({"success": True, "message": _("تم مسح جميع بيانات القسم بنجاح. النظام الآن فارغ كلياً.")})
         
     except Exception as e:
         db.session.rollback()
-        return jsonify({"error": f"حدث خطأ أثناء ضبط المصنع: {str(e)}"}), 500
+        # ✨ تغليف الرسالة بشكل متوافق مع Babel
+        return jsonify({"error": _("حدث خطأ أثناء ضبط المصنع: {error}").format(error=str(e))}), 500

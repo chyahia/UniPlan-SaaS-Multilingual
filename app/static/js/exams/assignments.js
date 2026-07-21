@@ -126,7 +126,7 @@ function renderSubjs() {
         
         if (isAssigned) {
             // كتابة اسم الأستاذ أمام المادة بلون أحمر
-            html += `<div style="font-size: 13px; color: #d32f2f; margin-top: 5px; border-top: 1px dashed #ccc; padding-top: 3px;">الأستاذ: ${teachingProfs.join('، ')}</div>`;
+            html += `<div style="font-size: 13px; color: #d32f2f; margin-top: 5px; border-top: 1px dashed #ccc; padding-top: 3px;">${_t('الأستاذ: ')}${teachingProfs.join('، ')}</div>`;
         }
 
         div.innerHTML = html;
@@ -135,8 +135,8 @@ function renderSubjs() {
 }
 
 function assignSelected() {
-    if (!selectedProfId) return showNotification('الرجاء تظليل أستاذ أولاً', 'error');
-    if (selectedSubjIds.size === 0) return showNotification('الرجاء تظليل مادة واحدة على الأقل', 'error');
+    if (!selectedProfId) return showNotification(_t('الرجاء تظليل أستاذ أولاً'), 'error');
+    if (selectedSubjIds.size === 0) return showNotification(_t('الرجاء تظليل مادة واحدة على الأقل'), 'error');
 
     // 🛑 التعديل: إرسال البيانات مجمعة عبر المسار الصحيح
     fetch('/exams/api/assignments/assign', {
@@ -150,18 +150,18 @@ function assignSelected() {
     .then(res => res.json())
     .then(data => {
         if (data.success) {
-            showNotification('تم التخصيص بنجاح!', 'success');
+            showNotification(_t('تم التخصيص بنجاح!'), 'success');
             selectedSubjIds.clear(); 
             loadAssignDataA(); 
         } else {
-            showNotification(data.message || 'حدث خطأ', 'error');
+            showNotification(data.message || _t('حدث خطأ'), 'error');
         }
     });
 }
 
 function unassignSelected() {
-    if (!selectedProfId) return showNotification('الرجاء تظليل أستاذ أولاً لإلغاء إسناده', 'error');
-    if (selectedSubjIds.size === 0) return showNotification('الرجاء تظليل المواد المراد إلغاء إسنادها', 'error');
+    if (!selectedProfId) return showNotification(_t('الرجاء تظليل أستاذ أولاً لإلغاء إسناده'), 'error');
+    if (selectedSubjIds.size === 0) return showNotification(_t('الرجاء تظليل المواد المراد إلغاء إسنادها'), 'error');
 
     fetch('/exams/api/assignments/unassign', {
         method: 'POST',
@@ -174,7 +174,7 @@ function unassignSelected() {
     .then(res => res.json())
     .then(data => {
         if (data.success) {
-            showNotification('تم إلغاء التخصيص بنجاح!', 'success');
+            showNotification(_t('تم إلغاء التخصيص بنجاح!'), 'success');
             selectedSubjIds.clear();
             loadAssignDataA();
         }
@@ -182,7 +182,7 @@ function unassignSelected() {
 }
 
 function unassignAllFromProf(profId, profName) {
-    if (!confirm(`هل أنت متأكد من إلغاء إسناد جميع المواد للأستاذ "${profName}"؟`)) return;
+    if (!confirm(`${_t('هل أنت متأكد من إلغاء إسناد جميع المواد للأستاذ')} "${profName}"؟`)) return;
     
     const assignment = profAssignments.find(a => a.prof_id === profId);
     if (!assignment || assignment.subjects.length === 0) return;
@@ -200,14 +200,14 @@ function unassignAllFromProf(profId, profName) {
     .then(res => res.json())
     .then(data => {
         if (data.success) {
-            showNotification('تم إلغاء إسناد جميع المواد بنجاح!', 'success');
+            showNotification(_t('تم إلغاء إسناد جميع المواد بنجاح!'), 'success');
             loadAssignDataA(); 
         }
     });
 }
 
 function unassignSubject(subjId, subjName) {
-    if (!confirm(`هل أنت متأكد من إلغاء إسناد المادة "${subjName}"؟`)) return;
+    if (!confirm(`${_t('هل أنت متأكد من إلغاء إسناد المادة')} "${subjName}"؟`)) return;
     
     let teachingProfsIds = [];
     profAssignments.forEach(pa => {
@@ -226,7 +226,7 @@ function unassignSubject(subjId, subjName) {
     );
     
     Promise.all(promises).then(() => {
-        showNotification('تم إلغاء إسناد المادة بنجاح!', 'success');
+        showNotification(_t('تم إلغاء إسناد المادة بنجاح!'), 'success');
         selectedSubjIds.delete(subjId); 
         loadAssignDataA(); 
     });
@@ -294,7 +294,7 @@ function saveBulkLevelHalls() {
         body: JSON.stringify(payload)
     }).then(res => res.json()).then(data => {
         if (data.success) {
-            showNotification('تم حفظ قاعات كل المستويات بنجاح!', 'success');
+            showNotification(_t('تم حفظ قاعات كل المستويات بنجاح!'), 'success');
             loadAssignDataB(); // لإعادة تلوين الخلفيات المحددة
         }
     });

@@ -1,5 +1,6 @@
 from flask import Blueprint, jsonify, request, session
 from app.database import db, Teacher, Room, Level, Course, CourseNature
+from flask_babel import _  # ✨ استيراد دالة الترجمة
 
 manage_data_bp = Blueprint('manage_data', __name__)
 
@@ -63,14 +64,14 @@ def rename_room(id):
     tenant_id = session.get('tenant_id')
     new_name = request.json.get('name')
     if not new_name:
-        return jsonify({"success": False, "error": "الاسم مطلوب"}), 400
+        return jsonify({"success": False, "error": _("الاسم مطلوب")}), 400 # ✨ ترجمة
         
     room = Room.query.filter_by(id=id, tenant_id=tenant_id).first()
     if room:
         room.name = new_name
         db.session.commit()
         return jsonify({"success": True})
-    return jsonify({"success": False, "error": "القاعة غير موجودة"}), 404
+    return jsonify({"success": False, "error": _("القاعة غير موجودة")}), 404 # ✨ ترجمة
 
 @manage_data_bp.route('/api/courses/bulk-nature', methods=['POST'])
 def update_course_nature_bulk():
@@ -79,7 +80,7 @@ def update_course_nature_bulk():
     new_nature = request.json.get('course_nature')
     
     if not course_ids or not new_nature:
-        return jsonify({"success": False, "error": "بيانات غير مكتملة"}), 400
+        return jsonify({"success": False, "error": _("بيانات غير مكتملة")}), 400 # ✨ ترجمة
 
     # جلب رموز الطبيعة الخاصة بهذا القسم فقط
     natures = CourseNature.query.filter_by(tenant_id=tenant_id).all()
@@ -92,7 +93,8 @@ def update_course_nature_bulk():
         crs.course_nature = new_nature
         
     db.session.commit()
-    return jsonify({"success": True, "message": f"تم تعديل طبيعة {len(courses)} مواد بنجاح!"})
+    # ✨ ترجمة مع ضبط المتغير
+    return jsonify({"success": True, "message": _("تم تعديل طبيعة {count} مواد بنجاح!").format(count=len(courses))})
 
 @manage_data_bp.route('/api/courses/bulk-properties', methods=['POST'])
 def update_course_properties_bulk():
@@ -104,7 +106,7 @@ def update_course_properties_bulk():
     new_nature = data.get('course_nature')
 
     if not course_ids:
-        return jsonify({"success": False, "error": "لم يتم تحديد أي مواد"}), 400
+        return jsonify({"success": False, "error": _("لم يتم تحديد أي مواد")}), 400 # ✨ ترجمة
         
     try:
         courses = Course.query.filter(Course.id.in_(course_ids), Course.tenant_id == tenant_id).all()
@@ -127,11 +129,13 @@ def update_course_properties_bulk():
                 crs.specialization = new_specialization
                 
         db.session.commit()
-        return jsonify({"success": True, "message": f"تم تعديل {len(courses)} مواد بنجاح!"})
+        # ✨ ترجمة مع ضبط المتغير
+        return jsonify({"success": True, "message": _("تم تعديل {count} مواد بنجاح!").format(count=len(courses))})
         
     except Exception as e:
         db.session.rollback()
-        return jsonify({"success": False, "error": str(e)}), 500
+        # ✨ تغليف رسالة الخطأ لتتوافق مع الترجمة
+        return jsonify({"success": False, "error": _("حدث خطأ: {error}").format(error=str(e))}), 500
     
 # ==============================================================
 # ✏️ مسارات التعديل المباشر (PUT) الفردية (معزولة بـ tenant_id)
@@ -145,13 +149,13 @@ def edit_teacher(id):
     
     teacher = Teacher.query.filter_by(id=id, tenant_id=tenant_id).first()
     if not teacher:
-        return jsonify({"success": False, "error": "الأستاذ غير موجود"}), 404
+        return jsonify({"success": False, "error": _("الأستاذ غير موجود")}), 404 # ✨ ترجمة
         
     if new_name:
         teacher.name = new_name.strip()
         db.session.commit()
         return jsonify({"success": True})
-    return jsonify({"success": False, "error": "الاسم مطلوب"}), 400
+    return jsonify({"success": False, "error": _("الاسم مطلوب")}), 400 # ✨ ترجمة
 
 @manage_data_bp.route('/api/rooms/<int:id>', methods=['PUT'])
 def edit_room(id):
@@ -162,7 +166,7 @@ def edit_room(id):
     
     room = Room.query.filter_by(id=id, tenant_id=tenant_id).first()
     if not room:
-        return jsonify({"success": False, "error": "القاعة غير موجودة"}), 404
+        return jsonify({"success": False, "error": _("القاعة غير موجودة")}), 404 # ✨ ترجمة
         
     if new_name:
         room.name = new_name.strip()
@@ -170,7 +174,7 @@ def edit_room(id):
             room.type = new_type.strip()
         db.session.commit()
         return jsonify({"success": True})
-    return jsonify({"success": False, "error": "الاسم مطلوب"}), 400
+    return jsonify({"success": False, "error": _("الاسم مطلوب")}), 400 # ✨ ترجمة
 
 @manage_data_bp.route('/api/levels/<string:name>', methods=['PUT'])
 def edit_level(name):
@@ -180,13 +184,13 @@ def edit_level(name):
     
     level = Level.query.filter_by(name=name, tenant_id=tenant_id).first()
     if not level:
-        return jsonify({"success": False, "error": "المستوى غير موجود"}), 404
+        return jsonify({"success": False, "error": _("المستوى غير موجود")}), 404 # ✨ ترجمة
         
     if new_name:
         level.name = new_name.strip()
         db.session.commit()
         return jsonify({"success": True})
-    return jsonify({"success": False, "error": "الاسم مطلوب"}), 400
+    return jsonify({"success": False, "error": _("الاسم مطلوب")}), 400 # ✨ ترجمة
 
 @manage_data_bp.route('/api/courses/<int:id>', methods=['PUT'])
 def edit_course(id):
@@ -195,7 +199,7 @@ def edit_course(id):
     
     course = Course.query.filter_by(id=id, tenant_id=tenant_id).first()
     if not course:
-        return jsonify({"success": False, "error": "المادة غير موجودة"}), 404
+        return jsonify({"success": False, "error": _("المادة غير موجودة")}), 404 # ✨ ترجمة
         
     try:
         if 'name' in data and data['name']: 
@@ -219,4 +223,5 @@ def edit_course(id):
         return jsonify({"success": True})
     except Exception as e:
         db.session.rollback()
-        return jsonify({"success": False, "error": str(e)}), 500
+        # ✨ تغليف رسالة الخطأ المتغيرة
+        return jsonify({"success": False, "error": _("حدث خطأ: {error}").format(error=str(e))}), 500

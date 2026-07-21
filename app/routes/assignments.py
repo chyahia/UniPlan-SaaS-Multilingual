@@ -1,5 +1,6 @@
 from flask import Blueprint, jsonify, request, session
 from app.database import db, Teacher, Course
+from flask_babel import _  # ✨ استيراد دالة الترجمة
 
 assignments_bp = Blueprint('assignments', __name__)
 
@@ -15,9 +16,9 @@ def get_assignments_data():
     courses_data = []
     
     for c in courses:
-        levels_str = "، ".join([l.name for l in c.levels])
+        levels_str = _("، ").join([l.name for l in c.levels]) # ✨ ترجمة الفاصلة
         
-        # ✨ التصحيح هنا: التحقق من وجود الأستاذ فعلياً
+        # التصحيح هنا: التحقق من وجود الأستاذ فعلياً
         teacher_name = None
         if c.teacher_id:
             teacher_obj = next((t for t in teachers if t.id == c.teacher_id), None)
@@ -48,7 +49,7 @@ def assign_courses():
     course_ids = data.get('course_ids', [])
     
     if not teacher_id or not course_ids:
-        return jsonify({'error': 'بيانات مفقودة'}), 400
+        return jsonify({'error': _('بيانات مفقودة')}), 400 # ✨ ترجمة نص الخطأ
         
     # فلترة المواد بـ tenant_id لضمان أن رئيس القسم لا يسند مواد أقسام أخرى
     courses = Course.query.filter(Course.id.in_(course_ids), Course.tenant_id == tenant_id).all()

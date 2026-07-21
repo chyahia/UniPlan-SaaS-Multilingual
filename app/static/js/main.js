@@ -22,7 +22,7 @@ function loadPreviews() {
     fetch('/teachers').then(res => res.json()).then(data => {
         if(document.getElementById('stat-prof-count')) document.getElementById('stat-prof-count').innerText = data.length;
         const box = document.getElementById('teachers-preview');
-        if(data.length === 0) { box.innerHTML = '<i>لا يوجد أساتذة...</i>'; } 
+        if(data.length === 0) { box.innerHTML = _t('<i>لا يوجد أساتذة...</i>'); } 
         else { box.innerHTML = data.map(t => `<span class="data-tag">${t.name}</span>`).join(''); }
     });
 
@@ -30,18 +30,18 @@ function loadPreviews() {
     fetch('/rooms').then(res => res.json()).then(data => {
         if(document.getElementById('stat-room-count')) document.getElementById('stat-room-count').innerText = data.length;
         const box = document.getElementById('rooms-preview');
-        if(data.length === 0) { box.innerHTML = '<i>لا توجد قاعات...</i>'; } 
+        if(data.length === 0) { box.innerHTML = _t('<i>لا توجد قاعات...</i>'); } 
         else { box.innerHTML = data.map(r => `<span class="data-tag">${r.name} (${r.type})</span>`).join(''); }
     });
 
     // 3. جلب المستويات وتحديث (صندوق المعاينة الرئيسي + مربعات التأشير للمواد)
     fetch('/api/levels').then(res => res.json()).then(data => {
         if(document.getElementById('stat-level-count')) document.getElementById('stat-level-count').innerText = data.length;
-        // [أ] تحديث صندوق المعاينة الرئيسي للمستويات (الموجود أسفل صندوق إدخال المستويات)
+        // [أ] تحديث صندوق المعاينة الرئيسي للمستويات
         const levelsPreviewBox = document.getElementById('levels-preview');
         if (levelsPreviewBox) {
             if (data.length === 0) {
-                levelsPreviewBox.innerHTML = '<i>لا توجد مستويات...</i>';
+                levelsPreviewBox.innerHTML = _t('<i>لا توجد مستويات...</i>');
             } else {
                 levelsPreviewBox.innerHTML = data.map(lvl => `<span class="data-tag">${lvl}</span>`).join('');
             }
@@ -51,7 +51,7 @@ function loadPreviews() {
         const container = document.getElementById('course-levels-checkboxes-container');
         if (container) {
             if (data.length === 0) {
-                container.innerHTML = '<i style="color: #888; font-size: 13px; display:block; padding:5px;">⚠️ لا توجد مستويات مضافة بعد...</i>';
+                container.innerHTML = _t('<i style="color: #888; font-size: 13px; display:block; padding:5px;">⚠️ لا توجد مستويات مضافة بعد...</i>');
             } else {
                 container.innerHTML = data.map(lvl => `
                     <label style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px; font-size: 14px; font-weight: 500; cursor: pointer; user-select: none;">
@@ -67,21 +67,22 @@ function loadPreviews() {
     fetch('/api/courses').then(res => res.json()).then(data => {
         if(document.getElementById('stat-course-count')) document.getElementById('stat-course-count').innerText = data.length;
         const box = document.getElementById('courses-preview');
-        if(data.length === 0) { box.innerHTML = '<i>لا توجد مواد...</i>'; } 
+        if(data.length === 0) { box.innerHTML = _t('<i>لا توجد مواد...</i>'); } 
         else { 
             box.innerHTML = data.map(c => `
                 <div class="course-tag">
                     <strong>${c.name}</strong> <br>
-                    <small>المستويات: ${c.levels || 'غير محدد'} | القاعة: ${c.room_type}</small>
+                    <small>${_t("المستويات: ")}${c.levels || _t('غير محدد')}${_t(" | القاعة: ")}${c.room_type}</small>
                 </div>
             `).join(''); 
         }
     });
 
-    // 4. جلب الرموز البيداغوجية وتعبئة الخانات المخفية في النافذة المنبثقة
+    // 5. جلب الرموز البيداغوجية وتعبئة الخانات المخفية في النافذة المنبثقة
     fetch('/api/course_natures').then(res => res.json()).then(data => {
         globalNatures = data;
         
+        // ملاحظة: المقارنة باللغة العربية يجب أن تبقى هكذا إذا كانت محفوظة في قاعدة البيانات هكذا
         const lecObj = data.find(n => n.name === 'محاضرة');
         const tdObj = data.find(n => n.name === 'أعمال موجهة');
         const tpObj = data.find(n => n.name === 'أعمال تطبيقية');
@@ -93,8 +94,8 @@ function loadPreviews() {
         // تحديث قائمة التعديل الجماعي في المرحلة 2
         const bulkNatureSelect = document.getElementById('bulk-nature');
         if (bulkNatureSelect) {
-            bulkNatureSelect.innerHTML = '<option value="">-- بدون تغيير --</option>' + 
-                                         data.map(n => `<option value="${n.name}">${n.name} ${n.symbol}</option>`).join('');
+            bulkNatureSelect.innerHTML = `<option value="">${_t('-- بدون تغيير --')}</option>` + 
+                                         data.map(n => `<option value="${n.name}">${_t(n.name)} ${n.symbol}</option>`).join('');
         }
     });
 }
@@ -102,11 +103,11 @@ function loadPreviews() {
 // إضافة الأساتذة
 function addTeachers() {
     const lines = getLinesFromTextarea('teachers-input');
-    if (lines.length === 0) return alert('يرجى إدخال اسم أستاذ واحد على الأقل.');
+    if (lines.length === 0) return alert(_t('يرجى إدخال اسم أستاذ واحد على الأقل.'));
     fetch('/api/teachers', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ names: lines }) })
     .then(res => res.json()).then(data => {
         document.getElementById('teachers-input').value = ''; 
-        loadPreviews(); // تحديث المعاينة فوراً
+        loadPreviews(); 
     });
 }
 
@@ -114,22 +115,22 @@ function addTeachers() {
 function addRooms() {
     const lines = getLinesFromTextarea('rooms-input');
     const type = document.getElementById('room-type-select').value;
-    if (lines.length === 0) return alert('يرجى إدخال اسم قاعة واحدة على الأقل.');
+    if (lines.length === 0) return alert(_t('يرجى إدخال اسم قاعة واحدة على الأقل.'));
     fetch('/api/rooms', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ names: lines, type: type }) })
     .then(res => res.json()).then(data => {
         document.getElementById('rooms-input').value = ''; 
-        loadPreviews(); // تحديث المعاينة فوراً
+        loadPreviews(); 
     });
 }
 
 // إضافة المستويات
 function addLevels() {
     const lines = getLinesFromTextarea('levels-input');
-    if (lines.length === 0) return alert('يرجى إدخال مستوى واحد على الأقل.');
+    if (lines.length === 0) return alert(_t('يرجى إدخال مستوى واحد على الأقل.'));
     fetch('/api/levels', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ levels: lines }) })
     .then(res => res.json()).then(data => {
         document.getElementById('levels-input').value = ''; 
-        loadPreviews(); // تحديث المعاينة فوراً
+        loadPreviews(); 
     });
 }
 
@@ -137,7 +138,7 @@ function addLevels() {
 function addCourses() {
     const lines = getLinesFromTextarea('courses-input');
     const roomType = document.getElementById('course-room-type-select').value;
-    const courseNature = document.getElementById('course-nature-select').value; // ✨ قراءة الطبيعة
+    const courseNature = document.getElementById('course-nature-select').value; 
     
     const division = document.getElementById('course-division').value.trim();
     const specialization = document.getElementById('course-specialization').value.trim();
@@ -145,15 +146,16 @@ function addCourses() {
     const checkedBoxes = document.querySelectorAll('.course-level-chk:checked');
     const selectedLevels = Array.from(checkedBoxes).map(cb => cb.value);
 
-    if (lines.length === 0) return alert('يرجى إدخال مادة واحدة على الأقل.');
-    if (selectedLevels.length === 0) return alert('يرجى تحديد مستوى واحد على الأقل عبر التأشير عليه.');
+    if (lines.length === 0) return alert(_t('يرجى إدخال مادة واحدة على الأقل.'));
+    if (selectedLevels.length === 0) return alert(_t('يرجى تحديد مستوى واحد على الأقل عبر التأشير عليه.'));
 
     const coursesData = lines.map(name => {
         let finalName = name;
-        // ✨ الذكاء البرمجي: إضافة الرمز تلقائياً بشكل ديناميكي
-        const lecSymbol = getNatureSymbol('محاضرة', '[مح]');
-        const tdSymbol = getNatureSymbol('أعمال موجهة', '[أم]');
-        const tpSymbol = getNatureSymbol('أعمال تطبيقية', '[أت]');
+        
+        // جلب الرمز ولكن يتم تغليف القيمة الافتراضية للترجمة
+        const lecSymbol = getNatureSymbol('محاضرة', _t('[مح]'));
+        const tdSymbol = getNatureSymbol('أعمال موجهة', _t('[أم]'));
+        const tpSymbol = getNatureSymbol('أعمال تطبيقية', _t('[أت]'));
 
         if (courseNature === 'محاضرة' && !finalName.includes(lecSymbol)) finalName += ` ${lecSymbol}`;
         if (courseNature === 'أعمال موجهة' && !finalName.includes(tdSymbol)) finalName += ` ${tdSymbol}`;
@@ -165,7 +167,7 @@ function addCourses() {
             levels: selectedLevels,
             division: division,
             specialization: specialization,
-            course_nature: courseNature // ✨ إرسال الطبيعة
+            course_nature: courseNature 
         };
     });
 
@@ -178,8 +180,8 @@ function addCourses() {
         if(data.success) {
             document.getElementById('courses-input').value = '';
             loadPreviews(); 
-            alert("✅ تمت الإضافة المباشرة بنجاح!");
-        } else alert('خطأ: ' + data.error);
+            alert(_t("✅ تمت الإضافة المباشرة بنجاح!"));
+        } else alert(_t('خطأ: ') + data.error);
     });
 }
 
@@ -194,17 +196,17 @@ function openCourseWizard() {
     const checkedBoxes = document.querySelectorAll('.course-level-chk:checked');
     const selectedLevels = Array.from(checkedBoxes).map(cb => cb.value);
 
-    if (currentWizardLines.length === 0) return alert('يرجى كتابة اسم مادة واحدة على الأقل في صندوق النص.');
-    if (selectedLevels.length === 0) return alert('يرجى تحديد مستوى واحد على الأقل عبر التأشير عليه.');
+    if (currentWizardLines.length === 0) return alert(_t('يرجى كتابة اسم مادة واحدة على الأقل في صندوق النص.'));
+    if (selectedLevels.length === 0) return alert(_t('يرجى تحديد مستوى واحد على الأقل عبر التأشير عليه.'));
 
     // حفظ المستويات مؤقتاً
     document.getElementById('course-wizard-modal').dataset.levels = JSON.stringify(selectedLevels);
     
     // تصفير خيارات النافذة وإعادة رسمها
     document.getElementById('wiz-is-shared').checked = false;
-    document.getElementById('wiz-divisions-wrapper').innerHTML = ''; // تصفير الشعب
-    document.getElementById('wiz-shared-lec-div').value = ''; // تصفير خانة المحاضرة
-    document.getElementById('wiz-shared-lec-spec').value = ''; // تصفير خانة المحاضرة
+    document.getElementById('wiz-divisions-wrapper').innerHTML = ''; 
+    document.getElementById('wiz-shared-lec-div').value = ''; 
+    document.getElementById('wiz-shared-lec-spec').value = ''; 
     wizardDivisionCount = 0;
     
     toggleSharedMode(); 
@@ -217,24 +219,23 @@ function toggleSharedMode() {
     document.getElementById('wiz-shared-container').style.display = isShared ? 'block' : 'none';
     
     if (isShared && wizardDivisionCount === 0) {
-        addWizardDivision(); // إضافة شعبة واحدة افتراضياً لتسهيل العمل
+        addWizardDivision(); 
     }
     renderWizardTable();
 }
 
-// ✨ الإضافة الجديدة: إضافة شعبة وتخصصاتها للنافذة المنبثقة
 function addWizardDivision() {
     wizardDivisionCount++;
     const wrapper = document.getElementById('wiz-divisions-wrapper');
     const divId = `wiz-div-block-${wizardDivisionCount}`;
     const html = `
         <div id="${divId}" style="background: #fff; padding: 10px; border: 1px solid #bdc3c7; border-radius: 4px; margin-bottom: 10px; position: relative;">
-            <button type="button" onclick="document.getElementById('${divId}').remove(); renderWizardTable();" style="position: absolute; top: 10px; left: 10px; background: #e74c3c; color: white; border: none; border-radius: 3px; cursor: pointer; padding: 3px 6px;" title="حذف هذه الشعبة">❌</button>
+            <button type="button" onclick="document.getElementById('${divId}').remove(); renderWizardTable();" style="position: absolute; top: 10px; right: 10px; left: auto; background: #e74c3c; color: white; border: none; border-radius: 3px; cursor: pointer; padding: 3px 6px;" title="${_t('حذف هذه الشعبة')}">❌</button>
             <div style="display: flex; gap: 10px; margin-bottom: 5px;">
-                <input type="text" class="wiz-div-name" placeholder="اسم الشعبة (مثال: دراسات نقدية)" style="flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-weight: bold; color: #2c3e50;" onkeyup="renderWizardTable()">
+                <input type="text" class="wiz-div-name" placeholder="${_t('اسم الشعبة (مثال: دراسات نقدية)')}" style="flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-weight: bold; color: #2c3e50;" onkeyup="renderWizardTable()">
             </div>
             <div>
-                <input type="text" class="wiz-div-specs" placeholder="التخصصات التابعة لها (مفصولة بفاصلة. مثال: نقد قديم، نقد حديث)" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;" onkeyup="renderWizardTable()">
+                <input type="text" class="wiz-div-specs" placeholder="${_t('التخصصات التابعة لها (مفصولة بفاصلة. مثال: نقد قديم، نقد حديث)')}" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;" onkeyup="renderWizardTable()">
             </div>
         </div>
     `;
@@ -242,7 +243,6 @@ function addWizardDivision() {
     renderWizardTable();
 }
 
-// ✨ الإضافة الجديدة: تجميع كل التخصصات من كل الشعب كقائمة جاهزة للرسم
 function getWizardSpecs() {
     const blocks = document.querySelectorAll('#wiz-divisions-wrapper > div');
     let allSpecs = [];
@@ -266,40 +266,39 @@ function renderWizardTable() {
     thead.innerHTML = '';
     tbody.innerHTML = '';
 
-    // جلب الرموز الديناميكية
-    const lecSymbol = getNatureSymbol('محاضرة', '[مح]');
-    const tdSymbol = getNatureSymbol('أعمال موجهة', '[أم]');
-    const tpSymbol = getNatureSymbol('أعمال تطبيقية', '[أت]');
+    const lecSymbol = getNatureSymbol('محاضرة', _t('[مح]'));
+    const tdSymbol = getNatureSymbol('أعمال موجهة', _t('[أم]'));
+    const tpSymbol = getNatureSymbol('أعمال تطبيقية', _t('[أت]'));
 
     if (!isShared) {
         // --- الوضع العادي ---
         thead.innerHTML = `
             <tr style="background: #f1f5f9; border-bottom: 1px solid #ccc;">
-                <th style="padding: 10px; text-align: right;">اسم المادة</th>
-                <th style="padding: 10px; text-align: center;">محاضرة ${lecSymbol}</th>
-                <th style="padding: 10px; text-align: center;">أعمال موجهة ${tdSymbol}</th>
-                <th style="padding: 10px; text-align: center; border-right: 1px solid #ddd;">أعمال تطبيقية ${tpSymbol}</th>
+                <th style="padding: 10px; text-align: start;">${_t("اسم المادة")}</th>
+                <th style="padding: 10px; text-align: center;">${_t("محاضرة")} ${lecSymbol}</th>
+                <th style="padding: 10px; text-align: center;">${_t("أعمال موجهة")} ${tdSymbol}</th>
+                <th style="padding: 10px; text-align: center; border-inline-end: 1px solid #ddd;">${_t("أعمال تطبيقية")} ${tpSymbol}</th>
             </tr>
         `;
         
         currentWizardLines.forEach((name, index) => {
             tbody.innerHTML += `
                 <tr style="border-bottom: 1px solid #eee;">
-                    <td style="padding: 10px; font-weight: bold;">${name}</td>
+                    <td style="padding: 10px; font-weight: bold; text-align: start;">${name}</td>
                     <td style="padding: 10px; text-align: center;">
                         <input type="checkbox" id="wiz-lec-${index}" checked onchange="document.getElementById('wiz-lec-room-${index}').style.visibility = this.checked ? 'visible' : 'hidden'" style="transform: scale(1.3); margin-bottom: 8px;"><br>
                         <select id="wiz-lec-room-${index}" style="font-size: 12px; padding: 4px; border-radius: 4px; border: 1px solid #bdc3c7; background: #fff; cursor: pointer; color: #2c3e50; font-family: inherit;">
-                            <option value="مدرج">مدرج</option>
-                            <option value="عادية">قاعة عادية</option>
+                            <option value="مدرج">${_t("مدرج")}</option>
+                            <option value="عادية">${_t("قاعة عادية")}</option>
                         </select>
                     </td>
                     <td style="padding: 10px; text-align: center;">
                         <input type="checkbox" id="wiz-td-${index}" onchange="toggleGroupsInput('td', ${index})" style="transform: scale(1.3);">
-                        <input type="number" id="wiz-td-grp-${index}" min="1" max="20" style="width: 55px; display: none; margin-right: 5px; padding: 5px; font-family: inherit;" placeholder="أفواج">
+                        <input type="number" id="wiz-td-grp-${index}" min="1" max="20" style="width: 55px; display: none; margin-inline-end: 5px; padding: 5px; font-family: inherit;" placeholder="${_t('أفواج')}">
                     </td>
-                    <td style="padding: 10px; text-align: center; border-right: 1px solid #eee;">
+                    <td style="padding: 10px; text-align: center; border-inline-end: 1px solid #eee;">
                         <input type="checkbox" id="wiz-tp-${index}" onchange="toggleGroupsInput('tp', ${index})" style="transform: scale(1.3);">
-                        <input type="number" id="wiz-tp-grp-${index}" min="1" max="20" style="width: 55px; display: none; margin-right: 5px; padding: 5px; font-family: inherit;" placeholder="أفواج">
+                        <input type="number" id="wiz-tp-grp-${index}" min="1" max="20" style="width: 55px; display: none; margin-inline-end: 5px; padding: 5px; font-family: inherit;" placeholder="${_t('أفواج')}">
                     </td>
                 </tr>
             `;
@@ -309,38 +308,38 @@ function renderWizardTable() {
         const specsObj = getWizardSpecs();
         
         let theadHtml = `<tr style="background: #f1f5f9; border-bottom: 1px solid #ccc;">
-            <th style="padding: 10px; text-align: right;">اسم المادة</th>
-            <th style="padding: 10px; text-align: center; color: #2980b9;">محاضرة مشتركة ${lecSymbol}</th>`;
+            <th style="padding: 10px; text-align: start;">${_t("اسم المادة")}</th>
+            <th style="padding: 10px; text-align: center; color: #2980b9;">${_t("محاضرة مشتركة ")}${lecSymbol}</th>`;
         
         specsObj.forEach(obj => {
-            theadHtml += `<th style="padding: 10px; text-align: center; font-size: 13px; border-right: 1px solid #ddd;">أفواج (${obj.spec})<br><small style="color: #7f8c8d; font-weight: normal;">${obj.division || 'بدون شعبة'}</small></th>`;
+            theadHtml += `<th style="padding: 10px; text-align: center; font-size: 13px; border-inline-end: 1px solid #ddd;">${_t("أفواج (")}${obj.spec})<br><small style="color: #7f8c8d; font-weight: normal;">${obj.division || _t('بدون شعبة')}</small></th>`;
         });
         theadHtml += `</tr>`;
         thead.innerHTML = theadHtml;
 
         currentWizardLines.forEach((baseName, index) => {
             let rowHtml = `<tr style="border-bottom: 1px solid #eee;">
-                <td style="padding: 10px; font-weight: bold;">${baseName}</td>
+                <td style="padding: 10px; font-weight: bold; text-align: start;">${baseName}</td>
                 <td style="padding: 10px; text-align: center;">
                     <input type="checkbox" id="wiz-shared-lec-${index}" checked onchange="document.getElementById('wiz-shared-lec-room-${index}').style.visibility = this.checked ? 'visible' : 'hidden'" style="transform: scale(1.3); margin-bottom: 8px;"><br>
                     <select id="wiz-shared-lec-room-${index}" style="font-size: 12px; padding: 4px; border-radius: 4px; border: 1px solid #bdc3c7; background: #fff; cursor: pointer; color: #2c3e50; font-family: inherit;">
-                        <option value="مدرج">مدرج</option>
-                        <option value="عادية">قاعة عادية</option>
+                        <option value="مدرج">${_t("مدرج")}</option>
+                        <option value="عادية">${_t("قاعة عادية")}</option>
                     </select>
                 </td>`;
             
             if (specsObj.length === 0) {
-                rowHtml += `<td style="padding: 10px; text-align: center; color: #e74c3c; font-size: 12px;">أضف شعبة وتخصص بالأعلى...</td>`;
+                rowHtml += `<td style="padding: 10px; text-align: center; color: #e74c3c; font-size: 12px;">${_t("أضف شعبة وتخصص بالأعلى...")}</td>`;
             } else {
                 specsObj.forEach((obj, specIndex) => {
-                    rowHtml += `<td style="padding: 10px; text-align: center; border-right: 1px solid #eee; vertical-align: top;">
+                    rowHtml += `<td style="padding: 10px; text-align: center; border-inline-end: 1px solid #eee; vertical-align: top;">
                         <div style="margin-bottom: 8px; display: flex; align-items: center; justify-content: center; gap: 5px;">
-                            <span style="font-size: 12px; color: #555; width: 25px; font-weight: bold;">أم:</span>
-                            <input type="number" id="wiz-spec-grp-${index}-${specIndex}" min="0" max="20" style="width: 50px; padding: 4px; font-family: inherit; font-size: 13px;" placeholder="العدد">
+                            <span style="font-size: 12px; color: #555; width: 25px; font-weight: bold;">${_t("أم:")}</span>
+                            <input type="number" id="wiz-spec-grp-${index}-${specIndex}" min="0" max="20" style="width: 50px; padding: 4px; font-family: inherit; font-size: 13px;" placeholder="${_t('العدد')}">
                         </div>
                         <div style="display: flex; align-items: center; justify-content: center; gap: 5px;">
-                            <span style="font-size: 12px; color: #555; width: 25px; font-weight: bold;">أت:</span>
-                            <input type="number" id="wiz-spec-tp-grp-${index}-${specIndex}" min="0" max="20" style="width: 50px; padding: 4px; font-family: inherit; font-size: 13px;" placeholder="العدد">
+                            <span style="font-size: 12px; color: #555; width: 25px; font-weight: bold;">${_t("أت:")}</span>
+                            <input type="number" id="wiz-spec-tp-grp-${index}-${specIndex}" min="0" max="20" style="width: 50px; padding: 4px; font-family: inherit; font-size: 13px;" placeholder="${_t('العدد')}">
                         </div>
                     </td>`;
                 });
@@ -376,9 +375,9 @@ function confirmCourseWizard() {
     
     let finalCoursesData = [];
 
-    const lecSymbol = getNatureSymbol('محاضرة', '[مح]');
-    const tdSymbol = getNatureSymbol('أعمال موجهة', '[أم]');
-    const tpSymbol = getNatureSymbol('أعمال تطبيقية', '[أت]');
+    const lecSymbol = getNatureSymbol('محاضرة', _t('[مح]'));
+    const tdSymbol = getNatureSymbol('أعمال موجهة', _t('[أم]'));
+    const tpSymbol = getNatureSymbol('أعمال تطبيقية', _t('[أت]'));
 
     if (!isShared) {
         // --- معالجة الوضع العادي ---
@@ -400,7 +399,8 @@ function confirmCourseWizard() {
                     finalCoursesData.push({ name: `${baseName} ${tdSymbol}`, room_type: 'عادية', levels: selectedLevels, division: globalDivision, specialization: globalSpec, course_nature: 'أعمال موجهة' });
                 } else {
                     for (let i = 1; i <= tdGrpCount; i++) {
-                        finalCoursesData.push({ name: `${baseName} ${tdSymbol} ف${i}`, room_type: 'عادية', levels: selectedLevels, division: globalDivision, specialization: globalSpec, course_nature: 'أعمال موجهة' });
+                        // إضافة الـ _t للمسافة مع حرف الفاء لتسهيل الترجمة لاحقاً (e.g. " G")
+                        finalCoursesData.push({ name: `${baseName} ${tdSymbol}${_t(" ف")}${i}`, room_type: 'عادية', levels: selectedLevels, division: globalDivision, specialization: globalSpec, course_nature: 'أعمال موجهة' });
                     }
                 }
             }
@@ -409,7 +409,7 @@ function confirmCourseWizard() {
                     finalCoursesData.push({ name: `${baseName} ${tpSymbol}`, room_type: 'مخبر', levels: selectedLevels, division: globalDivision, specialization: globalSpec, course_nature: 'أعمال تطبيقية' });
                 } else {
                     for (let i = 1; i <= tpGrpCount; i++) {
-                        finalCoursesData.push({ name: `${baseName} ${tpSymbol} ف${i}`, room_type: 'مخبر', levels: selectedLevels, division: globalDivision, specialization: globalSpec, course_nature: 'أعمال تطبيقية' });
+                        finalCoursesData.push({ name: `${baseName} ${tpSymbol}${_t(" ف")}${i}`, room_type: 'مخبر', levels: selectedLevels, division: globalDivision, specialization: globalSpec, course_nature: 'أعمال تطبيقية' });
                     }
                 }
             }
@@ -417,10 +417,10 @@ function confirmCourseWizard() {
     } else {
         // --- معالجة وضع التخصصات المتعددة ---
         const specsObj = getWizardSpecs();
-        if (specsObj.length === 0) return alert("يرجى إضافة شعبة وتخصص واحد على الأقل للأفواج!");
+        if (specsObj.length === 0) return alert(_t("أضف شعبة وتخصص بالأعلى..."));
 
-        const sharedLecDiv = document.getElementById('wiz-shared-lec-div').value.trim() || 'كل الشُّعب';
-        const sharedLecSpec = document.getElementById('wiz-shared-lec-spec').value.trim() || 'كل التخصصات';
+        const sharedLecDiv = document.getElementById('wiz-shared-lec-div').value.trim() || _t('كل الشُّعب');
+        const sharedLecSpec = document.getElementById('wiz-shared-lec-spec').value.trim() || _t('كل التخصصات');
 
         currentWizardLines.forEach((baseName, index) => {
             const hasSharedLec = document.getElementById(`wiz-shared-lec-${index}`)?.checked;
@@ -439,7 +439,7 @@ function confirmCourseWizard() {
                         finalCoursesData.push({ name: `${baseName} (${obj.spec}) ${tdSymbol}`, room_type: 'عادية', levels: selectedLevels, division: obj.division, specialization: obj.spec, course_nature: 'أعمال موجهة' });
                     } else {
                         for (let i = 1; i <= tdGrpCount; i++) {
-                            finalCoursesData.push({ name: `${baseName} (${obj.spec}) ${tdSymbol} ف${i}`, room_type: 'عادية', levels: selectedLevels, division: obj.division, specialization: obj.spec, course_nature: 'أعمال موجهة' });
+                            finalCoursesData.push({ name: `${baseName} (${obj.spec}) ${tdSymbol}${_t(" ف")}${i}`, room_type: 'عادية', levels: selectedLevels, division: obj.division, specialization: obj.spec, course_nature: 'أعمال موجهة' });
                         }
                     }
                 }
@@ -450,7 +450,7 @@ function confirmCourseWizard() {
                         finalCoursesData.push({ name: `${baseName} (${obj.spec}) ${tpSymbol}`, room_type: 'مخبر', levels: selectedLevels, division: obj.division, specialization: obj.spec, course_nature: 'أعمال تطبيقية' });
                     } else {
                         for (let i = 1; i <= tpGrpCount; i++) {
-                            finalCoursesData.push({ name: `${baseName} (${obj.spec}) ${tpSymbol} ف${i}`, room_type: 'مخبر', levels: selectedLevels, division: obj.division, specialization: obj.spec, course_nature: 'أعمال تطبيقية' });
+                            finalCoursesData.push({ name: `${baseName} (${obj.spec}) ${tpSymbol}${_t(" ف")}${i}`, room_type: 'مخبر', levels: selectedLevels, division: obj.division, specialization: obj.spec, course_nature: 'أعمال تطبيقية' });
                         }
                     }
                 }
@@ -459,7 +459,7 @@ function confirmCourseWizard() {
     }
 
     if (finalCoursesData.length === 0) {
-        alert('لم تقم بإدخال أي أرقام للأفواج أو تحديد محاضرات للتوليد!');
+        alert(_t('لم تقم بإدخال أي أرقام للأفواج أو تحديد محاضرات للتوليد!'));
         return;
     }
 
@@ -475,9 +475,9 @@ function confirmCourseWizard() {
             document.getElementById('courses-input').value = ''; 
             closeCourseWizard();
             loadPreviews(); 
-            alert("✅ تم توليد وإضافة جميع المواد والأفواج بنجاح!");
+            alert(_t("✅ تم توليد وإضافة جميع المواد والأفواج بنجاح!"));
         } else {
-            alert('حدث خطأ: ' + data.error);
+            alert(_t('حدث خطأ: ') + data.error);
         }
     });
 }
@@ -497,10 +497,10 @@ function saveNatures() {
     const tpSymbol = document.getElementById('symbol-tp').value.trim();
     
     if(!lecSymbol || !tdSymbol || !tpSymbol) {
-        return alert('يرجى عدم ترك أي خانة من خانات الرموز فارغة!');
+        return alert(_t('يرجى عدم ترك أي خانة من خانات الرموز فارغة!'));
     }
     
-    // تجهيز حزمة البيانات للتحديث
+    // تجهيز حزمة البيانات للتحديث - تبقى القيم العربية هنا لأن الخادم يتعرف عليها
     const updates = [
         { name: 'محاضرة', symbol: lecSymbol },
         { name: 'أعمال موجهة', symbol: tdSymbol },
@@ -516,10 +516,10 @@ function saveNatures() {
     });
     
     Promise.all(promises).then(() => {
-        alert('✅ تم حفظ الرموز وتحديثها في النظام بنجاح!');
+        alert(_t('✅ تم حفظ الرموز وتحديثها في النظام بنجاح!'));
         closeNatureModal();
-        loadPreviews(); // إعادة تحميل المتغيرات العامة والقوائم
+        loadPreviews(); 
     }).catch(err => {
-        alert("حدث خطأ أثناء الحفظ.");
+        alert(_t("حدث خطأ أثناء الحفظ."));
     });
 }

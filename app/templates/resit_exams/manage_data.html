@@ -5,18 +5,18 @@
 <div id="manage-data-wrapper">
 
     <h2 class="text-center text-primary mb-4 border border-primary p-3 rounded bg-light">
-        إدخال وتعديل البيانات
+        {{ _('إدخال وتعديل البيانات') }}
     </h2>
 
     <div class="card shadow-sm border-success mb-4">
         <div class="card-header bg-success text-white fw-bold fs-5 d-flex justify-content-between align-items-center">
-            <span>🔗 سحب البيانات من الامتحانات السداسية العادية</span>
+            <span>{{ _('🔗 سحب البيانات من الامتحانات السداسية العادية') }}</span>
         </div>
         <div class="card-body bg-light text-center">
-            <p class="mb-3 text-dark fw-bold fs-5">بنقرة واحدة، يمكنك جلب (الأساتذة، القاعات، المستويات، المواد، والإسنادات) من جداول الامتحانات السداسية لتجهيز الاستدراكي.</p>
+            <p class="mb-3 text-dark fw-bold fs-5">{{ _('بنقرة واحدة، يمكنك جلب (الأساتذة، القاعات، المستويات، المواد، والإسنادات) من جداول الامتحانات السداسية لتجهيز الاستدراكي.') }}</p>
             <form action="{{ url_for('resit_exams.import_from_exams') }}" method="POST" onsubmit="silentSubmit(event, this)">
-                <button type="submit" class="btn btn-success btn-lg fw-bold shadow-lg px-5" style="border-radius: 12px;" onclick="return confirm('⚠️ هل أنت متأكد؟ هذه العملية ستقوم باستبدال البيانات الحالية للاستدراكي بالبيانات القادمة من الامتحانات السداسية.');">
-                    📥 استيراد وتجهيز البيانات الآن
+                <button type="submit" class="btn btn-success btn-lg fw-bold shadow-lg px-5" style="border-radius: 12px;" data-confirm="{{ _('⚠️ هل أنت متأكد؟ هذه العملية ستقوم باستبدال البيانات الحالية للاستدراكي بالبيانات القادمة من الامتحانات السداسية.') }}" onclick="return confirm(this.getAttribute('data-confirm'));">
+                    {{ _('📥 استيراد وتجهيز البيانات الآن') }}
                 </button>
             </form>
         </div>
@@ -24,21 +24,21 @@
 
     <div class="card shadow-sm border-dark mb-5">
         <div class="card-header bg-dark text-white fw-bold fs-5 d-flex justify-content-between align-items-center">
-            <span>☁️ إدارة البيانات (نسخ واستعادة سحابية)</span>
+            <span>{{ _('☁️ إدارة البيانات (نسخ واستعادة سحابية)') }}</span>
             <a href="{{ url_for('resit_exams.export_data') }}" class="btn btn-light btn-sm fw-bold shadow-sm">
-                📥 تحميل نسخة احتياطية (.json)
+                {{ _('📥 تحميل نسخة احتياطية (.json)') }}
             </a>
         </div>
         <div class="card-body bg-light">
             <form action="{{ url_for('resit_exams.import_smart') }}" method="POST" enctype="multipart/form-data" class="row align-items-center" onsubmit="silentSubmit(event, this)">
                 <div class="col-md-8 mb-2 mb-md-0">
-                    <label for="smartFile" class="form-label fw-bold text-dark mb-1">استعادة البيانات من ملف (JSON):</label>
+                    <label for="smartFile" class="form-label fw-bold text-dark mb-1">{{ _('استعادة البيانات من ملف (JSON):') }}</label>
                     <input class="form-control border-dark" type="file" id="smartFile" name="data_file" accept=".json" required>
-                    <small class="text-muted fw-bold d-block mt-1">⚠️ تحذير: الاستعادة ستقوم باستبدال بيانات الاستدراكي لقسمك الحالي بالكامل.</small>
+                    <small class="text-muted fw-bold d-block mt-1">{{ _('⚠️ تحذير: الاستعادة ستقوم باستبدال بيانات الاستدراكي لقسمك الحالي بالكامل.') }}</small>
                 </div>
                 <div class="col-md-4 text-center mt-2 mt-md-0">
-                    <button type="submit" class="btn btn-dark text-white w-100 fw-bold shadow-sm" onclick="return confirm('هل أنت متأكد من رغبتك في استعادة البيانات؟ سيتم استبدال البيانات الحالية.');">
-                        🔄 استعادة البيانات
+                    <button type="submit" class="btn btn-dark text-white w-100 fw-bold shadow-sm" data-confirm="{{ _('هل أنت متأكد من رغبتك في استعادة البيانات؟ سيتم استبدال البيانات الحالية.') }}" onclick="return confirm(this.getAttribute('data-confirm'));">
+                        {{ _('🔄 استعادة البيانات') }}
                     </button>
                 </div>
             </form>
@@ -49,12 +49,12 @@
         
         <div class="col-lg-3 col-md-6">
             <div class="card shadow-sm border-primary h-100">
-                <div class="card-header bg-primary text-white text-center fw-bold">إضافة أساتذة</div>
+                <div class="card-header bg-primary text-white text-center fw-bold">{{ _('إضافة أساتذة') }}</div>
                 <div class="card-body">
                     <form method="POST" onsubmit="silentSubmit(event, this)">
                         <input type="hidden" name="action" value="add_teacher">
-                        <textarea class="form-control mb-3" name="teachers_input" rows="4" placeholder="اسم في كل سطر..." required></textarea>
-                        <button type="submit" class="btn btn-primary w-100">إضافة</button>
+                        <textarea class="form-control mb-3" name="teachers_input" rows="4" placeholder="{{ _('اسم في كل سطر...') }}" required></textarea>
+                        <button type="submit" class="btn btn-primary w-100">{{ _('إضافة') }}</button>
                     </form>
                 </div>
             </div>
@@ -62,17 +62,17 @@
 
         <div class="col-lg-3 col-md-6">
             <div class="card shadow-sm border-primary h-100">
-                <div class="card-header bg-primary text-white text-center fw-bold">إضافة قاعات</div>
+                <div class="card-header bg-primary text-white text-center fw-bold">{{ _('إضافة قاعات') }}</div>
                 <div class="card-body">
                     <form method="POST" onsubmit="silentSubmit(event, this)">
                         <input type="hidden" name="action" value="add_room">
                         <select class="form-select mb-2" name="room_type">
-                            <option value="قاعة كبيرة">قاعة كبيرة</option>
-                            <option value="قاعة متوسطة">قاعة متوسطة</option>
-                            <option value="قاعة صغيرة">قاعة صغيرة</option>
+                            <option value="قاعة كبيرة">{{ _('قاعة كبيرة') }}</option>
+                            <option value="قاعة متوسطة">{{ _('قاعة متوسطة') }}</option>
+                            <option value="قاعة صغيرة">{{ _('قاعة صغيرة') }}</option>
                         </select>
-                        <textarea class="form-control mb-3" name="rooms_input" rows="2" placeholder="اسم في كل سطر..." required></textarea>
-                        <button type="submit" class="btn btn-primary w-100">إضافة</button>
+                        <textarea class="form-control mb-3" name="rooms_input" rows="2" placeholder="{{ _('اسم في كل سطر...') }}" required></textarea>
+                        <button type="submit" class="btn btn-primary w-100">{{ _('إضافة') }}</button>
                     </form>
                 </div>
             </div>
@@ -80,12 +80,12 @@
 
         <div class="col-lg-3 col-md-6">
             <div class="card shadow-sm border-primary h-100">
-                <div class="card-header bg-primary text-white text-center fw-bold">إضافة مستويات</div>
+                <div class="card-header bg-primary text-white text-center fw-bold">{{ _('إضافة مستويات') }}</div>
                 <div class="card-body">
                     <form method="POST" onsubmit="silentSubmit(event, this)">
                         <input type="hidden" name="action" value="add_level">
-                        <textarea class="form-control mb-3" name="levels_input" rows="4" placeholder="اسم في كل سطر..." required></textarea>
-                        <button type="submit" class="btn btn-primary w-100">إضافة</button>
+                        <textarea class="form-control mb-3" name="levels_input" rows="4" placeholder="{{ _('اسم في كل سطر...') }}" required></textarea>
+                        <button type="submit" class="btn btn-primary w-100">{{ _('إضافة') }}</button>
                     </form>
                 </div>
             </div>
@@ -93,14 +93,14 @@
 
         <div class="col-lg-3 col-md-6">
             <div class="card shadow-sm border-primary h-100">
-                <div class="card-header bg-primary text-white text-center fw-bold">إضافة مواد</div>
+                <div class="card-header bg-primary text-white text-center fw-bold">{{ _('إضافة مواد') }}</div>
                 <div class="card-body">
                     {% if db.levels %}
-                    <form method="POST" onsubmit="
+                    <form method="POST" data-alert="{{ _('الرجاء تأشير مستوى واحد على الأقل.') }}" onsubmit="
                         event.preventDefault();
                         const checkboxes = document.querySelectorAll('input[name=\'level_names\']:checked');
                         if(checkboxes.length === 0) {
-                            alert('الرجاء تأشير مستوى واحد على الأقل.');
+                            alert(this.getAttribute('data-alert'));
                             return false;
                         }
                         silentSubmit(event, this);
@@ -108,7 +108,7 @@
                         <input type="hidden" name="action" value="add_subject">
                         
                         <div class="mb-2">
-                            <small class="d-block text-muted fw-bold mb-1">أشّر على مستوى أو أكثر:</small>
+                            <small class="d-block text-muted fw-bold mb-1">{{ _('أشّر على مستوى أو أكثر:') }}</small>
                             <div class="border rounded p-2 bg-white" style="max-height: 100px; overflow-y: auto; border-color: #ced4da; display: flex; flex-direction: column; gap: 6px;">
                                 {% for l in db.levels %}
                                 <label class="d-flex align-items-center m-0" style="cursor: pointer;" for="lvl_chk_{{ loop.index }}">
@@ -119,40 +119,40 @@
                             </div>
                         </div>
                         
-                        <textarea class="form-control mb-3" name="subject_names" rows="2" placeholder="اسم في كل سطر..." required></textarea>
+                        <textarea class="form-control mb-3" name="subject_names" rows="2" placeholder="{{ _('اسم في كل سطر...') }}" required></textarea>
                         
-                        <button type="submit" class="btn btn-warning w-100 fw-bold text-dark shadow-sm">إضافة</button>
+                        <button type="submit" class="btn btn-warning w-100 fw-bold text-dark shadow-sm">{{ _('إضافة') }}</button>
                     </form>
                     {% else %}
-                    <div class="alert alert-warning text-center p-2" style="font-size: 14px;">أضف المستويات أولاً.</div>
+                    <div class="alert alert-warning text-center p-2" style="font-size: 14px;">{{ _('أضف المستويات أولاً.') }}</div>
                     {% endif %}
                 </div>
             </div>
         </div>
     </div>
 
-    <h4 class="text-secondary mb-3 border-bottom pb-2">معاينة البيانات المحفوظة (مع إمكانية الحذف والتعديل المباشر)</h4>
+    <h4 class="text-secondary mb-3 border-bottom pb-2">{{ _('معاينة البيانات المحفوظة (مع إمكانية الحذف والتعديل المباشر)') }}</h4>
     <div class="row g-3">
         
         <div class="col-lg-3 col-md-6">
             <div class="card border-danger shadow-sm h-100">
-                <div class="card-header bg-danger text-white text-center">الأساتذة ({{ db.teachers | length }})</div>
+                <div class="card-header bg-danger text-white text-center">{{ _('الأساتذة') }} ({{ db.teachers | length }})</div>
                 <ul class="list-group list-group-flush" style="max-height: 300px; overflow-y: auto;">
                     {% for teacher in db.teachers %}
                     <li class="list-group-item d-flex justify-content-between align-items-center py-1">
                         <span style="font-size: 14px;">{{ teacher }}</span>
                         <div class="d-flex gap-1">
-                            <button type="button" class="btn btn-sm btn-outline-primary border-0 py-0 px-1" title="تعديل" 
+                            <button type="button" class="btn btn-sm btn-outline-primary border-0 py-0 px-1" title="{{ _('تعديل') }}" 
                                     data-bs-toggle="modal" data-bs-target="#editModal" data-type="teacher" data-oldname="{{ teacher }}">✏️</button>
                             <form method="POST" class="m-0" onsubmit="silentSubmit(event, this)">
                                 <input type="hidden" name="action" value="delete_teacher">
                                 <input type="hidden" name="teacher_name" value="{{ teacher }}">
-                                <button type="submit" class="btn btn-sm btn-outline-danger border-0 py-0 px-1" title="حذف" onclick="return confirm('هل أنت متأكد من الحذف؟ سيتم إزالة كافة ارتباطاته.');">❌</button>
+                                <button type="submit" class="btn btn-sm btn-outline-danger border-0 py-0 px-1" title="{{ _('حذف') }}" data-confirm="{{ _('هل أنت متأكد من الحذف؟ سيتم إزالة كافة ارتباطاته.') }}" onclick="return confirm(this.getAttribute('data-confirm'));">❌</button>
                             </form>
                         </div>
                     </li>
                     {% else %}
-                    <li class="list-group-item text-muted text-center">لا يوجد أساتذة</li>
+                    <li class="list-group-item text-muted text-center">{{ _('لا يوجد أساتذة') }}</li>
                     {% endfor %}
                 </ul>
             </div>
@@ -160,23 +160,23 @@
 
         <div class="col-lg-3 col-md-6">
             <div class="card border-danger shadow-sm h-100">
-                <div class="card-header bg-danger text-white text-center">القاعات ({{ db.rooms | length }})</div>
+                <div class="card-header bg-danger text-white text-center">{{ _('القاعات') }} ({{ db.rooms | length }})</div>
                 <ul class="list-group list-group-flush" style="max-height: 300px; overflow-y: auto;">
                     {% for room_name, room_type in db.rooms.items() %}
                     <li class="list-group-item d-flex justify-content-between align-items-center py-1">
                         <span style="font-size: 14px;">{{ room_name }} <small class="text-muted">({{ room_type }})</small></span>
                         <div class="d-flex gap-1">
-                            <button type="button" class="btn btn-sm btn-outline-primary border-0 py-0 px-1" title="تعديل" 
+                            <button type="button" class="btn btn-sm btn-outline-primary border-0 py-0 px-1" title="{{ _('تعديل') }}" 
                                     data-bs-toggle="modal" data-bs-target="#editModal" data-type="room" data-oldname="{{ room_name }}">✏️</button>
                             <form method="POST" class="m-0" onsubmit="silentSubmit(event, this)">
                                 <input type="hidden" name="action" value="delete_room">
                                 <input type="hidden" name="room_name" value="{{ room_name }}">
-                                <button type="submit" class="btn btn-sm btn-outline-danger border-0 py-0 px-1" title="حذف">❌</button>
+                                <button type="submit" class="btn btn-sm btn-outline-danger border-0 py-0 px-1" title="{{ _('حذف') }}">❌</button>
                             </form>
                         </div>
                     </li>
                     {% else %}
-                    <li class="list-group-item text-muted text-center">لا توجد قاعات</li>
+                    <li class="list-group-item text-muted text-center">{{ _('لا توجد قاعات') }}</li>
                     {% endfor %}
                 </ul>
             </div>
@@ -184,23 +184,23 @@
 
         <div class="col-lg-3 col-md-6">
             <div class="card border-danger shadow-sm h-100">
-                <div class="card-header bg-danger text-white text-center">المستويات ({{ db.levels | length }})</div>
+                <div class="card-header bg-danger text-white text-center">{{ _('المستويات') }} ({{ db.levels | length }})</div>
                 <ul class="list-group list-group-flush" style="max-height: 300px; overflow-y: auto;">
                     {% for level in db.levels %}
                     <li class="list-group-item d-flex justify-content-between align-items-center py-1">
                         <span style="font-size: 14px;">{{ level }}</span>
                         <div class="d-flex gap-1">
-                            <button type="button" class="btn btn-sm btn-outline-primary border-0 py-0 px-1" title="تعديل" 
+                            <button type="button" class="btn btn-sm btn-outline-primary border-0 py-0 px-1" title="{{ _('تعديل') }}" 
                                     data-bs-toggle="modal" data-bs-target="#editModal" data-type="level" data-oldname="{{ level }}">✏️</button>
                             <form method="POST" class="m-0" onsubmit="silentSubmit(event, this)">
                                 <input type="hidden" name="action" value="delete_level">
                                 <input type="hidden" name="level_name" value="{{ level }}">
-                                <button type="submit" class="btn btn-sm btn-outline-danger border-0 py-0 px-1" title="حذف" onclick="return confirm('حذف المستوى سيحذف كل مواده وارتباطاته. هل أنت متأكد؟');">❌</button>
+                                <button type="submit" class="btn btn-sm btn-outline-danger border-0 py-0 px-1" title="{{ _('حذف') }}" data-confirm="{{ _('حذف المستوى سيحذف كل مواده وارتباطاته. هل أنت متأكد؟') }}" onclick="return confirm(this.getAttribute('data-confirm'));">❌</button>
                             </form>
                         </div>
                     </li>
                     {% else %}
-                    <li class="list-group-item text-muted text-center">لا توجد مستويات</li>
+                    <li class="list-group-item text-muted text-center">{{ _('لا توجد مستويات') }}</li>
                     {% endfor %}
                 </ul>
             </div>
@@ -208,23 +208,23 @@
 
         <div class="col-lg-3 col-md-6">
             <div class="card border-danger shadow-sm h-100">
-                <div class="card-header bg-danger text-white text-center">المواد ({{ db.subjects | length }})</div>
+                <div class="card-header bg-danger text-white text-center">{{ _('المواد') }} ({{ db.subjects | length }})</div>
                 <ul class="list-group list-group-flush" style="max-height: 300px; overflow-y: auto;">
                     {% for sub in db.subjects %}
                     <li class="list-group-item d-flex justify-content-between align-items-center py-1">
                         <span style="font-size: 14px;">{{ sub.name }} <br><small class="text-primary">{{ sub.level }}</small></span>
                         <div class="d-flex gap-1">
-                            <button type="button" class="btn btn-sm btn-outline-primary border-0 py-0 px-1" title="تعديل" 
+                            <button type="button" class="btn btn-sm btn-outline-primary border-0 py-0 px-1" title="{{ _('تعديل') }}" 
                                     data-bs-toggle="modal" data-bs-target="#editModal" data-type="subject" data-oldname="{{ sub.name }}" data-level="{{ sub.level }}">✏️</button>
                             <form method="POST" class="m-0" onsubmit="silentSubmit(event, this)">
                                 <input type="hidden" name="action" value="delete_subject">
                                 <input type="hidden" name="subject_identifier" value="{{ sub.name }}|{{ sub.level }}">
-                                <button type="submit" class="btn btn-sm btn-outline-danger border-0 py-0 px-1" title="حذف">❌</button>
+                                <button type="submit" class="btn btn-sm btn-outline-danger border-0 py-0 px-1" title="{{ _('حذف') }}">❌</button>
                             </form>
                         </div>
                     </li>
                     {% else %}
-                    <li class="list-group-item text-muted text-center">لا توجد مواد</li>
+                    <li class="list-group-item text-muted text-center">{{ _('لا توجد مواد') }}</li>
                     {% endfor %}
                 </ul>
             </div>
@@ -242,22 +242,22 @@
                     <input type="hidden" name="level_name" id="modal_level_name">
                     
                     <div class="modal-header bg-primary text-white py-2">
-                        <h5 class="modal-title fw-bold" id="editModalLabel">✏️ تعديل الاسم</h5>
+                        <h5 class="modal-title fw-bold" id="editModalLabel">{{ _('✏️ تعديل الاسم') }}</h5>
                         <button type="button" class="btn-close btn-close-white m-0" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
                         <div class="mb-3">
-                            <label class="form-label fw-bold text-secondary">الاسم الحالي في النظام:</label>
+                            <label class="form-label fw-bold text-secondary">{{ _('الاسم الحالي في النظام:') }}</label>
                             <input type="text" class="form-control bg-light fw-bold" id="modal_display_old" readonly>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label fw-bold text-primary" id="modal_input_label">الاسم الجديد:</label>
+                            <label class="form-label fw-bold text-primary" id="modal_input_label">{{ _('الاسم الجديد:') }}</label>
                             <input type="text" class="form-control border-primary" name="new_name" id="modal_new_name" required autocomplete="off">
                         </div>
                     </div>
                     <div class="modal-footer py-1">
-                        <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">إلغاء</button>
-                        <button type="submit" class="btn btn-sm btn-success fw-bold">💾 حفظ التعديل</button>
+                        <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">{{ _('إلغاء') }}</button>
+                        <button type="submit" class="btn btn-sm btn-success fw-bold">{{ _('💾 حفظ التعديل') }}</button>
                     </div>
                 </form>
             </div>
@@ -294,22 +294,22 @@
                 
                 if (type === 'teacher') {
                     actionInput.value = 'edit_teacher';
-                    document.getElementById('editModalLabel').innerText = '✏️ تعديل اسم الأستاذ';
-                    inputLabel.innerText = 'أدخل اسم الأستاذ الجديد:';
+                    document.getElementById('editModalLabel').innerText = "{{ _('✏️ تعديل اسم الأستاذ') }}";
+                    inputLabel.innerText = "{{ _('أدخل اسم الأستاذ الجديد:') }}";
                 } else if (type === 'room') {
                     actionInput.value = 'edit_room';
-                    document.getElementById('editModalLabel').innerText = '✏️ تعديل اسم القاعة';
-                    inputLabel.innerText = 'أدخل اسم القاعة الجديد:';
+                    document.getElementById('editModalLabel').innerText = "{{ _('✏️ تعديل اسم القاعة') }}";
+                    inputLabel.innerText = "{{ _('أدخل اسم القاعة الجديد:') }}";
                 } else if (type === 'level') {
                     actionInput.value = 'edit_level';
-                    document.getElementById('editModalLabel').innerText = '✏️ تعديل اسم المستوى';
-                    inputLabel.innerText = 'أدخل اسم المستوى الجديد:';
+                    document.getElementById('editModalLabel').innerText = "{{ _('✏️ تعديل اسم المستوى') }}";
+                    inputLabel.innerText = "{{ _('أدخل اسم المستوى الجديد:') }}";
                 } else if (type === 'subject') {
                     var level = button.getAttribute('data-level');
                     actionInput.value = 'edit_subject';
                     levelNameInput.value = level;
-                    document.getElementById('editModalLabel').innerText = '✏️ تعديل اسم المادة';
-                    inputLabel.innerText = 'أدخل الاسم الجديد للمادة التابعة لمستوى (' + level + '):';
+                    document.getElementById('editModalLabel').innerText = "{{ _('✏️ تعديل اسم المادة') }}";
+                    inputLabel.innerText = "{{ _('أدخل الاسم الجديد للمادة التابعة لمستوى') }} (" + level + "):";
                 }
             });
         }
@@ -326,7 +326,7 @@
         let originalText = '';
         if (submitBtn) {
             originalText = submitBtn.innerHTML;
-            submitBtn.innerHTML = '⏳...';
+            submitBtn.innerHTML = `{{ _('⏳...') }}`;
             submitBtn.disabled = true;
         }
         document.body.style.cursor = 'wait';
@@ -384,7 +384,7 @@
             window.scrollTo(0, scrollY);
 
         } catch (error) {
-            alert("حدث خطأ أثناء الاتصال بالخادم.");
+            alert(`{{ _('حدث خطأ أثناء الاتصال بالخادم.') }}`);
             if (submitBtn) {
                 submitBtn.innerHTML = originalText;
                 submitBtn.disabled = false;

@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify, session
 from app.database import db, ExamTeacher, ExamRoom, ExamLevel, ExamSubject
+from flask_babel import _
 
 exams_manage_data_bp = Blueprint('exams_manage_data', __name__)
 
@@ -10,7 +11,7 @@ exams_manage_data_bp = Blueprint('exams_manage_data', __name__)
 def delete_entity(entity, id):
     tenant_id = session.get('tenant_id')
     if not tenant_id:
-        return jsonify({"error": "غير مصرح"}), 403
+        return jsonify({"error": _("غير مصرح")}), 403
 
     # خريطة تربط الكيان بالكائن الصحيح في قاعدة البيانات
     allowed_entities = {
@@ -21,7 +22,7 @@ def delete_entity(entity, id):
     }
     
     if entity not in allowed_entities:
-        return jsonify({'success': False, 'message': 'كيان غير صالح'})
+        return jsonify({'success': False, 'message': _('كيان غير صالح')})
 
     ModelClass = allowed_entities[entity]
     item = ModelClass.query.filter_by(id=id, tenant_id=tenant_id).first()
@@ -51,7 +52,7 @@ def delete_entity(entity, id):
             db.session.rollback()
             return jsonify({'success': False, 'message': str(e)})
             
-    return jsonify({'success': False, 'message': 'العنصر غير موجود'})
+    return jsonify({'success': False, 'message': _('العنصر غير موجود')})
 
 # ==========================================
 # ✏️ دوال التعديل (Edit)
@@ -66,7 +67,7 @@ def edit_professor(id):
     
     duplicate = ExamTeacher.query.filter_by(name=name, tenant_id=tenant_id).first()
     if duplicate and duplicate.id != id:
-        return jsonify({'success': False, 'message': 'هذا الأستاذ موجود مسبقاً'})
+        return jsonify({'success': False, 'message': _('هذا الأستاذ موجود مسبقاً')})
         
     item.name = name
     db.session.commit()
@@ -84,7 +85,7 @@ def edit_hall(id):
     # منع التكرار (منع تسمية قاعتين بنفس الاسم في نفس القسم)
     duplicate = ExamRoom.query.filter_by(name=name, tenant_id=tenant_id).first()
     if duplicate and duplicate.id != id:
-        return jsonify({'success': False, 'message': 'هذه القاعة موجودة مسبقاً'})
+        return jsonify({'success': False, 'message': _('هذه القاعة موجودة مسبقاً')})
         
     item.name = name
     item.type = hall_type
@@ -101,7 +102,7 @@ def edit_level(id):
     
     duplicate = ExamLevel.query.filter_by(name=name, tenant_id=tenant_id).first()
     if duplicate and duplicate.id != id:
-        return jsonify({'success': False, 'message': 'هذا المستوى موجود مسبقاً'})
+        return jsonify({'success': False, 'message': _('هذا المستوى موجود مسبقاً')})
         
     item.name = name
     db.session.commit()
@@ -117,7 +118,7 @@ def edit_subject(id):
     
     duplicate = ExamSubject.query.filter_by(name=name, tenant_id=tenant_id).first()
     if duplicate and duplicate.id != id:
-        return jsonify({'success': False, 'message': 'هذه المادة موجودة مسبقاً'})
+        return jsonify({'success': False, 'message': _('هذه المادة موجودة مسبقاً')})
         
     item.name = name
     db.session.commit()

@@ -3,6 +3,7 @@ import json
 import uuid
 import random
 from collections import defaultdict
+from flask_babel import _
 
 # استدعاء نماذج قاعدة البيانات السحابية الخاصة بالامتحانات
 from app.database import db, ExamSetting, ExamTeacher, ExamSubject, ExamLevel, ExamRoom, ExamDay
@@ -75,7 +76,8 @@ def generate_balance_report(prof_stats, prof_targets):
         deviation = actual - target
         total_deviation += abs(deviation)
         report_details.append({
-            'pattern': f"{key[0]} كبيرة + {key[1]} أخرى", 
+            'large_count': key[0], 
+            'other_count': key[1], 
             'target_count': target, 
             'actual_count': actual, 
             'deviation': deviation
@@ -142,17 +144,19 @@ def stop_algorithm():
     tenant_id = session.get('tenant_id')
     log_q = get_log_queue(tenant_id)
     log_q.set_stop_flag(True)
-    log_q.put("... تم إرسال إشارة إيقاف الخوارزمية، جاري إنهاء العمليات ...")
+    log_q.put(_("... تم إرسال إشارة إيقاف الخوارزمية، جاري إنهاء العمليات ..."))
     return jsonify({'success': True})
 
 @exams_generation_bp.route('/exams/api/generate-schedule', methods=['POST'])
 def generate_schedule():
     tenant_id = session.get('tenant_id')
-    if not tenant_id: return jsonify({'error': 'غير مصرح'}), 403
+    lang_code = session.get('lang', 'ar')  # 👈 1. قراءة لغة المستخدم من الجلسة
+    
+    if not tenant_id: return jsonify({'error': _('غير مصرح')}), 403
 
     log_q = get_log_queue(tenant_id)
     if log_q.is_running():
-        return jsonify({"success": False, "error": "عملية التوزيع تعمل حالياً في قسمك."}), 400
+        return jsonify({"success": False, "error": _("عملية التوزيع تعمل حالياً في قسمك.")}), 400
 
     data = request.json
     algorithm_choices = data.get('algorithms', ['lns']) 
@@ -162,19 +166,20 @@ def generate_schedule():
     log_q.set_running(True)
     log_q.set_stop_flag(False)
         
-    # 🚀 المحول الذكي
     from flask import current_app
     mode = current_app.config.get('APP_MODE')
     if mode == 'desktop':
         app_obj = current_app._get_current_object()
         def run_thread():
             with app_obj.app_context():
-                background_exam_generation_task(tenant_id, algorithm_choices, algo_params)
+                # 👈 2. إرسال اللغة إلى المهمة الخلفية
+                background_exam_generation_task(tenant_id, algorithm_choices, algo_params, lang_code)
         threading.Thread(target=run_thread).start()
     else:
-        background_exam_generation_task.delay(tenant_id, algorithm_choices, algo_params)
+        # 👈 3. إرسال اللغة إلى مهمة السحابة (Celery)
+        background_exam_generation_task.delay(tenant_id, algorithm_choices, algo_params, lang_code)
     
-    return jsonify({'success': True, 'message': 'بدأت عملية التوليد في الخلفية.'})
+    return jsonify({'success': True, 'message': _('بدأت عملية التوليد في الخلفية.')})
 
 # ==============================================================
 # 📢 مسار نشر جدول الحراسة لحسابات الأساتذة
@@ -182,10 +187,10 @@ def generate_schedule():
 @exams_generation_bp.route('/exams/api/publish', methods=['POST'])
 def publish_exam_schedule():
     tenant_id = session.get('tenant_id')
-    if not tenant_id: return jsonify({'error': 'غير مصرح'}), 403
+    if not tenant_id: return jsonify({'error': _('غير مصرح')}), 403
 
     schedule_data = request.json
-    if not schedule_data: return jsonify({'error': 'لا توجد بيانات لجدول الامتحانات'}), 400
+    if not schedule_data: return jsonify({'error': _('لا توجد بيانات لجدول الامتحانات')}), 400
 
     try:
         # حفظ الجدول النهائي كجدول معتمد
@@ -204,7 +209,7 @@ def publish_exam_schedule():
             db.session.add(ExamSetting(key='is_exam_published', value='1', tenant_id=tenant_id))
 
         db.session.commit()
-        return jsonify({'success': True, 'message': '📢 تم نشر جدول الامتحانات في حسابات الأساتذة بنجاح!'})
+        return jsonify({'success': True, 'message': _('📢 تم نشر جدول الامتحانات في حسابات الأساتذة بنجاح!')})
     except Exception as e:
         db.session.rollback()
         return jsonify({'success': False, 'error': str(e)})
@@ -215,7 +220,7 @@ def publish_exam_schedule():
 @exams_generation_bp.route('/exams/api/unpublish', methods=['POST'])
 def unpublish_exam_schedule():
     tenant_id = session.get('tenant_id')
-    if not tenant_id: return jsonify({'error': 'غير مصرح'}), 403
+    if not tenant_id: return jsonify({'error': _('غير مصرح')}), 403
 
     try:
         # إطفاء راية "تم النشر" بجعل قيمتها 0
@@ -226,7 +231,7 @@ def unpublish_exam_schedule():
             db.session.add(ExamSetting(key='is_exam_published', value='0', tenant_id=tenant_id))
 
         db.session.commit()
-        return jsonify({'success': True, 'message': '🚫 تم سحب الجداول، ولن تظهر في حسابات الأساتذة بعد الآن.'})
+        return jsonify({'success': True, 'message': _('🚫 تم سحب الجداول، ولن تظهر في حسابات الأساتذة بعد الآن.')})
     except Exception as e:
         db.session.rollback()
         return jsonify({'success': False, 'error': str(e)})
@@ -235,14 +240,20 @@ def unpublish_exam_schedule():
 # ⚙️ مهمة الخلفية الثقيلة (Celery Task)
 # ==============================================================
 
+# 👈 4. استقبال المتغير الجديد (lang_code)
 @celery_app.task
-def background_exam_generation_task(tenant_id, algorithm_choices, algo_params):
+def background_exam_generation_task(tenant_id, algorithm_choices, algo_params, lang_code='ar'):
+    
+    # 👈 5. استيراد أداة الترجمة المستقلة وتفعيل اللغة قبل بدء أي شيء!
+    from app.services.exams_algorithms import set_exam_algorithm_language, _
+    set_exam_algorithm_language(lang_code)
+
     log_queue = get_log_queue(tenant_id)
     stop_event = StopEventProxy(tenant_id)
     from flask import current_app as app 
     
     try:
-        log_queue.put("جاري جلب البيانات من قاعدة البيانات السحابية المعزولة...")
+        log_queue.put(_("جاري جلب البيانات من قاعدة البيانات السحابية المعزولة..."))
         
         with app.app_context():
             # 1. جلب الإعدادات
@@ -262,7 +273,7 @@ def background_exam_generation_task(tenant_id, algorithm_choices, algo_params):
             exam_schedule = json.loads(row_sched.value) if row_sched and row_sched.value else {}
             
             if not exam_schedule:
-                log_queue.put("DONE:{\"success\": false, \"message\": \"الرجاء إعداد جدول الامتحانات في المرحلة 4 أولاً.\"}")
+                log_queue.put("DONE:{\"success\": false, \"message\": \"" + _("الرجاء إعداد جدول الامتحانات في المرحلة 4 أولاً.") + "\"}")
                 return
 
             all_professors = [p.name for p in ExamTeacher.query.filter_by(tenant_id=tenant_id).all()]
@@ -275,12 +286,12 @@ def background_exam_generation_task(tenant_id, algorithm_choices, algo_params):
             for p in ExamTeacher.query.filter_by(tenant_id=tenant_id).all():
                 for s in p.subjects:
                     levels_list = sorted([l.name for l in s.levels]) if hasattr(s, 'levels') and s.levels else []
-                    combined_level = " + ".join(levels_list) if levels_list else "غير محدد"
+                    combined_level = " + ".join(levels_list) if levels_list else 'غير محدد'
                     assignments[p.name].append({'subj_name': s.name, 'levels': levels_list, 'level_name': combined_level})
             
             for s in ExamSubject.query.filter_by(tenant_id=tenant_id).all():
                 levels_list = sorted([l.name for l in s.levels]) if hasattr(s, 'levels') and s.levels else []
-                combined_level = " + ".join(levels_list) if levels_list else "غير محدد"
+                combined_level = " + ".join(levels_list) if levels_list else 'غير محدد'
                 all_subjects_list.append({'subj_id': s.id, 'subj_name': s.name, 'levels': levels_list, 'level_name': combined_level})
                 
             level_halls = []
@@ -291,7 +302,7 @@ def background_exam_generation_task(tenant_id, algorithm_choices, algo_params):
             pinned_row = ExamSetting.query.filter_by(key='pinned_subject_schedule', tenant_id=tenant_id).first()
             pinned_value = pinned_row.value if pinned_row else None
 
-        # ==============================================================
+# ==============================================================
         # 🛠️ تنسيق البيانات لتطابق الخوارزميات الأصلية
         # ==============================================================
         
@@ -322,11 +333,11 @@ def background_exam_generation_task(tenant_id, algorithm_choices, algo_params):
         # ==============================================================
 
         if pinned_value:
-            log_queue.put("--- 📌 تم العثور على مخطط مواد يدوي (مُثبت)، سيتم اعتماده كلياً وتخطي التوزيع التلقائي للمواد ---")
+            log_queue.put(_("--- 📌 تم العثور على مخطط مواد يدوي (مُثبت)، سيتم اعتماده كلياً وتخطي التوزيع التلقائي للمواد ---"))
             subject_schedule = json.loads(pinned_value)
             group_mappings = {} 
         else:
-            log_queue.put(">>> بناء جدول المواد المبدئي وتوزيع القاعات (تلقائياً)...")
+            log_queue.put(_(">>> بناء جدول المواد المبدئي وتوزيع القاعات (تلقائياً)..."))
             subject_schedule, group_mappings = _run_initial_subject_placement(
                 settings_for_placement, formatted_subjects, all_levels_list, subject_owners, formatted_halls
             )
@@ -354,7 +365,7 @@ def background_exam_generation_task(tenant_id, algorithm_choices, algo_params):
                 for slot in day.values():
                     for exam in slot:
                         owner = exam.get('professor')
-                        if owner and owner != "غير محدد":
+                        if owner and owner != 'غير محدد':
                             exam_date_time_str = f"{exam['date']} {exam['time'].split('-')[0]}"
                             if owner not in prof_last_exam or exam_date_time_str > prof_last_exam[owner]['datetime_str']:
                                 prof_last_exam[owner] = {'exam': exam, 'datetime_str': exam_date_time_str}
@@ -380,24 +391,24 @@ def background_exam_generation_task(tenant_id, algorithm_choices, algo_params):
             if stop_event.is_set(): break
             
             log_queue.put(f"\n==========================================")
-            log_queue.put(f"🚀 بدء تشغيل مرحلة: {algo.upper()}")
+            log_queue.put(_("🚀 بدء تشغيل مرحلة: {algo}").format(algo=algo.upper()))
             log_queue.put(f"==========================================")
             
             if algo == 'unified':
-                best_schedule, _ = run_unified_lns_optimizer(best_schedule, main_settings, all_professors, assignments, duty_patterns, date_map, all_subjects_list, log_queue, all_levels_list, locked_guards, stop_event)
+                best_schedule, _dummy = run_unified_lns_optimizer(best_schedule, main_settings, all_professors, assignments, duty_patterns, date_map, all_subjects_list, log_queue, all_levels_list, locked_guards, stop_event)
             elif algo == 'lns':
-                best_schedule, _, _, _ = run_large_neighborhood_search(best_schedule, main_settings, all_professors, duty_patterns, date_map, log_q=log_queue, locked_guards=locked_guards, stop_event=stop_event)
+                best_schedule, _d1, _d2, _d3 = run_large_neighborhood_search(best_schedule, main_settings, all_professors, duty_patterns, date_map, log_q=log_queue, locked_guards=locked_guards, stop_event=stop_event)
             elif algo == 'vns':
-                best_schedule, _, _, _ = run_variable_neighborhood_search(best_schedule, main_settings, all_professors, duty_patterns, date_map, log_q=log_queue, locked_guards=locked_guards, stop_event=stop_event)
+                best_schedule, _d1, _d2, _d3 = run_variable_neighborhood_search(best_schedule, main_settings, all_professors, duty_patterns, date_map, log_q=log_queue, locked_guards=locked_guards, stop_event=stop_event)
             
 
         if best_schedule and not stop_event.is_set():
-            log_queue.put("\n✓ انتهت سلسلة الخوارزميات بالكامل. جاري حساب الإحصائيات النهائية...")
+            log_queue.put(_("\n✓ انتهت سلسلة الخوارزميات بالكامل. جاري حساب الإحصائيات النهائية..."))
 
-            log_queue.put(">>> جاري تفعيل فريق الطوارئ (جبر النقص الأخير)...")
+            log_queue.put(_(">>> جاري تفعيل فريق الطوارئ (جبر النقص الأخير)..."))
             best_schedule = desperation_repair_pass(best_schedule, main_settings, all_professors, duty_patterns, date_map)
             final_cost = calculate_cost(best_schedule, main_settings, all_professors, duty_patterns, date_map)
-            log_queue.put(f"✓ اكتمل جبر النقص. النتيجة النهائية: {format_cost_tuple(final_cost)}")
+            log_queue.put(_("✓ اكتمل جبر النقص. النتيجة النهائية: {cost}").format(cost=format_cost_tuple(final_cost)))
             
             # --- حساب الإحصائيات للوحة المعلومات ---
             all_exams_flat = [exam for day in best_schedule.values() for slot in day.values() for exam in slot]
@@ -408,12 +419,12 @@ def background_exam_generation_task(tenant_id, algorithm_choices, algo_params):
             guards_large_hall = int(main_settings.get('guardsLargeHall', 4))
             for exam in all_exams_flat:
                 for guard in exam.get('guards', []):
-                    if guard == "**نقص**":
+                    if guard == '**نقص**':
                         shortage_reports.append(f"{exam['subject']} ({exam['level']})")
                     else:
                         duties_per_day[exam['date']] += 1
                 
-                guards_copy = [g for g in exam.get('guards', []) if g != "**نقص**"]
+                guards_copy = [g for g in exam.get('guards', []) if g != '**نقص**']
                 large_guards_needed = sum(guards_large_hall for h in exam.get('halls', []) if h.get('type') == 'كبيرة')
                 
                 for guard in guards_copy[:large_guards_needed]:
@@ -443,7 +454,7 @@ def background_exam_generation_task(tenant_id, algorithm_choices, algo_params):
                     prof_targets_list = []
                     for pattern in custom_target_patterns:
                         count = int(pattern.get('count', 0))
-                        for _ in range(count): 
+                        for _dummy in range(count): 
                             prof_targets_list.append({'large': int(pattern.get('large', 0)), 'other': int(pattern.get('other', 0))})
                     
                     num_to_fill = num_profs - len(prof_targets_list)
@@ -473,8 +484,8 @@ def background_exam_generation_task(tenant_id, algorithm_choices, algo_params):
             chart_data = {
                 'labels': [],
                 'datasets': [
-                    {'label': 'حصص القاعات الأخرى', 'data': [], 'backgroundColor': 'rgba(54, 162, 235, 0.7)'},
-                    {'label': 'حصص القاعة الكبيرة', 'data': [], 'backgroundColor': 'rgba(255, 99, 132, 0.7)'}
+                    {'label': _('حصص القاعات الأخرى'), 'data': [], 'backgroundColor': 'rgba(54, 162, 235, 0.7)'},
+                    {'label': _('حصص القاعة الكبيرة'), 'data': [], 'backgroundColor': 'rgba(255, 99, 132, 0.7)'}
                 ]
             }
             for prof_name in sorted(prof_stats.keys()):
@@ -506,12 +517,12 @@ def background_exam_generation_task(tenant_id, algorithm_choices, algo_params):
             })
             log_queue.put(f"DONE:{result_json}")
         else:
-            log_queue.put("DONE:{\"success\": false, \"message\": \"فشل إيجاد حل أو تم الإيقاف بواسطة المستخدم.\"}")
+            log_queue.put("DONE:{\"success\": false, \"message\": \"" + _("فشل إيجاد حل أو تم الإيقاف بواسطة المستخدم.") + "\"}")
 
     except Exception as e:
         import traceback
-        log_queue.put(f"خطأ فادح: {str(e)}")
+        log_queue.put(_("خطأ فادح: {error}").format(error=str(e)))
         log_queue.put(traceback.format_exc())
-        log_queue.put("DONE:{\"success\": false, \"message\": \"حدث خطأ داخلي في الخادم السحابي.\"}")
+        log_queue.put("DONE:{\"success\": false, \"message\": \"" + _("حدث خطأ داخلي في الخادم السحابي.") + "\"}")
     finally:
         log_queue.set_running(False)

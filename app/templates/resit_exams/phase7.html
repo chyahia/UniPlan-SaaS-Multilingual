@@ -4,12 +4,12 @@
 <!-- ✨ غلفنا المحتوى لسهولة التحديث الصامت ✨ -->
 <div id="phase7-wrapper">
     <h2 class="text-center text-primary mb-4 border border-primary p-3 rounded bg-light">
-        المرحلة 7: إدارة المخرجات والتواصل مع الأساتذة
+        {{ _('المرحلة 7: إدارة المخرجات والتواصل مع الأساتذة') }}
     </h2>
 
     {% if not has_schedule %}
         <div class="alert alert-warning text-center fs-5 fw-bold shadow-sm">
-            ⚠️ لا يوجد جدول استدراكي حالياً! الرجاء العودة للمرحلة السادسة لتوليد الجدول أولاً.
+            {{ _('⚠️ لا يوجد جدول استدراكي حالياً! الرجاء العودة للمرحلة السادسة لتوليد الجدول أولاً.') }}
         </div>
     {% else %}
 
@@ -18,24 +18,25 @@
             <div class="col-md-6">
                 <div class="card shadow-sm border-success h-100">
                     <div class="card-header bg-success text-white fs-5 fw-bold text-center">
-                        📊 التعديل اليدوي عبر الإكسل (Excel)
+                        {{ _('📊 التعديل اليدوي عبر الإكسل (Excel)') }}
                     </div>
                     <div class="card-body bg-light text-center">
-                        <p class="text-muted fw-bold">إذا أردت تعديل حراس أو قاعات بشكل يدوي دقيق، قم بتحميل الجدول، عدّله في حاسوبك، ثم أعد رفعه هنا.</p>
+                        <p class="text-muted fw-bold">{{ _('إذا أردت تعديل حراس أو قاعات بشكل يدوي دقيق، قم بتحميل الجدول، عدّله في حاسوبك، ثم أعد رفعه هنا.') }}</p>
                         
                         <!-- زر التحميل يبقى رابطاً عادياً لأنه يحمل ملفاً ولا يرسل نموذجاً -->
                         <a href="{{ url_for('resit_exams.export_excel') }}" class="btn btn-outline-success btn-lg w-100 fw-bold mb-4 shadow-sm">
-                            📥 1. تحميل الجدول الحالي (Excel)
+                            {{ _('📥 1. تحميل الجدول الحالي (Excel)') }}
                         </a>
                         
                         <hr class="my-4 border-success">
                         
                         <!-- ✨ نموذج الرفع يعمل صمتاً عبر fetch ✨ -->
                         <form action="{{ url_for('resit_exams.import_excel') }}" method="POST" enctype="multipart/form-data" onsubmit="silentSubmit(event, this)">
-                            <label class="form-label fw-bold text-success mb-2">📤 2. رفع الجدول المُعدّل لاعتماده:</label>
+                            <label class="form-label fw-bold text-success mb-2">{{ _('📤 2. رفع الجدول المُعدّل لاعتماده:') }}</label>
                             <input class="form-control border-success mb-3" type="file" name="excel_file" accept=".xlsx" required>
-                            <button type="submit" class="btn btn-success w-100 fw-bold shadow-sm" onclick="return confirm('تأكيد استبدال الجدول الحالي ببيانات ملف الإكسل المرفوع؟');">
-                                🔄 اعتماد التعديلات وتحديث النظام
+                            <!-- ✨ التعديل الأول ✨ -->
+                            <button type="submit" class="btn btn-success w-100 fw-bold shadow-sm" data-confirm="{{ _('تأكيد استبدال الجدول الحالي ببيانات ملف الإكسل المرفوع؟') }}" onclick="return confirm(this.getAttribute('data-confirm'));">
+                                {{ _('🔄 اعتماد التعديلات وتحديث النظام') }}
                             </button>
                         </form>
                     </div>
@@ -46,32 +47,34 @@
             <div class="col-md-6">
                 <div class="card shadow-sm border-primary h-100">
                     <div class="card-header bg-primary text-white fs-5 fw-bold text-center">
-                        👨‍🏫 إرسال الجدول للأساتذة (البوابة)
+                        {{ _('👨‍🏫 إرسال الجدول للأساتذة (البوابة)') }}
                     </div>
                     <div class="card-body bg-light text-center d-flex flex-column justify-content-center">
                         
                         {% if is_published %}
                             <div class="alert alert-success fw-bold p-4 mb-4 shadow-sm">
-                                <h3 class="mb-3">🌐 الجدول منشور حالياً</h3>
-                                <p class="mb-0 text-dark">يستطيع الأساتذة الآن الدخول لحساباتهم لرؤية مهامهم الاستدراكية.</p>
+                                <h3 class="mb-3">{{ _('🌐 الجدول منشور حالياً') }}</h3>
+                                <p class="mb-0 text-dark">{{ _('يستطيع الأساتذة الآن الدخول لحساباتهم لرؤية مهامهم الاستدراكية.') }}</p>
                             </div>
                             <!-- ✨ الإلغاء السريع الصامت ✨ -->
                             <form action="{{ url_for('resit_exams.publish_resit') }}" method="POST" onsubmit="silentSubmit(event, this)">
                                 <input type="hidden" name="action" value="unpublish">
-                                <button type="submit" class="btn btn-danger btn-lg w-100 fw-bold shadow-sm" onclick="return confirm('هل أنت متأكد من سحب الجدول وإخفائه عن الأساتذة؟');">
-                                    🚫 سحب وإخفاء الجدول
+                                <!-- ✨ التعديل الثاني ✨ -->
+                                <button type="submit" class="btn btn-danger btn-lg w-100 fw-bold shadow-sm" data-confirm="{{ _('هل أنت متأكد من سحب الجدول وإخفائه عن الأساتذة؟') }}" onclick="return confirm(this.getAttribute('data-confirm'));">
+                                    {{ _('🚫 سحب وإخفاء الجدول') }}
                                 </button>
                             </form>
                         {% else %}
                             <div class="alert alert-secondary fw-bold p-4 mb-4 shadow-sm">
-                                <h3 class="mb-3">🔒 الجدول مخفي حالياً</h3>
-                                <p class="mb-0 text-dark">الجدول محفوظ في النظام ولكنه لا يظهر للأساتذة في بوابتهم.</p>
+                                <h3 class="mb-3">{{ _('🔒 الجدول مخفي حالياً') }}</h3>
+                                <p class="mb-0 text-dark">{{ _('الجدول محفوظ في النظام ولكنه لا يظهر للأساتذة في بوابتهم.') }}</p>
                             </div>
                             <!-- ✨ النشر السريع الصامت ✨ -->
                             <form action="{{ url_for('resit_exams.publish_resit') }}" method="POST" onsubmit="silentSubmit(event, this)">
                                 <input type="hidden" name="action" value="publish">
-                                <button type="submit" class="btn btn-primary btn-lg w-100 fw-bold shadow-sm" onclick="return confirm('هل أنت متأكد من نشر الجدول وإرساله رسمياً لبوابة الأساتذة؟');">
-                                    🚀 إرسال ونشر الجدول للأساتذة
+                                <!-- ✨ التعديل الثالث ✨ -->
+                                <button type="submit" class="btn btn-primary btn-lg w-100 fw-bold shadow-sm" data-confirm="{{ _('هل أنت متأكد من نشر الجدول وإرساله رسمياً لبوابة الأساتذة؟') }}" onclick="return confirm(this.getAttribute('data-confirm'));">
+                                    {{ _('🚀 إرسال ونشر الجدول للأساتذة') }}
                                 </button>
                             </form>
                         {% endif %}
@@ -95,7 +98,8 @@
         let originalText = '';
         if (submitBtn) {
             originalText = submitBtn.innerHTML;
-            submitBtn.innerHTML = '⏳ جاري المعالجة...';
+            // ✨ التعديل الرابع: استخدام Backtick ✨
+            submitBtn.innerHTML = `{{ _('⏳ جاري المعالجة...') }}`;
             submitBtn.disabled = true;
         }
         document.body.style.cursor = 'wait';
@@ -140,7 +144,8 @@
             window.scrollTo(0, scrollY);
 
         } catch (error) {
-            alert("حدث خطأ أثناء الاتصال بالخادم.");
+            // ✨ التعديل الخامس: استخدام Backtick ✨
+            alert(`{{ _('حدث خطأ أثناء الاتصال بالخادم.') }}`);
             if (submitBtn) {
                 submitBtn.innerHTML = originalText;
                 submitBtn.disabled = false;

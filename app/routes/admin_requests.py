@@ -4,13 +4,14 @@ import json
 import io
 import openpyxl
 from openpyxl.styles import Font, PatternFill, Alignment
+from flask_babel import _  # ✨ استيراد دالة الترجمة
 
 admin_requests_bp = Blueprint('admin_requests', __name__)
 
 # 1. جلب كل الرغبات وتقرير التضاربات لعرضها للمدير
 @admin_requests_bp.route('/api/admin/requests', methods=['GET'])
 def get_requests():
-    if session.get('role') not in ['super_admin', 'tenant_admin']: return jsonify({"error": "غير مصرح"}), 403
+    if session.get('role') not in ['super_admin', 'tenant_admin']: return jsonify({"error": _("غير مصرح")}), 403
     
     tenant_id = session.get('tenant_id')
     
@@ -22,13 +23,13 @@ def get_requests():
     result = []
     for r in reqs:
         course_ids = json.loads(r.requested_courses) if r.requested_courses else []
-        course_names = [courses_dict.get(int(cid), "مادة محذوفة") for cid in course_ids]
+        course_names = [courses_dict.get(int(cid), _("مادة محذوفة")) for cid in course_ids] # ✨ ترجمة
         result.append({
             "teacher_id": r.teacher_id,
-            "teacher_name": teachers_dict.get(r.teacher_id, "مجهول"),
+            "teacher_name": teachers_dict.get(r.teacher_id, _("مجهول")), # ✨ ترجمة
             "courses": course_names,
             "days": json.loads(r.requested_days) if r.requested_days else [],
-            "status": r.status
+            "status": r.status # تبقى بدون ترجمة هنا لأنها ترسل للـ Frontend كما هي
         })
 
     # جلب تقرير التضاربات المحفوظ من قاعدة البيانات
@@ -40,13 +41,13 @@ def get_requests():
 # 2. اعتماد طلب الأستاذ وتطبيق البيانات
 @admin_requests_bp.route('/api/admin/requests/approve/<int:teacher_id>', methods=['POST'])
 def approve_request(teacher_id):
-    if session.get('role') not in ['super_admin', 'tenant_admin']: return jsonify({"error": "غير مصرح"}), 403
+    if session.get('role') not in ['super_admin', 'tenant_admin']: return jsonify({"error": _("غير مصرح")}), 403
     
     tenant_id = session.get('tenant_id')
     req = TeacherRequest.query.filter_by(teacher_id=teacher_id, tenant_id=tenant_id).first()
     
     if not req:
-        return jsonify({"error": "الطلب غير موجود"}), 404
+        return jsonify({"error": _("الطلب غير موجود")}), 404
 
     course_ids = json.loads(req.requested_courses) if req.requested_courses else []
     days = json.loads(req.requested_days) if req.requested_days else []
@@ -73,16 +74,16 @@ def approve_request(teacher_id):
         new_setting = Setting(key='schedule_conditions', value=json.dumps(conditions), tenant_id=tenant_id)
         db.session.add(new_setting)
 
-    # ج) تغيير حالة الطلب إلى "معتمد"
+    # ج) تغيير حالة الطلب إلى "معتمد" (قيمة داتا بيز، لا تترجم)
     req.status = 'معتمد'
     db.session.commit()
     
-    return jsonify({"success": True, "message": "✅ تم اعتماد الرغبات وتطبيقها على المرحلتين 3 و 5 بنجاح!"})
+    return jsonify({"success": True, "message": _("✅ تم اعتماد الرغبات وتطبيقها على المرحلتين 3 و 5 بنجاح!")})
 
 # 3. حذف الطلب (الرفض)
 @admin_requests_bp.route('/api/admin/requests/reject/<int:teacher_id>', methods=['POST'])
 def reject_request(teacher_id):
-    if session.get('role') not in ['super_admin', 'tenant_admin']: return jsonify({"error": "غير مصرح"}), 403
+    if session.get('role') not in ['super_admin', 'tenant_admin']: return jsonify({"error": _("غير مصرح")}), 403
     tenant_id = session.get('tenant_id')
     TeacherRequest.query.filter_by(teacher_id=teacher_id, tenant_id=tenant_id).delete()
     db.session.commit()
@@ -91,11 +92,11 @@ def reject_request(teacher_id):
 # 4. الاعتماد الشامل الآلي (فقط للطلبات الجديدة/المعدلة)
 @admin_requests_bp.route('/api/admin/requests/bulk_approve', methods=['POST'])
 def bulk_approve_requests():
-    if session.get('role') not in ['super_admin', 'tenant_admin']: return jsonify({"error": "غير مصرح"}), 403
+    if session.get('role') not in ['super_admin', 'tenant_admin']: return jsonify({"error": _("غير مصرح")}), 403
     
     tenant_id = session.get('tenant_id')
     
-    # جلب الطلبات (الجديدة أو المعدلة فقط)
+    # جلب الطلبات (الجديدة أو المعدلة فقط) (حالة داتابيز، لا تترجم)
     reqs = TeacherRequest.query.filter_by(status='قيد المراجعة', tenant_id=tenant_id).all()
     
     courses = Course.query.filter_by(tenant_id=tenant_id).all()
@@ -113,7 +114,7 @@ def bulk_approve_requests():
 
     for req in reqs:
         t_id = req.teacher_id
-        t_name = teachers_dict.get(t_id, "مجهول")
+        t_name = teachers_dict.get(t_id, _("مجهول"))
         requested_cids = json.loads(req.requested_courses) if req.requested_courses else []
         requested_days = json.loads(req.requested_days) if req.requested_days else []
         
@@ -134,13 +135,13 @@ def bulk_approve_requests():
                 else:
                     # تسجيل التضارب
                     assigned_to_id = c_info['teacher_id']
-                    assigned_to_name = teachers_dict.get(assigned_to_id, "أستاذ آخر")
+                    assigned_to_name = teachers_dict.get(assigned_to_id, _("أستاذ آخر"))
                     if assigned_to_id != t_id:
                         course_exists = False
                         for r in report:
                             if r['course_name'] == c_info['name']:
                                 if t_name not in r['requested_by']:
-                                    r['requested_by'] += f" ، {t_name}"
+                                    r['requested_by'] += f" {_('،')} {t_name}" # ✨ ترجمة الفاصلة
                                 course_exists = True
                                 break
                         
@@ -172,7 +173,7 @@ def bulk_approve_requests():
 # 5. نشر الجداول النهائية للأساتذة في بواباتهم
 @admin_requests_bp.route('/api/admin/publish_schedule', methods=['POST'])
 def publish_schedule():
-    if session.get('role') not in ['super_admin', 'tenant_admin']: return jsonify({"error": "غير مصرح"}), 403
+    if session.get('role') not in ['super_admin', 'tenant_admin']: return jsonify({"error": _("غير مصرح")}), 403
     tenant_id = session.get('tenant_id')
     data = request.json
     prof_schedules = data.get('prof_schedules', {})
@@ -188,12 +189,12 @@ def publish_schedule():
     else: db.session.add(Setting(key='is_published', value='true', tenant_id=tenant_id))
     
     db.session.commit()
-    return jsonify({"success": True, "message": "✅ تم نشر الجداول! ستظهر الآن فوراً في حسابات الأساتذة."})
+    return jsonify({"success": True, "message": _("✅ تم نشر الجداول! ستظهر الآن فوراً في حسابات الأساتذة.")})
 
 # 6. إلغاء النشر
 @admin_requests_bp.route('/api/admin/unpublish_schedule', methods=['POST'])
 def unpublish_schedule():
-    if session.get('role') not in ['super_admin', 'tenant_admin']: return jsonify({"error": "غير مصرح"}), 403
+    if session.get('role') not in ['super_admin', 'tenant_admin']: return jsonify({"error": _("غير مصرح")}), 403
     tenant_id = session.get('tenant_id')
     is_pub_setting = Setting.query.filter_by(key='is_published', tenant_id=tenant_id).first()
     
@@ -203,17 +204,17 @@ def unpublish_schedule():
         db.session.add(Setting(key='is_published', value='false', tenant_id=tenant_id))
         
     db.session.commit()
-    return jsonify({"success": True, "message": "🚫 تم سحب الجداول وإخفاؤها عن الأساتذة بنجاح."})
+    return jsonify({"success": True, "message": _("🚫 تم سحب الجداول وإخفاؤها عن الأساتذة بنجاح.")})
 
 # مسار مسح جميع رغبات الأساتذة دفعة واحدة
 @admin_requests_bp.route('/api/admin/requests/delete_all', methods=['POST'])
 def delete_all_requests():
-    if session.get('role') not in ['super_admin', 'tenant_admin']: return jsonify({"error": "غير مصرح"}), 403
+    if session.get('role') not in ['super_admin', 'tenant_admin']: return jsonify({"error": _("غير مصرح")}), 403
     try:
         tenant_id = session.get('tenant_id')
         TeacherRequest.query.filter_by(tenant_id=tenant_id).delete()
         db.session.commit()
-        return jsonify({"success": True, "message": "تم مسح جميع الرغبات بنجاح."})
+        return jsonify({"success": True, "message": _("تم مسح جميع الرغبات بنجاح.")})
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": str(e)}), 500
@@ -221,7 +222,7 @@ def delete_all_requests():
 # مسار مخصص ومضمون لمسح تقرير التضاربات بالكامل
 @admin_requests_bp.route('/api/admin/report/clear', methods=['POST'])
 def clear_conflict_report():
-    if session.get('role') not in ['super_admin', 'tenant_admin']: return jsonify({"error": "غير مصرح"}), 403
+    if session.get('role') not in ['super_admin', 'tenant_admin']: return jsonify({"error": _("غير مصرح")}), 403
     try:
         tenant_id = session.get('tenant_id')
         report_setting = Setting.query.filter_by(key='conflict_report', tenant_id=tenant_id).first()
@@ -238,7 +239,7 @@ def clear_conflict_report():
 # 1. تصدير قائمة الرغبات
 @admin_requests_bp.route('/api/admin/export_requests_excel', methods=['GET'])
 def export_requests_excel():
-    if session.get('role') not in ['super_admin', 'tenant_admin']: return jsonify({"error": "غير مصرح"}), 403
+    if session.get('role') not in ['super_admin', 'tenant_admin']: return jsonify({"error": _("غير مصرح")}), 403
     
     tenant_id = session.get('tenant_id')
     reqs = TeacherRequest.query.filter_by(tenant_id=tenant_id).all()
@@ -247,10 +248,10 @@ def export_requests_excel():
 
     wb = openpyxl.Workbook()
     ws = wb.active
-    ws.title = "قائمة الرغبات"
+    ws.title = _("قائمة الرغبات")
     ws.sheet_view.rightToLeft = True
 
-    headers = ["اسم الأستاذ", "حالة الطلب", "أيام العمل المطلوبة", "المواد المطلوبة"]
+    headers = [_("اسم الأستاذ"), _("حالة الطلب"), _("أيام العمل المطلوبة"), _("المواد المطلوبة")]
     ws.append(headers)
     for cell in ws[1]:
         cell.font = Font(bold=True, color="FFFFFF")
@@ -259,15 +260,15 @@ def export_requests_excel():
 
     for r in reqs:
         course_ids = json.loads(r.requested_courses) if r.requested_courses else []
-        course_names = [courses_dict.get(int(cid), "مادة محذوفة") for cid in course_ids]
+        course_names = [courses_dict.get(int(cid), _("مادة محذوفة")) for cid in course_ids]
         days = json.loads(r.requested_days) if r.requested_days else []
         
-        status_text = "جديد / معدّل" if r.status == 'قيد المراجعة' else "تمت معالجته"
+        status_text = _("جديد / معدّل") if r.status == 'قيد المراجعة' else _("تمت معالجته")
         courses_stacked = "\n".join([f"• {name}" for name in course_names])
-        days_text = " ، ".join(days)
+        days_text = _(" ، ").join(days)
         
         ws.append([
-            teachers_dict.get(r.teacher_id, "مجهول"),
+            teachers_dict.get(r.teacher_id, _("مجهول")),
             status_text,
             days_text,
             courses_stacked
@@ -291,7 +292,7 @@ def export_requests_excel():
 # 2. تصدير تقرير التضاربات
 @admin_requests_bp.route('/api/admin/export_report_excel', methods=['GET'])
 def export_report_excel():
-    if session.get('role') not in ['super_admin', 'tenant_admin']: return jsonify({"error": "غير مصرح"}), 403
+    if session.get('role') not in ['super_admin', 'tenant_admin']: return jsonify({"error": _("غير مصرح")}), 403
     
     tenant_id = session.get('tenant_id')
     report_setting = Setting.query.filter_by(key='conflict_report', tenant_id=tenant_id).first()
@@ -299,10 +300,10 @@ def export_report_excel():
 
     wb = openpyxl.Workbook()
     ws = wb.active
-    ws.title = "تقرير التضاربات"
+    ws.title = _("تقرير التضاربات")
     ws.sheet_view.rightToLeft = True
 
-    headers = ["المادة المطلوبة", "طُلبَت من طرف", "تم إسنادها مسبقاً إلى"]
+    headers = [_("المادة المطلوبة"), _("طُلبَت من طرف"), _("تم إسنادها مسبقاً إلى")]
     ws.append(headers)
     for cell in ws[1]:
         cell.font = Font(bold=True, color="FFFFFF")
@@ -333,7 +334,7 @@ def export_report_excel():
 
 @admin_requests_bp.route('/api/admin/teachers/visibility', methods=['GET'])
 def get_teachers_visibility():
-    if session.get('role') not in ['super_admin', 'tenant_admin']: return jsonify({"error": "غير مصرح"}), 403
+    if session.get('role') not in ['super_admin', 'tenant_admin']: return jsonify({"error": _("غير مصرح")}), 403
     
     tenant_id = session.get('tenant_id')
     teachers = Teacher.query.filter_by(tenant_id=tenant_id).order_by(Teacher.name).all()
@@ -342,7 +343,7 @@ def get_teachers_visibility():
 
 @admin_requests_bp.route('/api/admin/teachers/visibility', methods=['POST'])
 def update_teachers_visibility():
-    if session.get('role') not in ['super_admin', 'tenant_admin']: return jsonify({"error": "غير مصرح"}), 403
+    if session.get('role') not in ['super_admin', 'tenant_admin']: return jsonify({"error": _("غير مصرح")}), 403
     
     data = request.json
     teacher_ids = data.get('teacher_ids', [])
@@ -356,12 +357,12 @@ def update_teachers_visibility():
         Teacher.query.filter(Teacher.id.in_(teacher_ids), Teacher.tenant_id == tenant_id).update({"show_assigned": status}, synchronize_session=False)
         
     db.session.commit()
-    return jsonify({"success": True, "message": "✅ تم تحديث صلاحيات الرؤية بنجاح!"})
+    return jsonify({"success": True, "message": _("✅ تم تحديث صلاحيات الرؤية بنجاح!")})
 
 # ==================== التحكم في قفل وفتح الرغبات ====================
 @admin_requests_bp.route('/api/admin/requests_lock', methods=['GET', 'POST'])
 def handle_requests_lock():
-    if session.get('role') not in ['super_admin', 'tenant_admin']: return jsonify({"error": "غير مصرح"}), 403
+    if session.get('role') not in ['super_admin', 'tenant_admin']: return jsonify({"error": _("غير مصرح")}), 403
     
     tenant_id = session.get('tenant_id')
     

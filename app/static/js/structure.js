@@ -28,7 +28,7 @@ let targetDayIdForDuplicate = null;
 function addDay() {
     dayModalAction = 'add';
     document.getElementById('day-modal').style.display = 'flex';
-    document.getElementById('day-modal-title').innerText = 'إضافة يوم جديد';
+    document.getElementById('day-modal-title').innerText = _t('إضافة يوم جديد');
 }
 
 // فتح نافذة اختيار اليوم للتكرار
@@ -36,7 +36,7 @@ function duplicateDay(dayId) {
     dayModalAction = 'duplicate';
     targetDayIdForDuplicate = dayId;
     document.getElementById('day-modal').style.display = 'flex';
-    document.getElementById('day-modal-title').innerText = 'تكرار اليوم (اختر اليوم الجديد)';
+    document.getElementById('day-modal-title').innerText = _t('تكرار اليوم (اختر اليوم الجديد)');
 }
 
 // إغلاق النافذة
@@ -78,7 +78,7 @@ function confirmDaySelection() {
 }
 
 function deleteDay(dayId) {
-    if(!confirm('هل أنت متأكد من حذف هذا اليوم بالكامل؟')) return;
+    if(!confirm(_t('هل أنت متأكد من حذف هذا اليوم بالكامل؟'))) return;
     scheduleStructure = scheduleStructure.filter(d => d.id !== dayId);
     if(scheduleStructure.length > 0) activeDayId = scheduleStructure[0].id;
     else activeDayId = null;
@@ -142,6 +142,27 @@ function toggleConstraintHall(dayId, slotId, constraintId, hallName, isChecked) 
     else constraint.specific_halls = constraint.specific_halls.filter(h => h !== hallName);
 }
 
+// ✨ محرك ترجمة الأيام الديناميكي للواجهة ✨
+function getTranslatedDayName(dayName) {
+    const lang = document.documentElement.lang || 'ar'; // جلب لغة الصفحة الحالية
+    
+    if (lang === 'en') {
+        const enMap = {
+            'السبت': 'Saturday', 'الأحد': 'Sunday', 'الإثنين': 'Monday', 
+            'الثلاثاء': 'Tuesday', 'الأربعاء': 'Wednesday', 'الخميس': 'Thursday', 'الجمعة': 'Friday'
+        };
+        return enMap[dayName] || dayName;
+    } else if (lang === 'fr') {
+        const frMap = {
+            'السبت': 'Samedi', 'الأحد': 'Dimanche', 'الإثنين': 'Lundi', 
+            'الثلاثاء': 'Mardi', 'الأربعاء': 'Mercredi', 'الخميس': 'Jeudi', 'الجمعة': 'Vendredi'
+        };
+        return frMap[dayName] || dayName;
+    }
+    
+    return dayName; // العودة للعربية كوضع افتراضي
+}
+
 // ================= رسم الواجهة (Rendering) =================
 function renderStructure() {
     const tabsContainer = document.getElementById('days-tabs-container');
@@ -153,48 +174,49 @@ function renderStructure() {
     scheduleStructure.forEach(day => {
         // إنشاء التبويب العلوي
         const isActive = day.id === activeDayId;
-        tabsContainer.innerHTML += `<div class="day-tab ${isActive ? 'active' : ''}" onclick="activeDayId='${day.id}'; renderStructure();">${day.name}</div>`;
+        tabsContainer.innerHTML += `<div class="day-tab ${isActive ? 'active' : ''}" onclick="activeDayId='${day.id}'; renderStructure();">${getTranslatedDayName(day.name)}</div>`;
         
         // إنشاء محتوى اليوم
         if (isActive) {
             let dayHtml = `<div class="day-content active">
                 <div class="day-actions">
-                    <button onclick="duplicateDay('${day.id}')" style="padding: 5px; cursor:pointer;">🔂 تكرار هذا اليوم</button>
-                    <button onclick="deleteDay('${day.id}')" style="padding: 5px; color: red; cursor:pointer;">❌ حذف اليوم</button>
+                    <button onclick="duplicateDay('${day.id}')" style="padding: 5px; cursor:pointer;">${_t("🔂 تكرار هذا اليوم")}</button>
+                    <button onclick="deleteDay('${day.id}')" style="padding: 5px; color: red; cursor:pointer;">${_t("❌ حذف اليوم")}</button>
                 </div>`;
             
             day.slots.forEach(slot => {
                 dayHtml += `
                 <div class="time-slot">
                     <div class="slot-header">
-                        <span>من:</span> <input type="time" value="${slot.start}" onchange="updateSlotTime('${day.id}', '${slot.id}', 'start', this.value)">
-                        <span>إلى:</span> <input type="time" value="${slot.end}" onchange="updateSlotTime('${day.id}', '${slot.id}', 'end', this.value)">
-                        <button onclick="deleteSlot('${day.id}', '${slot.id}')" style="margin-right:auto; color:red; cursor:pointer;">حذف الفترة</button>
+                        <span>${_t("من:")}</span> <input type="time" value="${slot.start}" onchange="updateSlotTime('${day.id}', '${slot.id}', 'start', this.value)">
+                        <span>${_t("إلى:")}</span> <input type="time" value="${slot.end}" onchange="updateSlotTime('${day.id}', '${slot.id}', 'end', this.value)">
+                        <button onclick="deleteSlot('${day.id}', '${slot.id}')" style="margin-inline-end:auto; color:red; cursor:pointer;">${_t("حذف الفترة")}</button>
                     </div>
                     <div class="slot-body">
-                        <button onclick="addConstraint('${day.id}', '${slot.id}')" style="margin-bottom:10px; cursor:pointer;">➕ إضافة قيد</button>
+                        <button onclick="addConstraint('${day.id}', '${slot.id}')" style="margin-bottom:10px; cursor:pointer;">${_t("➕ إضافة قيد")}</button>
                 `;
 
                 slot.constraints.forEach(c => {
                     dayHtml += `<div class="constraint-box">
                         <div style="display:flex; gap:10px; margin-bottom:10px;">
-                            <label><strong>نوع القاعة المتاحة:</strong></label>
+                            <label><strong>${_t("نوع القاعة المتاحة:")}</strong></label>
                             <select onchange="updateConstraintRule('${day.id}', '${slot.id}', '${c.id}', this.value)" style="padding:5px;">
-                                <option value="all" ${c.room_rule === 'all' ? 'selected' : ''}>جميع المدرجات والقاعات متاحة</option>
-                                <option value="regular" ${c.room_rule === 'regular' ? 'selected' : ''}>القاعات العادية فقط</option>
-                                <option value="specific" ${c.room_rule === 'specific' ? 'selected' : ''}>المدرجات المحددة</option>
-                                <option value="none" ${c.room_rule === 'none' ? 'selected' : ''}>لا توجد أي قاعة</option>
+                                <option value="all" ${c.room_rule === 'all' ? 'selected' : ''}>${_t("جميع المدرجات والقاعات متاحة")}</option>
+                                <option value="regular" ${c.room_rule === 'regular' ? 'selected' : ''}>${_t("القاعات العادية فقط")}</option>
+                                <option value="specific" ${c.room_rule === 'specific' ? 'selected' : ''}>${_t("المدرجات المحددة")}</option>
+                                <option value="none" ${c.room_rule === 'none' ? 'selected' : ''}>${_t("لا توجد أي قاعة")}</option>
                             </select>
-                            <button onclick="deleteConstraint('${day.id}', '${slot.id}', '${c.id}')" style="margin-right:auto; color:red; cursor:pointer; background:none; border:none;">حذف القيد ❌</button>
+                            <button onclick="deleteConstraint('${day.id}', '${slot.id}', '${c.id}')" style="margin-inline-end:auto; color:red; cursor:pointer; background:none; border:none;">${_t("حذف القيد ❌")}</button>
                         </div>`;
                     
                     // إظهار المدرجات المحددة فقط إذا تم اختيار "المدرجات المحددة"
                     if(c.room_rule === 'specific') {
                         dayHtml += `<div class="halls-dropdown" style="display:block;">
-                            <strong>اختر المدرجات:</strong><br>`;
+                            <strong>${_t("اختر المدرجات:")}</strong><br>`;
                         cachedHallsForStruct.forEach(hall => {
                             const checked = c.specific_halls.includes(hall.name) ? 'checked' : '';
-                            dayHtml += `<label style="margin-left:10px;"><input type="checkbox" ${checked} onchange="toggleConstraintHall('${day.id}', '${slot.id}', '${c.id}', '${hall.name}', this.checked)"> ${hall.name}</label>`;
+                            // تم استخدام margin-inline-start بدلاً من margin-left لضمان التوافق مع LTR/RTL
+                            dayHtml += `<label style="margin-inline-start:10px;"><input type="checkbox" ${checked} onchange="toggleConstraintHall('${day.id}', '${slot.id}', '${c.id}', '${hall.name}', this.checked)"> ${hall.name}</label>`;
                         });
                         dayHtml += `</div>`;
                     }
@@ -210,7 +232,7 @@ function renderStructure() {
 
                 dayHtml += `</div></div>`; // إغلاق slot-body و time-slot
             });
-            dayHtml += `<button onclick="addSlot('${day.id}')" style="display: block; width: 100%; margin-top: 15px; padding: 10px; background: #34495e; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">➕ إضافة فترة زمنية جديدة هنا</button>`;
+            dayHtml += `<button onclick="addSlot('${day.id}')" style="display: block; width: 100%; margin-top: 15px; padding: 10px; background: #34495e; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">${_t("➕ إضافة فترة زمنية جديدة هنا")}</button>`;
             dayHtml += `</div>`; // إغلاق day-content
             contentContainer.innerHTML += dayHtml;
         }
@@ -224,6 +246,6 @@ function saveStructure() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(scheduleStructure)
     }).then(res => res.json()).then(data => {
-        if(data.success) alert('تم حفظ الهيكل الزمني بنجاح!');
+        if(data.success) alert(_t('تم حفظ الهيكل الزمني بنجاح!'));
     });
 }

@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify, session
 from app.database import db, Teacher, Room, Level, Course, CourseNature
+from flask_babel import _  # ✨ استيراد دالة الترجمة
 
 basic_data_bp = Blueprint('basic_data', __name__)
 
@@ -28,7 +29,7 @@ def get_courses():
     courses = Course.query.filter_by(tenant_id=tenant_id).all()
     result = []
     for c in courses:
-        levels_str = "، ".join([l.name for l in c.levels])
+        levels_str = _("، ").join([l.name for l in c.levels]) # ✨ ترجمة الفاصلة
         result.append({
             "id": c.id,
             "name": c.name,
@@ -45,7 +46,7 @@ def get_courses():
 def add_teachers():
     names = request.json.get('names', [])
     tenant_id = session.get('tenant_id')
-    if not names: return jsonify({"error": "قائمة الأساتذة فارغة"}), 400
+    if not names: return jsonify({"error": _("قائمة الأساتذة فارغة")}), 400 # ✨ ترجمة
     
     added = 0
     for name in names:
@@ -56,14 +57,15 @@ def add_teachers():
             added += 1
             
     db.session.commit()
-    return jsonify({"success": True, "message": f"تمت إضافة {added} أساتذة."})
+    # ✨ ترجمة متغيرات النص
+    return jsonify({"success": True, "message": _("تمت إضافة {count} أساتذة.").format(count=added)})
 
 @basic_data_bp.route('/api/rooms', methods=['POST'])
 def add_rooms():
     names = request.json.get('names', [])
     room_type = request.json.get('type')
     tenant_id = session.get('tenant_id')
-    if not names or not room_type: return jsonify({"error": "البيانات غير مكتملة"}), 400
+    if not names or not room_type: return jsonify({"error": _("البيانات غير مكتملة")}), 400 # ✨ ترجمة
     
     added = 0
     for name in names:
@@ -73,13 +75,13 @@ def add_rooms():
             added += 1
             
     db.session.commit()
-    return jsonify({"success": True, "message": f"تمت إضافة {added} قاعات."})
+    return jsonify({"success": True, "message": _("تمت إضافة {count} قاعات.").format(count=added)})
 
 @basic_data_bp.route('/api/levels', methods=['POST'])
 def add_levels():
     levels = request.json.get('levels', [])
     tenant_id = session.get('tenant_id')
-    if not levels: return jsonify({"error": "قائمة المستويات فارغة"}), 400
+    if not levels: return jsonify({"error": _("قائمة المستويات فارغة")}), 400 # ✨ ترجمة
     
     added = 0
     for level_name in levels:
@@ -89,13 +91,13 @@ def add_levels():
             added += 1
             
     db.session.commit()
-    return jsonify({"success": True, "message": f"تمت إضافة {added} مستويات."})
+    return jsonify({"success": True, "message": _("تمت إضافة {count} مستويات.").format(count=added)})
 
 @basic_data_bp.route('/api/students/bulk', methods=['POST'])
 def add_courses_bulk():
     courses = request.json
     tenant_id = session.get('tenant_id')
-    if not courses: return jsonify({"error": "لا توجد بيانات"}), 400
+    if not courses: return jsonify({"error": _("لا توجد بيانات")}), 400 # ✨ ترجمة
     
     added = 0
     for c in courses:
@@ -104,7 +106,7 @@ def add_courses_bulk():
             room_type=c['room_type'],
             division=c.get('division', ''),
             specialization=c.get('specialization', ''),
-            course_nature=c.get('course_nature', 'أعمال موجهة'),
+            course_nature=c.get('course_nature', 'أعمال موجهة'), # تبقى كما هي لأنها قيمة افتراضية لقاعدة البيانات
             tenant_id=tenant_id
         )
         
@@ -118,7 +120,7 @@ def add_courses_bulk():
         added += 1
         
     db.session.commit()
-    return jsonify({"success": True, "message": f"تمت إضافة {added} مقررات بنجاح."})
+    return jsonify({"success": True, "message": _("تمت إضافة {count} مقررات بنجاح.").format(count=added)})
 
 # ====== مسارات الرموز البيداغوجية الديناميكية ======
 @basic_data_bp.route('/api/course_natures', methods=['GET'])

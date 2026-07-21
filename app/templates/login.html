@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<!-- ✨ تحديد لغة واتجاه الصفحة ديناميكياً -->
+<html lang="{{ session.get('lang', 'ar') }}" dir="{{ 'ltr' if session.get('lang') in ['en', 'fr'] else 'rtl' }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>تسجيل الدخول - موزع الجداول الذكي</title>
+    <title>{{ _('تسجيل الدخول - موزع الجداول الذكي') }}</title>
     <style>
         body {
             font-family: 'Tajawal', 'Cairo', sans-serif;
@@ -11,9 +12,9 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh; /* استخدام min-height أفضل للهواتف */
+            min-height: 100vh;
             margin: 0;
-            padding: 15px; /* مسافة آمنة لحواف الهاتف */
+            padding: 15px; 
             box-sizing: border-box;
         }
         .login-container {
@@ -25,19 +26,20 @@
             max-width: 350px;
             text-align: center;
             border-top: 5px solid #3498db;
-            box-sizing: border-box; /* لضمان عدم تجاوز العرض للشاشة */
+            box-sizing: border-box;
         }
         h2 { color: #2c3e50; margin-bottom: 25px; font-size: 24px; }
-        .input-group { margin-bottom: 20px; text-align: right; }
+        /* ✨ استخدام text-align: start بدلاً من right */
+        .input-group { margin-bottom: 20px; text-align: start; }
         .input-group label { display: block; margin-bottom: 8px; color: #555; font-weight: bold; }
         .input-group input {
-            width: 100%; /* العرض 100% بدلا من 90% */
-            padding: 12px 15px; /* تكبير حقل الإدخال ليناسب اللمس بالإصبع */
+            width: 100%; 
+            padding: 12px 15px; 
             border: 1px solid #ccc;
             border-radius: 6px;
             font-size: 16px;
             font-family: inherit;
-            box-sizing: border-box; /* مهم جداً لكي لا يتجاوز الحواف */
+            box-sizing: border-box; 
             transition: border-color 0.3s;
         }
         .input-group input:focus {
@@ -46,7 +48,7 @@
         }
         .btn-login {
             width: 100%;
-            padding: 14px; /* تكبير الزر ليناسب اللمس */
+            padding: 14px; 
             background: #3498db;
             color: white;
             border: none;
@@ -59,7 +61,6 @@
         .btn-login:hover { background: #2980b9; }
         #error-msg { color: #e74c3c; margin-top: 15px; display: none; font-size: 14px; font-weight: bold; }
         
-        /* تعديلات إضافية مخصصة للشاشات الصغيرة جداً */
         @media (max-width: 400px) {
             .login-container {
                 padding: 30px 20px;
@@ -73,21 +74,20 @@
 <body>
 
 <div class="login-container">
-    <h2>مرحباً بك مجدداً 👋</h2>
+    <h2>{{ _('مرحباً بك مجدداً 👋') }}</h2>
     <div class="input-group">
-        <label>اسم المستخدم:</label>
-        <input type="text" id="username" placeholder="أدخل اسم المستخدم...">
+        <label>{{ _('اسم المستخدم:') }}</label>
+        <input type="text" id="username" placeholder="{{ _('أدخل اسم المستخدم...') }}">
     </div>
     <div class="input-group">
-        <label>كلمة المرور:</label>
-        <input type="password" id="password" placeholder="أدخل كلمة المرور...">
+        <label>{{ _('كلمة المرور:') }}</label>
+        <input type="password" id="password" placeholder="{{ _('أدخل كلمة المرور...') }}">
     </div>
-    <button class="btn-login" onclick="attemptLogin()">تسجيل الدخول</button>
+    <button class="btn-login" onclick="attemptLogin()">{{ _('تسجيل الدخول') }}</button>
     <div id="error-msg"></div>
 </div>
 
 <script>
-    // السماح بتسجيل الدخول عند الضغط على زر Enter في لوحة المفاتيح
     document.addEventListener('keypress', function (e) {
         if (e.key === 'Enter') {
             attemptLogin();
@@ -100,14 +100,14 @@
         const errorDiv = document.getElementById('error-msg');
         
         if(!user || !pass) {
-            errorDiv.innerText = 'يرجى إدخال اسم المستخدم وكلمة المرور.';
+            errorDiv.innerText = "{{ _('يرجى إدخال اسم المستخدم وكلمة المرور.') }}";
             errorDiv.style.display = 'block';
             return;
         }
 
         const btn = document.querySelector('.btn-login');
         const originalText = btn.innerText;
-        btn.innerText = '⏳ جاري الدخول...';
+        btn.innerText = "{{ _('⏳ جاري الدخول...') }}";
         btn.disabled = true;
 
         fetch('/login', {
@@ -121,13 +121,12 @@
             btn.disabled = false;
             
             if(data.success) {
-                // توجيه ذكي حسب صلاحية المستخدم (SaaS Routing)
                 if (data.role === 'super_admin') {
                     window.location.href = '/super_admin';
                 } else if (data.role === 'teacher') {
                     window.location.href = '/teacher';
                 } else {
-                    window.location.href = '/'; // رئيس القسم (Tenant Admin)
+                    window.location.href = '/'; 
                 }
             } else {
                 errorDiv.innerText = data.error;
@@ -136,7 +135,7 @@
         }).catch(err => {
             btn.innerText = originalText;
             btn.disabled = false;
-            errorDiv.innerText = 'حدث خطأ في الاتصال بالخادم.';
+            errorDiv.innerText = "{{ _('حدث خطأ في الاتصال بالخادم.') }}";
             errorDiv.style.display = 'block';
         });
     }

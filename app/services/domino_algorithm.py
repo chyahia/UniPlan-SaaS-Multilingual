@@ -3,9 +3,10 @@ import json
 import traceback
 from collections import defaultdict
 
+
 # الاستدعاءات السحابية المعزولة (SQLAlchemy)
 from app.database import db, Teacher, Room, Level, Course, Setting
-from app.services.algorithms import is_placement_valid
+from app.services.algorithms import is_placement_valid, set_algorithm_language, _
 from app.redis_logger import RedisLogQueue
 
 # =====================================================================
@@ -53,7 +54,7 @@ def _load_scheduling_context(tenant_id):
     day_to_idx = {d: i for i, d in enumerate(days)}
     slots = [f"{s['start']}-{s['end']}" for s in structure_data[0]['slots']] if structure_data and structure_data[0].get('slots') else []
     
-    rules_grid = [[[] for _ in slots] for _ in days]
+    rules_grid = [[[] for _dummy in slots] for _dummy in days]
     for d_idx, day_obj in enumerate(structure_data):
         for s_idx, slot_obj in enumerate(day_obj.get('slots') or []):
             for constr in slot_obj.get('constraints') or []:
@@ -238,18 +239,22 @@ def check_escape_route(orphan_lec, orphan_lvl, target_days, schedule, strict_kwa
 # =====================================================================
 # 2. 🟢 زر [ تفعيل الدومينو ] (صناعة الحصص اليتيمة)
 # =====================================================================
-def background_activate_domino_task(app, tenant_id, current_schedule):
+def background_activate_domino_task(app, tenant_id, current_schedule, user_lang='ar'):
+    # ✨ تفعيل المترجم المستقل قبل أي شيء!
+    set_algorithm_language(user_lang)
     with app.app_context():
         log_q = RedisLogQueue(tenant_id)
         log_q.clear_logs()
         log_q.set_running(True)
         
         try:
-            log_q.put("\n=== 🟢 تفعيل الدومينو: جاري تشتيت الحصص لصناعة مسارات الدومينو ===")
+            # ✨ إضافة الترجمة للرسالة
+            log_q.put(_("\n=== 🟢 تفعيل الدومينو: جاري تشتيت الحصص لصناعة مسارات الدومينو ==="))
             strict_kwargs, domino_teacher_names, teachers, days, slots, rooms_data = _load_scheduling_context(tenant_id)
             
             if not domino_teacher_names:
-                log_q.put("\n⚠️ تنبيه هام: قائمة أساتذة الدومينو فارغة! الرجاء التأكد من تأشيرهم في 'المرحلة 5' والضغط على زر (حفظ جميع القيود).")
+                # ✨ إضافة الترجمة للرسالة
+                log_q.put(_("\n⚠️ تنبيه هام: قائمة أساتذة الدومينو فارغة! الرجاء التأكد من تأشيرهم في 'المرحلة 5' والضغط على زر (حفظ جميع القيود)."))
                 
             teacher_schedule = defaultdict(set)
             room_schedule = defaultdict(set)
@@ -280,10 +285,12 @@ def background_activate_domino_task(app, tenant_id, current_schedule):
                                     worked_days[d].append((s, lec, lvl_name))
                                     
                 if not worked_days: 
-                    log_q.put(f"   ⚠️ تخطي [{teacher}] (ليس لديه حصص في هذا الجدول).")
+                    # ✨ تعديل واستخدام الترجمة و format
+                    log_q.put(_("   ⚠️ تخطي [{teacher}] (ليس لديه حصص في هذا الجدول).").format(teacher=teacher))
                     continue
                 if len(worked_days) >= len(days):
-                    log_q.put(f"   ⚠️ تخطي [{teacher}] (يعمل طيلة أيام الأسبوع، لا يوجد يوم فارغ لرمي الحصة فيه).")
+                    # ✨ تعديل واستخدام الترجمة و format
+                    log_q.put(_("   ⚠️ تخطي [{teacher}] (يعمل طيلة أيام الأسبوع، لا يوجد يوم فارغ لرمي الحصة فيه).").format(teacher=teacher))
                     continue
                 
                 sorted_heavy_days = sorted(worked_days.keys(), key=lambda d: len(worked_days[d]), reverse=True)
@@ -301,7 +308,8 @@ def background_activate_domino_task(app, tenant_id, current_schedule):
                         break
                         
                 if not selected_candidate:
-                    log_q.put(f"   ⚠️ تخطي [{teacher}] (جميع حصصه مدرجات أو مواد مشتركة).")
+                    # ✨ تعديل واستخدام الترجمة و format
+                    log_q.put(_("   ⚠️ تخطي [{teacher}] (جميع حصصه مدرجات أو مواد مشتركة).").format(teacher=teacher))
                     continue
                     
                 s_target, orphan_lec, orphan_lvl = selected_candidate
@@ -338,7 +346,8 @@ def background_activate_domino_task(app, tenant_id, current_schedule):
                             
                             placed = True
                             extracted_count += 1
-                            log_q.put(f"   🎯 تم استخراج حصة يتيمة لـ [{teacher}] (انتقلت من {days[best_day]} إلى {days[d]}).")
+                            # ✨ تعديل واستخدام الترجمة و format
+                            log_q.put(_("   🎯 تم استخراج حصة يتيمة لـ [{teacher}] (انتقلت من {day_from} إلى {day_to}).").format(teacher=teacher, day_from=days[best_day], day_to=days[d]))
                             break
                     if placed: break
                     
@@ -346,11 +355,13 @@ def background_activate_domino_task(app, tenant_id, current_schedule):
                     current_schedule[orphan_lvl][best_day][s_target].append(orphan_lec)
                     teacher_schedule[teacher].add((best_day, s_target))
                     if orphan_lec.get('room'): room_schedule[orphan_lec['room']].add((best_day, s_target))
-                    log_q.put(f"   ⚠️ فشل إيجاد مكان للحصة اليتيمة للأستاذ [{teacher}].")
+                    # ✨ تعديل واستخدام الترجمة و format
+                    log_q.put(_("   ⚠️ فشل إيجاد مكان للحصة اليتيمة للأستاذ [{teacher}].").format(teacher=teacher))
 
-            log_q.put(f"\n✅ اكتمل تفعيل الدومينو! تم تشتيت حصص ({extracted_count}) أساتذة بنجاح.")
+            # ✨ تعديل واستخدام الترجمة و format
+            log_q.put(_("\n✅ اكتمل تفعيل الدومينو! تم تشتيت حصص ({extracted_count}) أساتذة بنجاح.").format(extracted_count=extracted_count))
             
-            prof_schedules = {t['name']: [[[] for _ in slots] for _ in days] for t in teachers}
+            prof_schedules = {t['name']: [[[] for _dummy in slots] for _dummy in days] for t in teachers}
             for level_name, grid in current_schedule.items():
                 for d, day_slots in enumerate(grid):
                     for s, slot_lectures in enumerate(day_slots):
@@ -363,7 +374,7 @@ def background_activate_domino_task(app, tenant_id, current_schedule):
             prof_schedules = {p: g for p, g in prof_schedules.items() if any(lec for day in g for slot in day for lec in slot)}
 
             # ✨ إضافة: إعادة حساب القاعات الفارغة بعد تحركات الدومينو
-            free_rooms = [[[] for _ in slots] for _ in days]
+            free_rooms = [[[] for _dummy in slots] for _dummy in days]
             for d in range(len(days)):
                 for s in range(len(slots)):
                     busy_rooms = set()
@@ -388,12 +399,15 @@ def background_activate_domino_task(app, tenant_id, current_schedule):
             else: 
                 db.session.add(Setting(key='schedule_result', value=json.dumps(current_schedule), tenant_id=tenant_id))
             db.session.commit()
+            
+            # (رسالة تواصل داخلي لا تحتاج لترجمة)
             log_q.put(f"DONE{json.dumps(final_result)}")
 
         except Exception as e:
             # ✨ ميزة تكسير الأسطر لتظهر الـ Traceback بالكامل في الشاشة السوداء!
             err_msg = traceback.format_exc()
-            log_q.put("\n❌ حدث خطأ فادح أثناء التفعيل:")
+            # ✨ إضافة الترجمة للرسالة
+            log_q.put(_("\n❌ حدث خطأ فادح أثناء التفعيل:"))
             for line in err_msg.split('\n'):
                 if line.strip():
                     log_q.put(line)
@@ -404,18 +418,22 @@ def background_activate_domino_task(app, tenant_id, current_schedule):
 # =====================================================================
 # 3. 🔵 زر [ تجميع الدومينو ] (ضغط الجدول واستعادة الحصص)
 # =====================================================================
-def background_compress_domino_task(app, tenant_id, current_schedule):
+def background_compress_domino_task(app, tenant_id, current_schedule, user_lang='ar'):
+    # ✨ تفعيل المترجم المستقل!
+    set_algorithm_language(user_lang)
     with app.app_context():
         log_q = RedisLogQueue(tenant_id)
         log_q.clear_logs()
         log_q.set_running(True)
         
         try:
-            log_q.put("\n=== 🔵 تجميع الدومينو: جاري إرجاع الحصص اليتيمة وضغط الجداول ===")
+            # ✨ إضافة الترجمة للرسالة
+            log_q.put(_("\n=== 🔵 تجميع الدومينو: جاري إرجاع الحصص اليتيمة وضغط الجداول ==="))
             strict_kwargs, domino_teacher_names, teachers, days, slots, rooms_data = _load_scheduling_context(tenant_id)
             
             if not domino_teacher_names:
-                log_q.put("\n⚠️ تنبيه هام: قائمة أساتذة الدومينو فارغة! الرجاء التأكد من تأشيرهم والضغط على زر (حفظ جميع القيود) قبل التجميع.")
+                # ✨ إضافة الترجمة للرسالة
+                log_q.put(_("\n⚠️ تنبيه هام: قائمة أساتذة الدومينو فارغة! الرجاء التأكد من تأشيرهم والضغط على زر (حفظ جميع القيود) قبل التجميع."))
 
             moves_made = 0
 
@@ -429,13 +447,15 @@ def background_compress_domino_task(app, tenant_id, current_schedule):
                                     worked_days[d].append((s, lec, lvl))
                                     
                 if len(worked_days) < 2: 
-                    log_q.put(f"   ⚠️ تخطي [{teacher}] (يعمل في يوم واحد فقط).")
+                    # ✨ تعديل واستخدام الترجمة و format
+                    log_q.put(_("   ⚠️ تخطي [{teacher}] (يعمل في يوم واحد فقط).").format(teacher=teacher))
                     continue
                 
                 counts = {d: len(lecs) for d, lecs in worked_days.items()}
                 min_count = min(counts.values())
                 if min_count != 1: 
-                    log_q.put(f"   ⚠️ تخطي [{teacher}] (لا توجد لديه 'حصة يتيمة' لضغطها).")
+                    # ✨ تعديل واستخدام الترجمة و format
+                    log_q.put(_("   ⚠️ تخطي [{teacher}] (لا توجد لديه 'حصة يتيمة' لضغطها).").format(teacher=teacher))
                     continue 
 
                 orphan_days = [d for d, c in counts.items() if c == 1]
@@ -444,7 +464,8 @@ def background_compress_domino_task(app, tenant_id, current_schedule):
                 target_days = [d for d in counts.keys() if d != orphan_day]
                 orphan_slot, orphan_lec, orphan_lvl = worked_days[orphan_day][0]
 
-                log_q.put(f"🔍 محاولة ضغط الحصة اليتيمة للأستاذ [{teacher}]...")
+                # ✨ تعديل واستخدام الترجمة و format
+                log_q.put(_("🔍 محاولة ضغط الحصة اليتيمة للأستاذ [{teacher}]...").format(teacher=teacher))
                 
                 has_escape, escape_data = check_escape_route(orphan_lec, orphan_lvl, target_days, current_schedule, strict_kwargs, len(slots), len(days))
                 
@@ -454,7 +475,8 @@ def background_compress_domino_task(app, tenant_id, current_schedule):
                     if escape_data["type"] == "direct":
                         orphan_lec['room'] = escape_data["new_room"]
                         current_schedule[orphan_lvl][escape_data["target_d"]][escape_data["target_s"]].append(orphan_lec)
-                        log_q.put(f"   ✅ تم الضغط بنجاح (نقل مباشر) للحصة نحو يوم {days[escape_data['target_d']]}.")
+                        # ✨ تعديل واستخدام الترجمة و format
+                        log_q.put(_("   ✅ تم الضغط بنجاح (نقل مباشر) للحصة نحو يوم {target_day}.").format(target_day=days[escape_data['target_d']]))
                         moves_made += 1
                     
                     elif escape_data["type"] == "domino":
@@ -468,14 +490,17 @@ def background_compress_domino_task(app, tenant_id, current_schedule):
                         orphan_lec['room'] = escape_data["new_room"]
                         current_schedule[orphan_lvl][escape_data["target_d"]][escape_data["target_s"]].append(orphan_lec)
                         
-                        log_q.put(f"   ✅ نجاح الدومينو! إزاحة حصة [{disp_lec.get('teacher_name')}] لتفسح المجال لأستاذنا.")
+                        # ✨ تعديل واستخدام الترجمة و format
+                        log_q.put(_("   ✅ نجاح الدومينو! إزاحة حصة [{displaced_teacher}] لتفسح المجال لأستاذنا.").format(displaced_teacher=disp_lec.get('teacher_name')))
                         moves_made += 1
                 else:
-                    log_q.put(f"   ❌ فشل الضغط. مسار الهروب مغلق حالياً للأستاذ [{teacher}].")
+                    # ✨ تعديل واستخدام الترجمة و format
+                    log_q.put(_("   ❌ فشل الضغط. مسار الهروب مغلق حالياً للأستاذ [{teacher}].").format(teacher=teacher))
 
-            log_q.put(f"\n🎉 اكتمل التجميع! تم تنفيذ ({moves_made}) عملية ضغط بنجاح.")
+            # ✨ تعديل واستخدام الترجمة و format
+            log_q.put(_("\n🎉 اكتمل التجميع! تم تنفيذ ({moves_made}) عملية ضغط بنجاح.").format(moves_made=moves_made))
             
-            prof_schedules = {t['name']: [[[] for _ in slots] for _ in days] for t in teachers}
+            prof_schedules = {t['name']: [[[] for _dummy in slots] for _dummy in days] for t in teachers}
             for level_name, grid in current_schedule.items():
                 for d, day_slots in enumerate(grid):
                     for s, slot_lectures in enumerate(day_slots):
@@ -488,7 +513,7 @@ def background_compress_domino_task(app, tenant_id, current_schedule):
             prof_schedules = {p: g for p, g in prof_schedules.items() if any(lec for day in g for slot in day for lec in slot)}
 
             # ✨ إضافة: إعادة حساب القاعات الفارغة بعد تحركات الدومينو
-            free_rooms = [[[] for _ in slots] for _ in days]
+            free_rooms = [[[] for _dummy in slots] for _dummy in days]
             for d in range(len(days)):
                 for s in range(len(slots)):
                     busy_rooms = set()
@@ -513,12 +538,15 @@ def background_compress_domino_task(app, tenant_id, current_schedule):
             else: 
                 db.session.add(Setting(key='schedule_result', value=json.dumps(current_schedule), tenant_id=tenant_id))
             db.session.commit()
+            
+            # (رسالة تواصل داخلي لا تحتاج لترجمة)
             log_q.put(f"DONE{json.dumps(final_result)}")
 
         except Exception as e:
             # ✨ ميزة تكسير الأسطر لتظهر الـ Traceback بالكامل في الشاشة السوداء!
             err_msg = traceback.format_exc()
-            log_q.put("\n❌ حدث خطأ فادح أثناء التجميع:")
+            # ✨ إضافة الترجمة للرسالة
+            log_q.put(_("\n❌ حدث خطأ فادح أثناء التجميع:"))
             for line in err_msg.split('\n'):
                 if line.strip():
                     log_q.put(line)

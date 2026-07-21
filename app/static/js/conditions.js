@@ -29,15 +29,15 @@ function renderConditionsUI() {
     idContainer.innerHTML = condLevels.map(lvl => `
         <div style="flex: 1; min-width: 150px;">
             <strong>${lvl}</strong>
-            <textarea id="ident_${lvl}" rows="3" style="width:100%; font-size:12px;" placeholder="معرف 1\nمعرف 2..."></textarea>
+            <textarea id="ident_${lvl}" rows="3" style="width:100%; font-size:12px;" placeholder="${_t("معرف 1\nمعرف 2...")}"></textarea>
         </div>
     `).join('');
 
     // 2. الجدول الشامل للأساتذة (ديناميكي بناءً على الأيام)
     const masterHead = document.getElementById('master-teachers-header');
-    let thHtml = `<th>الأستاذ</th>`;
+    let thHtml = `<th>${_t("الأستاذ")}</th>`;
     condDays.forEach(d => thHtml += `<th>${d}</th>`);
-    thHtml += `<th>بدء ح2</th><th>بدء ح3</th><th>إنهاء بـ ح3</th><th>إنهاء بـ ح4</th><th>بدء ح2 + إنهاء ح4 (يلغي ماسبقه)</th><th>قاعدة التوزيع</th>`;
+    thHtml += `<th>${_t("بدء ح2")}</th><th>${_t("بدء ح3")}</th><th>${_t("إنهاء بـ ح3")}</th><th>${_t("إنهاء بـ ح4")}</th><th>${_t("بدء ح2 + إنهاء ح4 (يلغي ماسبقه)")}</th><th>${_t("قاعدة التوزيع")}</th>`;
     masterHead.innerHTML = thHtml;
 
     const masterBody = document.querySelector('#master-teachers-table tbody');
@@ -55,11 +55,11 @@ function renderConditionsUI() {
             <td style="background:#e8f4f8;"><input type="checkbox" class="t-lim t-lim-master" data-tid="${t.id}" data-type="always_s2_e4" onchange="checkMasterLimit(${t.id})"></td>
             <td>
                 <select id="rule_${t.id}" style="font-size:11px;">
-                    <option value="unspecified">غير محدد (مرن)</option>
-                    <option value="group2">تجميع في يومين</option>
-                    <option value="group3">تجميع في 3 أيام</option>
-                    <option value="sep2">يومان منفصلان</option>
-                    <option value="sep3">3 أيام منفصلة</option>
+                    <option value="unspecified">${_t("غير محدد (مرن)")}</option>
+                    <option value="group2">${_t("تجميع في يومين")}</option>
+                    <option value="group3">${_t("تجميع في 3 أيام")}</option>
+                    <option value="sep2">${_t("يومان منفصلان")}</option>
+                    <option value="sep3">${_t("3 أيام منفصلة")}</option>
                 </select>
             </td>
         </tr>`;
@@ -69,9 +69,9 @@ function renderConditionsUI() {
     // 3. توالي القاعات
     const consecSelect = document.getElementById('consecutive-halls-rule');
     if(consecSelect) {
-        consecSelect.innerHTML = `<option value="none">لا يوجد منع (السماح بالتوالي)</option>` + 
-            `<option value="all">منع التوالي في جميع المدرجات</option>` +
-            condHalls.map(h => `<option value="${h.name}">منع التوالي في: ${h.name}</option>`).join('');
+        consecSelect.innerHTML = `<option value="none">${_t("لا يوجد منع (السماح بالتوالي)")}</option>` + 
+            `<option value="all">${_t("منع التوالي في جميع المدرجات")}</option>` +
+            condHalls.map(h => `<option value="${h.name}">${_t("منع التوالي في:")} ${h.name}</option>`).join('');
     }
 
     // 4. تخصيص المدرجات والقاعات العادية
@@ -103,7 +103,7 @@ function renderConditionsUI() {
         });
         
         if(checkedBoxes.length === 0) {
-            tagsHtml = `<span style="color: #95a5a6; font-size: 12px; font-style: italic;">لم يتم تحديد قاعات (متاح للكل)</span>`;
+            tagsHtml = `<span style="color: #95a5a6; font-size: 12px; font-style: italic;">${_t("لم يتم تحديد قاعات (متاح للكل)")}</span>`;
         }
         
         container.innerHTML = tagsHtml;
@@ -127,7 +127,7 @@ function renderConditionsUI() {
                     chk.disabled = true;
                     chk.parentElement.style.opacity = '0.4';
                     chk.parentElement.style.cursor = 'not-allowed';
-                    chk.parentElement.title = `مغلقة: مخصصة حصرياً لـ ${claimedBy}`;
+                    chk.parentElement.title = `${_t("مغلقة: مخصصة حصرياً لـ")} ${claimedBy}`;
                 } else {
                     chk.disabled = false;
                     chk.parentElement.style.opacity = '1';
@@ -144,7 +144,7 @@ function renderConditionsUI() {
         lvlAmphiContainer.innerHTML = `<table class="overview-table" style="font-size:12px;"><tbody>` + 
             condLevels.map(lvl => `<tr>
                 <td>${lvl}</td>
-                <td><select id="lvl_amphi_${lvl}" style="padding: 4px; width: 100%; border-radius: 4px; border: 1px solid #bdc3c7;"><option value="">بدون تخصيص</option>${amphis.map(h => `<option value="${h.id}">${h.name}</option>`).join('')}</select></td>
+                <td><select id="lvl_amphi_${lvl}" style="padding: 4px; width: 100%; border-radius: 4px; border: 1px solid #bdc3c7;"><option value="">${_t("بدون تخصيص")}</option>${amphis.map(h => `<option value="${h.id}">${h.name}</option>`).join('')}</select></td>
             </tr>`).join('') + `</tbody></table>`;
     }
 
@@ -167,7 +167,7 @@ function renderConditionsUI() {
                 
                 <div style="flex: 1; display: flex; align-items: center; gap: 15px;">
                     <div style="position: relative;">
-                        <button onclick="toggleRoomDropdown('${lvl}')" style="padding: 8px 15px; font-size: 13px; font-weight:bold; cursor:pointer; background:#3498db; color:white; border:none; border-radius:6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: 0.2s;">⚙️ اختر القاعات</button>
+                        <button onclick="toggleRoomDropdown('${lvl}')" style="padding: 8px 15px; font-size: 13px; font-weight:bold; cursor:pointer; background:#3498db; color:white; border:none; border-radius:6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: 0.2s;">⚙️ ${_t("اختر القاعات")}</button>
                         <div id="room_dropdown_${lvl}" class="room-dropdown" style="display:none; position: absolute; z-index: 100; top: 110%; right: 0; width: 250px; max-height: 200px; overflow-y: auto; background: #fff; border: 1px solid #bdc3c7; border-radius:6px; box-shadow: 0 5px 15px rgba(0,0,0,0.15); padding: 5px;">
                             ${roomsHtml}
                         </div>
@@ -178,8 +178,8 @@ function renderConditionsUI() {
                 </div>
 
                 <div style="width: 180px; text-align: left;">
-                    <label title="🔒 قاعة حصرية: تفعيل هذا الخيار يمنع المستويات الأخرى" style="background: #fdf2f2; padding: 6px 10px; border-radius: 6px; border: 1px solid #fadbd8; font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; color: #c0392b;">
-                        <input type="checkbox" id="lvl_small_room_excl_${lvl}" onchange="syncExclusiveRooms()" style="transform: scale(1.2);"> قفل فردي للمستوى
+                    <label title="${_t("🔒 قاعة حصرية: تفعيل هذا الخيار يمنع المستويات الأخرى")}" style="background: #fdf2f2; padding: 6px 10px; border-radius: 6px; border: 1px solid #fadbd8; font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; color: #c0392b;">
+                        <input type="checkbox" id="lvl_small_room_excl_${lvl}" onchange="syncExclusiveRooms()" style="transform: scale(1.2);"> ${_t("قفل فردي للمستوى")}
                     </label>
                 </div>
             </div>`;
@@ -204,9 +204,9 @@ function renderConditionsUI() {
             <td style="text-align:center;"><input type="checkbox" id="sat_${t.id}"></td>
             <td>
                 <select id="last_${t.id}">
-                    <option value="none">لا يوجد قيد</option>
-                    <option value="1">منع آخر حصة</option>
-                    <option value="2">منع آخر حصتين</option>
+                    <option value="none">${_t("لا يوجد قيد")}</option>
+                    <option value="1">${_t("منع آخر حصة")}</option>
+                    <option value="2">${_t("منع آخر حصتين")}</option>
                 </select>
             </td>
         </tr>`).join('');
@@ -249,8 +249,8 @@ function addPairRow(containerId, val1 = "", val2 = "") {
     const div = document.createElement('div');
     div.style.marginBottom = "5px";
     
-    let html = `<select class="pair-t1"><option value="">اختر أستاذ...</option>${condTeachers.map(t=>`<option value="${t.id}" ${t.id == val1 ? 'selected' : ''}>${t.name}</option>`).join('')}</select> مع `;
-    html += `<select class="pair-t2"><option value="">اختر أستاذ...</option>${condTeachers.map(t=>`<option value="${t.id}" ${t.id == val2 ? 'selected' : ''}>${t.name}</option>`).join('')}</select> `;
+    let html = `<select class="pair-t1"><option value="">${_t("اختر أستاذ...")}</option>${condTeachers.map(t=>`<option value="${t.id}" ${t.id == val1 ? 'selected' : ''}>${t.name}</option>`).join('')}</select> ${_t("مع")} `;
+    html += `<select class="pair-t2"><option value="">${_t("اختر أستاذ...")}</option>${condTeachers.map(t=>`<option value="${t.id}" ${t.id == val2 ? 'selected' : ''}>${t.name}</option>`).join('')}</select> `;
     html += `<button onclick="this.parentElement.remove()" style="color:red; border:none; background:none; cursor:pointer;">❌</button>`;
     
     div.innerHTML = html;
@@ -259,7 +259,6 @@ function addPairRow(containerId, val1 = "", val2 = "") {
 
 // ================= جمع وحفظ البيانات =================
 function saveAllConditions() {
-    // وضعنا حماية (?.) لكي لا يتوقف الحفظ إذا كان هناك عنصر غير موجود في الشاشة
     const data = {
         identifiers: {},
         teacher_rules: {},
@@ -326,7 +325,6 @@ function saveAllConditions() {
         const valAmphi = document.getElementById(`lvl_amphi_${lvl}`)?.value;
         if(valAmphi) data.level_amphis[lvl] = valAmphi;
 
-        // استخراج باستخدام data-attribute المقاوم للمسافات
         const selectedRooms = Array.from(document.querySelectorAll(`.room-chk[data-room-lvl="${lvl}"]:checked`)).map(c => c.value);
         const isExclusive = document.getElementById(`lvl_small_room_excl_${lvl}`)?.checked;
         
@@ -353,9 +351,9 @@ function saveAllConditions() {
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify(data)
     }).then(res => res.json()).then(res => {
-        if(res.success) alert("تم حفظ جميع الشروط والقيود بنجاح!");
+        if(res.success) alert(_t("تم حفظ جميع الشروط والقيود بنجاح!"));
     }).catch(err => {
-        alert("حدث خطأ أثناء الاتصال بالخادم.");
+        alert(_t("حدث خطأ أثناء الاتصال بالخادم."));
     });
 }
 
@@ -440,7 +438,6 @@ function populateSavedConditions(data) {
         const restLastDaySlots = document.getElementById('rest-last-day-slots');
         if(restLastDaySlots && data.global.rest_last_day_slots) restLastDaySlots.value = data.global.rest_last_day_slots;
 
-        // ✨ استرجاع حالة القفل الشامل
         const globalExcl = document.getElementById('global_exclusive_rooms');
         if(globalExcl && data.global.global_exclusive_rooms !== undefined) {
             globalExcl.checked = !!data.global.global_exclusive_rooms;
@@ -468,10 +465,8 @@ function populateSavedConditions(data) {
             }
         }
         
-        // 1. تفعيل المزامنة لغلق القاعات الحصرية
         if(typeof syncExclusiveRooms === 'function') syncExclusiveRooms();
         
-        // 2. ✨ الإضافة الجديدة: تحديث البطاقات الملونة لتظهر فوراً بعد تحميل البيانات
         if(typeof updateRoomTags === 'function') {
             condLevels.forEach(lvl => updateRoomTags(lvl));
         }

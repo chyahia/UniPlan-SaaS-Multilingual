@@ -8,11 +8,13 @@ import openpyxl
 from openpyxl.styles import Alignment, PatternFill, Font
 from flask import current_app
 import threading
+from flask_babel import _  # ✨ استيراد دالة الترجمة
 
 # استدعاء الخوارزميات (بدون المتغيرات العامة القديمة)
 from app.services.algorithms import (
     run_large_neighborhood_search, run_variable_neighborhood_search, 
-    run_greedy_search_for_best_result, refine_and_compact_schedule
+    run_greedy_search_for_best_result, refine_and_compact_schedule,
+    set_algorithm_language, StopByUserException
 )
 
 from app.database import db, Teacher, Room, Level, Course, Setting
@@ -80,29 +82,33 @@ class SchedulingStateProxy:
 @generation_bp.route('/api/generate', methods=['POST'])
 def generate_schedule():
     tenant_id = session.get('tenant_id')
+    # ✨ 1. التقاط لغة المستخدم من الجلسة (افترضنا أن مفتاحها 'lang'، عدله إذا كان مختلفاً)
+    user_lang = session.get('lang', 'ar') 
+    
     log_q = get_log_queue(tenant_id)
     
     if log_q.is_running():
-        return jsonify({"success": False, "error": "عملية التوزيع تعمل حالياً في قسمك."}), 400
+        return jsonify({"success": False, "error": _("عملية التوزيع تعمل حالياً في قسمك.")}), 400
 
     data = request.json
     log_q.clear_logs()
     log_q.set_running(True)
     log_q.set_stop_flag(False)
 
-    # 🚀 المحول الذكي
     mode = current_app.config.get('APP_MODE')
     if mode == 'desktop':
         log_q.clear_mutation()
         app_obj = current_app._get_current_object()
         def run_thread():
             with app_obj.app_context():
-                background_generation_task(tenant_id, data.get('strict_hierarchy'), data.get('algorithms'), data.get('settings', {}))
+                # ✨ 2. تمرير اللغة هنا
+                background_generation_task(tenant_id, data.get('strict_hierarchy'), data.get('algorithms'), data.get('settings', {}), user_lang)
         threading.Thread(target=run_thread).start()
     else:
         from app.redis_logger import redis_client
         redis_client.delete(f"mutation:tenant_{tenant_id}") 
-        background_generation_task.delay(tenant_id, data.get('strict_hierarchy'), data.get('algorithms'), data.get('settings', {}))
+        # ✨ 3. وتمرير اللغة للسليري هنا
+        background_generation_task.delay(tenant_id, data.get('strict_hierarchy'), data.get('algorithms'), data.get('settings', {}), user_lang)
         
     return jsonify({"success": True})
 
@@ -110,14 +116,15 @@ def generate_schedule():
 @generation_bp.route('/api/refine', methods=['POST'])
 def start_refinement():
     tenant_id = session.get('tenant_id')
+    user_lang = session.get('lang', 'ar') # ✨ التقاط اللغة
     log_q = get_log_queue(tenant_id)
     
     if log_q.is_running():
-        return jsonify({"error": "هناك عملية قيد التشغيل بالفعل"}), 400
+        return jsonify({"error": _("هناك عملية قيد التشغيل بالفعل")}), 400
     
     data = request.json
     current_schedule = data.get('schedule')
-    if not current_schedule: return jsonify({"error": "الجدول غير موجود أو فارغ."}), 400
+    if not current_schedule: return jsonify({"error": _("الجدول غير موجود أو فارغ.")}), 400
         
     # ✨ التقاط المستوى وعدد الضحايا
     req_level = data.get('level') or data.get('refinement_level') or 'balanced'
@@ -125,23 +132,26 @@ def start_refinement():
     
     # 🛡️ الحماية الأمنية (الدفاع بعمق): التحقق من تفعيل الميزة الجراحية
     if req_level == 'deep_surgical' and not current_app.config.get('ENABLE_SURGICAL_FEATURE'):
-        return jsonify({"error": "ميزة التدخل الجراحي غير مفعلة في هذه النسخة."}), 403
+        return jsonify({"error": _("ميزة التدخل الجراحي غير مفعلة في هذه النسخة.")}), 403
     
     log_q.clear_logs()
     log_q.set_running(True)
     log_q.set_stop_flag(False)
     
-    log_q.put(f"🔍 تم بدء عملية التحسين باختيار المستوى: [{req_level}]")
+    # ✨ ترجمة رسالة السجل (Log)
+    log_q.put(_("🔍 تم بدء عملية التحسين باختيار المستوى: [{level}]").format(level=req_level))
 
     mode = current_app.config.get('APP_MODE')
     if mode == 'desktop':
         app_obj = current_app._get_current_object()
         def run_thread():
             with app_obj.app_context():
-                background_refinement_task(tenant_id, current_schedule, req_level, data.get('teachers', []), max_victims)
+                # ✨ التمرير
+                background_refinement_task(tenant_id, current_schedule, req_level, data.get('teachers', []), max_victims, user_lang)
         threading.Thread(target=run_thread).start()
     else:
-        background_refinement_task.delay(tenant_id, current_schedule, req_level, data.get('teachers', []), max_victims)
+        # ✨ التمرير
+        background_refinement_task.delay(tenant_id, current_schedule, req_level, data.get('teachers', []), max_victims, user_lang)
         
     return jsonify({"success": True})
 
@@ -161,20 +171,19 @@ def stream_logs():
             if logs:
                 # إذا كانت هناك سجلات جديدة، أرسلها
                 for msg in logs:
-                    yield f"data: {msg}\n\n"
+                    # ✨ السحر هنا: إصلاح مشكلة الأسطر المتعددة والـ Traceback!
+                    safe_msg = str(msg).replace('\n', '\ndata: ')
+                    yield f"data: {safe_msg}\n\n"
                 last_idx += len(logs)
             else:
-                # 🚀 نبضة الحياة (Heartbeat): 
-                # إرسال تعليق فارغ لا يظهر في الواجهة لكنه يمنع المتصفح من قطع الاتصال
+                # 🚀 نبضة الحياة (Heartbeat)
                 yield ": heartbeat\n\n"
             
-            # 🛡️ التحقق من توقف الخوارزمية وانتهاء الرسائل للخروج من الحلقة بسلام
             if not log_q.is_running() and not logs:
                 break
                 
             time.sleep(0.5)
             
-    # 🛡️ حماية السياق وإجبار المتصفح على إبقاء الاتصال مفتوحاً
     return Response(stream_with_context(generate()), mimetype='text/event-stream', headers={
         'X-Accel-Buffering': 'no', 
         'Cache-Control': 'no-cache',
@@ -210,7 +219,8 @@ def force_reset():
     log_q = get_log_queue(tenant_id)
     log_q.set_running(False)
     log_q.set_stop_flag(True)
-    log_q.put("🛑 تم فرض إيقاف الخادم وإعادة التهيئة يدوياً بواسطة المستخدم.")
+    # ✨ ترجمة رسالة الإيقاف
+    log_q.put(_("🛑 تم فرض إيقاف الخادم وإعادة التهيئة يدوياً بواسطة المستخدم."))
     return jsonify({"success": True})
 
 
@@ -235,7 +245,7 @@ def export_excel():
         ws['A1'].font = Font(bold=True, color="FFFFFF")
         ws['A1'].fill = PatternFill(start_color="34495e", fill_type="solid")
         
-        headers = ["الوقت"] + days
+        headers = [_("الوقت")] + days # ✨ ترجمة "الوقت"
         ws.append(headers)
         for cell in ws[2]: 
             cell.font = Font(bold=True)
@@ -251,6 +261,7 @@ def export_excel():
                 else:
                     parts = []
                     for lec in cell_data:
+                        # تركناها بالعربية للحفاظ على توافق دالة الاستيراد
                         parts.append(f"مادة: {lec.get('name','')}\nأستاذ: {lec.get('teacher_name','')}\nقاعة: {lec.get('room','')}")
                     row.append("\n===\n".join(parts))
             ws.append(row)
@@ -274,7 +285,7 @@ def export_excel():
 @generation_bp.route('/api/import_excel', methods=['POST'])
 def import_excel():
     if 'file' not in request.files:
-        return jsonify({"error": "لم يتم إرسال أي ملف"}), 400
+        return jsonify({"error": _("لم يتم إرسال أي ملف")}), 400
         
     file = request.files['file']
     days = json.loads(request.form.get('days', '[]'))
@@ -290,7 +301,7 @@ def import_excel():
                 slots = [f"{s['start']}-{s['end']}" for s in structure_data[0]['slots']]
     
     if not days or not slots:
-        return jsonify({"error": "لم يتم العثور على هيكل الأيام والحصص. يرجى إعداده في المرحلة 4 أولاً."}), 400
+        return jsonify({"error": _("لم يتم العثور على هيكل الأيام والحصص. يرجى إعداده في المرحلة 4 أولاً.")}), 400
 
     try:
         wb = openpyxl.load_workbook(file)
@@ -333,19 +344,26 @@ def import_excel():
     except Exception as e:
         import traceback
         traceback.print_exc()
-        return jsonify({"error": "فشل في قراءة ملف الإكسل. تأكد من عدم تغيير هيكل الملف. التفاصيل: " + str(e)}), 500
-
-
+        # ✨ تغليف رسالة الخطأ مع المتغير
+        return jsonify({"error": _("فشل في قراءة ملف الإكسل. تأكد من عدم تغيير هيكل الملف. التفاصيل: {error}").format(error=str(e))}), 500
+    
 # ================= مهام الخلفية (Celery Tasks) =================
 
 @celery_app.task
-def background_generation_task(tenant_id, strict_hierarchy, algorithms, algo_settings):
+def background_generation_task(tenant_id, strict_hierarchy, algorithms, algo_settings, user_lang='ar'):
+    # ✨ 1. استيراد المترجم الخلفي الآمن ليعمل داخل هذه المهمة فقط!
+    from app.services.algorithms import _ 
+    
+    # ✨ 2. تفعيل المترجم المستقل قبل أي شيء آخر
+    set_algorithm_language(user_lang)
+    
     log_q = get_log_queue(tenant_id)
     scheduling_state = SchedulingStateProxy(tenant_id)
     from flask import current_app as app 
     
     try:
-        log_q.put("🚀 بدء جلب البيانات من قاعدة البيانات السحابية المعزولة...")
+        # الآن هذه الرسالة ستُترجم وتُطبع بأمان تام دون انهيار
+        log_q.put(_("🚀 بدء جلب البيانات من قاعدة البيانات السحابية المعزولة..."))
         
         with app.app_context():
             teachers_list = Teacher.query.filter_by(tenant_id=tenant_id).all()
@@ -373,7 +391,8 @@ def background_generation_task(tenant_id, strict_hierarchy, algorithms, algo_set
             conditions_data = json.loads(cond_setting.value) if cond_setting and cond_setting.value else {}
 
         if not structure_data:
-            raise Exception("لم يتم إعداد هيكل الجدول (المرحلة 4).")
+            # ✨ ترجمة رسالة الخطأ
+            raise Exception(_("لم يتم إعداد هيكل الجدول (المرحلة 4)."))
 
         all_lectures = []
         from collections import defaultdict
@@ -455,7 +474,6 @@ def background_generation_task(tenant_id, strict_hierarchy, algorithms, algo_set
             if spec.get('prevent_last') == '1': last_slot_restrictions[t_name] = 'last_1'
             elif spec.get('prevent_last') == '2': last_slot_restrictions[t_name] = 'last_2'
 
-        # ✨ تعديل: قراءة اسم المتغير الصحيح (days_rule) القادم من الواجهة
         days_rule_val = global_rules.get('days_rule') or global_rules.get('days_interpretation')
         distribution_rule_type = 'strict' if days_rule_val == 'strict' else 'allowed'
         max_sess = global_rules.get('max_slots')
@@ -532,7 +550,8 @@ def background_generation_task(tenant_id, strict_hierarchy, algorithms, algo_set
 
         prefer_morning_slots = constraint_severities['prefer_morning'] != 'disabled'
         
-        log_q.put("✅ تمت قراءة ومعالجة جميع البيانات والقيود بنجاح!")
+        # ✨ ترجمة السجل
+        log_q.put(_("✅ تمت قراءة ومعالجة جميع البيانات والقيود بنجاح!"))
         time.sleep(0.5)
 
         lns_iterations = int(algo_settings.get('lns_iterations', 500))
@@ -541,7 +560,7 @@ def background_generation_task(tenant_id, strict_hierarchy, algorithms, algo_set
         vns_k_max = int(algo_settings.get('vns_k_max', 5))
         lns_stagnation = int(algo_settings.get('lns_stagnation_threshold', 15))
         vns_stagnation = int(algo_settings.get('vns_stagnation_threshold', 15))
-        # ✨ استخراج أساتذة الدومينو من الواجهة وترجمة أرقامهم لأسماء
+
         domino_teachers_ids = conditions_data.get('domino_teachers', [])
         domino_teacher_names = []
         for t_id in domino_teachers_ids:
@@ -558,7 +577,8 @@ def background_generation_task(tenant_id, strict_hierarchy, algorithms, algo_set
                 else:
                     reserve_slots.append((d_idx, s_idx))
 
-        log_q.put("\n🚀 جاري بناء الجدول المبدئي السريع (الطماعة)...")
+        # ✨ ترجمة السجل
+        log_q.put(_("\n🚀 جاري بناء الجدول المبدئي السريع (الطماعة)..."))
         
         current_solution, final_failures = run_greedy_search_for_best_result(
             log_q=log_q, 
@@ -578,10 +598,13 @@ def background_generation_task(tenant_id, strict_hierarchy, algorithms, algo_set
             base_initial_schedule=None
         )
         
-        log_q.put(f"✅ تم بناء الجدول المبدئي بنجاح! (باقي {len(final_failures)} أخطاء مرنة)")
+        # ✨ ترجمة مع تنسيق المتغير
+        log_q.put(_("✅ تم بناء الجدول المبدئي بنجاح! (باقي {count} أخطاء مرنة)").format(count=len(final_failures)))
             
         if "lns" in algorithms and not scheduling_state.get('should_stop'):
-            log_q.put(f"\n=== 🌪️ بدء البحث الجواري الواسع (LNS) بتكرارات: {lns_iterations} وتخريب: {lns_ruin_factor*100}% ===")
+            # ✨ ترجمة السجل
+            log_q.put(_("\n=== 🌪️ بدء البحث الجواري الواسع (LNS) بتكرارات: {iterations} وتخريب: {ruin_factor}% ===").format(iterations=lns_iterations, ruin_factor=lns_ruin_factor*100))
+            
             current_solution, final_cost, final_failures = run_large_neighborhood_search(
                 log_q, all_lectures, days, slots, rooms_data, teachers, levels, 
                 identifiers_by_level, special_constraints, teacher_constraints, distribution_rule_type, 
@@ -599,7 +622,9 @@ def background_generation_task(tenant_id, strict_hierarchy, algorithms, algo_set
             )
             
         if "vns" in algorithms and not scheduling_state.get('should_stop'):
-            log_q.put(f"\n=== 🌊 بدء البحث الجواري المتغير (VNS) بتكرارات: {vns_iterations} وجوار أقصى: {vns_k_max} ===")
+            # ✨ ترجمة السجل
+            log_q.put(_("\n=== 🌊 بدء البحث الجواري المتغير (VNS) بتكرارات: {iterations} وجوار أقصى: {k_max} ===").format(iterations=vns_iterations, k_max=vns_k_max))
+            
             current_solution, final_cost, final_failures = run_variable_neighborhood_search(
                 log_q, all_lectures, days, slots, rooms_data, teachers, levels,
                 identifiers_by_level, special_constraints, teacher_constraints, distribution_rule_type,
@@ -617,14 +642,17 @@ def background_generation_task(tenant_id, strict_hierarchy, algorithms, algo_set
             )
 
         if scheduling_state.get('should_stop'):
-            log_q.put("\n🛑 تم إيقاف عملية التوزيع من قبل المستخدم.")
+            # ✨ ترجمة السجل
+            log_q.put(_("\n🛑 تم إيقاف عملية التوزيع من قبل المستخدم."))
             return
         else:
-            log_q.put("\n✅ تم الانتهاء من جميع الخوارزميات بنجاح!")
+            # ✨ ترجمة السجل
+            log_q.put(_("\n✅ تم الانتهاء من جميع الخوارزميات بنجاح!"))
 
         if final_failures:
             log_q.put("\n" + "="*50)
-            log_q.put("📊 تقرير الأخطاء المتبقية في الجدول النهائي:")
+            # ✨ ترجمة السجل
+            log_q.put(_("📊 تقرير الأخطاء المتبقية في الجدول النهائي:"))
             log_q.put("="*50)
             
             missing = [f for f in final_failures if f.get('penalty', 0) >= 1000] 
@@ -632,25 +660,27 @@ def background_generation_task(tenant_id, strict_hierarchy, algorithms, algo_set
             soft = [f for f in final_failures if 0 < f.get('penalty', 0) < 100] 
             
             if missing:
-                log_q.put(f"❌ المواد غير المجدولة (نقص): {len(missing)}")
-                for f in missing[:10]: log_q.put(f"  - {f.get('course_name')} ({f.get('teacher_name')}): {f.get('reason')}")
-                if len(missing) > 10: log_q.put("  ... والمزيد")
+                log_q.put(_("❌ المواد غير المجدولة (نقص): {count}").format(count=len(missing)))
+                for f in missing[:10]: log_q.put(_("  - {course} ({teacher}): {reason}").format(course=f.get('course_name'), teacher=f.get('teacher_name'), reason=f.get('reason')))
+                if len(missing) > 10: log_q.put(_("  ... والمزيد"))
             
             if hard:
-                log_q.put(f"\n🚫 الأخطاء الصارمة (تعارضات قوية): {len(hard)}")
-                for f in hard[:10]: log_q.put(f"  - {f.get('course_name')} ({f.get('teacher_name')}): {f.get('reason')}")
-                if len(hard) > 10: log_q.put("  ... والمزيد")
+                log_q.put(_("\n🚫 الأخطاء الصارمة (تعارضات قوية): {count}").format(count=len(hard)))
+                for f in hard[:10]: log_q.put(_("  - {course} ({teacher}): {reason}").format(course=f.get('course_name'), teacher=f.get('teacher_name'), reason=f.get('reason')))
+                if len(hard) > 10: log_q.put(_("  ... والمزيد"))
                 
             if soft:
-                log_q.put(f"\n⚠️ الأخطاء المرنة (تفضيلات لم تتحقق): {len(soft)}")
-                for f in soft[:10]: log_q.put(f"  - {f.get('course_name')} ({f.get('teacher_name')}): {f.get('reason')}")
-                if len(soft) > 10: log_q.put("  ... والمزيد")
+                log_q.put(_("\n⚠️ الأخطاء المرنة (تفضيلات لم تتحقق): {count}").format(count=len(soft)))
+                for f in soft[:10]: log_q.put(_("  - {course} ({teacher}): {reason}").format(course=f.get('course_name'), teacher=f.get('teacher_name'), reason=f.get('reason')))
+                if len(soft) > 10: log_q.put(_("  ... والمزيد"))
                 
             log_q.put("="*50 + "\n")
         else:
-            log_q.put("\n🎉 الجدول مثالي! لا توجد أي أخطاء متبقية.")
+            # ✨ ترجمة السجل
+            log_q.put(_("\n🎉 الجدول مثالي! لا توجد أي أخطاء متبقية."))
 
-        log_q.put("جاري تجهيز ملفات التصدير (جداول الأساتذة والقاعات)...")
+        # ✨ ترجمة السجل
+        log_q.put(_("جاري تجهيز ملفات التصدير (جداول الأساتذة والقاعات)..."))
         
         prof_schedules = {t['name']: [[[] for _ in slots] for _ in days] for t in teachers}
         free_rooms = [[[] for _ in slots] for _ in days]
@@ -698,21 +728,31 @@ def background_generation_task(tenant_id, strict_hierarchy, algorithms, algo_set
 
         log_q.put(f"DONE{json.dumps(final_result)}")
 
+    except StopByUserException:
+        # ✨ التقاط آمن لحالة الإيقاف اليدوي دون طباعة أي خطأ أو Traceback
+        log_q.put(_("\n🛑 تم إيقاف عملية التوزيع بأمان بناءً على طلبك."))
     except Exception as e:
-        log_q.put(f"\n❌ حدث خطأ فادح أثناء التوزيع:\n{str(e)}")
+        # ✨ ترجمة رسالة الخطأ الحقيقية في التوزيع
+        log_q.put(_("\n❌ حدث خطأ فادح أثناء التوزيع:\n{error}").format(error=str(e)))
         log_q.put(traceback.format_exc())
     finally:
         log_q.set_running(False)
 
-
 @celery_app.task
-def background_refinement_task(tenant_id, current_schedule, refinement_level, selected_teachers, max_victims=4):
+def background_refinement_task(tenant_id, current_schedule, refinement_level, selected_teachers, max_victims=4, user_lang='ar'):
+    # ✨ 1. استيراد المترجم الخلفي الآمن محلياً
+    from app.services.algorithms import _ 
+    
+    # ✨ 2. تفعيل المترجم المستقل
+    set_algorithm_language(user_lang)
+    
     log_q = get_log_queue(tenant_id)
     scheduling_state = SchedulingStateProxy(tenant_id)
     from flask import current_app as app
 
     try:
-        log_q.put("\n🚀 بدء عملية ضغط وتحسين جداول الأساتذة (سد الفجوات)...")
+        # ستعمل بأمان وتُترجم الرسالة
+        log_q.put(_("\n🚀 بدء عملية ضغط وتحسين جداول الأساتذة (سد الفجوات)..."))
         
         with app.app_context():
             teachers_list = Teacher.query.filter_by(tenant_id=tenant_id).all()
@@ -814,7 +854,6 @@ def background_refinement_task(tenant_id, current_schedule, refinement_level, se
             if spec.get('prevent_last') == '1': last_slot_restrictions[t_name] = 'last_1'
             elif spec.get('prevent_last') == '2': last_slot_restrictions[t_name] = 'last_2'
 
-        # ✨ تعديل: قراءة اسم المتغير الصحيح (days_rule) القادم من الواجهة
         days_rule_val = global_rules.get('days_rule') or global_rules.get('days_interpretation')
         distribution_rule_type = 'strict' if days_rule_val == 'strict' else 'allowed'
         max_sess = global_rules.get('max_slots')
@@ -953,7 +992,8 @@ def background_refinement_task(tenant_id, current_schedule, refinement_level, se
         log_q.put(f"DONE{json.dumps(final_result)}")
 
     except Exception as e:
-        log_q.put(f"\n❌ حدث خطأ أثناء التحسين:\n{str(e)}")
+        # ✨ ترجمة رسالة الخطأ في التحسين
+        log_q.put(_("\n❌ حدث خطأ أثناء التحسين:\n{error}").format(error=str(e)))
         log_q.put(traceback.format_exc())
     finally:
         log_q.set_running(False)
@@ -964,53 +1004,63 @@ def background_refinement_task(tenant_id, current_schedule, refinement_level, se
 @generation_bp.route('/api/activate_domino', methods=['POST'])
 def api_activate_domino():
     tenant_id = session.get('tenant_id')
+    user_lang = session.get('lang', 'ar') # ✨ التقاط اللغة
     if not tenant_id: 
-        return jsonify({"error": "غير مصرح"}), 403
+        # ✨ ترجمة
+        return jsonify({"error": _("غير مصرح")}), 403
         
     # ✨ حماية المسار: التحقق من أن الميزة مفعلة مركزياً
     if not current_app.config.get('ENABLE_DOMINO_FEATURE'):
-        return jsonify({"error": "ميزة خوارزمية الدومينو غير مفعلة في هذه النسخة."}), 403
+        # ✨ ترجمة
+        return jsonify({"error": _("ميزة خوارزمية الدومينو غير مفعلة في هذه النسخة.")}), 403
         
     data = request.json or {}
     current_schedule = data.get('schedule')
     if not current_schedule:
-        return jsonify({"error": "الجدول غير موجود. يرجى التأكد من توليد الجدول أولاً."}), 400
+        # ✨ ترجمة
+        return jsonify({"error": _("الجدول غير موجود. يرجى التأكد من توليد الجدول أولاً.")}), 400
 
     from app.services.domino_algorithm import background_activate_domino_task
     
     app = current_app._get_current_object()
     thread = threading.Thread(
         target=background_activate_domino_task,
-        args=(app, tenant_id, current_schedule)
+        args=(app, tenant_id, current_schedule, user_lang)
     )
     thread.daemon = True
     thread.start()
 
-    return jsonify({"message": "تم بدء تفعيل الدومينو بنجاح"})
+    # ✨ ترجمة
+    return jsonify({"message": _("تم بدء تفعيل الدومينو بنجاح")})
 
 @generation_bp.route('/api/compress_domino', methods=['POST'])
 def api_compress_domino():
     tenant_id = session.get('tenant_id')
+    user_lang = session.get('lang', 'ar') # ✨ التقاط اللغة
     if not tenant_id: 
-        return jsonify({"error": "غير مصرح"}), 403
+        # ✨ ترجمة
+        return jsonify({"error": _("غير مصرح")}), 403
         
     # ✨ حماية المسار: التحقق من أن الميزة مفعلة مركزياً
     if not current_app.config.get('ENABLE_DOMINO_FEATURE'):
-        return jsonify({"error": "ميزة خوارزمية الدومينو غير مفعلة في هذه النسخة."}), 403
+        # ✨ ترجمة
+        return jsonify({"error": _("ميزة خوارزمية الدومينو غير مفعلة في هذه النسخة.")}), 403
         
     data = request.json or {}
     current_schedule = data.get('schedule')
     if not current_schedule:
-        return jsonify({"error": "الجدول غير موجود. يرجى التأكد من توليد الجدول أولاً."}), 400
+        # ✨ ترجمة
+        return jsonify({"error": _("الجدول غير موجود. يرجى التأكد من توليد الجدول أولاً.")}), 400
 
     from app.services.domino_algorithm import background_compress_domino_task
     
     app = current_app._get_current_object()
     thread = threading.Thread(
         target=background_compress_domino_task,
-        args=(app, tenant_id, current_schedule)
+        args=(app, tenant_id, current_schedule, user_lang)
     )
     thread.daemon = True
     thread.start()
 
-    return jsonify({"message": "تم بدء تجميع الدومينو بنجاح"})
+    # ✨ ترجمة
+    return jsonify({"message": _("تم بدء تجميع الدومينو بنجاح")})
