@@ -1,0 +1,43 @@
+# Copyright (c) 2026 Chaib Yahia. All rights reserved.
+# This software is licensed under the CC BY-NC 4.0 License. Commercial use is strictly prohibited.
+from flask import Blueprint, request, jsonify, session
+import json
+from app.database import db, ExamSetting
+from flask_babel import _
+
+# تسمية Blueprint بشكل مستقل لمنع التضارب
+exams_conditions_bp = Blueprint('exams_conditions', __name__)
+
+@exams_conditions_bp.route('/exams/api/settings', methods=['GET'])
+def get_settings():
+    """جلب كل إعدادات وقيود البرنامج المحفوظة (للإمتحانات)"""
+    tenant_id = session.get('tenant_id')
+    if not tenant_id:
+        return jsonify({"error": _("غير مصرح")}), 403
+
+    setting = ExamSetting.query.filter_by(key='main_settings', tenant_id=tenant_id).first()
+    
+    if setting and setting.value:
+        return jsonify(json.loads(setting.value))
+    return jsonify({})
+
+@exams_conditions_bp.route('/exams/api/settings', methods=['POST'])
+def save_settings():
+    """حفظ إعدادات وقيود البرنامج (للإمتحانات)"""
+    tenant_id = session.get('tenant_id')
+    if not tenant_id:
+        return jsonify({"error": _("غير مصرح")}), 403
+
+    settings_data = request.json
+    value_str = json.dumps(settings_data)
+    
+    setting = ExamSetting.query.filter_by(key='main_settings', tenant_id=tenant_id).first()
+    
+    if setting:
+        setting.value = value_str
+    else:
+        new_setting = ExamSetting(key='main_settings', value=value_str, tenant_id=tenant_id)
+        db.session.add(new_setting)
+        
+    db.session.commit()
+    return jsonify({'success': True, 'message': _('تم حفظ القيود والشروط بنجاح.')})

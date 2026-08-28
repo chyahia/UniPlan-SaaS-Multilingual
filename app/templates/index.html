@@ -1,0 +1,1438 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+    <section id="tab-home" class="tab-content active">
+        <h2 style="color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; margin-bottom: 20px;">{{ _('لوحة المعلومات والإحصائيات') }}</h2>
+        
+        <div style="display: flex; gap: 15px; margin-bottom: 25px; flex-wrap: wrap; text-align: center;">
+            <div style="flex: 1; min-width: 200px; background: #fff; padding: 20px; border-radius: 8px; border-bottom: 4px solid #3f51b5; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                <h1 id="stat-prof-count" style="margin: 0; color: #3f51b5; font-size: 36px;">0</h1>
+                <p style="margin: 5px 0 0 0; color: #555; font-weight: bold;">👨‍🏫 {{ _('أستاذ مسجل') }}</p>
+            </div>
+            <div style="flex: 1; min-width: 200px; background: #fff; padding: 20px; border-radius: 8px; border-bottom: 4px solid #2e7d32; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                <h1 id="stat-room-count" style="margin: 0; color: #2e7d32; font-size: 36px;">0</h1>
+                <p style="margin: 5px 0 0 0; color: #555; font-weight: bold;">🚪 {{ _('قاعة متاحة') }}</p>
+            </div>
+            <div style="flex: 1; min-width: 200px; background: #fff; padding: 20px; border-radius: 8px; border-bottom: 4px solid #9b59b6; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                <h1 id="stat-level-count" style="margin: 0; color: #9b59b6; font-size: 36px;">0</h1>
+                <p style="margin: 5px 0 0 0; color: #555; font-weight: bold;">🎓 {{ _('مستوى دراسي') }}</p>
+            </div>
+            <div style="flex: 1; min-width: 200px; background: #fff; padding: 20px; border-radius: 8px; border-bottom: 4px solid #e67e22; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                <h1 id="stat-course-count" style="margin: 0; color: #e67e22; font-size: 36px;">0</h1>
+                <p style="margin: 5px 0 0 0; color: #555; font-weight: bold;">📚 {{ _('مادة مسجلة') }}</p>
+            </div>
+        </div>
+
+        <!-- ✨ استخدام الخصائص المنطقية للحدود -->
+        <div style="background: #e8f4f8; padding: 20px; border-radius: 8px; border-inline-end: 5px solid #3498db; margin-top: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+            <h3 style="color: #2980b9; margin-top: 0;">{{ _('مرحباً بك في نظام الجداول الدراسية 📅') }}</h3>
+            <p style="color: #555; font-size: 15px; line-height: 1.8;">
+                {{ _('هذا النظام مصمم لبناء جداول الحصص الأسبوعية بذكاء وكفاءة.') }} <br>
+                {{ _('للبدء، انتقل إلى تبويبة <b>"1. البيانات الأساسية"</b> وقم بإعداد مدخلاتك، ثم اتبع المراحل بالتسلسل لضمان الحصول على جدول مثالي.') }}
+            </p>
+        </div>
+    </section>
+    
+    <section id="tab-1" class="tab-content">
+        <h2>{{ _('المرحلة 1: إدخال البيانات الأساسية') }}</h2>
+        <p>{{ _('قم بإدخال البيانات كل عنصر في سطر منفصل. اضغط باستمرار على Ctrl (أو Cmd) لاختيار أكثر من مستوى للمادة.') }}</p>
+
+        <style>
+            .data-panel { flex: 1; min-width: 220px; background: #f9f9f9; padding: 15px; border-radius: 8px; border: 1px solid #ddd; display: flex; flex-direction: column; }
+            .preview-box { margin-top: 15px; padding: 10px; background: #fff; border: 1px dashed #bbb; border-radius: 4px; flex-grow: 1; max-height: 200px; overflow-y: auto; }
+            
+            /* ✨ استخدام الخصائص المنطقية للاتجاهين */
+            .data-tag { display: block; background: #e0e0e0; font-size: 13px; padding: 6px 10px; margin-bottom: 5px; border-radius: 4px; border: 1px solid #ccc; text-align: start; }
+            
+            .course-tag { display: block; background: #e8f4f8; font-size: 13px; padding: 6px 10px; margin-bottom: 5px; border-radius: 4px; border-inline-start: 3px solid #3498db; }
+            .list-item { padding: 10px; border: 1px solid #ddd; margin-bottom: 5px; border-radius: 4px; display: flex; justify-content: space-between; font-weight: bold; font-size: 15px; }
+        </style>
+
+        <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-top: 20px;">
+            
+            <div class="data-panel">
+                <h3>👨‍🏫 {{ _('الأساتذة') }}</h3>
+                <textarea id="teachers-input" rows="4" style="width: 100%; padding: 8px;" placeholder="{{ _('مثال: أحمد محمد...') }}"></textarea>
+                <button onclick="addTeachers()" style="margin-top: 10px; padding: 8px; background: #3498db; color: white; border: none; border-radius: 4px; cursor: pointer;">{{ _('إضافة') }}</button>
+                <div id="teachers-preview" class="preview-box"><i>{{ _('لا يوجد أساتذة...') }}</i></div>
+            </div>
+
+            <div class="data-panel">
+                <h3>🚪 {{ _('القاعات') }}</h3>
+                <select id="room-type-select" style="width: 100%; padding: 8px; margin-bottom: 5px;">
+                    <option value="عادية">{{ _('عادية (أعمال موجهة)') }}</option>
+                    <option value="مدرج">{{ _('مدرج (محاضرات)') }}</option>
+                    <option value="مخبر">{{ _('مخبر (إعلام/لغات)') }}</option>
+                </select>
+                <textarea id="rooms-input" rows="3" style="width: 100%; padding: 8px;" placeholder="{{ _('مثال: قاعة 1...') }}"></textarea>
+                <button onclick="addRooms()" style="margin-top: 10px; padding: 8px; background: #2ecc71; color: white; border: none; border-radius: 4px; cursor: pointer;">{{ _('إضافة') }}</button>
+                <div id="rooms-preview" class="preview-box"><i>{{ _('لا توجد قاعات...') }}</i></div>
+            </div>
+
+            <div class="data-panel">
+                <h3>🎓 {{ _('المستويات') }}</h3>
+                <textarea id="levels-input" rows="4" style="width: 100%; padding: 8px;" placeholder="{{ _('مثال: السنة الأولى...') }}"></textarea>
+                <button onclick="addLevels()" style="margin-top: 10px; padding: 8px; background: #9b59b6; color: white; border: none; border-radius: 4px; cursor: pointer;">{{ _('إضافة') }}</button>
+                <div id="levels-preview" class="preview-box"><i>{{ _('لا توجد مستويات...') }}</i></div>
+            </div>
+
+        </div>
+
+        <div style="display: flex; margin-top: 20px;">
+            <div class="data-panel" style="width: 100%;">
+                <h3>📚 {{ _('المواد') }}</h3>
+                
+                <label style="font-size: 14px; font-weight: bold; margin-bottom: 5px; display: block; color: #2c3e50;">🎯 {{ _('اختر المستويات المستهدفة:') }}</label>
+                <div id="course-levels-checkboxes-container" style="max-height: 130px; overflow-y: auto; border: 1px solid #ccc; padding: 8px; border-radius: 4px; background: white; margin-bottom: 8px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);">
+                </div>
+                
+                <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                    <div style="flex: 1;">
+                        <input list="divisions-list" id="course-division" placeholder="{{ _('الشعبة (مثال: دراسات أدبية)...') }}" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-family: inherit;">
+                        <datalist id="divisions-list"></datalist>
+                    </div>
+                    <div style="flex: 1;">
+                        <input list="specs-list" id="course-specialization" placeholder="{{ _('التخصص (مثال: نقد قديم)...') }}" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-family: inherit;">
+                        <datalist id="specs-list"></datalist>
+                    </div>
+                </div>
+
+                <div style="display: flex; align-items: center; gap: 5px; margin-bottom: 15px;">
+                    <label style="font-weight: bold; white-space: nowrap;">{{ _('طبيعة المادة:') }}</label>
+                    <select id="course-nature-select" style="flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-family: inherit;">
+                        <option value="محاضرة">{{ _('محاضرة') }}</option>
+                        <option value="أعمال موجهة" selected>{{ _('أعمال موجهة') }}</option>
+                        <option value="أعمال تطبيقية">{{ _('أعمال تطبيقية') }}</option>
+                    </select>
+                    <button onclick="openNatureModal()" style="background: none; border: none; font-size: 20px; cursor: pointer; padding: 0 5px;" title="{{ _('إعدادات الرموز البيداغوجية') }}">⚙️</button>
+                </div>
+
+                <select id="course-room-type-select" style="width: 100%; padding: 5px; margin-bottom: 5px;" title="{{ _('هذا الخيار يُستخدم فقط مع الإضافة المباشرة') }}">
+                    <option value="عادية">{{ _('تُدرّس في: قاعة عادية') }}</option>
+                    <option value="مدرج">{{ _('تُدرّس في: مدرج') }}</option>
+                    <option value="مخبر">{{ _('تُدرّس في: مخبر') }}</option>
+                </select>
+                
+                <textarea id="courses-input" rows="4" style="width: 100%; padding: 8px;" placeholder="{{ _('اكتب أسماء المواد هنا...') }}"></textarea>
+                
+                <div style="display: flex; gap: 5px; margin-top: 10px;">
+                    <button onclick="addCourses()" style="flex: 1; padding: 8px; background: #e67e22; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;" title="{{ _('إضافة النصوص كما هي للقاعة المحددة') }}">{{ _('إضافة مباشرة') }}</button>
+                    <button onclick="openCourseWizard()" style="flex: 1; padding: 8px; background: #8e44ad; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;" title="{{ _('توليد المحاضرات والأفواج آلياً') }}">⚙️ {{ _('توليد الأفواج أو التخصصات') }}</button>
+                </div>
+                
+                <div id="courses-preview" class="preview-box"><i>{{ _('لا توجد مواد...') }}</i></div>
+            </div>
+        </div>
+
+        <div id="course-wizard-modal" class="modal-overlay" style="display: none; position: fixed; top: 0; inset-inline-start: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; justify-content: center; align-items: center;">
+            <div class="modal-content" style="background: white; padding: 20px; border-radius: 8px; width: 750px; max-width: 95%; max-height: 85vh; overflow-y: auto;">
+                <h3 style="margin-top: 0; color: #2c3e50; border-bottom: 2px solid #8e44ad; padding-bottom: 10px;">⚙️ {{ _('الضبط المتقدم للمواد وتوليد الأفواج') }}</h3>
+                <p style="font-size: 14px; color: #555;">{{ _('حدد طبيعة كل مادة والمكان المخصص للمحاضرة. (أفواج الأعمال الموجهة تُربط دائماً بـ "قاعة عادية").') }}</p>
+                
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 6px; border: 1px solid #ddd; margin-bottom: 15px;">
+                    <label style="font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 10px; color: #e67e22;">
+                        <input type="checkbox" id="wiz-is-shared" onchange="toggleSharedMode()" style="transform: scale(1.3);">
+                        {{ _('هذه المواد مشتركة بين عدة تخصصات (تفريع الأفواج)') }}
+                    </label>
+                    
+                    <div id="wiz-shared-container" style="display: none; margin-top: 15px;">
+                        
+                        <div style="background: #e8f4f8; padding: 10px; border: 1px solid #3498db; border-radius: 4px; margin-bottom: 15px;">
+                            <label style="font-size: 13px; color: #2980b9; font-weight: bold; display: block; margin-bottom: 5px;">🔹 {{ _('إعدادات المحاضرة المشتركة [مح]:') }}</label>
+                            <div style="display: flex; gap: 10px;">
+                                <input type="text" id="wiz-shared-lec-div" placeholder="{{ _('الشعبة (مثال: كل الشُّعب)') }}" style="flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-family: inherit;">
+                                <input type="text" id="wiz-shared-lec-spec" placeholder="{{ _('التخصص (مثال: كل التخصصات)') }}" style="flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-family: inherit;">
+                            </div>
+                        </div>
+
+                        <label style="font-size: 13px; color: #2c3e50; font-weight: bold;">🔸 {{ _('إدارة الشعب والتخصصات للأفواج (الأعمال الموجهة) [أم]:') }}</label>
+                        <div id="wiz-divisions-wrapper" style="margin-top: 10px;">
+                            </div>
+                        <button type="button" onclick="addWizardDivision()" style="margin-top: 10px; padding: 8px 15px; background: #3498db; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: bold;">➕ {{ _('إضافة شعبة جديدة') }}</button>
+                    </div>
+                </div>
+
+                <!-- ✨ توحيد التنسيقات باستخدام text-align: start -->
+                <table id="course-wizard-table" style="width: 100%; border-collapse: collapse; margin-bottom: 20px; text-align: start;">
+                    <thead></thead>
+                    <tbody></tbody>
+                </table>
+
+                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                    <button onclick="closeCourseWizard()" style="padding: 10px 20px; background: #e74c3c; color: white; border: none; border-radius: 4px; cursor: pointer; font-family: inherit;">{{ _('إلغاء') }}</button>
+                    <button onclick="confirmCourseWizard()" style="padding: 10px 20px; background: #27ae60; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-family: inherit;">✅ {{ _('تأكيد وتوليد المواد') }}</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="tab-2" class="tab-content">
+        <h2>{{ _('المرحلة 2: عرض وإدارة البيانات المدخلة') }}</h2>
+        <p>{{ _('يمكنك هنا مراجعة البيانات التي أدخلتها وحذف ما لا تريده.') }}</p>
+
+        <style>
+            /* ✨ الخصائص المنطقية للاتجاهين */
+            .manage-table { width: 100%; border-collapse: collapse; margin-top: 10px; background: #fff; text-align: start; }
+            .manage-table th, .manage-table td { padding: 10px; border: 1px solid #ddd; }
+            .manage-table th { background-color: #f2f2f2; font-weight: bold; }
+            .btn-delete { background: #e74c3c; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; }
+            /* ✨ margin-inline-start بدلاً من margin-left */
+            .btn-edit { background: #f39c12; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; margin-inline-start: 5px; }
+            .btn-edit:hover { background: #e67e22; }
+            .btn-delete:hover { background: #c0392b; }
+            .table-container { flex: 1; min-width: 300px; background: #f9f9f9; padding: 15px; border-radius: 8px; border: 1px solid #ddd; margin-bottom: 20px; max-height: 400px; overflow-y: auto;}
+            .list-item { padding: 10px; border: 1px solid #ddd; margin-bottom: 5px; border-radius: 4px; display: flex; justify-content: space-between; font-weight: bold; font-size: 15px; }
+        </style>
+
+        <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-top: 20px;">
+            
+            <div class="table-container">
+                <h3 id="title-manage-profs">👨‍🏫 {{ _('قائمة الأساتذة') }}</h3>
+                <table class="manage-table" id="teachers-table">
+                    <thead><tr><th>{{ _('الاسم') }}</th><th>{{ _('إجراء') }}</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <div class="table-container">
+                <h3 id="title-manage-rooms">🚪 {{ _('قائمة القاعات') }}</h3>
+                <table class="manage-table" id="rooms-table">
+                    <thead><tr><th>{{ _('الاسم') }}</th><th>{{ _('النوع') }}</th><th>{{ _('إجراء') }}</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <div class="table-container">
+                <h3 id="title-manage-levels">🎓 {{ _('قائمة المستويات') }}</h3>
+                <table class="manage-table" id="levels-table">
+                    <thead><tr><th>{{ _('المستوى') }}</th><th>{{ _('إجراء') }}</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <div class="table-container" style="flex-basis: 100%;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <h3 id="title-manage-courses" style="margin: 0;">📚 {{ _('قائمة المواد (المقررات)') }}</h3>
+                </div>
+                
+                <div id="bulk-edit-bar" style="display: none; position: sticky; top: -15px; z-index: 100; background: #e8f4f8; border: 1px solid #3498db; padding: 15px; border-radius: 8px; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); transition: 0.3s;">
+                    <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+                        <strong style="color: #2980b9;">✏️ {{ _('التعديل لـ') }} (<span id="selected-courses-count" style="color: #e74c3c; font-size: 18px;">0</span>):</strong>
+                        <input type="text" id="bulk-division" placeholder="{{ _('الشعبة (فارغ للتجاهل)') }}" style="padding: 8px; border: 1px solid #bdc3c7; border-radius: 4px; flex: 1; min-width: 150px; font-family: inherit;">
+                        <input type="text" id="bulk-specialization" placeholder="{{ _('التخصص (فارغ للتجاهل)') }}" style="padding: 8px; border: 1px solid #bdc3c7; border-radius: 4px; flex: 1; min-width: 150px; font-family: inherit;">
+                        
+                        <select id="bulk-nature" style="padding: 8px; border: 1px solid #bdc3c7; border-radius: 4px; flex: 1; min-width: 150px; font-family: inherit;">
+                            <option value="">{{ _('طبيعة المادة (تجاهل)') }}</option>
+                            <option value="محاضرة">{{ _('محاضرة [مح]') }}</option>
+                            <option value="أعمال موجهة">{{ _('أعمال موجهة [أم]') }}</option>
+                            <option value="أعمال تطبيقية">{{ _('أعمال تطبيقية [أت]') }}</option>
+                        </select>
+                        
+                        <button onclick="applyBulkEdit()" style="background: #27ae60; color: white; border: none; padding: 9px 20px; border-radius: 4px; cursor: pointer; font-weight: bold; font-family: inherit;">✔️ {{ _('تطبيق') }}</button>
+                    </div>
+                </div>
+
+                <table class="manage-table" id="courses-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 40px; text-align: center;" title="{{ _('تحديد الكل') }}">
+                                <input type="checkbox" id="select-all-courses" onchange="toggleAllCourses(this)" style="transform: scale(1.3); cursor: pointer;">
+                            </th>
+                            <th>{{ _('المادة') }}</th><th>{{ _('المستويات') }}</th><th>{{ _('الشعبة') }}</th><th>{{ _('التخصص') }}</th><th>{{ _('طبيعة المادة') }}</th><th>{{ _('نوع القاعة') }}</th><th>{{ _('إجراء') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+        </div>
+    </section>
+
+    <section id="tab-3" class="tab-content">
+        <h2>{{ _('المرحلة 3: إسناد المواد للأساتذة') }}</h2>
+        <p>{{ _('اختر أستاذًا من القائمة، ثم حدد المواد، واضغط على "تخصيص". (انقر مرتين للإلغاء)') }}</p>
+
+        <style>
+            .assign-container { display: flex; gap: 20px; height: 500px; margin-top: 15px; margin-bottom: 50px; }
+            .assign-box { flex: 1; border: 1px solid #ccc; border-radius: 8px; background: #fff; display: flex; flex-direction: column; overflow: hidden; }
+            .assign-header { background: #2c3e50; color: white; padding: 10px; text-align: center; font-weight: bold; }
+            .assign-search { padding: 10px; border-bottom: 1px solid #ddd; background: #f9f9f9; }
+            .assign-search input { width: 95%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+            .assign-list { flex: 1; overflow-y: auto; padding: 10px; list-style: none; margin: 0; }
+            
+            /* تنسيقات العناصر */
+            .list-item { padding: 10px; border: 1px solid #eee; margin-bottom: 5px; border-radius: 4px; cursor: pointer; user-select: none; transition: 0.2s; }
+            .list-item:hover { background-color: #f1f2f6; }
+            
+            /* ✨ الخصائص المنطقية للاتجاهات */
+            .is-selected { background-color: #d0e8f2 !important; border-color: #3498db; border-inline-end: 5px solid #3498db; }
+            .is-assigned { background-color: #e8f5e9; border-color: #2ecc71; }
+            
+            .toggle-btn { display: inline-block; width: 20px; text-align: center; cursor: pointer; font-size: 12px; color: #555; }
+            /* ✨ padding-inline-end بدلاً من padding-right */
+            .teacher-courses-list { margin-top: 5px; padding-inline-end: 20px; font-size: 13px; color: #555; display: none; }
+            .teacher-courses-list li { margin-bottom: 3px; }
+            /* ✨ float: inline-start بدلاً من float: left */
+            .teacher-badge { background: #2ecc71; color: white; padding: 2px 8px; border-radius: 12px; font-size: 11px; float: inline-start; }
+            
+            /* زر التخصيص الرئيسي */
+            .btn-perform-assign { display: block; width: 100%; background: #3498db; color: white; padding: 15px; font-size: 18px; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; margin-bottom: 15px; transition: 0.3s; }
+            .btn-perform-assign:hover { background: #2980b9; }
+            .btn-perform-assign:disabled { background: #95a5a6; cursor: not-allowed; }
+
+            .middle-assign-wrapper {
+                display: flex; 
+                flex-direction: column; 
+                justify-content: center; 
+                align-items: center;
+            }
+            .btn-middle-assign {
+                background: #27ae60; 
+                color: white; 
+                border: none; 
+                border-radius: 50%; 
+                width: 80px; 
+                height: 80px; 
+                cursor: pointer; 
+                font-weight: bold; 
+                font-size: 14px; 
+                box-shadow: 0 4px 15px rgba(0,0,0,0.2); 
+                transition: 0.3s transform, 0.3s background;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                gap: 5px;
+            }
+            .btn-middle-assign:hover {
+                background: #219a52;
+                transform: scale(1.08); 
+            }
+            .btn-middle-assign:disabled {
+                background: #95a5a6;
+                cursor: not-allowed;
+                transform: scale(1);
+                box-shadow: none;
+            }
+        </style>
+
+        <button id="main-assign-btn" class="btn-perform-assign" onclick="performAssignment()" disabled>{{ _('تخصيص المواد المحددة للأستاذ المختار') }}</button>
+
+        <div class="assign-container">
+            <div class="assign-box">
+                <div class="assign-header">👨‍🏫 {{ _('قائمة الأساتذة') }}</div>
+                <div class="assign-search"><input type="text" id="search-teachers" placeholder="{{ _('بحث عن أستاذ...') }}" onkeyup="renderAssignments()"></div>
+                <div id="assign-teachers-list" class="assign-list"></div>
+            </div>
+
+            <div class="middle-assign-wrapper">
+                <button id="middle-assign-btn" class="btn-middle-assign" onclick="performAssignment()" disabled title="{{ _('تخصيص المواد للأستاذ المختار') }}">
+                    <span style="font-size: 24px;">🔗</span>
+                    <span>{{ _('تخصيص') }}</span>
+                </button>
+            </div>
+
+            <div class="assign-box">
+                <div class="assign-header">📚 {{ _('قائمة المواد') }}</div>
+                <div class="assign-search"><input type="text" id="search-courses" placeholder="{{ _('بحث عن مادة...') }}" onkeyup="renderAssignments()"></div>
+                <div id="assign-courses-list" class="assign-list"></div>
+            </div>
+        </div>
+        
+        <div id="unassigned-summary-wrapper" style="background: #fffdf5; border: 2px solid #f1c40f; border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 20px;">
+            <h3 style="margin-top: 0; color: #d35400; border-bottom: 1px solid #f1c40f; padding-bottom: 10px;">
+                ⚠️ {{ _('قائمة المواد غير المسندة (تنتظر أستاذاً)') }}
+            </h3>
+            <p style="font-size: 13px; color: #7f8c8d; margin-top: -5px; margin-bottom: 15px;">
+                {{ _('بمجرد إسناد المادة لأستاذ في الأعلى، ستختفي من هذه القائمة تلقائياً.') }}
+            </p>
+            
+            <div id="unassigned-courses-container" style="display: flex; flex-wrap: wrap; gap: 20px;">
+                <!-- سيتم التوليد هنا بواسطة الجافاسكريبت -->
+            </div>
+        </div>
+    </section>
+
+    <section id="tab-4" class="tab-content">
+        <h2>{{ _('المرحلة 4: إعداد هيكل الجدول الزمني') }}</h2>
+        
+        <style>
+            .struct-toolbar { margin-bottom: 15px; display: flex; gap: 10px; }
+            .btn-add-day { background: #2c3e50; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; }
+            /* ✨ استخدام margin-inline-end بدلاً من margin-right */
+            .btn-save-struct { background: #27ae60; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; margin-inline-end: auto; }
+            
+            /* تبويبات الأيام */
+            .days-header { display: flex; border-bottom: 2px solid #bdc3c7; margin-bottom: 15px; overflow-x: auto; }
+            /* ✨ استخدام margin-inline-start بدلاً من margin-left */
+            .day-tab { padding: 10px 20px; cursor: pointer; background: #ecf0f1; border: 1px solid #ccc; border-bottom: none; margin-inline-start: 5px; border-radius: 5px 5px 0 0; }
+            .day-tab.active { background: #fff; font-weight: bold; border-top: 3px solid #3498db; border-bottom: 2px solid #fff; margin-bottom: -2px; }
+            
+            /* محتوى اليوم */
+            .day-content { display: none; background: #fff; padding: 15px; border: 1px solid #ddd; border-radius: 4px; }
+            .day-content.active { display: block; }
+            .day-actions { margin-bottom: 15px; border-bottom: 1px dashed #ccc; padding-bottom: 10px; }
+            
+            /* الفترات الزمنية (Slots) */
+            .time-slot { border: 1px solid #34495e; margin-bottom: 15px; border-radius: 5px; overflow: hidden; }
+            .slot-header { background: #34495e; color: white; padding: 10px; display: flex; align-items: center; gap: 10px; }
+            .slot-header input[type="time"] { padding: 5px; border-radius: 3px; border: none; }
+            .slot-body { padding: 15px; background: #f9f9f9; }
+            
+            /* القيود */
+            /* ✨ استخدام border-inline-start لتلوين حافة البداية بناءً على اللغة */
+            .constraint-box { background: #fff; border: 1px solid #bdc3c7; padding: 15px; margin-bottom: 10px; border-radius: 4px; border-inline-start: 4px solid #e67e22; }
+            .levels-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin-top: 10px; background: #f1f2f6; padding: 10px; border-radius: 4px; }
+            .halls-dropdown { margin-top: 10px; display: none; background: #e8f4f8; padding: 10px; border-radius: 4px; border: 1px dashed #3498db; }
+        </style>
+
+        <div class="struct-toolbar">
+            <button class="btn-add-day" onclick="addDay()">➕ {{ _('إضافة يوم جديد') }}</button>
+            <button class="btn-save-struct" onclick="saveStructure()">💾 {{ _('حفظ الهيكل') }}</button>
+        </div>
+
+        <div id="days-tabs-container" class="days-header"></div>
+        <div id="days-content-container"></div>
+
+        <div id="day-modal" style="display: none; position: fixed; top: 0; inset-inline-start: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); align-items: center; justify-content: center; z-index: 1000;">
+            <div style="background: #fff; padding: 25px; border-radius: 8px; width: 320px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+                <h3 id="day-modal-title" style="margin-top: 0; color: #2c3e50;">{{ _('اختر اليوم') }}</h3>
+                
+                <select id="selected-day" style="width: 100%; padding: 10px; margin-bottom: 20px; border: 1px solid #bdc3c7; border-radius: 4px; font-size: 16px;">
+                    <option value="السبت">{{ _('السبت') }}</option>
+                    <option value="الأحد">{{ _('الأحد') }}</option>
+                    <option value="الإثنين">{{ _('الإثنين') }}</option>
+                    <option value="الثلاثاء">{{ _('الثلاثاء') }}</option>
+                    <option value="الأربعاء">{{ _('الأربعاء') }}</option>
+                    <option value="الخميس">{{ _('الخميس') }}</option>
+                    <option value="الجمعة">{{ _('الجمعة') }}</option>
+                </select>
+
+                <div style="display: flex; gap: 10px; justify-content: center;">
+                    <button onclick="confirmDaySelection()" style="flex: 1; background: #27ae60; color: white; padding: 10px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">{{ _('تأكيد') }}</button>
+                    <button onclick="closeDayModal()" style="flex: 1; background: #e74c3c; color: white; padding: 10px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">{{ _('إلغاء') }}</button>
+                </div>
+            </div>
+        </div>
+    
+    </section>
+
+    <section id="tab-5" class="tab-content">
+        <h2>{{ _('المرحلة 5: مرحلة القيود والشروط') }}</h2>
+        <button onclick="saveAllConditions()" style="background:#27ae60; color:white; padding:10px 20px; border:none; border-radius:4px; cursor:pointer; font-weight:bold; margin-bottom:15px; width:100%;">💾 {{ _('حفظ جميع القيود') }}</button>
+
+        <style>
+            .cond-section { background: #fff; border: 1px solid #ddd; padding: 15px; margin-bottom: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+            .cond-section h3 { margin-top: 0; color: #2c3e50; border-bottom: 2px solid #ecf0f1; padding-bottom: 10px; }
+            .overview-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
+            /* ✨ text-align: start بدلاً من right */
+            .overview-table th, .overview-table td { border: 1px solid #bdc3c7; padding: 8px; text-align: start; }
+            .overview-table th { background: #34495e; color: white; }
+            .strict-col { background: #ffeaa7; }
+            .flex-col { background: #dff9fb; }
+            
+            .scrollable-table-container { max-height: 300px; overflow-y: auto; border: 1px solid #ccc; border-radius: 4px; }
+            .master-table th { position: sticky; top: 0; background: #34495e; color: white; z-index: 1; font-size: 13px; }
+            .master-table td { font-size: 13px; }
+            
+            .grid-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+            .small-scroll-box { max-height: 200px; overflow-y: auto; border: 1px solid #eee; padding: 10px; background: #fafafa; }
+        </style>
+
+        <div class="cond-section">
+            <h3>{{ _('إدارة أوزان القيود (صارمة / مرنة)') }}</h3>
+            
+            <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                
+                <div style="flex: 1; min-width: 300px; background: #fff3cd; border: 1px solid #ffeeba; padding: 15px; border-radius: 8px;">
+                    <h4 style="margin-top: 0; color: #856404;">🔒 {{ _('قيود صارمة (ثابتة دائماً)') }}</h4>
+                    <p style="font-size: 12px; color: #856404; margin-bottom: 10px;">{{ _('هذه القيود أساسية لعمل البرنامج ولا يمكن تغييرها. أي خرق لها يعتبر خطأ فادحاً.') }}</p>
+                    <!-- ✨ padding-inline-start للقائمة المنقطة -->
+                    <ul style="font-size: 13px; padding-inline-start: 20px; line-height: 1.8; color: #533f03; margin: 0;">
+                        <li>{{ _('تعارض الأستاذ (نفس الأستاذ في نفس الوقت).') }}</li>
+                        <li>{{ _('تعارض القاعة (نفس القاعة في نفس الوقت).') }}</li>
+                        <li>{{ _('تعارض القاعة الكبيرة (أكثر من محاضرة في قاعة كبيرة).') }}</li>
+                        <li>{{ _('تعارض المعرفات (مثل الأعمال الموجهة لنفس المستوى).') }}</li>
+                        <li>{{ _('توزيع غير متناسق للمواد المشتركة.') }}</li>
+                        <li>{{ _('خرق فترة الراحة العامة (مثل مساء الثلاثاء).') }}</li>
+                        <li>{{ _('خرق قواعد الفترة الزمنية (مثل وضع مادة بقاعة كبيرة في فترة للقاعات الصغيرة فقط).') }}</li>
+                        <li>{{ _('خرق قيد الأيام اليدوية للأستاذ.') }}</li>
+                    </ul>
+                </div>
+
+                <div style="flex: 1; min-width: 400px; background: #d1ecf1; border: 1px solid #bee5eb; padding: 15px; border-radius: 8px;">
+                    <h4 style="margin-top: 0; color: #0c5460;">⚙️ {{ _('قيود قابلة للتحكم (مرنة/صارمة)') }}</h4>
+                    <p style="font-size: 12px; color: #0c5460; margin-bottom: 10px;">{{ _('حدد مستوى الأهمية لهذه القيود. "المرن" هو تفضيل، و"الصارم" هو شرط إلزامي.') }}</p>
+                    
+                    <table style="width: 100%; font-size: 13px; border-collapse: collapse; color: #0c5460;">
+                        <tbody>
+                            <script>
+                                // ✨ ترجمة خيارات القائمة المنسدلة داخل الـ Javascript
+                                const weightOptions = `
+                                    <option value="strict">{{ _('صارم (إلزامي)') }}</option>
+                                    <option value="20">{{ _('مهم جدا (عقوبة: 20 نقطة)') }}</option>
+                                    <option value="10" selected>{{ _('مهم (عقوبة: 10 نقطة)') }}</option>
+                                    <option value="1">{{ _('تفضيل بسيط (عقوبة: 1 نقطة)') }}</option>
+                                    <option value="0">{{ _('غير مهم (معطل)') }}</option>
+                                `;
+                                const constraints = [
+                                    {id: 'weight_distribution', name: "{{ _('قيد التوزيع (أيام متتالية/منفصلة)') }}"},
+                                    {id: 'weight_no_share', name: "{{ _('قيد منع تشارك الأساتذة في الأيام') }}"},
+                                    {id: 'weight_saturday', name: "{{ _('قيد العمل في اليوم المُقيَّد') }}"},
+                                    {id: 'weight_last_slot', name: "{{ _('قيد منع آخر الحصص') }}"},
+                                    {id: 'weight_max_daily', name: "{{ _('قيد الحد الأقصى للحصص اليومية') }}"},
+                                    {id: 'weight_share_pairs', name: "{{ _('قيد اشتراك أزواج الأساتذة') }}"},
+                                    {id: 'weight_consecutive_halls', name: "{{ _('قيد منع توالي القاعات الكبيرة') }}"},
+                                    {id: 'weight_consecutive_lectures', name: "{{ _('قيد منع تتابع المحاضرات للمستوى') }}"}
+                                ];
+                                constraints.forEach(c => {
+                                    document.write(`
+                                    <tr style="border-bottom: 1px solid #bee5eb;">
+                                        <td style="padding: 6px 0;">${c.name}</td>
+                                        <td style="padding: 6px 0; text-align: end;">
+                                            <select id="${c.id}" style="padding: 4px; border-radius: 3px; border: 1px solid #17a2b8; outline: none;">
+                                                ${weightOptions}
+                                            </select>
+                                        </td>
+                                    </tr>`);
+                                });
+                            </script>
+                            <tr style="border-bottom: 1px solid #bee5eb; background-color: #f8fdfd;">
+                                <td style="padding: 6px 0;"><strong>{{ _('قيد أوقات البدء والانتهاء (عند التوزيع التلقائي)') }}</strong></td>
+                                <td style="padding: 6px 0; text-align: end;">
+                                    <select id="weight_start_end_time" style="padding: 4px; border-radius: 3px; border: 1px solid #17a2b8; outline: none; font-weight: bold;">
+                                        <option value="20">{{ _('مهم جدا (عقوبة: 20 نقطة)') }}</option>
+                                        <option value="10">{{ _('مهم (عقوبة: 10 نقطة)') }}</option>
+                                        <option value="1" selected>{{ _('تفضيل بسيط (عقوبة: 1 نقطة)') }}</option>
+                                    </select>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- ✨ border-inline-start بدلاً من border-right -->
+            <div style="margin-top: 15px; padding: 12px; background: #e2e3e5; border-inline-start: 5px solid #6c757d; border-radius: 4px; font-size: 13px; color: #383d41;">
+                <strong>{{ _('ملاحظة هامة:') }}</strong> {{ _('قيد "أوقات البدء والانتهاء" يصبح') }} <span style="color:#c0392b; font-weight:bold;">{{ _('صارماً') }}</span> {{ _('تلقائياً عند تحديد أيام عمل الأستاذ يدوياً، ويبقى') }} <span style="color:#27ae60; font-weight:bold;">{{ _('مرناً') }}</span> {{ _('عند ترك الأيام للتوزيع التلقائي (الخوارزمية لها حرية الاختيار).') }}
+            </div>
+        </div>
+
+        <div class="cond-section">
+            <h3>{{ _('قيد المعرفات (منع التكرار في نفس الفترة)') }}</h3>
+            <p style="font-size:13px; color:#7f8c8d;">{{ _('أدخل المعرفات التي لا يجب أن تتكرر في نفس الفترة الزمنية لكل مستوى (كل معرف في سطر).') }}</p>
+            <div id="identifiers-container" style="display: flex; gap: 15px; flex-wrap: wrap;"></div>
+        </div>
+
+        <div class="cond-section">
+            <h3>{{ _('تحديد أيام وقيود عمل الأساتذة (الأهم)') }}</h3>
+            <div class="scrollable-table-container">
+                <table class="overview-table master-table" id="master-teachers-table">
+                    <thead>
+                        <tr id="master-teachers-header">
+                            </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            
+            <div style="margin-top: 15px; background: #fdfad9; padding: 10px; border-radius: 4px; border: 1px solid #f1c40f;">
+                <strong>{{ _('كيفية التعامل مع الأيام غير المحددة (عند اختيار تجميع/تفرقة):') }}</strong><br>
+                <label><input type="radio" name="days_rule" value="flexible" checked> {{ _('الأيام مجموعة مسموحة (مرن): يلتزم بالحد الأقصى للأيام فقط.') }}</label><br>
+                <label><input type="radio" name="days_rule" value="strict"> {{ _('الأيام مجموعة مطلوبة (صارم): يجب استخدام العدد المحدد بالضبط.') }}</label>
+            </div>
+        </div>
+
+        <div class="grid-container">
+            <div class="cond-section">
+                <h3>{{ _('قيود زمنية ومكانية عامة') }}</h3>
+                <label><strong>{{ _('الحد الأقصى للحصص في اليوم:') }}</strong>
+                    <select id="max-slots-per-day">
+                        <option value="unlimited">{{ _('غير محدد') }}</option>
+                        <option value="2">{{ _('حصتان') }}</option>
+                        <option value="3">{{ _('3 حصص') }}</option>
+                        <option value="4">{{ _('4 حصص') }}</option>
+                    </select>
+                </label><br><br>
+
+                <label><strong>{{ _('قيد توالي القاعات الكبيرة:') }}</strong>
+                    <select id="consecutive-halls-rule">
+                        <option value="none">{{ _('لا يوجد منع (السماح بالتوالي)') }}</option>
+                        </select>
+                </label><br><br>
+
+                <label><strong>{{ _('الحد الأقصى لتتابع المحاضرات للمستوى:') }}</strong>
+                    <select id="max-consecutive-lectures-limit">
+                        <option value="1">{{ _('منع التوالي تماماً (حد أقصى محاضرة واحدة)') }}</option>
+                        <option value="2" selected>{{ _('حد أقصى محاضرتين متتاليتين') }}</option>
+                        <option value="3">{{ _('حد أقصى 3 محاضرات متتالية') }}</option>
+                        <option value="4">{{ _('حد أقصى 4 محاضرات متتالية') }}</option>
+                    </select>
+                </label><br><br>
+
+                <strong style="display: inline-block; margin-bottom: 12px;">{{ _('فترات الراحة (لن توضع فيها حصص):') }}</strong><br>
+                <label><input type="checkbox" id="rest-tue-pm"> {{ _('مساء الثلاثاء (آخر حصتين)') }}</label><br>
+                <label style="display: flex; align-items: center; gap: 10px; margin-bottom: 5px; margin-top: 4px;">
+                    <input type="checkbox" id="rest-last-day-pm" style="transform: scale(1.2);"> 
+                    {{ _('مساء آخر يوم:') }}
+                    <select id="rest-last-day-slots" style="padding: 3px 8px; border-radius: 4px; border: 1px solid #ccc; font-family: inherit;">
+                        <option value="1">{{ _('منع آخر حصة فقط') }}</option>
+                        <option value="2" selected>{{ _('منع آخر حصتين') }}</option>
+                    </select>
+                </label>
+            </div>
+
+            <div class="cond-section">
+                <h3>🏛️ {{ _('تخصيص المدرجات الدائمة (للمحاضرات)') }}</h3>
+                <div class="small-scroll-box" id="level-amphis-container"></div>
+            </div>
+        </div>
+
+        <div class="cond-section" style="margin-top: 25px; border-top: 2px solid #ecf0f1; padding-top: 20px;">
+            <h3 style="margin-bottom: 15px;">🚪 {{ _('تخصيص القاعات الدائمة للأعمال الموجهة (نظام الأجنحة)') }}</h3>
+            
+            <div style="margin-bottom: 20px; padding: 12px; background: #fdf2e9; border: 1px solid #e67e22; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                <label style="cursor:pointer; font-weight:bold; color:#d35400; display:flex; align-items:center; gap:8px; font-size:14px;">
+                    <input type="checkbox" id="global_exclusive_rooms" style="transform: scale(1.3);">
+                    🔒 {{ _('قفل جميع القاعات المختارة على مستوياتها فقط (إغلاق الأجنحة المشتركة أمام الغرباء)') }}
+                </label>
+            </div>
+
+            <!-- ✨ padding-inline-end بدلاً من padding-right -->
+            <div id="full-width-small-rooms-container" style="max-height: 250px; overflow-y: auto; padding-inline-end: 5px; border: 1px solid #ecf0f1; border-radius: 8px; background-color: #fcfcfc; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);"></div>
+        </div>
+
+        <div class="grid-container">
+            <div class="cond-section">
+                <h3>{{ _('العمل في "اليوم المُقيَّد" وآخر الحصص') }}</h3>
+                
+                <label style="display:block; margin-bottom: 10px; padding: 10px; background: #fff3cd; border-radius: 5px; border: 1px solid #ffe69c;">
+                    <strong>📆 {{ _('تحديد اليوم المُقيَّد:') }}</strong>
+                    <!-- ✨ margin-inline-end بدلاً من margin-right -->
+                    <select id="restricted-day-select" style="padding: 5px; border-radius: 4px; border: 1px solid #ccc; margin-inline-end: 10px;">
+                        </select>
+                </label>
+
+                <div class="small-scroll-box">
+                    <table class="overview-table" id="special-teachers-table" style="font-size:12px;">
+                        <thead><tr><th>{{ _('الأستاذ') }}</th><th>{{ _('السماح باليوم المقيد') }}</th><th>{{ _('منع آخر حصص') }}</th></tr></thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="cond-section">
+                <h3>{{ _('تشارك أيام العمل (اختياري)') }}</h3>
+                <strong>{{ _('إجبار التشارك:') }}</strong>
+                <div id="share-days-container"></div>
+                <button onclick="addPairRow('share-days-container')" style="font-size:11px;">➕ {{ _('إضافة زوج') }}</button>
+                <br><br>
+                <strong>{{ _('منع التشارك:') }}</strong>
+                <div id="noshare-days-container"></div>
+                <button onclick="addPairRow('noshare-days-container')" style="font-size:11px;">➕ {{ _('إضافة زوج') }}</button>
+            </div>
+        </div>
+
+        <div class="cond-section" style="background: #f4f9f4; border-color: #27ae60;">
+            <h3>{{ _('إعدادات خوارزمية التحسين (سد الفجوات)') }}</h3>
+            <p style="font-size:13px;">{{ _('تُنفذ بعد اكتمال التوزيع.') }}</p>
+            
+            <strong>{{ _('اختر الأساتذة لتطبيق التحسين عليهم:') }}</strong>
+            
+            <div style="margin-top: 10px; margin-bottom: 10px; display: flex; gap: 10px;">
+                <button type="button" onclick="toggleOptimizationTeachers(true)" style="background: #27ae60; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-family: inherit; font-size: 13px; font-weight: bold;">☑️ {{ _('تحديد الكل') }}</button>
+                <button type="button" onclick="toggleOptimizationTeachers(false)" style="background: #c0392b; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-family: inherit; font-size: 13px; font-weight: bold;">⬜ {{ _('إلغاء الكل') }}</button>
+            </div>
+
+            <div class="small-scroll-box" id="optimization-teachers" style="margin-bottom: 10px; display: flex; flex-wrap: wrap; gap: 10px;"></div>
+
+        </div>
+        {% if config.get('ENABLE_DOMINO_FEATURE') %}
+        <div class="cond-section" style="background: #fdfaf6; border-color: #8e44ad;">
+            <h3 style="color: #8e44ad;">🎲 {{ _('أساتذة التوزيع المرن (خوارزمية الدومينو)') }}</h3>
+            <p style="font-size:13px;">{{ _('اختر الأساتذة الذين سيتم توزيع جدولهم على 3 أيام مع ترك "حصة يتيمة" قابلة للضغط لاحقاً إلى يومين.') }}</p>
+            
+            <div style="margin-top: 10px; margin-bottom: 10px; display: flex; gap: 10px;">
+                <button type="button" onclick="toggleDominoTeachers(true)" style="background: #8e44ad; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-family: inherit; font-size: 13px; font-weight: bold;">☑️ {{ _('تحديد الكل') }}</button>
+                <button type="button" onclick="toggleDominoTeachers(false)" style="background: #c0392b; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-family: inherit; font-size: 13px; font-weight: bold;">⬜ {{ _('إلغاء الكل') }}</button>
+            </div>
+
+            <div class="small-scroll-box" id="domino-teachers-container" style="display: flex; flex-wrap: wrap; gap: 10px;"></div>
+        </div>
+        {% endif %}
+        <button onclick="saveAllConditions()" style="background:#27ae60; color:white; padding:10px 20px; border:none; border-radius:4px; cursor:pointer; font-weight:bold; margin-bottom:15px; width:100%;">💾 {{ _('حفظ جميع القيود') }}</button>
+    </section>
+
+    <section id="tab-6" class="tab-content">
+        <h2>{{ _('المرحلة 6: إنشاء الجداول الدراسية') }}</h2>
+        
+        <div class="gen-panel" style="background: #fff; padding: 20px; border-radius: 8px; border: 1px solid #ddd; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+            <h3 style="margin-top: 0;">{{ _('إعدادات خوارزمية التوزيع') }}</h3>
+            
+            <!-- ✨ margin-inline-start بدلاً من margin-left -->
+            <div style="margin: 15px 0; border: 1px dashed #28a745; padding: 15px; border-radius: 6px; background-color: #f0fff4;">
+                <label style="cursor: pointer; font-size: 16px; font-weight: bold; display: block; color: #2c3e50;">
+                    <input type="checkbox" id="strict-hierarchy-chk" checked style="transform: scale(1.2); margin-inline-start: 10px;">
+                    {{ _('تفعيل التسلسل الهرمي الصارم للأخطاء') }}
+                </label>
+                <small style="display: block; margin-top: 5px; color: #555; font-size: 13px;">
+                    {{ _('(عند تفعيله، يجب على الخوارزمية حل كل الأخطاء الصارمة أولاً قبل الالتفات للأخطاء المرنة).') }}
+                </small>
+            </div>
+
+            <strong>{{ _('اختر الخوارزميات المساعدة (التحسين):') }}</strong><br><br>
+            <div style="display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px;">
+
+                <div style="background: #f9f9f9; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                    <label style="cursor: pointer; font-weight: bold;">
+                        <input type="checkbox" class="algo-chk" value="lns" checked onchange="document.getElementById('lns-settings').style.display = this.checked ? 'block' : 'none'"> {{ _('البحث الجِوَاري الواسع (LNS)') }}
+                    </label>
+                    <!-- ✨ padding-inline-end بدلاً من padding-right -->
+                    <div id="lns-settings" style="margin-top: 10px; padding-inline-end: 25px;">
+                        <label>{{ _('التكرارات:') }} <input type="number" id="lns_iter" value="500" style="width: 70px; margin-inline-start:15px;"></label>
+                        <label>{{ _('نسبة التدمير (Ruin):') }} <input type="number" id="lns_ruin" value="20" style="width: 60px; margin-inline-start:15px;"> %</label>
+                        
+                        <label>{{ _('حد الركود للطفرة:') }} <input type="number" id="lns_stagnation" value="15" min="1" max="99" style="width: 60px; margin-inline-start:15px;" title="{{ _('النسبة المئوية من التكرارات قبل إحداث طفرة عشوائية') }}"> %</label>
+                    </div>
+                </div>
+
+                <div style="background: #f9f9f9; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                    <label style="cursor: pointer; font-weight: bold;">
+                        <input type="checkbox" class="algo-chk" value="vns" checked onchange="document.getElementById('vns-settings').style.display = this.checked ? 'block' : 'none'"> {{ _('البحث الجِوَاري المتغير (VNS)') }}
+                    </label>
+                    <div id="vns-settings" style="margin-top: 10px; padding-inline-end: 25px;">
+                        <label>{{ _('التكرارات:') }} <input type="number" id="vns_iter" value="300" style="width: 70px; margin-inline-start:15px;"></label>
+                        <label>{{ _('أقصى جوار (k):') }} <input type="number" id="vns_k" value="5" style="width: 60px; margin-inline-start:15px;"></label>
+                        <label>{{ _('حد الركود للطفرة:') }} <input type="number" id="vns_stagnation" value="15" min="1" max="99" style="width: 60px; margin-inline-start:15px;" title="{{ _('النسبة المئوية قبل إحداث طفرة عشوائية') }}"> %</label>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top: 15px; border-top: 1px solid #e2e8f0; padding-top: 15px; margin-bottom: 20px;">
+                <strong style="color: #c0392b; font-size: 14px;">🚀 {{ _('إعدادات الطفرة الموحدة (لجميع الخوارزميات):') }}</strong>
+                <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-top: 10px;">
+                    <label style="font-size: 13px;">
+                        {{ _('القوة الصارمة (لتفكيك الأخطاء):') }}
+                        <input type="number" id="mutation_hard_intensity" value="4" min="1" max="20" style="width:60px; padding: 3px;">
+                    </label>
+                    <label style="font-size: 13px;">
+                        {{ _('الاحتمالية المرنة (0.0 إلى 1.0):') }}
+                        <input type="number" id="mutation_soft_probability" value="0.5" step="0.1" min="0" max="1" style="width:60px; padding: 3px;">
+                    </label>
+                </div>
+            </div>
+
+            <button id="btn-start-gen" onclick="startGeneration()" style="display: block; width: 100%; background: #2980b9; color: white; padding: 15px; font-size: 18px; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; transition: 0.3s;">🚀 {{ _('بدء إنشاء الجداول الدراسية') }}</button>
+            
+            <button id="btn-stop-gen" onclick="stopGeneration()" style="display: none; width: 100%; background: #e74c3c; color: white; padding: 15px; font-size: 18px; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; transition: 0.3s; margin-top: 10px;">🛑 {{ _('إيقاف البحث') }}</button>
+
+        </div>
+        
+        <div id="live-log-container" style="display: none; margin-top: 20px;">
+            
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 15px;">
+                <button id="btn-force-mutation" onclick="triggerManualMutation()" title="{{ _('إحداث طفرة يدوية (انقر للتدخل الفوري)') }}" style="padding: 0; border: none; background: none; cursor: pointer; font-size: 22px; transition: transform 0.2s, opacity 0.2s; box-shadow: none; outline: none;">
+                    ⚡
+                </button>
+                <h3 style="margin: 0; color: #2c3e50;">📡 {{ _('المتابعة الحية لعمل الخوارزمية') }}</h3>
+            </div>
+            
+            <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                
+                <div style="flex: 1; min-width: 300px;">
+                    <!-- ✨ تعديل اتجاه ومحاذاة السجل المباشر ليكون ديناميكياً -->
+                    <pre id="log-output" dir="{{ 'ltr' if session.get('lang') == 'en' else 'rtl' }}" style="margin: 0; text-align: start; font-size: 14px; background-color: #111; color: #2ecc71; padding: 15px; border-radius: 8px; height: 350px; overflow-y: auto; white-space: pre-wrap; font-family: monospace; font-weight: bold; box-shadow: inset 0 0 10px rgba(0,0,0,0.8); border: 2px solid #333;"></pre>
+                </div>
+
+                <div style="flex: 1; min-width: 300px; background: #fff; padding: 15px; border-radius: 8px; border: 1px solid #ddd; box-shadow: 0 4px 10px rgba(0,0,0,0.05); display: flex; flex-direction: column;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 2px solid #ecf0f1; padding-bottom: 10px;">
+                        <h4 style="margin: 0; color: #2c3e50;">📊 {{ _('تحليل العقوبات المباشر') }}</h4>
+                        <button type="button" id="btn-toggle-chart" style="background: #3498db; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; transition: 0.3s;">
+                            🔄 {{ _('تبديل الشكل (أعمدة / شبكة)') }}
+                        </button>
+                    </div>
+                    <div style="flex-grow: 1; position: relative; width: 100%; height: 280px;">
+                        <canvas id="liveErrorChart"></canvas>
+                    </div>
+                </div>
+
+            </div>
+
+            <style>
+                .progress-bar-fill {
+                    width: 0%; 
+                    height: 30px; 
+                    background-color: #e74c3c; 
+                    text-align: center; 
+                    line-height: 30px; 
+                    color: white; 
+                    font-weight: bold; 
+                    font-size: 16px; 
+                    transition: width 0.4s ease, background-color 0.4s ease; 
+                    background-image: linear-gradient(45deg, rgba(255,255,255,0.15) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0.15) 75%, transparent 75%, transparent); 
+                    background-size: 40px 40px;
+                }
+            </style>
+            
+            <div id="progress-container" style="width: 100%; background-color: #e0e0e0; border-radius: 8px; margin-top: 15px; overflow: hidden; display: none; border: 1px solid #bdc3c7; box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);">
+                <div id="progress-bar" class="progress-bar-fill">
+                    0%
+                </div>
+            </div>
+        </div>
+        <div class="action-panel">
+            <h4>🛠️ {{ _('أدوات التحكم والتحسين المتقدمة') }}</h4>
+            
+            <div>
+                <style>
+                    .domino-slider {
+                        max-width: 0;
+                        opacity: 0;
+                        overflow: hidden;
+                        transition: max-width 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+                        display: flex;
+                    }
+                    .domino-slider.open {
+                        max-width: 300px;
+                        opacity: 1;
+                    }
+                    .domino-btn-action {
+                        border: none; color: white; padding: 0 15px; font-weight: bold; 
+                        cursor: pointer; font-size: 15px; white-space: nowrap; font-family: inherit;
+                    }
+                    .domino-btn-action:hover { filter: brightness(1.1); }
+                </style>
+
+                <div style="display: flex; gap: 10px; align-items: stretch; height: 55px; margin-bottom: 10px;">
+                    
+                    <button id="btn-refine" class="btn-magic" onclick="refineSchedule()" style="flex: 1; margin: 0; height: 100%; font-size: 16px;">
+                        ✨ {{ _('ضغط وتحسين جداول الأساتذة (سد الفجوات)') }}
+                    </button>
+
+                    {% if config.get('ENABLE_SURGICAL_FEATURE') %}
+                    <div style="display: flex; background: #ecf0f1; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                        
+                        <!-- ✨ margin-inline-start/end بدلاً من left/right -->
+                        <div id="surgical-actions-wrapper" class="domino-slider" style="flex-direction: row; align-items: center; gap: 8px;">
+                            <select id="surgical-teacher-select" style="padding: 5px; margin-inline-end: 10px; border-radius: 4px; border: 1px solid #bdc3c7; font-family: inherit; font-weight: bold; width: 140px; color: #2c3e50;">
+                                <option value="">{{ _('الأستاذ الهدف...') }}</option>
+                            </select>
+                            <input type="number" id="surgical-max-victims" value="4" min="1" max="10" style="width: 45px; padding: 5px; border-radius: 4px; border: 1px solid #bdc3c7; text-align: center;" title="{{ _('الحد الأقصى للضحايا') }}">
+                            <button id="btn-execute-surgical" onclick="executeSurgicalStrike()" class="domino-btn-action" style="background: #e74c3c; border-radius: 4px; padding: 5px 10px; margin-inline-start: 10px; font-size: 14px;">
+                                🚀 {{ _('تنفيذ') }}
+                            </button>
+                        </div>
+
+                        <button onclick="toggleSurgicalSlider()" style="background: #8e44ad; color: white; border: none; width: 60px; cursor: pointer; font-size: 26px; display: flex; align-items: center; justify-content: center; transition: 0.3s;" title="{{ _('المشرط الجراحي (لأستاذ واحد)') }}">
+                            🎯
+                        </button>
+                    </div>
+                    {% endif %}
+
+                     {% if config.get('ENABLE_DOMINO_FEATURE') %}
+                    <div style="display: flex; background: #ecf0f1; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                        
+                        <div id="domino-actions-wrapper" class="domino-slider">
+                            <button id="btn-activate-domino" onclick="activateDominoSchedules()" class="domino-btn-action" style="background: #27ae60;">
+                                🟢 {{ _('تفعيل') }}
+                            </button>
+                            <button id="btn-compress-domino" onclick="compressDominoSchedules()" class="domino-btn-action" style="background: #2980b9;">
+                                🔵 {{ _('تجميع') }}
+                            </button>
+                        </div>
+
+                        <button onclick="toggleDominoSlider()" style="background: #8e44ad; color: white; border: none; width: 60px; cursor: pointer; font-size: 26px; display: flex; align-items: center; justify-content: center; transition: 0.3s;" title="{{ _('أدوات الدومينو الجراحية') }}">
+                            🎲
+                        </button>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div style="margin-top: 15px; padding: 12px 15px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 13px;">
+                    <strong style="display: block; margin-bottom: 8px; color: #334155;">⚙️ {{ _('حدد عمق خوارزمية الضغط:') }}</strong>
+                    <div style="display: flex; flex-direction: column; gap: 8px; color: #475569;">
+                        
+                        <label style="cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                            <input type="radio" name="opt_level" value="simple_restricted"> 
+                            <span>🟢 <strong>{{ _('بسيط (مقيد بنفس اليوم):') }}</strong> {{ _('تقديم حصص الفترات الأخيرة لملء الشواغر في') }} <u>{{ _('نفس اليوم فقط') }}</u> {{ _('(الأكثر أماناً).') }}</span>
+                        </label>
+
+                        <label style="cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                            <input type="radio" name="opt_level" value="simple"> 
+                            <span>🟡 <strong>{{ _('بسيط (مفتوح):') }}</strong> {{ _('تقديم حصص الفترات الأخيرة لملء الشواغر ضمن') }} <u>{{ _('أي يوم عمل متاح') }}</u> {{ _('للأستاذ.') }}</span>
+                        </label>
+
+                        <label style="cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                            <input type="radio" name="opt_level" value="balanced" checked> 
+                            <span>🟠 <strong>{{ _('متوازن (موصى به):') }}</strong> {{ _('تقديم معظم الحصص لأبكر وقت ممكن (لا يقتصر على الفترات الأخيرة فقط).') }}</span>
+                        </label>
+
+                        <label style="cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                            <input type="radio" name="opt_level" value="deep"> 
+                            <span>🔴 <strong>{{ _('عميق (أبطأ):') }}</strong> {{ _('تفكيك جداول الأساتذة بالكامل وإعادة تركيبها للحصول على أفضل هيكل مناسب.') }}</span>
+                        </label>
+
+                        <label style="cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                            <input type="radio" name="opt_level" value="deep_balance"> 
+                            <span>🟣 <strong>{{ _('عميق (موازنة العبء):') }}</strong> {{ _('تفكيك الجداول وإعادة توزيعها لضمان التساوي والعدل في عدد الحصص اليومية للأستاذ.') }}</span>
+                        </label>
+
+                    </div>
+                </div>
+            </div>
+            
+            <div class="memory-container">
+                <div class="memory-group">
+                    <button class="btn-save" onclick="saveResult(1)">💾 {{ _('حفظ النتيجة 1') }}</button>
+                    <button id="btn-restore-1" class="btn-restore" onclick="restoreResult(1)" style="display: none;">📂 {{ _('استعادة 1') }}</button>
+                </div>
+                
+                <div class="memory-divider"></div>
+                
+                <div class="memory-group">
+                    <button class="btn-save" onclick="saveResult(2)">💾 {{ _('حفظ النتيجة 2') }}</button>
+                    <button id="btn-restore-2" class="btn-restore" onclick="restoreResult(2)" style="display: none;">📂 {{ _('استعادة 2') }}</button>
+                </div>
+            </div>
+        </div>
+        
+        <div id="schedule-results-container" style="display: none; margin-top: 20px;">
+            <div style="background: #f9f9f9; padding: 15px; border-radius: 8px; border: 1px solid #ddd; margin-bottom: 20px; text-align: center;">
+                <h3 style="margin-top: 0; color: #27ae60;">✅ {{ _('تمت عملية الجدولة بنجاح!') }}</h3>
+                <p>{{ _('اختر ما تريد تصديره أو استعرض جداول المستويات بالأسفل:') }}</p>
+                
+                <div style="margin: 15px auto; display: inline-flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 20px; background: #e8f4f8; padding: 10px 20px; border-radius: 6px; border: 1px solid #3498db;">
+                    <strong style="color: #2c3e50;">🌐 {{ _('لغة التصدير (Export Language):') }}</strong>
+                    
+                    <label style="cursor: pointer; font-weight: bold; color: #2980b9; display: flex; align-items: center; gap: 5px;">
+                        <input type="radio" name="export_lang" value="ar" checked style="transform: scale(1.2); margin: 0;">
+                        <span>{{ _('العربية') }}</span>
+                    </label>
+                    
+                    <label style="cursor: pointer; font-weight: bold; color: #27ae60; display: flex; align-items: center; gap: 5px; direction: ltr;">
+                        <input type="radio" name="export_lang" value="en" style="transform: scale(1.2); margin: 0;">
+                        <span>English</span>
+                    </label>
+                    
+                    <label style="cursor: pointer; font-weight: bold; color: #8e44ad; display: flex; align-items: center; gap: 5px; direction: ltr;">
+                        <input type="radio" name="export_lang" value="fr" style="transform: scale(1.2); margin: 0;">
+                        <span>Français</span>
+                    </label>
+                </div>
+
+                <!-- ✨ الحاوية الرئيسية للأزرار (عمودية) ✨ -->
+                <div style="display: flex; flex-direction: column; gap: 15px; margin-top: 15px; align-items: center; width: 100%;">
+                    
+                    <!-- 🟢 الصف الأول: 3 أزرار -->
+                    <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; width: 100%;">
+                        <button onclick="exportFiles('/api/export/word/all-levels', 'جداول_المستويات.docx')" style="flex: 1; min-width: 250px; background: #2980b9; color: white; padding: 12px 15px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 15px; transition: 0.3s; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">📄 {{ _('تصدير جداول المستويات (Word)') }}</button>
+                        
+                        <button onclick="exportFiles('/api/export/word/all-professors', 'جداول_الأساتذة.docx', true)" style="flex: 1; min-width: 250px; background: #2c3e50; color: white; padding: 12px 15px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 15px; transition: 0.3s; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">👨‍🏫 {{ _('تصدير جداول الأساتذة (Word)') }}</button>
+                        
+                        <button onclick="exportFiles('/api/export/free-rooms', 'القاعات_الفارغة.xlsx', false, true)" style="flex: 1; min-width: 250px; background: #27ae60; color: white; padding: 12px 15px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 15px; transition: 0.3s; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">🚪 {{ _('تصدير القاعات الفارغة (Excel)') }}</button>
+                    </div>
+
+                    <!-- 🟠 الصف الثاني: 3 أزرار -->
+                    <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; width: 100%;">
+                        <button onclick="exportFiles('/api/export/excel/rooms-schedule', 'جداول_القاعات.xlsx')" style="flex: 1; min-width: 250px; background: #e67e22; color: white; padding: 12px 15px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); transition: 0.3s;">🏫 {{ _('تصدير جداول القاعات (Excel)') }}</button>
+                        
+                        <button onclick="exportPedagogicalLoad()" style="flex: 1; min-width: 250px; background: #8e44ad; color: white; padding: 12px 15px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: 0.3s;">📊 {{ _('تصدير العبء البيداغوجي (Excel)') }}</button>
+
+                        <button onclick="exportComprehensiveList()" style="flex: 1; min-width: 250px; background: #34495e; color: white; padding: 12px 15px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); transition: 0.3s;">📋 {{ _('تصدير القائمة الشاملة (Excel)') }}</button>
+                    </div>
+                    
+                </div>
+            </div>
+            
+            <div id="rendered-tables" style="background: #fff; padding: 15px; border: 1px solid #ddd; border-radius: 8px;"></div>
+        </div>
+    </section>
+
+    <section id="tab-7" class="tab-content">
+        <h2>{{ _('المرحلة 7: غرفة التحكم المركزية (الربط والنشر)') }}</h2>
+        <p style="font-size: 14px; color: #7f8c8d; margin-bottom: 20px;">{{ _('هذه المساحة مخصصة لربط الموقع بحاسوبك الشخصي. اسحب الرغبات للمعالجة، أو ارفع البيانات والجداول النهائية.') }}</p>
+        
+        <div style="background: #fdfefe; padding: 15px; border-radius: 8px; border: 1px solid #ddd; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+            <button onclick="window.location.href='/logout'" style="background: #34495e; color: white; padding: 10px 20px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 15px; font-family: inherit; transition: 0.3s;">🚪 {{ _('تسجيل الخروج من حساب المدير') }}</button>
+            
+            <button type="button" onclick="forceResetServer()" style="background-color: #8B4513; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 15px; font-family: inherit; box-shadow: 0 4px 6px rgba(139, 69, 19, 0.2); transition: 0.3s;" title="{{ _('إيقاف إجباري لأي توزيع قيد التشغيل وإعادة تهيئة الخادم') }}">
+                🔄 {{ _('إعادة تهيئة الخادم (طوارئ)') }}
+            </button>
+        </div>
+
+        <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+            
+            <div style="flex: 1; min-width: 300px; background: #fffdf5; padding: 25px; border-radius: 8px; border: 2px solid #f1c40f; text-align: start; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+                <h3 style="margin-top: 0; color: #d35400; border-bottom: 2px solid #f1c40f; padding-bottom: 10px;">🔄 {{ _('الخطوة 1: إدارة قاعدة البيانات الشاملة (.json)') }}</h3>
+                
+                <div style="margin-bottom: 15px;">
+                    <strong style="display: block; color: #2c3e50; margin-bottom: 5px;">📥 {{ _('تحميل البيانات من الموقع (لسحب الرغبات):') }}</strong>
+                    <a href="/api/backup/export" style="display: block; text-align: center; background: #f39c12; color: white; padding: 10px; text-decoration: none; border-radius: 4px; font-weight: bold; font-size: 14px; transition: 0.3s;">{{ _('تحميل نسخة احتياطية للقسم (.json)') }}</a>
+                </div>
+                
+                <div style="padding-top: 15px; border-top: 1px dashed #f1c40f; margin-bottom: 15px;">
+                    <strong style="display: block; color: #2c3e50; margin-bottom: 5px;">🔒 {{ _('التحكم في استقبال الرغبات:') }}</strong>
+                    <button id="btn-toggle-lock" onclick="toggleRequestsLock()" style="width: 100%; background: #95a5a6; color: white; padding: 10px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-family: inherit; font-size: 14px; transition: 0.3s;">⏳ {{ _('جاري التحقق من الحالة...') }}</button>
+                </div>
+
+                <div style="padding-top: 15px; border-top: 1px dashed #f1c40f; margin-bottom: 15px;">
+                    <strong style="display: block; color: #2c3e50; margin-bottom: 5px;">📤 {{ _('رفع البيانات إلى الموقع (للتهيئة الأولية):') }}</strong>
+                    <p style="font-size: 11px; color: #e74c3c; margin-bottom: 8px;">{{ _('* تحذير: هذا سيمسح البيانات الحالية ويستبدلها بالملف المرفوع!') }}</p>
+                    <input type="file" id="backup-file" accept=".json" style="display: block; margin-bottom: 10px; padding: 6px; border: 1px dashed #d35400; width: 90%; background: #fff; border-radius: 4px;">
+                    <button onclick="restoreBackup()" style="width: 100%; background: #d35400; color: white; padding: 10px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-family: inherit; font-size: 14px;">{{ _('رفع واستعادة البيانات (.json)') }}</button>
+                </div>
+
+                <div style="padding-top: 15px; border-top: 1px dashed #f1c40f;">
+                    <button onclick="deleteAllRequests()" style="width: 100%; background: #e74c3c; color: white; padding: 8px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-family: inherit; font-size: 13px;">🗑️ {{ _('مسح جميع الرغبات الحالية (للتحضير لسداسي جديد)') }}</button>
+                </div>
+            </div>
+
+            <div style="flex: 1; min-width: 300px; background: #f4fdf8; padding: 25px; border-radius: 8px; border: 2px solid #2ecc71; text-align: start; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+                <h3 style="margin-top: 0; color: #27ae60; border-bottom: 2px solid #2ecc71; padding-bottom: 10px;">⬆️ {{ _('الخطوة 2: التصدير، الاستيراد والنشر') }}</h3>
+                
+                <!-- 🟢 الجزء الجديد: تصدير الجداول -->
+                <div style="margin-bottom: 20px;">
+                    <strong style="display: block; color: #2c3e50; margin-bottom: 5px;">⬇️ {{ _('تصدير الجداول الحالية (للتعديل):') }}</strong>
+                    <p style="font-size: 12px; color: #555; margin-bottom: 10px;">{{ _('اختر لغة التصدير، ثم قم بتحميل الجداول لتعديلها ببرنامج الإكسل.') }}</p>
+                    <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                        <select id="quick-export-lang" style="flex: 1; padding: 10px; border-radius: 4px; border: 1px solid #2ecc71; font-weight: bold; cursor: pointer; background: #fff; font-family: inherit;">
+                            <option value="ar">{{ _('العربية (Arabic)') }}</option>
+                            <option value="en">{{ _('الإنجليزية (English)') }}</option>
+                        </select>
+                        <button onclick="exportToExcel()" style="flex: 2; background: #207245; color: white; padding: 12px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 14px; font-family: inherit; transition: 0.3s;">⬇️ {{ _('تصدير الجداول (Excel)') }}</button>
+                    </div>
+                </div>
+
+                <!-- الجزء القديم: استيراد الجداول (الشبكية) -->
+                <div style="padding-top: 15px; border-top: 1px dashed #2ecc71; margin-bottom: 15px;">
+                    <strong style="display: block; color: #2c3e50; margin-bottom: 5px;">📂 {{ _('استيراد الجداول المعدلة:') }}</strong>
+                    <p style="font-size: 12px; color: #555; margin-bottom: 10px;">{{ _('ارفع ملف الإكسل (Excel) الذي قمت بتعديله لدمجه في الموقع مجدداً.') }}</p>
+                    <input type="file" id="excel-import-file" accept=".xlsx" style="display: block; margin-bottom: 10px; padding: 8px; border: 1px dashed #27ae60; width: 90%; background: #fff; border-radius: 4px;">
+                    <button onclick="importExcelSchedule()" style="width: 100%; background: #27ae60; color: white; padding: 12px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 15px; font-family: inherit; transition: 0.3s;">{{ _('استيراد الجداول (Excel)') }}</button>
+                </div>
+
+                <!-- ✨ الجزء الجديد: استيراد القائمة الشاملة (المسطحة) ✨ -->
+                <div style="padding-top: 15px; border-top: 1px dashed #16a085; margin-bottom: 20px;">
+                    <strong style="display: block; color: #2c3e50; margin-bottom: 5px;">📋 {{ _('استيراد القائمة الشاملة (للهندسة العكسية):') }}</strong>
+                    <p style="font-size: 12px; color: #555; margin-bottom: 10px;">{{ _('ارفع ملف "القائمة الشاملة" المُعدل ليتم قراءته وإعادة بناء الجداول الشبكية آلياً.') }}</p>
+                    <input type="file" id="comprehensive-import-file" accept=".xlsx" style="display: block; margin-bottom: 10px; padding: 8px; border: 1px dashed #16a085; width: 90%; background: #fff; border-radius: 4px;">
+                    <button id="btn-import-comp" onclick="importComprehensiveSchedule()" style="width: 100%; background: #16a085; color: white; padding: 12px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 15px; font-family: inherit; transition: 0.3s; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">{{ _('استيراد القائمة الشاملة (Excel)') }}</button>
+                </div>
+
+                <div style="padding-top: 15px; border-top: 1px dashed #2ecc71; display: flex; gap: 10px;">
+                    <div style="flex: 1;">
+                        <strong style="display: block; color: #2c3e50; margin-bottom: 5px;">{{ _('إظهار الجداول:') }}</strong>
+                        <button onclick="publishSchedule()" style="width: 100%; background: #3498db; color: white; padding: 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-family: inherit; transition: 0.3s;">📢 {{ _('إرسال للأساتذة') }}</button>
+                    </div>
+                    <div style="flex: 1;">
+                        <strong style="display: block; color: #2c3e50; margin-bottom: 5px;">{{ _('إخفاء الجداول:') }}</strong>
+                        <button onclick="unpublishSchedule()" style="width: 100%; background: #7f8c8d; color: white; padding: 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-family: inherit; transition: 0.3s;">🔕 {{ _('سحب الجداول') }}</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div style="margin-top: 30px; padding: 25px; border: 2px dashed #e74c3c; border-radius: 8px; background-color: #fdf2f2; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.02);">
+            <h3 style="color: #c0392b; margin-top: 0; margin-bottom: 10px;">⚠️ {{ _('منطقة الحذر') }}</h3>
+            <p style="color: #7f8c8d; font-size: 14px; margin-bottom: 20px;">{{ _('استخدم هذا الزر فقط إذا أردت مسح كل الجداول، المواد، الرغبات، والأساتذة لبدء موسم جامعي جديد من الصفر.') }}</p>
+            <button onclick="factoryReset()" style="background: #c0392b; color: white; padding: 12px 30px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 16px; font-family: inherit; transition: 0.3s; box-shadow: 0 4px 10px rgba(192, 57, 43, 0.2);">⚠️ {{ _('ضبط المصنع (مسح شامل)') }}</button>
+        </div>
+    </section>
+
+    <!-- ✨ direction: ديناميكية -->
+    <div id="account-modal" class="modal-overlay" style="display: none; position: fixed; top: 0; inset-inline-start: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; justify-content: center; align-items: center;">
+        <div class="modal-content" dir="{{ 'ltr' if session.get('lang') == 'en' else 'rtl' }}" style="background: white; padding: 20px; border-radius: 8px; width: 400px; max-width: 90%; box-shadow: 0 4px 20px rgba(0,0,0,0.2);">
+            <h3 id="account-modal-title" style="margin-top: 0; color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px;">🔑 {{ _('إعداد الحساب') }}</h3>
+            <input type="hidden" id="acc-teacher-id">
+            
+            <div style="margin-bottom: 15px; margin-top: 15px;">
+                <label style="font-weight: bold; color: #555;">{{ _('اسم المستخدم (للدخول):') }}</label>
+                <input type="text" id="acc-username" style="width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 4px; font-family: inherit; box-sizing: border-box;" placeholder="{{ _('مثال: ahmed_ali') }}">
+            </div>
+            <div style="margin-bottom: 20px;">
+                <label style="font-weight: bold; color: #555;">{{ _('كلمة المرور:') }}</label>
+                <input type="text" id="acc-password" style="width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 4px; font-family: inherit; box-sizing: border-box;" placeholder="{{ _('اكتب كلمة مرور جديدة...') }}">
+            </div>
+            
+            <div style="display: flex; gap: 10px;">
+                <button onclick="document.getElementById('account-modal').style.display='none'" style="padding: 10px; flex: 1; background: #e74c3c; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">{{ _('إلغاء') }}</button>
+                <button onclick="saveTeacherAccount()" style="padding: 10px; flex: 1; background: #27ae60; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">{{ _('حفظ الحساب') }}</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ✨ direction: ديناميكية -->
+    <div id="requests-modal" style="display: none; position: fixed; top: 0; inset-inline-start: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 2000; justify-content: center; align-items: center;">
+        <div dir="{{ 'ltr' if session.get('lang') == 'en' else 'rtl' }}" style="background: white; padding: 25px; border-radius: 8px; width: 900px; max-width: 95%; max-height: 85vh; overflow-y: auto; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+            
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e67e22; padding-bottom: 10px; margin-bottom: 15px;">
+                <h2 style="margin: 0; color: #2c3e50;">📥 {{ _('إدارة رغبات الأساتذة') }}</h2>
+                <div style="display: flex; gap: 15px;">
+                    <button onclick="bulkApproveRequests()" style="background: #27ae60; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">⚡ {{ _('اعتماد الطلبات (الجديدة) آلياً') }}</button>
+                    <!-- ✨ margin-inline-end بدلاً من margin-right -->
+                    <button onclick="deleteAllRequests()" style="background: #c0392b; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold; font-family: inherit; font-size: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-inline-end: 10px;">🗑️ {{ _('مسح شامل لكل الرغبات') }}</button>
+                    <button onclick="document.getElementById('requests-modal').style.display = 'none'" style="background: none; border: none; font-size: 20px; cursor: pointer; color: #7f8c8d;">✖</button>
+                </div>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #ddd; padding-bottom: 10px;">
+                <div style="display: flex; gap: 10px;">
+                    <button onclick="showRequestTab('requests')" id="btn-tab-reqs" style="background: #e67e22; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; font-family: inherit;">📋 {{ _('قائمة الرغبات') }}</button>
+                    <button onclick="showRequestTab('report')" id="btn-tab-rep" style="background: #ecf0f1; color: #2c3e50; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; font-family: inherit;">📊 {{ _('تقرير التضاربات المحفوظ') }}</button>
+                    <button onclick="showRequestTab('visibility')" id="btn-tab-vis" style="background: #ecf0f1; color: #2c3e50; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; font-family: inherit;">👁️ {{ _('صلاحيات رؤية المواد') }}</button>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button id="btn-export-reqs" onclick="window.location.href='/api/admin/export_requests_excel'" style="background: #207245; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; font-family: inherit; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">⬇️ {{ _('تصدير الرغبات (Excel)') }}</button>
+                    <button id="btn-export-rep" onclick="window.location.href='/api/admin/export_report_excel'" style="background: #207245; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; font-family: inherit; display: none; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">⬇️ {{ _('تصدير التقرير (Excel)') }}</button>
+                </div>
+            </div>
+            
+            <div id="requests-container"></div>
+
+            <div id="bulk-report-container" style="display: none; background: #fffdf5; border: 1px solid #ffeeba; border-radius: 8px; padding: 15px; margin-bottom: 20px;">
+                <h3 style="margin-top: 0; color: #856404;">📊 {{ _('التضاربات المسجلة آلياً') }}</h3>
+                <p style="font-size: 13px; color: #856404; margin-bottom: 10px;">{{ _('هذا السجل يحتفظ بالمواد التي طلبها أساتذة ولم يحصلوا عليها لأنها حُجزت مسبقاً:') }}</p>
+                <button onclick="clearReport()" style="margin-bottom:10px; background: #e74c3c; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-family: inherit; font-size: 12px;">🗑️ {{ _('مسح التقرير') }}</button>
+                <table style="width: 100%; border-collapse: collapse; font-size: 14px; text-align: start;" id="bulk-report-table">
+                    <thead>
+                        <tr style="background: #ffe8a1; color: #856404;">
+                            <th style="padding: 8px; border: 1px solid #f5d67b; text-align: start;">{{ _('المادة المطلوبة') }}</th>
+                            <th style="padding: 8px; border: 1px solid #f5d67b; text-align: start;">{{ _('طُلبَت من طرف') }}</th>
+                            <th style="padding: 8px; border: 1px solid #f5d67b; text-align: start;">{{ _('تم إسنادها مسبقاً إلى') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <div id="visibility-container" style="display: none; background: #fdfefe; border: 1px solid #ddd; border-radius: 8px; padding: 20px;">
+                <h3 style="margin-top: 0; color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 8px; margin-bottom: 15px;">👁️ {{ _('التحكم في إظهار أسماء المواد للأساتذة') }}</h3>
+                <p style="font-size: 13px; color: #7f8c8d; margin-bottom: 20px;">{{ _('الأساتذة المحددون سيتمكنون من استعراض قائمة بأسماء المواد المسندة إليهم داخل بوابتهم (تحت العداد) فورا وقبل صدور الجدول النهائي.') }}</p>
+                
+                <div style="background: #e8f4f8; padding: 12px; border-radius: 6px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; border: 1px solid #bce1f6;">
+                    <input type="checkbox" id="toggle-all-visibility" onchange="toggleAllTeachersVisibility(this)" style="width: 18px; height: 18px; cursor: pointer;">
+                    <label for="toggle-all-visibility" style="font-weight: bold; cursor: pointer; color: #2980b9; font-size: 15px;">☑️ {{ _('تفعيل رؤية أسماء المواد لجميع الأساتذة دفعة واحدة') }}</label>
+                </div>
+
+                <div id="teachers-visibility-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; max-height: 40vh; overflow-y: auto; padding: 5px;">
+                    </div>
+            </div>
+
+        </div>
+    </div>
+
+    
+
+    <script>
+        function showRequestTab(tab) {
+            document.getElementById('requests-container').style.display = tab === 'requests' ? 'block' : 'none';
+            document.getElementById('bulk-report-container').style.display = tab === 'report' ? 'block' : 'none';
+            document.getElementById('visibility-container').style.display = tab === 'visibility' ? 'block' : 'none';
+            
+            document.getElementById('btn-tab-reqs').style.background = tab === 'requests' ? '#e67e22' : '#ecf0f1';
+            document.getElementById('btn-tab-reqs').style.color = tab === 'requests' ? 'white' : '#2c3e50';
+            
+            document.getElementById('btn-tab-rep').style.background = tab === 'report' ? '#e67e22' : '#ecf0f1';
+            document.getElementById('btn-tab-rep').style.color = tab === 'report' ? 'white' : '#2c3e50';
+
+            document.getElementById('btn-tab-vis').style.background = tab === 'visibility' ? '#e67e22' : '#ecf0f1';
+            document.getElementById('btn-tab-vis').style.color = tab === 'visibility' ? 'white' : '#2c3e50';
+
+            const exportReqsBtn = document.getElementById('btn-export-reqs');
+            const exportRepBtn = document.getElementById('btn-export-rep');
+            
+            if (exportReqsBtn && exportRepBtn) {
+                exportReqsBtn.style.display = tab === 'requests' ? 'block' : 'none';
+                exportRepBtn.style.display = tab === 'report' ? 'block' : 'none';
+            }
+
+            if (tab === 'visibility') {
+                fetchTeachersVisibility();
+            }
+        }
+
+        function openRequestsModal() {
+            document.getElementById('requests-modal').style.display = 'flex';
+            showRequestTab('requests');
+            fetchAdminRequests();
+        }
+
+        function fetchAdminRequests() {
+            fetch('/api/admin/requests')
+            .then(res => res.json())
+            .then(data => {
+                const container = document.getElementById('requests-container');
+                
+                if(data.requests.length === 0) {
+                    container.innerHTML = `<div style="padding: 20px; text-align: center; color: #7f8c8d;">{{ _('لا توجد أي رغبات مسجلة حالياً.') }}</div>`;
+                } else {
+                    container.innerHTML = data.requests.map(req => {
+                        const isNew = req.status === 'قيد المراجعة';
+                        const cardStyle = isNew 
+                            ? 'background: #fffdf5; border: 2px solid #f39c12; box-shadow: 0 4px 10px rgba(243, 156, 18, 0.15);' 
+                            : 'background: #f9f9f9; border: 1px solid #ddd; opacity: 0.8;';
+                        const badgeTag = isNew 
+                            ? `<span style="background: #e74c3c; color: white; padding: 3px 8px; border-radius: 12px; font-size: 12px; margin-inline-end: 10px;">✨ {{ _('جديد / مُعدّل') }}</span>`
+                            : `<span style="background: #95a5a6; color: white; padding: 3px 8px; border-radius: 12px; font-size: 12px; margin-inline-end: 10px;">✅ {{ _('تمت معالجته مسبقاً') }}</span>`;
+
+                        return `
+                        <div style="padding: 15px; margin-bottom: 15px; border-radius: 8px; ${cardStyle} transition: 0.3s;">
+                            <h4 style="margin-top: 0; color: #2980b9; display: flex; align-items: center;">
+                                👨‍🏫 ${req.teacher_name} 
+                                ${badgeTag}
+                            </h4>
+                            <div style="margin-bottom: 10px;">
+                                <strong>{{ _('أيام العمل المطلوبة:') }}</strong> 
+                                <div style="display: flex; gap: 5px; flex-wrap: wrap; margin-top: 5px;">
+                                    ${req.days.map(d => `<span style="background: #e8f4f8; padding: 3px 8px; border-radius: 4px; font-size: 13px;">${d}</span>`).join('')}
+                                </div>
+                            </div>
+                            <div style="margin-bottom: 15px;">
+                                <strong>{{ _('المواد المطلوبة:') }}</strong>
+                                <div style="display: flex; gap: 5px; flex-wrap: wrap; margin-top: 5px;">
+                                    ${req.courses.map(c => `<span style="background: #fdf2e9; padding: 3px 8px; border-radius: 4px; font-size: 13px; border: 1px solid #fad7a1;">${c}</span>`).join('')}
+                                </div>
+                            </div>
+                            <div style="border-top: 1px solid #eee; padding-top: 10px; text-align: start;">
+                                <button onclick="rejectRequest(${req.teacher_id})" style="background: none; color: #e74c3c; border: 1px solid #e74c3c; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 13px;">🗑️ {{ _('مسح الرغبة') }}</button>
+                            </div>
+                        </div>
+                        `;
+                    }).join('');
+                }
+
+                const tbody = document.querySelector('#bulk-report-table tbody');
+                if(data.report && data.report.length > 0) {
+                    tbody.innerHTML = data.report.map(r => `
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #f5d67b; font-weight: bold;">${r.course_name}</td>
+                            <td style="padding: 8px; border: 1px solid #f5d67b; color: #c0392b;">${r.requested_by}</td>
+                            <td style="padding: 8px; border: 1px solid #f5d67b; color: #27ae60;">${r.assigned_to}</td>
+                        </tr>
+                    `).join('');
+                } else {
+                    tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; padding: 10px;">{{ _('لا توجد تضاربات مسجلة حتى الآن.') }}</td></tr>`;
+                }
+            });
+        }
+
+        function rejectRequest(teacherId) {
+            if(!confirm("{{ _('هل أنت متأكد من مسح هذه الرغبة نهائياً؟') }}")) return;
+            fetch(`/api/admin/requests/reject/${teacherId}`, {method: 'POST'})
+            .then(res => res.json()).then(data => { if(data.success) fetchAdminRequests(); });
+        }
+
+        function bulkApproveRequests() {
+            fetch('/api/admin/requests/bulk_approve', {method: 'POST'})
+            .then(res => res.json()).then(data => {
+                if(data.success) {
+                    fetchAdminRequests(); 
+                    if(typeof loadAssignmentsData === 'function') loadAssignmentsData();
+                    if(typeof initConditionsData === 'function') initConditionsData();
+                    
+                    if(data.report && data.report.length > 0) {
+                        alert("{{ _('تمت معالجة الطلبات الجديدة بنجاح! تم العثور على بعض التضاربات، يمكنك رؤيتها في تبويبة تقرير التضاربات.') }}");
+                        showRequestTab('report'); 
+                    } else {
+                        alert("{{ _('تمت معالجة الطلبات الجديدة بنجاح، ولم تُسجل أي تضاربات!') }}");
+                    }
+                } else alert("{{ _('خطأ: ') }}" + data.error);
+            });
+        }
+
+        function deleteAllRequests() {
+            if(!confirm("{{ _('⚠️ تحذير: هل أنت متأكد أنك تريد مسح جميع رغبات الأساتذة دفعة واحدة؟\\nسيؤدي هذا الإجراء إلى تصفير جميع الطلبات ولا يمكن التراجع عنه!') }}")) return;
+            
+            fetch('/api/admin/requests/delete_all', {method: 'POST'})
+            .then(res => res.json()).then(data => {
+                if(data.success) {
+                    alert("{{ _('تم مسح جميع رغبات الأساتذة بنجاح!') }}");
+                    fetchAdminRequests();
+                } else alert("{{ _('خطأ: ') }}" + data.error);
+            });
+        }
+
+        function clearReport() {
+            if(!confirm("{{ _('⚠️ هل أنت متأكد أنك تريد مسح سجل التضاربات بالكامل؟') }}")) return;
+            
+            fetch('/api/admin/report/clear', { method: 'POST' })
+            .then(res => res.json())
+            .then(data => {
+                if(data.success) {
+                    alert("{{ _('تم مسح سجل التضاربات بنجاح!') }}");
+                    
+                    const tbody = document.querySelector('#bulk-report-table tbody');
+                    if(tbody) {
+                        tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:#bdc3c7; padding:15px;">{{ _('لا توجد تضاربات مسجلة') }}</td></tr>`;
+                    }
+                } else {
+                    alert("{{ _('خطأ أثناء المسح: ') }}" + data.error);
+                }
+            }).catch(err => {
+                alert("{{ _('حدث خطأ في الاتصال أثناء محاولة مسح التقرير.') }}");
+            });
+        }
+
+        function fetchTeachersVisibility() {
+            fetch('/api/admin/teachers/visibility')
+            .then(res => res.json())
+            .then(teachers => {
+                const listContainer = document.getElementById('teachers-visibility-list');
+                if(!listContainer) return;
+                
+                let allChecked = teachers.length > 0;
+                
+                listContainer.innerHTML = teachers.map(t => {
+                    if(!t.show_assigned) allChecked = false;
+                    return `
+                        <div style="display: flex; align-items: center; gap: 12px; background: white; padding: 12px; border: 1px solid #e2e8f0; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.02); transition: 0.2s;" onmouseover="this.style.borderColor='#3498db'">
+                            <input type="checkbox" id="vis-chk-${t.id}" onchange="updateSingleTeacherVisibility(${t.id}, this.checked)" ${t.show_assigned ? 'checked' : ''} style="width: 16px; height: 16px; cursor: pointer;">
+                            <label for="vis-chk-${t.id}" style="cursor: pointer; font-size: 14px; color: #2d3748; font-weight: 500; user-select: none;">👨‍🏫 ${t.name}</label>
+                        </div>
+                    `;
+                }).join('');
+                
+                document.getElementById('toggle-all-visibility').checked = allChecked;
+            });
+        }
+
+        function updateSingleTeacherVisibility(teacherId, isChecked) {
+            fetch('/api/admin/teachers/visibility', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ teacher_ids: [teacherId], status: isChecked ? 1 : 0, all_teachers: false })
+            });
+        }
+
+        function toggleAllTeachersVisibility(checkbox) {
+            const status = checkbox.checked ? 1 : 0;
+            const chks = document.querySelectorAll('#teachers-visibility-list input[type="checkbox"]');
+            chks.forEach(c => c.checked = checkbox.checked);
+
+            fetch('/api/admin/teachers/visibility', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ status: status, all_teachers: true })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(!data.success) alert("{{ _('خطأ: ') }}" + data.error);
+            });
+        }
+
+        function factoryReset() {
+            if(!confirm("{{ _('⚠️ تحذير خطير جداً: هل أنت متأكد أنك تريد مسح جميع البيانات (الأساتذة، المواد، القاعات، الجداول) والعودة لنقطة الصفر؟\\n\\n(ملاحظة: لن يتم حذف حساب المدير).\\nلا يمكن التراجع عن هذا الإجراء!') }}")) return;
+            
+            fetch('/api/admin/factory_reset', { method: 'POST' })
+            .then(res => res.json())
+            .then(data => {
+                if(data.success) {
+                    alert("{{ _('تم مسح جميع البيانات بنجاح! سيتم تحديث الصفحة.') }}");
+                    window.location.href = window.location.pathname + '?v=' + new Date().getTime();
+                } else {
+                    alert("{{ _('خطأ: ') }}" + data.error);
+                }
+            })
+            .catch(err => alert("{{ _('حدث خطأ في الاتصال.') }}"));
+        }
+
+        function forceResetServer() {
+            if(confirm("{{ _('⚠️ تحذير: هل أنت متأكد أنك تريد إيقاف الخادم بالقوة وإعادة تهيئته؟\\n(استخدم هذا الزر فقط إذا علقت الخوارزمية أو انقطع الاتصال).') }}")) {
+                fetch('/api/force_reset', { method: 'POST' })
+                .then(res => res.json())
+                .then(data => {
+                    if(data.success) {
+                        alert("{{ _('تم إعادة تهيئة الخادم بنجاح. يمكنك الآن بدء توزيع جديد.') }}");
+                        const startBtn = document.getElementById('btn-start-gen');
+                        const stopBtn = document.getElementById('btn-stop-gen');
+                        if(startBtn) startBtn.style.display = 'block';
+                        if(stopBtn) stopBtn.style.display = 'none';
+                    } else {
+                        alert("{{ _('لم نتمكن من إعادة التهيئة: ') }}" + data.error);
+                    }
+                })
+                .catch(err => {
+                    alert("{{ _('الخادم لا يستجيب تماماً. يرجى إغلاق البرنامج كاملاً (الشاشة السوداء) وإعادة فتحه.') }}");
+                });
+            }
+        }
+
+        let isRequestsLocked = false;
+        
+        function fetchLockStatus() {
+            fetch('/api/admin/requests_lock')
+            .then(res => res.json())
+            .then(data => {
+                isRequestsLocked = data.locked;
+                updateLockButtonUI();
+            });
+        }
+
+        function updateLockButtonUI() {
+            const btn = document.getElementById('btn-toggle-lock');
+            if(!btn) return;
+            if(isRequestsLocked) {
+                btn.style.background = '#e74c3c'; 
+                btn.innerHTML = `🔒 {{ _('الرغبات مغلقة حالياً (انقر للفتح)') }}`;
+            } else {
+                btn.style.background = '#27ae60'; 
+                btn.innerHTML = `🔓 {{ _('الرغبات مفتوحة حالياً (انقر للإغلاق)') }}`;
+            }
+        }
+
+        function toggleRequestsLock() {
+            const newState = !isRequestsLocked;
+            const msg = newState 
+                ? "{{ _('هل أنت متأكد من إغلاق استقبال الرغبات؟ لن يتمكن الأساتذة من اختيار المواد أو تعديل طلباتهم.') }}" 
+                : "{{ _('هل أنت متأكد من فتح استقبال الرغبات للأساتذة مجدداً؟') }}";
+                
+            if(!confirm(msg)) return;
+
+            fetch('/api/admin/requests_lock', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({locked: newState})
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.success) {
+                    isRequestsLocked = data.locked;
+                    updateLockButtonUI();
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', fetchLockStatus);
+    </script>
+
+    <div id="nature-settings-modal" style="display: none; position: fixed; top: 0; inset-inline-start: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(3px);">
+        <div style="background: white; padding: 25px; border-radius: 10px; width: 320px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
+            <h3 style="margin-top: 0; color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px;">⚙️ {{ _('إعدادات الرموز') }}</h3>
+            <p style="font-size: 13px; color: #7f8c8d; margin-bottom: 15px;">{{ _('حدد الرمز الذي سيُضاف تلقائياً لكل مادة:') }}</p>
+
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                <label style="font-weight: bold; color: #2c3e50; font-size: 14px;">📘 {{ _('محاضرة:') }}</label>
+                <input type="text" id="symbol-lec" placeholder="{{ _('[مح]') }}" style="width: 80px; text-align: center; padding: 6px; border: 1px solid #bdc3c7; border-radius: 4px; font-weight: bold; font-family: inherit;">
+            </div>
+            
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                <label style="font-weight: bold; color: #2c3e50; font-size: 14px;">📗 {{ _('أعمال موجهة:') }}</label>
+                <input type="text" id="symbol-td" placeholder="{{ _('[أم]') }}" style="width: 80px; text-align: center; padding: 6px; border: 1px solid #bdc3c7; border-radius: 4px; font-weight: bold; font-family: inherit;">
+            </div>
+            
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
+                <label style="font-weight: bold; color: #2c3e50; font-size: 14px;">📕 {{ _('أعمال تطبيقية:') }}</label>
+                <input type="text" id="symbol-tp" placeholder="{{ _('[أت]') }}" style="width: 80px; text-align: center; padding: 6px; border: 1px solid #bdc3c7; border-radius: 4px; font-weight: bold; font-family: inherit;">
+            </div>
+
+            <div style="display: flex; gap: 10px;">
+                <button onclick="saveNatures()" style="flex: 1; background: #27ae60; color: white; border: none; padding: 10px; border-radius: 6px; cursor: pointer; font-weight: bold; font-family: inherit;">💾 {{ _('حفظ') }}</button>
+                <button onclick="closeNatureModal()" style="flex: 1; background: #e74c3c; color: white; border: none; padding: 10px; border-radius: 6px; cursor: pointer; font-weight: bold; font-family: inherit;">❌ {{ _('إلغاء') }}</button>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<!-- ✨ تحديد لغة واتجاه الصفحة ديناميكياً -->
+<html lang="{{ session.get('lang', 'ar') }}" dir="{{ 'ltr' if session.get('lang') in ['en', 'fr'] else 'rtl' }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>{{ _('تسجيل الدخول - موزع الجداول الذكي') }}</title>
+    <style>
+        body {
+            font-family: 'Tajawal', 'Cairo', sans-serif;
+            background-color: #f4f7f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 15px; 
+            box-sizing: border-box;
+        }
+        .login-container {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 350px;
+            text-align: center;
+            border-top: 5px solid #3498db;
+            box-sizing: border-box;
+        }
+        h2 { color: #2c3e50; margin-bottom: 25px; font-size: 24px; }
+        /* ✨ استخدام text-align: start بدلاً من right */
+        .input-group { margin-bottom: 20px; text-align: start; }
+        .input-group label { display: block; margin-bottom: 8px; color: #555; font-weight: bold; }
+        .input-group input {
+            width: 100%; 
+            padding: 12px 15px; 
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 16px;
+            font-family: inherit;
+            box-sizing: border-box; 
+            transition: border-color 0.3s;
+        }
+        .input-group input:focus {
+            border-color: #3498db;
+            outline: none;
+        }
+        .btn-login {
+            width: 100%;
+            padding: 14px; 
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .btn-login:hover { background: #2980b9; }
+        #error-msg { color: #e74c3c; margin-top: 15px; display: none; font-size: 14px; font-weight: bold; }
+        
+        @media (max-width: 400px) {
+            .login-container {
+                padding: 30px 20px;
+            }
+            h2 {
+                font-size: 22px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="login-container">
+    <h2>{{ _('مرحباً بك مجدداً 👋') }}</h2>
+    <div class="input-group">
+        <label>{{ _('اسم المستخدم:') }}</label>
+        <input type="text" id="username" placeholder="{{ _('أدخل اسم المستخدم...') }}">
+    </div>
+    <div class="input-group">
+        <label>{{ _('كلمة المرور:') }}</label>
+        <input type="password" id="password" placeholder="{{ _('أدخل كلمة المرور...') }}">
+    </div>
+    <button class="btn-login" onclick="attemptLogin()">{{ _('تسجيل الدخول') }}</button>
+    <div id="error-msg"></div>
+</div>
+
+<script>
+    document.addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') {
+            attemptLogin();
+        }
+    });
+
+    function attemptLogin() {
+        const user = document.getElementById('username').value;
+        const pass = document.getElementById('password').value;
+        const errorDiv = document.getElementById('error-msg');
+        
+        if(!user || !pass) {
+            errorDiv.innerText = "{{ _('يرجى إدخال اسم المستخدم وكلمة المرور.') }}";
+            errorDiv.style.display = 'block';
+            return;
+        }
+
+        const btn = document.querySelector('.btn-login');
+        const originalText = btn.innerText;
+        btn.innerText = "{{ _('⏳ جاري الدخول...') }}";
+        btn.disabled = true;
+
+        fetch('/login', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({username: user, password: pass})
+        })
+        .then(res => res.json())
+        .then(data => {
+            btn.innerText = originalText;
+            btn.disabled = false;
+            
+            if(data.success) {
+                if (data.role === 'super_admin') {
+                    window.location.href = '/super_admin';
+                } else if (data.role === 'teacher') {
+                    window.location.href = '/teacher';
+                } else {
+                    window.location.href = '/'; 
+                }
+            } else {
+                errorDiv.innerText = data.error;
+                errorDiv.style.display = 'block';
+            }
+        }).catch(err => {
+            btn.innerText = originalText;
+            btn.disabled = false;
+            errorDiv.innerText = "{{ _('حدث خطأ في الاتصال بالخادم.') }}";
+            errorDiv.style.display = 'block';
+        });
+    }
+</script>
+
+</body>
+</html>

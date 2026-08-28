@@ -1,0 +1,158 @@
+{% extends 'resit_exams/base.html' %}
+
+{% block content %}
+<!-- ✨ غلفنا المحتوى لسهولة التحديث الصامت ✨ -->
+<div id="phase7-wrapper">
+    <h2 class="text-center text-primary mb-4 border border-primary p-3 rounded bg-light">
+        {{ _('المرحلة 7: إدارة المخرجات والتواصل مع الأساتذة') }}
+    </h2>
+
+    {% if not has_schedule %}
+        <div class="alert alert-warning text-center fs-5 fw-bold shadow-sm">
+            {{ _('⚠️ لا يوجد جدول استدراكي حالياً! الرجاء العودة للمرحلة السادسة لتوليد الجدول أولاً.') }}
+        </div>
+    {% else %}
+
+        <div class="row g-4 mb-5">
+            <!-- قسم التصدير والاستيراد (Excel) -->
+            <div class="col-md-6">
+                <div class="card shadow-sm border-success h-100">
+                    <div class="card-header bg-success text-white fs-5 fw-bold text-center">
+                        {{ _('📊 التعديل اليدوي عبر الإكسل (Excel)') }}
+                    </div>
+                    <div class="card-body bg-light text-center">
+                        <p class="text-muted fw-bold">{{ _('إذا أردت تعديل حراس أو قاعات بشكل يدوي دقيق، قم بتحميل الجدول، عدّله في حاسوبك، ثم أعد رفعه هنا.') }}</p>
+                        
+                        <!-- زر التحميل يبقى رابطاً عادياً لأنه يحمل ملفاً ولا يرسل نموذجاً -->
+                        <a href="{{ url_for('resit_exams.export_excel') }}" class="btn btn-outline-success btn-lg w-100 fw-bold mb-4 shadow-sm">
+                            {{ _('📥 1. تحميل الجدول الحالي (Excel)') }}
+                        </a>
+                        
+                        <hr class="my-4 border-success">
+                        
+                        <!-- ✨ نموذج الرفع يعمل صمتاً عبر fetch ✨ -->
+                        <form action="{{ url_for('resit_exams.import_excel') }}" method="POST" enctype="multipart/form-data" onsubmit="silentSubmit(event, this)">
+                            <label class="form-label fw-bold text-success mb-2">{{ _('📤 2. رفع الجدول المُعدّل لاعتماده:') }}</label>
+                            <input class="form-control border-success mb-3" type="file" name="excel_file" accept=".xlsx" required>
+                            <!-- ✨ التعديل الأول ✨ -->
+                            <button type="submit" class="btn btn-success w-100 fw-bold shadow-sm" data-confirm="{{ _('تأكيد استبدال الجدول الحالي ببيانات ملف الإكسل المرفوع؟') }}" onclick="return confirm(this.getAttribute('data-confirm'));">
+                                {{ _('🔄 اعتماد التعديلات وتحديث النظام') }}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- قسم النشر وبوابة الأستاذ -->
+            <div class="col-md-6">
+                <div class="card shadow-sm border-primary h-100">
+                    <div class="card-header bg-primary text-white fs-5 fw-bold text-center">
+                        {{ _('👨‍🏫 إرسال الجدول للأساتذة (البوابة)') }}
+                    </div>
+                    <div class="card-body bg-light text-center d-flex flex-column justify-content-center">
+                        
+                        {% if is_published %}
+                            <div class="alert alert-success fw-bold p-4 mb-4 shadow-sm">
+                                <h3 class="mb-3">{{ _('🌐 الجدول منشور حالياً') }}</h3>
+                                <p class="mb-0 text-dark">{{ _('يستطيع الأساتذة الآن الدخول لحساباتهم لرؤية مهامهم الاستدراكية.') }}</p>
+                            </div>
+                            <!-- ✨ الإلغاء السريع الصامت ✨ -->
+                            <form action="{{ url_for('resit_exams.publish_resit') }}" method="POST" onsubmit="silentSubmit(event, this)">
+                                <input type="hidden" name="action" value="unpublish">
+                                <!-- ✨ التعديل الثاني ✨ -->
+                                <button type="submit" class="btn btn-danger btn-lg w-100 fw-bold shadow-sm" data-confirm="{{ _('هل أنت متأكد من سحب الجدول وإخفائه عن الأساتذة؟') }}" onclick="return confirm(this.getAttribute('data-confirm'));">
+                                    {{ _('🚫 سحب وإخفاء الجدول') }}
+                                </button>
+                            </form>
+                        {% else %}
+                            <div class="alert alert-secondary fw-bold p-4 mb-4 shadow-sm">
+                                <h3 class="mb-3">{{ _('🔒 الجدول مخفي حالياً') }}</h3>
+                                <p class="mb-0 text-dark">{{ _('الجدول محفوظ في النظام ولكنه لا يظهر للأساتذة في بوابتهم.') }}</p>
+                            </div>
+                            <!-- ✨ النشر السريع الصامت ✨ -->
+                            <form action="{{ url_for('resit_exams.publish_resit') }}" method="POST" onsubmit="silentSubmit(event, this)">
+                                <input type="hidden" name="action" value="publish">
+                                <!-- ✨ التعديل الثالث ✨ -->
+                                <button type="submit" class="btn btn-primary btn-lg w-100 fw-bold shadow-sm" data-confirm="{{ _('هل أنت متأكد من نشر الجدول وإرساله رسمياً لبوابة الأساتذة؟') }}" onclick="return confirm(this.getAttribute('data-confirm'));">
+                                    {{ _('🚀 إرسال ونشر الجدول للأساتذة') }}
+                                </button>
+                            </form>
+                        {% endif %}
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+    <div style="margin-bottom: 100px;"></div>
+</div> <!-- نهاية الحاوية -->
+
+<!-- ========================================== -->
+<!-- 🚀 المحرك المعماري الصامت (Fetch API) -->
+<!-- ========================================== -->
+<script>
+    async function silentSubmit(event, form) {
+        event.preventDefault(); // منع إعادة تحميل الصفحة
+
+        const submitBtn = form.querySelector('button[type="submit"]');
+        let originalText = '';
+        if (submitBtn) {
+            originalText = submitBtn.innerHTML;
+            // ✨ التعديل الرابع: استخدام Backtick ✨
+            submitBtn.innerHTML = `{{ _('⏳ جاري المعالجة...') }}`;
+            submitBtn.disabled = true;
+        }
+        document.body.style.cursor = 'wait';
+
+        try {
+            // FormData هنا ذكية جداً، فهي تلتقط ملف الـ Excel المرفق تلقائياً
+            const formData = new FormData(form);
+            const scrollY = window.scrollY;
+            
+            // سحب المسار الخاص بكل فورم (لأن مسار النشر يختلف عن مسار الاستيراد)
+            const actionUrl = form.getAttribute('action') || window.location.href;
+
+            // الإرسال الصامت
+            const response = await fetch(actionUrl, {
+                method: 'POST',
+                body: formData
+            });
+
+            // قراءة واقتطاع الـ HTML المحدث
+            const htmlText = await response.text();
+            const parser = new DOMParser();
+            const newDoc = parser.parseFromString(htmlText, 'text/html');
+
+            // تحديث التنبيهات (Flash Messages) لسحب رسائل النجاح أو الخطأ
+            const oldAlerts = document.querySelectorAll('.alert-dismissible');
+            oldAlerts.forEach(a => a.remove());
+            const newAlerts = newDoc.querySelectorAll('.alert-dismissible');
+            const alertContainer = document.querySelector('.container.mt-4');
+            if(alertContainer && newAlerts.length > 0) {
+                newAlerts.forEach(alertEl => {
+                    alertContainer.insertBefore(alertEl, alertContainer.firstChild);
+                });
+            }
+
+            // استبدال محتوى الشاشة بالبيانات المحدثة فوراً!
+            const newWrapper = newDoc.getElementById('phase7-wrapper');
+            if (newWrapper) {
+                document.getElementById('phase7-wrapper').innerHTML = newWrapper.innerHTML;
+            }
+
+            // استعادة موضع التمرير
+            window.scrollTo(0, scrollY);
+
+        } catch (error) {
+            // ✨ التعديل الخامس: استخدام Backtick ✨
+            alert(`{{ _('حدث خطأ أثناء الاتصال بالخادم.') }}`);
+            if (submitBtn) {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }
+        } finally {
+            document.body.style.cursor = 'default';
+        }
+    }
+</script>
+{% endblock %}

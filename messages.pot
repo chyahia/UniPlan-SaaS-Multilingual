@@ -1,0 +1,7540 @@
+# Translations template for PROJECT.
+# Copyright (C) 2026 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-07-23 15:49+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: app/resit_data_manager.py:15
+msgid "حدث خطأ: لا يوجد قسم مسجل في الجلسة الحالية."
+msgstr ""
+
+#: app/resit_data_manager.py:19 app/templates/resit_exams/manage_data.html:70
+msgid "قاعة كبيرة"
+msgstr ""
+
+#: app/resit_data_manager.py:19 app/templates/resit_exams/manage_data.html:71
+msgid "قاعة متوسطة"
+msgstr ""
+
+#: app/resit_data_manager.py:19 app/templates/resit_exams/manage_data.html:72
+msgid "قاعة صغيرة"
+msgstr ""
+
+#: app/resit_exporter.py:13
+msgid "جداول الامتحانات الاستدراكية - حسب المستويات"
+msgstr ""
+
+#: app/resit_exporter.py:14
+msgid "جداول الامتحانات الاستدراكية - للأساتذة"
+msgstr ""
+
+#: app/resit_exporter.py:15
+msgid "المستوى:"
+msgstr ""
+
+#: app/resit_exporter.py:16
+msgid "الفترة الزمنية"
+msgstr ""
+
+#: app/resit_exporter.py:17 app/services/exams_algorithms.py:1158
+msgid "مادة غير معروفة"
+msgstr ""
+
+#: app/resit_exporter.py:18 app/resit_solver.py:108 app/resit_solver.py:170
+#: app/resit_solver.py:240 app/resit_solver.py:294 app/resit_solver.py:295
+#: app/resit_solver.py:342 app/resit_solver.py:423 app/resit_solver.py:481
+#: app/resit_solver.py:482 app/resit_solver.py:497
+#: app/routes/exams_routes/exams_assignments.py:28
+#: app/routes/exams_routes/exams_assignments.py:49
+#: app/routes/exams_routes/exams_basic_data.py:61
+#: app/routes/exams_routes/exams_export.py:29
+#: app/routes/exams_routes/exams_export.py:582
+#: app/routes/exams_routes/exams_export.py:900
+#: app/routes/super_admin_routes.py:28 app/services/exams_algorithms.py:1157
+#: app/templates/base.html:446 app/templates/base.html:499
+#: app/templates/index.html:552 app/templates/super_admin.html:159
+msgid "غير محدد"
+msgstr ""
+
+#: app/resit_exporter.py:19
+msgid "المادة:"
+msgstr ""
+
+#: app/resit_exporter.py:20
+msgid "أستاذ المادة:"
+msgstr ""
+
+#: app/resit_exporter.py:21
+msgid "الحراسة:\n"
+msgstr ""
+
+#: app/resit_exporter.py:22
+msgid "المكان:"
+msgstr ""
+
+#: app/resit_exporter.py:23 app/routes/resit_exams_routes.py:958
+#: app/routes/resit_exams_routes.py:1064
+msgid "بدون حراس"
+msgstr ""
+
+#: app/resit_exporter.py:24
+msgid "الأستاذ(ة):"
+msgstr ""
+
+#: app/resit_exporter.py:25
+msgid "المواد المسندة:"
+msgstr ""
+
+#: app/resit_exporter.py:26
+msgid "بدون مادة"
+msgstr ""
+
+#: app/resit_exporter.py:27 app/routes/exams_routes/exams_export.py:32
+#: app/routes/resit_exams_routes.py:266 app/routes/resit_exams_routes.py:294
+#: app/routes/resit_exams_routes.py:358 app/templates/base.html:322
+#: app/templates/exams/exams_base.html:261 app/templates/index.html:404
+msgid "الأحد"
+msgstr ""
+
+#: app/resit_exporter.py:27 app/routes/resit_exams_routes.py:266
+#: app/routes/resit_exams_routes.py:294 app/routes/resit_exams_routes.py:358
+#: app/templates/base.html:323 app/templates/index.html:405
+msgid "الإثنين"
+msgstr ""
+
+#: app/resit_exporter.py:27 app/routes/exams_routes/exams_export.py:32
+#: app/routes/resit_exams_routes.py:266 app/routes/resit_exams_routes.py:294
+#: app/routes/resit_exams_routes.py:358 app/templates/base.html:324
+#: app/templates/exams/exams_base.html:263 app/templates/index.html:406
+msgid "الثلاثاء"
+msgstr ""
+
+#: app/resit_exporter.py:27 app/routes/exams_routes/exams_export.py:32
+#: app/routes/resit_exams_routes.py:266 app/routes/resit_exams_routes.py:295
+#: app/routes/resit_exams_routes.py:359 app/templates/base.html:325
+#: app/templates/exams/exams_base.html:264 app/templates/index.html:407
+msgid "الأربعاء"
+msgstr ""
+
+#: app/resit_exporter.py:27 app/routes/exams_routes/exams_export.py:32
+#: app/routes/resit_exams_routes.py:266 app/routes/resit_exams_routes.py:295
+#: app/routes/resit_exams_routes.py:359 app/templates/base.html:326
+#: app/templates/exams/exams_base.html:265 app/templates/index.html:408
+msgid "الخميس"
+msgstr ""
+
+#: app/resit_exporter.py:27 app/routes/exams_routes/exams_export.py:32
+#: app/routes/resit_exams_routes.py:266 app/routes/resit_exams_routes.py:295
+#: app/routes/resit_exams_routes.py:359 app/templates/base.html:327
+#: app/templates/exams/exams_base.html:266 app/templates/index.html:409
+msgid "الجمعة"
+msgstr ""
+
+#: app/resit_exporter.py:27 app/routes/exams_routes/exams_export.py:32
+#: app/routes/resit_exams_routes.py:266 app/routes/resit_exams_routes.py:295
+#: app/routes/resit_exams_routes.py:359 app/templates/base.html:321
+#: app/templates/exams/exams_base.html:267 app/templates/index.html:403
+msgid "السبت"
+msgstr ""
+
+#: app/resit_solver.py:51
+#, python-brace-format
+msgid ""
+"❌ [قيد صارم]: اجتماع '{inc_0}' مع '{inc_1}' في نفس الوقت ({day} - "
+"{time_val})."
+msgstr ""
+
+#: app/resit_solver.py:75
+#, python-brace-format
+msgid "⚠️ [الأولوية - تتابع]: الأستاذ '{t}' تفرقت مواده في أيام غير متتالية."
+msgstr ""
+
+#: app/resit_solver.py:77
+#, python-brace-format
+msgid ""
+"⚠️ [الأولوية - انفصال]: الأستاذ '{t}' اجتمعت مواده في أيام متتالية (طلب "
+"انفصال)."
+msgstr ""
+
+#: app/resit_solver.py:79
+#, python-brace-format
+msgid "⚠️ [تجميع الأيام - مرن]: الأستاذ '{t}' تفرقت مواده على {days_len} أيام."
+msgstr ""
+
+#: app/resit_solver.py:87
+#, python-brace-format
+msgid "⚠️ [المرافقة]: الأستاذ '{t1}' والأستاذ '{t2}' لم يجمعهما أي يوم مشترك."
+msgstr ""
+
+#: app/resit_solver.py:93
+#, python-brace-format
+msgid "⚠️ [الانفصال]: الأستاذ '{t1}' والأستاذ '{t2}' اشتركا في يوم ({shared})."
+msgstr ""
+
+#: app/resit_solver.py:98
+#, python-brace-format
+msgid ""
+"⚠️ [الحصة الأولى]: الأستاذ '{t}' تمت برمجته في الحصة الأولى من يوم "
+"({days_str})."
+msgstr ""
+
+#: app/resit_solver.py:120
+msgid "قاعة مدمجة"
+msgstr ""
+
+#: app/resit_solver.py:293 app/resit_solver.py:480
+msgid "قاعة غير محددة"
+msgstr ""
+
+#: app/resit_solver.py:554
+#, python-brace-format
+msgid ""
+"❌ المادة '{s_name}' ({s_level}): لم تُبرمج! كل الأوقات المتاحة تسبب "
+"تعارضاً."
+msgstr ""
+
+#: app/routes/admin_requests.py:14 app/routes/admin_requests.py:44
+#: app/routes/admin_requests.py:86 app/routes/admin_requests.py:95
+#: app/routes/admin_requests.py:176 app/routes/admin_requests.py:197
+#: app/routes/admin_requests.py:212 app/routes/admin_requests.py:225
+#: app/routes/admin_requests.py:242 app/routes/admin_requests.py:295
+#: app/routes/admin_requests.py:337 app/routes/admin_requests.py:346
+#: app/routes/admin_requests.py:365 app/routes/auth.py:77 app/routes/auth.py:89
+#: app/routes/auth.py:122 app/routes/backup.py:72
+#: app/routes/exams_routes/exams_assignments.py:14
+#: app/routes/exams_routes/exams_assignments.py:41
+#: app/routes/exams_routes/exams_backup.py:17
+#: app/routes/exams_routes/exams_backup.py:55
+#: app/routes/exams_routes/exams_backup.py:134
+#: app/routes/exams_routes/exams_basic_data.py:181
+#: app/routes/exams_routes/exams_conditions.py:14
+#: app/routes/exams_routes/exams_conditions.py:27
+#: app/routes/exams_routes/exams_export.py:114
+#: app/routes/exams_routes/exams_export.py:213
+#: app/routes/exams_routes/exams_export.py:344
+#: app/routes/exams_routes/exams_export.py:478
+#: app/routes/exams_routes/exams_export.py:632
+#: app/routes/exams_routes/exams_export.py:698
+#: app/routes/exams_routes/exams_export.py:714
+#: app/routes/exams_routes/exams_export.py:842
+#: app/routes/exams_routes/exams_generation.py:155
+#: app/routes/exams_routes/exams_generation.py:190
+#: app/routes/exams_routes/exams_generation.py:223
+#: app/routes/exams_routes/exams_manage_data.py:14
+#: app/routes/exams_routes/exams_times.py:14
+#: app/routes/exams_routes/exams_times.py:27 app/routes/export.py:384
+#: app/routes/generation.py:1077 app/routes/generation.py:1109
+#: app/routes/super_admin_routes.py:48 app/routes/super_admin_routes.py:92
+#: app/routes/super_admin_routes.py:118 app/routes/super_admin_routes.py:143
+#: app/routes/super_admin_routes.py:176 app/routes/super_admin_routes.py:205
+#: app/routes/teacher_portal.py:16 app/routes/teacher_portal.py:207
+#: app/templates/hod_portal.html:231 app/templates/hod_portal.html:247
+#: app/templates/hod_portal.html:263
+msgid "غير مصرح"
+msgstr ""
+
+#: app/routes/admin_requests.py:26 app/routes/admin_requests.py:263
+msgid "مادة محذوفة"
+msgstr ""
+
+#: app/routes/admin_requests.py:29 app/routes/admin_requests.py:117
+#: app/routes/admin_requests.py:271
+msgid "مجهول"
+msgstr ""
+
+#: app/routes/admin_requests.py:50
+msgid "الطلب غير موجود"
+msgstr ""
+
+#: app/routes/admin_requests.py:81
+msgid "✅ تم اعتماد الرغبات وتطبيقها على المرحلتين 3 و 5 بنجاح!"
+msgstr ""
+
+#: app/routes/admin_requests.py:138
+msgid "أستاذ آخر"
+msgstr ""
+
+#: app/routes/admin_requests.py:144
+msgid "،"
+msgstr ""
+
+#: app/routes/admin_requests.py:192
+msgid "✅ تم نشر الجداول! ستظهر الآن فوراً في حسابات الأساتذة."
+msgstr ""
+
+#: app/routes/admin_requests.py:207
+msgid "🚫 تم سحب الجداول وإخفاؤها عن الأساتذة بنجاح."
+msgstr ""
+
+#: app/routes/admin_requests.py:217
+msgid "تم مسح جميع الرغبات بنجاح."
+msgstr ""
+
+#: app/routes/admin_requests.py:251 app/templates/index.html:1082
+msgid "قائمة الرغبات"
+msgstr ""
+
+#: app/routes/admin_requests.py:254
+msgid "اسم الأستاذ"
+msgstr ""
+
+#: app/routes/admin_requests.py:254
+msgid "حالة الطلب"
+msgstr ""
+
+#: app/routes/admin_requests.py:254
+msgid "أيام العمل المطلوبة"
+msgstr ""
+
+#: app/routes/admin_requests.py:254
+msgid "المواد المطلوبة"
+msgstr ""
+
+#: app/routes/admin_requests.py:266
+msgid "جديد / معدّل"
+msgstr ""
+
+#: app/routes/admin_requests.py:266
+msgid "تمت معالجته"
+msgstr ""
+
+#: app/routes/admin_requests.py:268
+msgid " ، "
+msgstr ""
+
+#: app/routes/admin_requests.py:303
+msgid "تقرير التضاربات"
+msgstr ""
+
+#: app/routes/admin_requests.py:306 app/templates/index.html:1101
+msgid "المادة المطلوبة"
+msgstr ""
+
+#: app/routes/admin_requests.py:306 app/templates/index.html:1102
+msgid "طُلبَت من طرف"
+msgstr ""
+
+#: app/routes/admin_requests.py:306 app/templates/index.html:1103
+msgid "تم إسنادها مسبقاً إلى"
+msgstr ""
+
+#: app/routes/admin_requests.py:360
+msgid "✅ تم تحديث صلاحيات الرؤية بنجاح!"
+msgstr ""
+
+#: app/routes/assignments.py:19 app/routes/basic_data.py:32
+#: app/routes/teacher_portal.py:32 app/routes/teacher_portal.py:60
+#: app/routes/teacher_portal.py:166
+msgid "، "
+msgstr ""
+
+#: app/routes/assignments.py:52
+msgid "بيانات مفقودة"
+msgstr ""
+
+#: app/routes/auth.py:28
+msgid "يرجى ملء جميع الحقول."
+msgstr ""
+
+#: app/routes/auth.py:36
+msgid "تم إعداد النظام وإنشاء المدير العام بنجاح!"
+msgstr ""
+
+#: app/routes/auth.py:64
+msgid "اسم المستخدم أو كلمة المرور غير صحيحة"
+msgstr ""
+
+#: app/routes/auth.py:98
+msgid "اسم المستخدم وكلمة المرور مطلوبان"
+msgstr ""
+
+#: app/routes/auth.py:103
+msgid "اسم المستخدم هذا محجوز لأستاذ آخر، جرب اسماً مختلفاً."
+msgstr ""
+
+#: app/routes/auth.py:116
+msgid "✅ تم حفظ بيانات دخول الأستاذ بنجاح!"
+msgstr ""
+
+#: app/routes/auth.py:129 app/templates/super_admin.html:216
+msgid "يرجى ملء جميع الحقول"
+msgstr ""
+
+#: app/routes/auth.py:133
+msgid "اسم المستخدم هذا محجوز لشخص آخر، يرجى اختيار اسم مختلف."
+msgstr ""
+
+#: app/routes/auth.py:142
+msgid "✅ تم تحديث بيانات الدخول بنجاح!"
+msgstr ""
+
+#: app/routes/backup.py:15 app/routes/backup.py:171
+#: app/routes/super_admin_routes.py:12
+msgid "غير مصرح بهذا الإجراء"
+msgstr ""
+
+#: app/routes/backup.py:63
+#, python-brace-format
+msgid "حدث خطأ أثناء التصدير: {error}"
+msgstr ""
+
+#: app/routes/backup.py:75
+msgid "لم يتم إرفاق ملف"
+msgstr ""
+
+#: app/routes/backup.py:79
+msgid "صيغة الملف غير صالحة. يجب رفع ملف بصيغة .json"
+msgstr ""
+
+#: app/routes/backup.py:157
+msgid "تم استعادة النسخة الاحتياطية بنجاح وتحديث النظام بالكامل!"
+msgstr ""
+
+#: app/routes/backup.py:162
+#, python-brace-format
+msgid "حدث خطأ أثناء الاستعادة. تأكد من سلامة الملف. التفاصيل: {error}"
+msgstr ""
+
+#: app/routes/backup.py:189
+msgid "تم مسح جميع بيانات القسم بنجاح. النظام الآن فارغ كلياً."
+msgstr ""
+
+#: app/routes/backup.py:194
+#, python-brace-format
+msgid "حدث خطأ أثناء ضبط المصنع: {error}"
+msgstr ""
+
+#: app/routes/basic_data.py:49
+msgid "قائمة الأساتذة فارغة"
+msgstr ""
+
+#: app/routes/basic_data.py:61
+#, python-brace-format
+msgid "تمت إضافة {count} أساتذة."
+msgstr ""
+
+#: app/routes/basic_data.py:68
+msgid "البيانات غير مكتملة"
+msgstr ""
+
+#: app/routes/basic_data.py:78
+#, python-brace-format
+msgid "تمت إضافة {count} قاعات."
+msgstr ""
+
+#: app/routes/basic_data.py:84
+msgid "قائمة المستويات فارغة"
+msgstr ""
+
+#: app/routes/basic_data.py:94
+#, python-brace-format
+msgid "تمت إضافة {count} مستويات."
+msgstr ""
+
+#: app/routes/basic_data.py:100
+msgid "لا توجد بيانات"
+msgstr ""
+
+#: app/routes/basic_data.py:123
+#, python-brace-format
+msgid "تمت إضافة {count} مقررات بنجاح."
+msgstr ""
+
+#: app/routes/export.py:147 app/routes/export.py:195 app/routes/export.py:243
+#: app/routes/export.py:394
+msgid "بيانات التصدير غير كاملة"
+msgstr ""
+
+#: app/routes/export.py:375
+#, python-brace-format
+msgid "فشل إنشاء الملف: {error}"
+msgstr ""
+
+#: app/routes/exams_routes/exams_generation.py:159 app/routes/generation.py:91
+msgid "عملية التوزيع تعمل حالياً في قسمك."
+msgstr ""
+
+#: app/routes/generation.py:123
+msgid "هناك عملية قيد التشغيل بالفعل"
+msgstr ""
+
+#: app/routes/generation.py:127
+msgid "الجدول غير موجود أو فارغ."
+msgstr ""
+
+#: app/routes/generation.py:135
+msgid "ميزة التدخل الجراحي غير مفعلة في هذه النسخة."
+msgstr ""
+
+#: app/routes/generation.py:142
+#, python-brace-format
+msgid "🔍 تم بدء عملية التحسين باختيار المستوى: [{level}]"
+msgstr ""
+
+#: app/routes/generation.py:223
+msgid "🛑 تم فرض إيقاف الخادم وإعادة التهيئة يدوياً بواسطة المستخدم."
+msgstr ""
+
+#: app/routes/generation.py:263 app/templates/base.html:348
+msgid "الوقت"
+msgstr ""
+
+#: app/routes/generation.py:318 app/routes/generation.py:1146
+msgid "لم يتم إرسال أي ملف"
+msgstr ""
+
+#: app/routes/generation.py:334 app/routes/generation.py:1164
+msgid "لم يتم العثور على هيكل الأيام والحصص. يرجى إعداده في المرحلة 4 أولاً."
+msgstr ""
+
+#: app/routes/generation.py:415
+#, python-brace-format
+msgid "فشل في قراءة ملف الإكسل. تأكد من عدم تغيير هيكل الملف. التفاصيل: {error}"
+msgstr ""
+
+#: app/routes/generation.py:433
+msgid "🚀 بدء جلب البيانات من قاعدة البيانات السحابية المعزولة..."
+msgstr ""
+
+#: app/routes/generation.py:462
+msgid "لم يتم إعداد هيكل الجدول (المرحلة 4)."
+msgstr ""
+
+#: app/routes/generation.py:621
+msgid "✅ تمت قراءة ومعالجة جميع البيانات والقيود بنجاح!"
+msgstr ""
+
+#: app/routes/generation.py:648
+msgid ""
+"\n"
+"🚀 جاري بناء الجدول المبدئي السريع (الطماعة)..."
+msgstr ""
+
+#: app/routes/generation.py:669
+#, python-brace-format
+msgid "✅ تم بناء الجدول المبدئي بنجاح! (باقي {count} أخطاء مرنة)"
+msgstr ""
+
+#: app/routes/generation.py:673
+#, python-brace-format
+msgid ""
+"\n"
+"=== 🌪️ بدء البحث الجواري الواسع (LNS) بتكرارات: {iterations} وتخريب: "
+"{ruin_factor}% ==="
+msgstr ""
+
+#: app/routes/generation.py:693
+#, python-brace-format
+msgid ""
+"\n"
+"=== 🌊 بدء البحث الجواري المتغير (VNS) بتكرارات: {iterations} وجوار أقصى: "
+"{k_max} ==="
+msgstr ""
+
+#: app/routes/generation.py:713
+msgid ""
+"\n"
+"🛑 تم إيقاف عملية التوزيع من قبل المستخدم."
+msgstr ""
+
+#: app/routes/generation.py:717
+msgid ""
+"\n"
+"✅ تم الانتهاء من جميع الخوارزميات بنجاح!"
+msgstr ""
+
+#: app/routes/generation.py:722
+msgid "📊 تقرير الأخطاء المتبقية في الجدول النهائي:"
+msgstr ""
+
+#: app/routes/generation.py:730
+#, python-brace-format
+msgid "❌ المواد غير المجدولة (نقص): {count}"
+msgstr ""
+
+#: app/routes/generation.py:731 app/routes/generation.py:736
+#: app/routes/generation.py:741
+#, python-brace-format
+msgid "  - {course} ({teacher}): {reason}"
+msgstr ""
+
+#: app/routes/generation.py:732 app/routes/generation.py:737
+#: app/routes/generation.py:742
+msgid "  ... والمزيد"
+msgstr ""
+
+#: app/routes/generation.py:735
+#, python-brace-format
+msgid ""
+"\n"
+"🚫 الأخطاء الصارمة (تعارضات قوية): {count}"
+msgstr ""
+
+#: app/routes/generation.py:740
+#, python-brace-format
+msgid ""
+"\n"
+"⚠️ الأخطاء المرنة (تفضيلات لم تتحقق): {count}"
+msgstr ""
+
+#: app/routes/generation.py:747
+msgid ""
+"\n"
+"🎉 الجدول مثالي! لا توجد أي أخطاء متبقية."
+msgstr ""
+
+#: app/routes/generation.py:750
+msgid "جاري تجهيز ملفات التصدير (جداول الأساتذة والقاعات)..."
+msgstr ""
+
+#: app/routes/generation.py:800
+msgid ""
+"\n"
+"🛑 تم إيقاف عملية التوزيع بأمان بناءً على طلبك."
+msgstr ""
+
+#: app/routes/generation.py:803
+#, python-brace-format
+msgid ""
+"\n"
+"❌ حدث خطأ فادح أثناء التوزيع:\n"
+"{error}"
+msgstr ""
+
+#: app/routes/generation.py:822
+msgid ""
+"\n"
+"🚀 بدء عملية ضغط وتحسين جداول الأساتذة (سد الفجوات)..."
+msgstr ""
+
+#: app/routes/generation.py:1063
+#, python-brace-format
+msgid ""
+"\n"
+"❌ حدث خطأ أثناء التحسين:\n"
+"{error}"
+msgstr ""
+
+#: app/routes/generation.py:1082 app/routes/generation.py:1114
+msgid "ميزة خوارزمية الدومينو غير مفعلة في هذه النسخة."
+msgstr ""
+
+#: app/routes/generation.py:1088 app/routes/generation.py:1120
+msgid "الجدول غير موجود. يرجى التأكد من توليد الجدول أولاً."
+msgstr ""
+
+#: app/routes/generation.py:1101
+msgid "تم بدء تفعيل الدومينو بنجاح"
+msgstr ""
+
+#: app/routes/generation.py:1133
+msgid "تم بدء تجميع الدومينو بنجاح"
+msgstr ""
+
+#: app/routes/generation.py:1143
+msgid "غير مصرح بالدخول أو انتهت الجلسة"
+msgstr ""
+
+#: app/routes/generation.py:1264
+#, python-brace-format
+msgid "فشل في قراءة ملف الإكسل الشامل. التفاصيل: {error}"
+msgstr ""
+
+#: app/routes/manage_data.py:67 app/routes/manage_data.py:158
+#: app/routes/manage_data.py:177 app/routes/manage_data.py:193
+msgid "الاسم مطلوب"
+msgstr ""
+
+#: app/routes/manage_data.py:74 app/routes/manage_data.py:169
+msgid "القاعة غير موجودة"
+msgstr ""
+
+#: app/routes/manage_data.py:83
+msgid "بيانات غير مكتملة"
+msgstr ""
+
+#: app/routes/manage_data.py:97
+#, python-brace-format
+msgid "تم تعديل طبيعة {count} مواد بنجاح!"
+msgstr ""
+
+#: app/routes/manage_data.py:109
+msgid "لم يتم تحديد أي مواد"
+msgstr ""
+
+#: app/routes/manage_data.py:133
+#, python-brace-format
+msgid "تم تعديل {count} مواد بنجاح!"
+msgstr ""
+
+#: app/routes/manage_data.py:138 app/routes/manage_data.py:227
+#: app/routes/super_admin_routes.py:112 app/routes/super_admin_routes.py:137
+#: app/routes/super_admin_routes.py:170 app/routes/super_admin_routes.py:199
+#, python-brace-format
+msgid "حدث خطأ: {error}"
+msgstr ""
+
+#: app/routes/exams_routes/exams_assignments.py:65
+#: app/routes/manage_data.py:152 app/routes/teacher_portal.py:22
+msgid "الأستاذ غير موجود"
+msgstr ""
+
+#: app/routes/manage_data.py:187
+msgid "المستوى غير موجود"
+msgstr ""
+
+#: app/routes/manage_data.py:202
+msgid "المادة غير موجودة"
+msgstr ""
+
+#: app/routes/resit_exams_routes.py:33
+msgid "غير مصرح لك بالدخول إلى هذا النظام."
+msgstr ""
+
+#: app/routes/resit_exams_routes.py:60
+#, python-brace-format
+msgid "تم إضافة {count} أستاذ بنجاح."
+msgstr ""
+
+#: app/routes/resit_exams_routes.py:68
+#, python-brace-format
+msgid "تم إضافة {count} قاعة بنجاح."
+msgstr ""
+
+#: app/routes/resit_exams_routes.py:75
+#, python-brace-format
+msgid "تم إضافة {count} مستوى بنجاح."
+msgstr ""
+
+#: app/routes/resit_exams_routes.py:82 app/templates/exams/exams_base.html:208
+msgid "الرجاء اختيار مستوى واحد على الأقل."
+msgstr ""
+
+#: app/routes/resit_exams_routes.py:100
+msgid "تم إضافة المواد وربطها بالمستويات بنجاح."
+msgstr ""
+
+#: app/routes/resit_exams_routes.py:111
+#, python-brace-format
+msgid "تم حذف الأستاذ {t_del} وتنظيف ارتباطاته."
+msgstr ""
+
+#: app/routes/resit_exams_routes.py:121
+#, python-brace-format
+msgid "تم حذف القاعة {r_del}."
+msgstr ""
+
+#: app/routes/resit_exams_routes.py:136
+#, python-brace-format
+msgid "تم حذف المستوى {l_del} وارتباطاته بنجاح."
+msgstr ""
+
+#: app/routes/resit_exams_routes.py:150
+#, python-brace-format
+msgid "تم حذف المادة {s_del}."
+msgstr ""
+
+#: app/routes/resit_exams_routes.py:162
+#, python-brace-format
+msgid "تم تعديل الأستاذ إلى [{new_name}]."
+msgstr ""
+
+#: app/routes/resit_exams_routes.py:182
+#, python-brace-format
+msgid "تم تعديل القاعة إلى [{new_name}]."
+msgstr ""
+
+#: app/routes/resit_exams_routes.py:216
+#, python-brace-format
+msgid "تم تخصيص المواد للأستاذ {t_name}."
+msgstr ""
+
+#: app/routes/resit_exams_routes.py:223
+#, python-brace-format
+msgid "تم إلغاء مواد الأستاذ {t_name}."
+msgstr ""
+
+#: app/routes/resit_exams_routes.py:231
+#, python-brace-format
+msgid "تم إلغاء إسناد المادة {s_name}."
+msgstr ""
+
+#: app/routes/resit_exams_routes.py:259
+msgid "تم حفظ تخصيص القاعات بنجاح!"
+msgstr ""
+
+#: app/routes/resit_exams_routes.py:306
+#, python-brace-format
+msgid "تم إضافة يوم {new_day}."
+msgstr ""
+
+#: app/routes/resit_exams_routes.py:313
+#, python-brace-format
+msgid "تم حذف يوم {day_to_del}."
+msgstr ""
+
+#: app/routes/resit_exams_routes.py:325
+msgid "تم إضافة الفترة الزمنية."
+msgstr ""
+
+#: app/routes/resit_exams_routes.py:345
+msgid "تم تحديث المستويات في الفترات."
+msgstr ""
+
+#: app/routes/resit_exams_routes.py:370
+#, python-brace-format
+msgid "✅ تم نسخ فترات ومستويات يوم [{source_day}] إلى [{target_day_key}] بنجاح."
+msgstr ""
+
+#: app/routes/resit_exams_routes.py:411
+msgid "تم إضافة قيد تعارض المستويات."
+msgstr ""
+
+#: app/routes/resit_exams_routes.py:416
+msgid "تم حذف القيد."
+msgstr ""
+
+#: app/routes/resit_exams_routes.py:432
+#, python-brace-format
+msgid "🤖 تم مسح المستويات وتوليد ({count}) قيد تعارض آلياً بنجاح!"
+msgstr ""
+
+#: app/routes/resit_exams_routes.py:434
+msgid "لم يتم العثور على تعارضات جديدة لإضافتها."
+msgstr ""
+
+#: app/routes/resit_exams_routes.py:450
+#, python-brace-format
+msgid "تم إضافة ({count}) أساتذة لقائمة الأولوية بنمط ({pref})."
+msgstr ""
+
+#: app/routes/resit_exams_routes.py:452
+msgid "الرجاء تأشير أستاذ واحد على الأقل من القائمة."
+msgstr ""
+
+#: app/routes/resit_exams_routes.py:465
+#, python-brace-format
+msgid "تم إضافة جميع الأساتذة المتبقين وعددهم ({count}) إلى قائمة الأولوية."
+msgstr ""
+
+#: app/routes/resit_exams_routes.py:467
+msgid "جميع الأساتذة متواجدون بالفعل في قائمة الأولوية."
+msgstr ""
+
+#: app/routes/resit_exams_routes.py:474
+msgid "تم حذف الأستاذ من قائمة الأولوية بنجاح."
+msgstr ""
+
+#: app/routes/resit_exams_routes.py:484
+msgid "تم إضافة قيد المرافقة."
+msgstr ""
+
+#: app/routes/resit_exams_routes.py:489
+msgid "تم حذف قيد المرافقة."
+msgstr ""
+
+#: app/routes/resit_exams_routes.py:499
+msgid "تم إضافة قيد الانفصال."
+msgstr ""
+
+#: app/routes/resit_exams_routes.py:504
+msgid "تم حذف قيد الانفصال."
+msgstr ""
+
+#: app/routes/resit_exams_routes.py:512
+msgid "تم إعفاء الأستاذ من الحصة الأولى."
+msgstr ""
+
+#: app/routes/resit_exams_routes.py:517
+msgid "تم إلغاء الإعفاء."
+msgstr ""
+
+#: app/routes/resit_exams_routes.py:528
+#, python-brace-format
+msgid "تم إنشاء مجموعة العزل [{group_name}] وتشفير مستوياتها بنجاح."
+msgstr ""
+
+#: app/routes/resit_exams_routes.py:535
+#, python-brace-format
+msgid "تم فك العزل وحذف المجموعة [{group_name}]."
+msgstr ""
+
+#: app/routes/resit_exams_routes.py:552
+msgid "غير مصرح لك بإجراء هذه العملية."
+msgstr ""
+
+#: app/routes/resit_exams_routes.py:563
+msgid ""
+"⚠️ البيانات في نظام الامتحانات السداسية تبدو فارغة. تأكد من إدخالها هناك "
+"أولاً."
+msgstr ""
+
+#: app/routes/exams_routes/exams_export.py:29
+#: app/routes/exams_routes/exams_export.py:500
+#: app/routes/resit_exams_routes.py:585 app/routes/resit_exams_routes.py:588
+#: app/routes/resit_exams_routes.py:604 app/templates/base.html:258
+msgid "بدون مستوى"
+msgstr ""
+
+#: app/routes/resit_exams_routes.py:615
+#, python-brace-format
+msgid ""
+"✅ تم سحب البيانات بنجاح! استُورِد: ({t_count}) أستاذ، ({r_count}) قاعة، "
+"و({s_count}) مادة."
+msgstr ""
+
+#: app/routes/resit_exams_routes.py:620
+#, python-brace-format
+msgid "❌ خطأ في الاستيراد: {error}"
+msgstr ""
+
+#: app/routes/resit_exams_routes.py:661
+msgid "✅ تم استعادة بيانات الاستدراكي بنجاح!"
+msgstr ""
+
+#: app/routes/resit_exams_routes.py:664
+#, python-brace-format
+msgid "❌ حدث خطأ أثناء الاستيراد: {error}"
+msgstr ""
+
+#: app/routes/resit_exams_routes.py:666
+msgid "❌ يرجى رفع ملف بصيغة .json"
+msgstr ""
+
+#: app/routes/resit_exams_routes.py:750
+msgid "تم إيقاف الخوارزمية يدوياً."
+msgstr ""
+
+#: app/routes/resit_exams_routes.py:831
+msgid "لم يتم توليد الجدول بعد."
+msgstr ""
+
+#: app/routes/resit_exams_routes.py:844
+msgid "جداول_المستويات_استدراكي.docx"
+msgstr ""
+
+#: app/routes/resit_exams_routes.py:853
+msgid "جداول_الأساتذة_استدراكي.docx"
+msgstr ""
+
+#: app/routes/resit_exams_routes.py:889 app/templates/base.html:424
+msgid "لا يوجد جدول لتصديره."
+msgstr ""
+
+#: app/routes/exams_routes/exams_export.py:26
+#: app/routes/exams_routes/exams_export.py:542
+#: app/routes/exams_routes/exams_export.py:764
+#: app/routes/resit_exams_routes.py:940
+msgid "الفترة"
+msgstr ""
+
+#: app/routes/resit_exams_routes.py:996
+msgid "الجدول_الاستدراكي_للتعديل.xlsx"
+msgstr ""
+
+#: app/routes/resit_exams_routes.py:1068
+msgid "✅ تم استيراد التعديلات من الإكسل بنجاح وتحديث النظام!"
+msgstr ""
+
+#: app/routes/resit_exams_routes.py:1072
+#, python-brace-format
+msgid "❌ خطأ في قراءة ملف الإكسل: التفاصيل: {error}"
+msgstr ""
+
+#: app/routes/resit_exams_routes.py:1074
+msgid "يرجى رفع ملف بصيغة .xlsx"
+msgstr ""
+
+#: app/routes/resit_exams_routes.py:1086
+msgid "لا يوجد جدول لنشره."
+msgstr ""
+
+#: app/routes/resit_exams_routes.py:1107
+msgid "✅ تم نشر الجدول الاستدراكي بنجاح! سيظهر الآن في بوابة الأساتذة."
+msgstr ""
+
+#: app/routes/resit_exams_routes.py:1110
+msgid "⚠️ تم سحب وإخفاء الجدول الاستدراكي من بوابة الأساتذة."
+msgstr ""
+
+#: app/routes/super_admin_routes.py:29
+msgid "حديث"
+msgstr ""
+
+#: app/routes/super_admin_routes.py:56
+msgid "جميع الحقول مطلوبة"
+msgstr ""
+
+#: app/routes/super_admin_routes.py:60
+msgid "اسم القسم هذا مسجل مسبقاً في المنصة!"
+msgstr ""
+
+#: app/routes/super_admin_routes.py:62
+msgid "اسم المستخدم محجوز، يرجى اختيار اسم آخر لرئيس القسم."
+msgstr ""
+
+#: app/routes/super_admin_routes.py:81
+#, python-brace-format
+msgid "تم بنجاح إنشاء بيئة عمل {tenant_name} وتسجيل حساب مديره!"
+msgstr ""
+
+#: app/routes/super_admin_routes.py:84
+#, python-brace-format
+msgid "حدث خطأ داخلي: {error}"
+msgstr ""
+
+#: app/routes/super_admin_routes.py:109
+msgid "تم حذف القسم وجميع بياناته بشكل نهائي."
+msgstr ""
+
+#: app/routes/super_admin_routes.py:124
+msgid "كلمة المرور مطلوبة"
+msgstr ""
+
+#: app/routes/super_admin_routes.py:129
+msgid "حساب رئيس القسم غير موجود"
+msgstr ""
+
+#: app/routes/super_admin_routes.py:134
+msgid "تم تغيير كلمة المرور بنجاح."
+msgstr ""
+
+#: app/routes/super_admin_routes.py:149
+msgid "اسم القسم مطلوب"
+msgstr ""
+
+#: app/routes/super_admin_routes.py:157
+msgid "اسم القسم هذا موجود مسبقاً، يرجى اختيار اسم آخر."
+msgstr ""
+
+#: app/routes/super_admin_routes.py:161
+msgid "القسم غير موجود"
+msgstr ""
+
+#: app/routes/super_admin_routes.py:167
+msgid "تم تعديل اسم القسم بنجاح."
+msgstr ""
+
+#: app/routes/super_admin_routes.py:183
+msgid "يرجى توفير اسم المستخدم وكلمة المرور الجديدة"
+msgstr ""
+
+#: app/routes/super_admin_routes.py:189
+msgid "حساب المدير العام غير موجود"
+msgstr ""
+
+#: app/routes/super_admin_routes.py:196
+msgid "تم تحديث بيانات الدخول الخاصة بك بنجاح!"
+msgstr ""
+
+#: app/routes/super_admin_routes.py:222
+msgid "تم تحديث الصلاحيات بنجاح"
+msgstr ""
+
+#: app/routes/teacher_portal.py:166
+msgid "متابعة عامة"
+msgstr ""
+
+#: app/routes/teacher_portal.py:226
+msgid "تم حفظ الرغبات بنجاح"
+msgstr ""
+
+#: app/routes/exams_routes/exams_backup.py:59
+msgid "ملف فارغ أو غير صالح"
+msgstr ""
+
+#: app/routes/exams_routes/exams_backup.py:120
+msgid "✅ تم استعادة بيانات الامتحانات بنجاح!"
+msgstr ""
+
+#: app/routes/exams_routes/exams_backup.py:124
+#, python-brace-format
+msgid "حدث خطأ أثناء الاستعادة: {e}"
+msgstr ""
+
+#: app/routes/exams_routes/exams_backup.py:153
+msgid "تم مسح جميع بيانات الامتحانات بنجاح. سيتم إعادة تحميل الصفحة."
+msgstr ""
+
+#: app/routes/exams_routes/exams_backup.py:156
+#, python-brace-format
+msgid "حدث خطأ أثناء مسح البيانات: {e}"
+msgstr ""
+
+#: app/routes/exams_routes/exams_basic_data.py:146
+msgid "لا بد من تحديد مستوى واحد على الأقل من القائمة"
+msgstr ""
+
+#: app/routes/exams_routes/exams_basic_data.py:150
+msgid "المستويات المحددة غير موجودة"
+msgstr ""
+
+#: app/routes/exams_routes/exams_basic_data.py:191 app/templates/base.html:454
+#: app/templates/index.html:1422
+msgid "[أم]"
+msgstr ""
+
+#: app/routes/exams_routes/exams_basic_data.py:192 app/templates/base.html:455
+#: app/templates/index.html:1427
+msgid "[أت]"
+msgstr ""
+
+#: app/routes/exams_routes/exams_conditions.py:41
+#: app/templates/exams/exams_base.html:247
+msgid "تم حفظ القيود والشروط بنجاح."
+msgstr ""
+
+#: app/routes/exams_routes/exams_export.py:26
+msgid "اليوم/التاريخ"
+msgstr ""
+
+#: app/routes/exams_routes/exams_export.py:26
+msgid "جدول امتحانات"
+msgstr ""
+
+#: app/routes/exams_routes/exams_export.py:27
+msgid "جدول الحراسة"
+msgstr ""
+
+#: app/routes/exams_routes/exams_export.py:27
+msgid "(مُبسَّط)"
+msgstr ""
+
+#: app/routes/exams_routes/exams_export.py:28
+msgid "أستاذ المادة"
+msgstr ""
+
+#: app/routes/exams_routes/exams_export.py:28
+msgid "الحراسة:"
+msgstr ""
+
+#: app/routes/exams_routes/exams_export.py:28
+msgid "القاعة الكبيرة"
+msgstr ""
+
+#: app/routes/exams_routes/exams_export.py:29
+msgid "القاعات الأخرى"
+msgstr ""
+
+#: app/routes/exams_routes/exams_export.py:30
+msgid "(لا يوجد)"
+msgstr ""
+
+#: app/routes/exams_routes/exams_export.py:30
+#: app/templates/exams/exams_base.html:268
+msgid "نقص!"
+msgstr ""
+
+#: app/routes/exams_routes/exams_export.py:30
+#: app/templates/exams/exams_base.html:273
+msgid "- فراغ -"
+msgstr ""
+
+#: app/routes/exams_routes/exams_export.py:31
+msgid "(حراسة)"
+msgstr ""
+
+#: app/routes/exams_routes/exams_export.py:31
+msgid "(دون حراسة)"
+msgstr ""
+
+#: app/routes/exams_routes/exams_export.py:31
+msgid "(تكليف بحراسة)"
+msgstr ""
+
+#: app/routes/exams_routes/exams_export.py:32
+#: app/templates/exams/exams_base.html:262
+msgid "الاثنين"
+msgstr ""
+
+#: app/routes/exams_routes/exams_export.py:173
+msgid "**نقص**"
+msgstr ""
+
+#: app/routes/exams_routes/exams_export.py:180
+#: app/templates/exams/exams_base.html:269
+#: app/templates/exams/exams_index.html:68
+msgid "كبيرة"
+msgstr ""
+
+#: app/routes/exams_routes/exams_export.py:492
+msgid "الرجاء حفظ جدول الأيام والفترات في المرحلة 4 أولاً لتتمكن من تصدير المخطط."
+msgstr ""
+
+#: app/routes/exams_routes/exams_export.py:535
+msgid "لا توجد مستويات مدخلة بعد"
+msgstr ""
+
+#: app/routes/exams_routes/exams_export.py:536
+msgid "فارغ"
+msgstr ""
+
+#: app/routes/exams_routes/exams_export.py:577
+msgid "--- مواد غير موزعة ---"
+msgstr ""
+
+#: app/routes/exams_routes/exams_export.py:614
+msgid "مخطط_توزيع_المواد_للتعديل.xlsx"
+msgstr ""
+
+#: app/routes/exams_routes/exams_export.py:634
+#: app/routes/exams_routes/exams_export.py:844
+msgid "لم يتم العثور على ملف."
+msgstr ""
+
+#: app/routes/exams_routes/exams_export.py:687
+#, python-brace-format
+msgid "تم استيراد وتثبيت {pinned_count} مادة بنجاح."
+msgstr ""
+
+#: app/routes/exams_routes/exams_export.py:705
+msgid "تم مسح الجدول اليدوي. سيعتمد التشغيل القادم على التوزيع التلقائي."
+msgstr ""
+
+#: app/routes/exams_routes/exams_export.py:717
+msgid "لا توجد بيانات للجدول. قم بالتوليد أولاً."
+msgstr ""
+
+#: app/routes/exams_routes/exams_export.py:830
+#: app/templates/exams/exams_base.html:352
+msgid "الجدول_النهائي_للحراسة.xlsx"
+msgstr ""
+
+#: app/routes/exams_routes/exams_export.py:915
+msgid "تم استيراد الجدول النهائي ونشره للأساتذة بنجاح!"
+msgstr ""
+
+#: app/routes/exams_routes/exams_generation.py:147
+msgid "... تم إرسال إشارة إيقاف الخوارزمية، جاري إنهاء العمليات ..."
+msgstr ""
+
+#: app/routes/exams_routes/exams_generation.py:182
+msgid "بدأت عملية التوليد في الخلفية."
+msgstr ""
+
+#: app/routes/exams_routes/exams_generation.py:193
+msgid "لا توجد بيانات لجدول الامتحانات"
+msgstr ""
+
+#: app/routes/exams_routes/exams_generation.py:212
+msgid "📢 تم نشر جدول الامتحانات في حسابات الأساتذة بنجاح!"
+msgstr ""
+
+#: app/routes/exams_routes/exams_generation.py:234
+msgid "🚫 تم سحب الجداول، ولن تظهر في حسابات الأساتذة بعد الآن."
+msgstr ""
+
+#: app/routes/exams_routes/exams_generation.py:256
+msgid "جاري جلب البيانات من قاعدة البيانات السحابية المعزولة..."
+msgstr ""
+
+#: app/routes/exams_routes/exams_generation.py:276
+msgid "الرجاء إعداد جدول الامتحانات في المرحلة 4 أولاً."
+msgstr ""
+
+#: app/routes/exams_routes/exams_generation.py:336
+msgid ""
+"--- 📌 تم العثور على مخطط مواد يدوي (مُثبت)، سيتم اعتماده كلياً وتخطي "
+"التوزيع التلقائي للمواد ---"
+msgstr ""
+
+#: app/routes/exams_routes/exams_generation.py:340
+msgid ">>> بناء جدول المواد المبدئي وتوزيع القاعات (تلقائياً)..."
+msgstr ""
+
+#: app/routes/exams_routes/exams_generation.py:394
+#, python-brace-format
+msgid "🚀 بدء تشغيل مرحلة: {algo}"
+msgstr ""
+
+#: app/routes/exams_routes/exams_generation.py:406
+msgid ""
+"\n"
+"✓ انتهت سلسلة الخوارزميات بالكامل. جاري حساب الإحصائيات النهائية..."
+msgstr ""
+
+#: app/routes/exams_routes/exams_generation.py:408
+msgid ">>> جاري تفعيل فريق الطوارئ (جبر النقص الأخير)..."
+msgstr ""
+
+#: app/routes/exams_routes/exams_generation.py:411
+#, python-brace-format
+msgid "✓ اكتمل جبر النقص. النتيجة النهائية: {cost}"
+msgstr ""
+
+#: app/routes/exams_routes/exams_generation.py:487
+msgid "حصص القاعات الأخرى"
+msgstr ""
+
+#: app/routes/exams_routes/exams_generation.py:488
+msgid "حصص القاعة الكبيرة"
+msgstr ""
+
+#: app/routes/exams_routes/exams_generation.py:520
+msgid "فشل إيجاد حل أو تم الإيقاف بواسطة المستخدم."
+msgstr ""
+
+#: app/routes/exams_routes/exams_generation.py:524
+#, python-brace-format
+msgid "خطأ فادح: {error}"
+msgstr ""
+
+#: app/routes/exams_routes/exams_generation.py:526
+msgid "حدث خطأ داخلي في الخادم السحابي."
+msgstr ""
+
+#: app/routes/exams_routes/exams_manage_data.py:25
+msgid "كيان غير صالح"
+msgstr ""
+
+#: app/routes/exams_routes/exams_manage_data.py:55
+msgid "العنصر غير موجود"
+msgstr ""
+
+#: app/routes/exams_routes/exams_manage_data.py:70
+msgid "هذا الأستاذ موجود مسبقاً"
+msgstr ""
+
+#: app/routes/exams_routes/exams_manage_data.py:88
+msgid "هذه القاعة موجودة مسبقاً"
+msgstr ""
+
+#: app/routes/exams_routes/exams_manage_data.py:105
+msgid "هذا المستوى موجود مسبقاً"
+msgstr ""
+
+#: app/routes/exams_routes/exams_manage_data.py:121
+msgid "هذه المادة موجودة مسبقاً"
+msgstr ""
+
+#: app/routes/exams_routes/exams_times.py:41
+msgid "تم حفظ هيكل جدول الامتحانات بنجاح."
+msgstr ""
+
+#: app/services/algorithms.py:72
+msgid "--- بدء خوارزمية البحث الجِوَاري الواسع (LNS) ---"
+msgstr ""
+
+#: app/services/algorithms.py:75
+msgid "   - جاري إنشاء حل أولي باستخدام الخوارزمية الطماعة..."
+msgstr ""
+
+#: app/services/algorithms.py:85
+msgid "تحذير: لم يتم توفير حل مبدئي لـ LNS. سيتم البدء بجدول فارغ."
+msgstr ""
+
+#: app/services/algorithms.py:88
+msgid "   - LNS: الانطلاق من الحل المبدئي المحسّن."
+msgstr ""
+
+#: app/services/algorithms.py:106
+#, python-brace-format
+msgid ""
+"   - اللياقة الأولية (نقص, صارم, مرن) = ({unplaced}, {hard}, "
+"{soft_count}={soft_sum})"
+msgstr ""
+
+#: app/services/algorithms.py:127
+#, python-brace-format
+msgid "   >>> ⚠️ تم كشف الركود لـ {STAGNATION_LIMIT} دورة. تطبيق طفرة قوية..."
+msgstr ""
+
+#: app/services/algorithms.py:142 app/services/algorithms.py:370
+#, python-brace-format
+msgid "   >>> 🚀 تم تفعيل طفرة يدوية من قبل المستخدم بقوة {intensity}! <<<"
+msgstr ""
+
+#: app/services/algorithms.py:166
+#, python-brace-format
+msgid ""
+"\n"
+"--- تم إيقاف LNS عند التكرار {i} ---"
+msgstr ""
+
+#: app/services/algorithms.py:170
+msgid "   - تم العثور على حل مثالي! إنهاء البحث."
+msgstr ""
+
+#: app/services/algorithms.py:175
+#, python-brace-format
+msgid ""
+"--- الدورة {i}/{max_iterations} | أفضل لياقة (ن,ص,م) = ({unplaced}, "
+"{hard}, {soft_count}={soft_sum}) ---"
+msgstr ""
+
+#: app/services/algorithms.py:261
+#, python-brace-format
+msgid ""
+"   >>> إنجاز جديد! أخطاء (نقص, صارم, مرن)=({unplaced}, {hard}, "
+"{soft_count}={soft_sum})"
+msgstr ""
+
+#: app/services/algorithms.py:276
+#, python-brace-format
+msgid "انتهت الخوارزمية بعد {max_iterations} تكرار."
+msgstr ""
+
+#: app/services/algorithms.py:294 app/services/algorithms.py:509
+#, python-brace-format
+msgid "=== انتهت الخوارزمية نهائياً - أفضل تكلفة موزونة: {final_cost} ==="
+msgstr ""
+
+#: app/services/algorithms.py:314
+msgid "--- بدء VNS (معيار القبول الصارم) ---"
+msgstr ""
+
+#: app/services/algorithms.py:325
+msgid "تحذير: لم يتم توفير حل مبدئي لـ VNS. سيتم البدء بجدول فارغ."
+msgstr ""
+
+#: app/services/algorithms.py:328
+msgid "   - VNS: الانطلاق من الحل المبدئي المحسّن."
+msgstr ""
+
+#: app/services/algorithms.py:336
+#, python-brace-format
+msgid ""
+"   - اكتمل البناء المبدئي. اللياقة (نقص, صارم, مرن) = ({unplaced}, "
+"{hard}, {soft_count}={soft_sum})"
+msgstr ""
+
+#: app/services/algorithms.py:355
+#, python-brace-format
+msgid "   >>> ⚠️ تم كشف الركود لـ {limit} دورة. تطبيق طفرة قوية..."
+msgstr ""
+
+#: app/services/algorithms.py:391
+#, python-brace-format
+msgid ""
+"--- دورة التحسين {iteration}/{max_iterations} | أفضل لياقة (ن,ص,م) = "
+"({unplaced}, {hard}, {soft_count}={soft_sum}) ---"
+msgstr ""
+
+#: app/services/algorithms.py:481
+#, python-brace-format
+msgid ""
+"   >>> إنجاز جديد! أفضل لياقة (ن,ص,م) = ({unplaced_best}, {hard_best}, "
+"{soft_best_count}={soft_best_sum})"
+msgstr ""
+
+#: app/services/algorithms.py:501
+msgid "انتهت خوارزمية VNS."
+msgstr ""
+
+#: app/services/algorithms.py:534
+msgid "أخطاء أخرى"
+msgstr ""
+
+#: app/services/algorithms.py:535
+msgid "تعارض أساتذة"
+msgstr ""
+
+#: app/services/algorithms.py:536
+msgid "تعارض قاعات"
+msgstr ""
+
+#: app/services/algorithms.py:537
+msgid "تعارض قاعة كبيرة"
+msgstr ""
+
+#: app/services/algorithms.py:538
+msgid "فترات الراحة"
+msgstr ""
+
+#: app/services/algorithms.py:539
+msgid "تعارض معرفات"
+msgstr ""
+
+#: app/services/algorithms.py:540
+msgid "مواد ناقصة (نقص)"
+msgstr ""
+
+#: app/services/algorithms.py:545
+msgid " (صارم)"
+msgstr ""
+
+#: app/services/algorithms.py:545
+msgid " (مرن)"
+msgstr ""
+
+#: app/services/algorithms.py:602
+msgid "المادة لم يتم جدولتها (نقص)."
+msgstr ""
+
+#: app/services/algorithms.py:672
+#, python-brace-format
+msgid "تعارض الأستاذ في {day_name} {slot_name}"
+msgstr ""
+
+#: app/services/algorithms.py:677
+#, python-brace-format
+msgid "تعارض في القاعة {room} في {day_name} {slot_name}"
+msgstr ""
+
+#: app/services/algorithms.py:692
+msgid "فترة راحة"
+msgstr ""
+
+#: app/services/algorithms.py:692
+#, python-brace-format
+msgid "خرق فترة الراحة العامة في {day_name} {slot_name}"
+msgstr ""
+
+#: app/services/algorithms.py:707
+#, python-brace-format
+msgid "قيد الفترة في {day_name} {slot_name} يخرق قاعدة نوع القاعة ({room_type})"
+msgstr ""
+
+#: app/services/algorithms.py:712
+msgid "تعارض بيداغوجي"
+msgstr ""
+
+#: app/services/algorithms.py:712
+#, python-brace-format
+msgid "تعارض محاضرة مع مادة أخرى في {day_name} {slot_name}"
+msgstr ""
+
+#: app/services/algorithms.py:722
+#, python-brace-format
+msgid ""
+"قيد قاعة المستوى في {day_name} {slot_name}: يجب أن تكون في '{room}' وليس "
+"'{lec_room}'"
+msgstr ""
+
+#: app/services/algorithms.py:732
+#, python-brace-format
+msgid ""
+"قيد قاعات الأعمال الموجهة في {day_name} {slot_name}: يجب أن تكون في إحدى "
+"القاعات '{rooms_str}' وليس '{lec_room}'"
+msgstr ""
+
+#: app/services/algorithms.py:737
+#, python-brace-format
+msgid ""
+"تعدي على جناح مشترك: القاعة '{lec_room}' مقفلة حصرياً لمستويات أخرى في "
+"{day_name} {slot_name}."
+msgstr ""
+
+#: app/services/algorithms.py:743
+#, python-brace-format
+msgid "تعارض معرفات ({identifier}) في {day_name} {slot_name}"
+msgstr ""
+
+#: app/services/algorithms.py:754
+msgid "توزيع ناقص/زائد للمادة المشتركة."
+msgstr ""
+
+#: app/services/algorithms.py:756
+msgid "توزيع غير متناسق للمادة المشتركة."
+msgstr ""
+
+#: app/services/algorithms.py:770
+#, python-brace-format
+msgid "قيد التوالي للمستوى {level}"
+msgstr ""
+
+#: app/services/algorithms.py:770
+#, python-brace-format
+msgid "حدث توالٍ غير مسموح به في القاعة الكبيرة '{hall}'."
+msgstr ""
+
+#: app/services/algorithms.py:805
+#, python-brace-format
+msgid "تتابع محاضرات ({level})"
+msgstr ""
+
+#: app/services/algorithms.py:807
+#, python-brace-format
+msgid "تجاوز الحد الأقصى لتتابع المحاضرات ({limit}) في يوم {day_name}."
+msgstr ""
+
+#: app/services/algorithms.py:903
+msgid "الفترة غير متاحة للأستاذ أو فترة راحة عامة"
+msgstr ""
+
+#: app/services/algorithms.py:919
+#, python-brace-format
+msgid "الأستاذ غير مسموح له بالعمل في اليوم المقيد ({restricted_day_name})"
+msgstr ""
+
+#: app/services/algorithms.py:927
+msgid "خرق قيد الأيام اليدوي"
+msgstr ""
+
+#: app/services/algorithms.py:929
+msgid "خرق وقت البدء اليدوي"
+msgstr ""
+
+#: app/services/algorithms.py:930
+msgid "خرق وقت الانتهاء اليدوي"
+msgstr ""
+
+#: app/services/algorithms.py:934
+msgid "خرق وقت البدء"
+msgstr ""
+
+#: app/services/algorithms.py:940
+msgid "لم يتم العثور على قاعة صالحة ومتاحة"
+msgstr ""
+
+#: app/services/algorithms.py:966
+msgid "قيد الأيام اليدوية"
+msgstr ""
+
+#: app/services/algorithms.py:968
+msgid "الأستاذ يعمل في يوم غير مسموح به يدويًا."
+msgstr ""
+
+#: app/services/algorithms.py:993
+#, python-brace-format
+msgid "قيد يوم {restricted_day_name}"
+msgstr ""
+
+#: app/services/algorithms.py:995
+#, python-brace-format
+msgid "عمل الأستاذ في اليوم المقيد ({restricted_day_name}) - الفترة {slot_idx}."
+msgstr ""
+
+#: app/services/algorithms.py:1012
+msgid "قيد آخر الحصص"
+msgstr ""
+
+#: app/services/algorithms.py:1013
+#, python-brace-format
+msgid "الأستاذ لا يجب أن يعمل في آخر {count} حصص."
+msgstr ""
+
+#: app/services/algorithms.py:1026
+msgid "قيد الحصص اليومية"
+msgstr ""
+
+#: app/services/algorithms.py:1027
+#, python-brace-format
+msgid "تجاوز الحد الأقصى للحصص ({count} > {max_sessions_per_day})."
+msgstr ""
+
+#: app/services/algorithms.py:1041
+msgid "قيد الأزواج"
+msgstr ""
+
+#: app/services/algorithms.py:1041 app/services/algorithms.py:1053
+#, python-brace-format
+msgid "{t1} و {t2}"
+msgstr ""
+
+#: app/services/algorithms.py:1042
+msgid "أيام عمل الأستاذين غير متطابقة."
+msgstr ""
+
+#: app/services/algorithms.py:1053
+msgid "قيد عدم التشارك"
+msgstr ""
+
+#: app/services/algorithms.py:1054
+msgid "يجب ألا يعمل هذان الأستاذان في نفس الأيام."
+msgstr ""
+
+#: app/services/algorithms.py:1078
+msgid "قيد التوزيع (صارم)"
+msgstr ""
+
+#: app/services/algorithms.py:1079
+#, python-brace-format
+msgid "يجب أن يعمل {target_days} أيام بالضبط (يعمل حالياً {num_days})."
+msgstr ""
+
+#: app/services/algorithms.py:1084
+msgid "قيد التوزيع (مرن)"
+msgstr ""
+
+#: app/services/algorithms.py:1085
+#, python-brace-format
+msgid "يجب أن يعمل {target_days} أيام كحد أقصى (يعمل حالياً {num_days})."
+msgstr ""
+
+#: app/services/algorithms.py:1092
+msgid "قيد التوزيع"
+msgstr ""
+
+#: app/services/algorithms.py:1093
+msgid "أيام عمل الأستاذ ليست متتالية كما هو مطلوب."
+msgstr ""
+
+#: app/services/algorithms.py:1119 app/services/algorithms.py:1153
+#: app/services/algorithms.py:1155
+msgid "قيد وقت البدء"
+msgstr ""
+
+#: app/services/algorithms.py:1119
+msgid "قيد (كل الأيام): بدأ قبل الحصة الثانية."
+msgstr ""
+
+#: app/services/algorithms.py:1121 app/services/algorithms.py:1159
+#: app/services/algorithms.py:1161
+msgid "قيد وقت الإنهاء"
+msgstr ""
+
+#: app/services/algorithms.py:1121
+msgid "قيد (كل الأيام): انتهى بعد الحصة الرابعة."
+msgstr ""
+
+#: app/services/algorithms.py:1139 app/services/algorithms.py:1141
+msgid "قيد البدء اليدوي"
+msgstr ""
+
+#: app/services/algorithms.py:1139
+msgid "بدأ قبل الحصة الثانية في أول يوم عمل."
+msgstr ""
+
+#: app/services/algorithms.py:1141
+msgid "بدأ قبل الحصة الثالثة في أول يوم عمل."
+msgstr ""
+
+#: app/services/algorithms.py:1145 app/services/algorithms.py:1147
+msgid "قيد الإنهاء اليدوي"
+msgstr ""
+
+#: app/services/algorithms.py:1145
+msgid "انتهى بعد الحصة الثالثة في آخر يوم عمل."
+msgstr ""
+
+#: app/services/algorithms.py:1147
+msgid "انتهى بعد الحصة الرابعة في آخر يوم عمل."
+msgstr ""
+
+#: app/services/algorithms.py:1153
+msgid "بدأ قبل الحصة الثانية في أول يوم عمل له."
+msgstr ""
+
+#: app/services/algorithms.py:1155
+msgid "بدأ قبل الحصة الثالثة في أول يوم عمل له."
+msgstr ""
+
+#: app/services/algorithms.py:1159
+msgid "انتهى بعد الحصة الثالثة في آخر يوم عمل له."
+msgstr ""
+
+#: app/services/algorithms.py:1161
+msgid "انتهى بعد الحصة الرابعة في آخر يوم عمل له."
+msgstr ""
+
+#: app/services/algorithms.py:1633 app/services/algorithms.py:1961
+msgid "المادة غير مسندة لأستاذ"
+msgstr ""
+
+#: app/services/algorithms.py:1675 app/services/algorithms.py:2001
+msgid "تمت الجدولة بنجاح في أفضل مكان"
+msgstr ""
+
+#: app/services/algorithms.py:1677 app/services/algorithms.py:2003
+msgid "لم يتم العثور على أي فترة زمنية متاحة تحقق كل القيود."
+msgstr ""
+
+#: app/services/algorithms.py:2132
+#, python-brace-format
+msgid ""
+"⏳ بدء التحسين. تكلفة القيود: {violation_cost} | تكلفة الضغط: "
+"{compaction_cost}"
+msgstr ""
+
+#: app/services/algorithms.py:2292
+#, python-brace-format
+msgid ""
+"إفراغ المساء لجدول الأستاذ '{teacher}' (باقي {old_red_zone_count} حصص في "
+"آخر فترتين)"
+msgstr ""
+
+#: app/services/algorithms.py:2293
+#, python-brace-format
+msgid ""
+"✅ تحسين عميق [تفريغ المساء | قيود: {violation_cost} -> "
+"{best_violation_cost}]: {log_message_summary}"
+msgstr ""
+
+#: app/services/algorithms.py:2432
+#, python-brace-format
+msgid ""
+"موازنة العبء اليومي وتفريغ المساء للأستاذ '{teacher}' (مؤشر العقوبة انخفض"
+" إلى: {old_score:.1f})"
+msgstr ""
+
+#: app/services/algorithms.py:2433
+#, python-brace-format
+msgid ""
+"✅ تحسين عميق [موازنة يومية | قيود: {violation_cost} -> "
+"{best_violation_cost}]: {log_message_summary}"
+msgstr ""
+
+#: app/services/algorithms.py:2451
+msgid "⚠️ [خطأ]: المستوى 'الجراحي' يتطلب تحديد أستاذ واحد فقط! تم إيقاف التحسين."
+msgstr ""
+
+#: app/services/algorithms.py:2476
+#, python-brace-format
+msgid "✅ الأستاذ '{vip_teacher}' جدوله مثالي (لا توجد حصص مسائية)."
+msgstr ""
+
+#: app/services/algorithms.py:2479
+#, python-brace-format
+msgid "🔄 بدء التدخل الجراحي للأستاذ '{vip_teacher}' بسقف {max_victims} أساتذة..."
+msgstr ""
+
+#: app/services/algorithms.py:2568
+msgid "🧱 [المرحلة 1]: تفكيك جدول الأستاذ ومحاولة إعادة بنائه صباحاً..."
+msgstr ""
+
+#: app/services/algorithms.py:2612
+msgid "⚠️ إعادة البناء السلمية فشلت، سيتم التراجع والانتقال للطرد المباشر."
+msgstr ""
+
+#: app/services/algorithms.py:2618
+msgid ""
+"✅ نجاح باهر في المرحلة 1! تم إعادة بناء الجدول بالكامل في الصباح دون "
+"الحاجة لطرد أي أستاذ."
+msgstr ""
+
+#: app/services/algorithms.py:2626
+#, python-brace-format
+msgid "⚠️ بعد إعادة البناء تبقى {count} حصص مسائية."
+msgstr ""
+
+#: app/services/algorithms.py:2631
+msgid "⚔️ [المرحلة 2]: بدء سلسلة الطرد الجراحية (نظام النجاح الجزئي)..."
+msgstr ""
+
+#: app/services/algorithms.py:2680
+msgid "بدون طرد"
+msgstr ""
+
+#: app/services/algorithms.py:2681
+msgid "نجاح كلي"
+msgstr ""
+
+#: app/services/algorithms.py:2681
+msgid "نجاح جزئي"
+msgstr ""
+
+#: app/services/algorithms.py:2683
+#, python-brace-format
+msgid ""
+"تم نقل {total_saved} حصص للصباح ({status_msg}). المتبقي مساءً: "
+"{total_remaining_evening}. الإزاحات: [{displaced_str}]"
+msgstr ""
+
+#: app/services/algorithms.py:2686
+#, python-brace-format
+msgid "✅ عملية جراحية منجزة: {log_msg}"
+msgstr ""
+
+#: app/services/algorithms.py:2694
+msgid "❌ تعذر نقل أي حصة للصباح. تم التراجع للحفاظ على استقرار الجدول."
+msgstr ""
+
+#: app/services/algorithms.py:2744
+#, python-brace-format
+msgid ""
+"  - نقل '{lecture_name}' ({teacher}) من {original_day_name} (الفترة "
+"{original_slot_num}) إلى {target_day_name} (الفترة {target_slot_num})"
+msgstr ""
+
+#: app/services/algorithms.py:2747
+#, python-brace-format
+msgid ""
+"✅ تحسين [ضغط: {compaction_cost} -> {new_compaction_cost} | قيود: "
+"{violation_cost} -> {new_violation_cost}]: {log_message}"
+msgstr ""
+
+#: app/services/algorithms.py:2767
+#, python-brace-format
+msgid ""
+"🎉 اكتمل التحسين. تكلفة القيود النهائية: {violation_cost}. تكلفة الضغط "
+"النهائية: {compaction_cost}. تم نقل {moves_made} محاضرات."
+msgstr ""
+
+#: app/services/domino_algorithm.py:252
+msgid ""
+"\n"
+"=== 🟢 تفعيل الدومينو: جاري تشتيت الحصص لصناعة مسارات الدومينو ==="
+msgstr ""
+
+#: app/services/domino_algorithm.py:257
+msgid ""
+"\n"
+"⚠️ تنبيه هام: قائمة أساتذة الدومينو فارغة! الرجاء التأكد من تأشيرهم في "
+"'المرحلة 5' والضغط على زر (حفظ جميع القيود)."
+msgstr ""
+
+#: app/services/domino_algorithm.py:289
+#, python-brace-format
+msgid "   ⚠️ تخطي [{teacher}] (ليس لديه حصص في هذا الجدول)."
+msgstr ""
+
+#: app/services/domino_algorithm.py:293
+#, python-brace-format
+msgid ""
+"   ⚠️ تخطي [{teacher}] (يعمل طيلة أيام الأسبوع، لا يوجد يوم فارغ لرمي "
+"الحصة فيه)."
+msgstr ""
+
+#: app/services/domino_algorithm.py:312
+#, python-brace-format
+msgid "   ⚠️ تخطي [{teacher}] (جميع حصصه مدرجات أو مواد مشتركة)."
+msgstr ""
+
+#: app/services/domino_algorithm.py:350
+#, python-brace-format
+msgid ""
+"   🎯 تم استخراج حصة يتيمة لـ [{teacher}] (انتقلت من {day_from} إلى "
+"{day_to})."
+msgstr ""
+
+#: app/services/domino_algorithm.py:359
+#, python-brace-format
+msgid "   ⚠️ فشل إيجاد مكان للحصة اليتيمة للأستاذ [{teacher}]."
+msgstr ""
+
+#: app/services/domino_algorithm.py:362
+#, python-brace-format
+msgid ""
+"\n"
+"✅ اكتمل تفعيل الدومينو! تم تشتيت حصص ({extracted_count}) أساتذة بنجاح."
+msgstr ""
+
+#: app/services/domino_algorithm.py:410
+msgid ""
+"\n"
+"❌ حدث خطأ فادح أثناء التفعيل:"
+msgstr ""
+
+#: app/services/domino_algorithm.py:431
+msgid ""
+"\n"
+"=== 🔵 تجميع الدومينو: جاري إرجاع الحصص اليتيمة وضغط الجداول ==="
+msgstr ""
+
+#: app/services/domino_algorithm.py:436
+msgid ""
+"\n"
+"⚠️ تنبيه هام: قائمة أساتذة الدومينو فارغة! الرجاء التأكد من تأشيرهم "
+"والضغط على زر (حفظ جميع القيود) قبل التجميع."
+msgstr ""
+
+#: app/services/domino_algorithm.py:451
+#, python-brace-format
+msgid "   ⚠️ تخطي [{teacher}] (يعمل في يوم واحد فقط)."
+msgstr ""
+
+#: app/services/domino_algorithm.py:458
+#, python-brace-format
+msgid "   ⚠️ تخطي [{teacher}] (لا توجد لديه 'حصة يتيمة' لضغطها)."
+msgstr ""
+
+#: app/services/domino_algorithm.py:468
+#, python-brace-format
+msgid "🔍 محاولة ضغط الحصة اليتيمة للأستاذ [{teacher}]..."
+msgstr ""
+
+#: app/services/domino_algorithm.py:479
+#, python-brace-format
+msgid "   ✅ تم الضغط بنجاح (نقل مباشر) للحصة نحو يوم {target_day}."
+msgstr ""
+
+#: app/services/domino_algorithm.py:494
+#, python-brace-format
+msgid "   ✅ نجاح الدومينو! إزاحة حصة [{displaced_teacher}] لتفسح المجال لأستاذنا."
+msgstr ""
+
+#: app/services/domino_algorithm.py:498
+#, python-brace-format
+msgid "   ❌ فشل الضغط. مسار الهروب مغلق حالياً للأستاذ [{teacher}]."
+msgstr ""
+
+#: app/services/domino_algorithm.py:501
+#, python-brace-format
+msgid ""
+"\n"
+"🎉 اكتمل التجميع! تم تنفيذ ({moves_made}) عملية ضغط بنجاح."
+msgstr ""
+
+#: app/services/domino_algorithm.py:549
+msgid ""
+"\n"
+"❌ حدث خطأ فادح أثناء التجميع:"
+msgstr ""
+
+#: app/services/exams_algorithms.py:186
+#, python-brace-format
+msgid "(نقص: {s}, قيود صارمة: {h}, انحراف: {d:.2f}, قيود مرنة: {f})"
+msgstr ""
+
+#: app/services/exams_algorithms.py:357
+msgid ">>> بدء المرحلة 1.5: تحسين تجميع مواد الأساتذة (تقليل التشتت)..."
+msgstr ""
+
+#: app/services/exams_algorithms.py:447
+msgid "✓ اكتملت المرحلة 1.5 بنجاح."
+msgstr ""
+
+#: app/services/exams_algorithms.py:541
+msgid ">>> تشغيل LNS (النسخة النهائية المدمجة والمحسّنة)..."
+msgstr ""
+
+#: app/services/exams_algorithms.py:564
+#, python-brace-format
+msgid "... [LNS] التكلفة الأولية = {cost}"
+msgstr ""
+
+#: app/services/exams_algorithms.py:653
+#, python-brace-format
+msgid "... [LNS] دورة {cycle}: تم إيجاد حل أفضل بتكلفة = {cost}"
+msgstr ""
+
+#: app/services/exams_algorithms.py:659
+#, python-brace-format
+msgid "✓ انتهى LNS المحسن بأفضل تكلفة: {cost}"
+msgstr ""
+
+#: app/services/exams_algorithms.py:681
+msgid ">>> بدء تشغيل المُحسِّن الهجين (V16)..."
+msgstr ""
+
+#: app/services/exams_algorithms.py:689
+#, python-brace-format
+msgid "... التكلفة الأولية للحل: {cost}"
+msgstr ""
+
+#: app/services/exams_algorithms.py:698
+msgid "--- بدء المرحلة 1: استدعاء LNS العادية لجبر النقص..."
+msgstr ""
+
+#: app/services/exams_algorithms.py:711
+#, python-brace-format
+msgid "✗ فشلت حتى LNS العادية في جبر النقص. التكلفة النهائية: {cost}"
+msgstr ""
+
+#: app/services/exams_algorithms.py:715
+#, python-brace-format
+msgid "✓ نجحت LNS العادية في جبر النقص! التكلفة بعد الإصلاح: {cost}"
+msgstr ""
+
+#: app/services/exams_algorithms.py:720
+msgid "--- بدء المرحلة 2: تحسين الجدول الكامل باستخدام منطق V13..."
+msgstr ""
+
+#: app/services/exams_algorithms.py:828
+#, python-brace-format
+msgid "... [مُحسِّن LNS v16] دورة {cycle}: حل أفضل بتكلفة = {cost}"
+msgstr ""
+
+#: app/services/exams_algorithms.py:837
+#, python-brace-format
+msgid ""
+"... ⚡ [تنبيه] الخوارزمية عالقة في الفخ! جاري تنشيط صدمة حرارية في الدورة "
+"{cycle} للهروب..."
+msgstr ""
+
+#: app/services/exams_algorithms.py:846
+#, python-brace-format
+msgid "... ⚙️ جاري المعالجة بصمت: وصلنا للدورة {cycle} من أصل {total}..."
+msgstr ""
+
+#: app/services/exams_algorithms.py:848
+#, python-brace-format
+msgid "✓ انتهى مُحسِّن LNS v16 بأفضل تكلفة: {cost}"
+msgstr ""
+
+#: app/services/exams_algorithms.py:880
+#, python-brace-format
+msgid "... [الصقل] تم الإيقاف بعد {i} محاولة تبديل."
+msgstr ""
+
+#: app/services/exams_algorithms.py:950
+msgid ">>> تشغيل VNS (النسخة ذات البصيرة المرحلية)..."
+msgstr ""
+
+#: app/services/exams_algorithms.py:967
+#, python-brace-format
+msgid "... [VNS] التكلفة الأولية = {cost}"
+msgstr ""
+
+#: app/services/exams_algorithms.py:981
+#, python-brace-format
+msgid "... ⚙️ [VNS] الدورة {cycle}/{total}: المعالجة مستمرة..."
+msgstr ""
+
+#: app/services/exams_algorithms.py:1084
+#, python-brace-format
+msgid "... [VNS] دورة {cycle} (k={k}): تم العثور على حل أفضل بتكلفة = {cost}"
+msgstr ""
+
+#: app/services/exams_algorithms.py:1087
+msgid "... [VNS] تم الوصول لجدول مثالي بالكامل! إنهاء مبكر..."
+msgstr ""
+
+#: app/services/exams_algorithms.py:1099
+#, python-brace-format
+msgid "✓ انتهى VNS بأفضل تكلفة: {cost}"
+msgstr ""
+
+#: app/services/exams_algorithms.py:1171
+#, python-brace-format
+msgid "🔴 نقص: يوم {day} ({time_slot}) لمادة {subject_name}."
+msgstr ""
+
+#: app/services/exams_algorithms.py:1184
+#, python-brace-format
+msgid ""
+"🔴 تعارض زمني: الأستاذ [{guard_clean}] يحرس في أكثر من مكان يوم {day} "
+"({time_slot})."
+msgstr ""
+
+#: app/services/exams_algorithms.py:1189
+#, python-brace-format
+msgid ""
+"🔴 مخالفة توفر: الأستاذ [{guard_clean}] كُلف بالحراسة يوم {day} وهو غير "
+"متاح."
+msgstr ""
+
+#: app/services/exams_algorithms.py:1195
+#, python-brace-format
+msgid ""
+"🔴 تجاوز الحد الأقصى: الأستاذ [{p_name}] يحرس {count} فترات (الحد: "
+"{max_shifts})."
+msgstr ""
+
+#: app/services/exams_algorithms.py:1198
+#, python-brace-format
+msgid ""
+"🔴 تجاوز القاعات الكبيرة: الأستاذ [{p_name}] يحرس {count} مرات في قاعة "
+"كبيرة (الحد: {max_large_hall_shifts})."
+msgstr ""
+
+#: app/services/exams_algorithms.py:1208
+#, python-brace-format
+msgid "🔴 مخالفة نمط (يوم واحد فقط): الأستاذ [{prof}] يحرس في {num_days} أيام."
+msgstr ""
+
+#: app/services/exams_algorithms.py:1210
+#, python-brace-format
+msgid ""
+"🔴 مخالفة نمط (يومان مرنان): الأستاذ [{prof}] يحرس في {num_days} أيام "
+"(المطلوب 2)."
+msgstr ""
+
+#: app/services/exams_algorithms.py:1213
+#, python-brace-format
+msgid "🔴 مخالفة نمط (يومان متتاليان): الأستاذ [{prof}] لم يحقق شرط التتالي حصراً."
+msgstr ""
+
+#: app/services/exams_algorithms.py:1215
+#, python-brace-format
+msgid "🔴 مخالفة نمط (2-3 أيام مرنة): الأستاذ [{prof}] يحرس في {num_days} أيام."
+msgstr ""
+
+#: app/services/exams_algorithms.py:1220
+#, python-brace-format
+msgid ""
+"🔴 فك ارتباط: الأستاذان [{p1}] و [{p2}] يجب أن يتشاركا في جميع أيام "
+"حراستهما."
+msgstr ""
+
+#: app/services/exams_algorithms.py:1224
+#, python-brace-format
+msgid "🔴 تنافر ممنوع: الأستاذان [{p1}] و [{p2}] لا يجب أن يجتمعا في نفس اليوم."
+msgstr ""
+
+#: app/services/exams_algorithms.py:1234
+#, python-brace-format
+msgid ""
+"🟠 كفاءة الحضور (-10 نقاط): الأستاذ [{p_name}] لديه امتحان مادة يوم "
+"{s_day} ولكنه لا يحرس فيه."
+msgstr ""
+
+#: app/services/exams_algorithms.py:1239
+#, python-brace-format
+msgid ""
+"🟠 تشتت المواد (-{points} نقاط): مواد الأستاذ [{p_name}] موزعة على {count}"
+" أيام."
+msgstr ""
+
+#: app/templates/base.html:7 app/templates/base.html:92
+#: app/templates/base.html:118 app/templates/hod_portal.html:222
+#: app/templates/hod_portal.html:229
+msgid "نظام الجداول الدراسية"
+msgstr ""
+
+#: app/templates/base.html:90 app/templates/exams/exams_base.html:106
+#: app/templates/resit_exams/base.html:134
+msgid "شعار المؤسسة"
+msgstr ""
+
+#: app/templates/base.html:97
+msgid "حفظ الإعدادات"
+msgstr ""
+
+#: app/templates/base.html:98
+msgid "العودة للبوابة"
+msgstr ""
+
+#: app/templates/base.html:99
+msgid "خروج"
+msgstr ""
+
+#: app/templates/base.html:102 app/templates/exams/exams_base.html:118
+#: app/templates/resit_exams/base.html:145
+msgid "خيارات إضافية"
+msgstr ""
+
+#: app/templates/base.html:104
+msgid "حفظ باسم..."
+msgstr ""
+
+#: app/templates/base.html:105
+msgid "استعادة"
+msgstr ""
+
+#: app/templates/base.html:106
+msgid "حذف إعدادات"
+msgstr ""
+
+#: app/templates/base.html:108
+msgid "عن البرنامج"
+msgstr ""
+
+#: app/templates/base.html:119 app/templates/exams/exams_base.html:134
+#: app/templates/resit_exams/base.html:159
+msgid "الإصدار 4.0 (النسخة السحابية)"
+msgstr ""
+
+#: app/templates/base.html:121 app/templates/exams/exams_base.html:136
+#: app/templates/resit_exams/base.html:161
+msgid "تم تصميم وتطوير هذا النظام بواسطة:"
+msgstr ""
+
+#: app/templates/base.html:122 app/templates/exams/exams_base.html:137
+#: app/templates/exams/exams_base.html:338
+#: app/templates/resit_exams/base.html:162
+msgid "الدكتور شعيب يحيى"
+msgstr ""
+
+#: app/templates/base.html:123 app/templates/exams/exams_base.html:138
+#: app/templates/resit_exams/base.html:163
+msgid "جميع الحقوق محفوظة &copy; 2026"
+msgstr ""
+
+#: app/templates/base.html:170
+msgid "الشاشة الرئيسية"
+msgstr ""
+
+#: app/templates/base.html:172 app/templates/exams/exams_base.html:147
+msgid "1. البيانات الأساسية"
+msgstr ""
+
+#: app/templates/base.html:173 app/templates/exams/exams_base.html:148
+msgid "2. إدارة البيانات"
+msgstr ""
+
+#: app/templates/base.html:174
+msgid "3. إسناد المواد"
+msgstr ""
+
+#: app/templates/base.html:175
+msgid "4. هيكل الجدول"
+msgstr ""
+
+#: app/templates/base.html:176 app/templates/exams/exams_base.html:151
+#: app/templates/resit_exams/base.html:194
+msgid "5. القيود والشروط"
+msgstr ""
+
+#: app/templates/base.html:177
+msgid "6. إنشاء الجداول"
+msgstr ""
+
+#: app/templates/base.html:178 app/templates/exams/exams_base.html:153
+msgid "7. النسخ الاحتياطي"
+msgstr ""
+
+#: app/templates/base.html:182
+msgid "مراجعة الرغبات"
+msgstr ""
+
+#: app/templates/base.html:185
+msgid "حساب المدير"
+msgstr ""
+
+#: app/templates/base.html:221
+msgid "هل أنت متأكد أنك تريد إيقاف البرنامج والخروج؟"
+msgstr ""
+
+#: app/templates/base.html:225
+msgid "تم إيقاف البرنامج بنجاح. يمكنك إغلاق هذه الصفحة."
+msgstr ""
+
+#: app/templates/base.html:235
+msgid "هل أنت متأكد أنك تريد إيقاف الخادم وإغلاق النظام؟"
+msgstr ""
+
+#: app/templates/base.html:238
+msgid "تم إيقاف الخادم بنجاح. يمكنك الآن إغلاق هذه النافذة."
+msgstr ""
+
+#: app/templates/base.html:241
+msgid "تم إرسال أمر الإيقاف."
+msgstr ""
+
+#: app/templates/base.html:259
+msgid "هل أنت متأكد من إلغاء إسناد جميع المواد لهذا الأستاذ؟"
+msgstr ""
+
+#: app/templates/base.html:260
+msgid "عمل ممتاز! جميع المواد مسندة لأساتذة."
+msgstr ""
+
+#: app/templates/base.html:261
+msgid "مواد"
+msgstr ""
+
+#: app/templates/base.html:264
+msgid "تم حفظ إعدادات المراحل (الهيكل، القيود، الخوارزميات) كإعدادات افتراضية."
+msgstr ""
+
+#: app/templates/base.html:265
+msgid "أدخل اسماً لهذه الإعدادات (مثال: إعدادات الفصل الأول):"
+msgstr ""
+
+#: app/templates/base.html:266
+msgid "☁️ تم حفظ الإعدادات باسم:"
+msgstr ""
+
+#: app/templates/base.html:267
+msgid "بنجاح في السحابة! يمكنك الوصول إليها من أي جهاز."
+msgstr ""
+
+#: app/templates/base.html:268
+msgid "حدث خطأ أثناء الحفظ في السحابة: "
+msgstr ""
+
+#: app/templates/base.html:269
+msgid "لا توجد إعدادات محفوظة مسبقاً لاستعادتها في حسابك."
+msgstr ""
+
+#: app/templates/base.html:270
+msgid "اختر رقم الإعدادات التي تريد استعادتها:\\n\\n"
+msgstr ""
+
+#: app/templates/base.html:271
+msgid "تمت استعادة إعدادات"
+msgstr ""
+
+#: app/templates/base.html:272
+msgid "بنجاح! سيتم تحديث الصفحة لتطبيقها."
+msgstr ""
+
+#: app/templates/base.html:273
+msgid "رقم غير صحيح، تم إلغاء الاستعادة."
+msgstr ""
+
+#: app/templates/base.html:274
+msgid "حدث خطأ أثناء الاتصال بالسحابة لجلب الإعدادات: "
+msgstr ""
+
+#: app/templates/base.html:275
+msgid "لا توجد إعدادات محفوظة مسبقاً لحذفها."
+msgstr ""
+
+#: app/templates/base.html:276
+msgid "اختر رقم الإعدادات التي تريد حذفها نهائياً:\\n\\n"
+msgstr ""
+
+#: app/templates/base.html:277
+msgid "هل أنت متأكد جداً من أنك تريد حذف إعدادات"
+msgstr ""
+
+#: app/templates/base.html:278
+msgid "نهائياً من السحابة؟ لا يمكن التراجع عن هذا الإجراء."
+msgstr ""
+
+#: app/templates/base.html:279
+msgid "تم حذف إعدادات"
+msgstr ""
+
+#: app/templates/base.html:280
+msgid "بنجاح!"
+msgstr ""
+
+#: app/templates/base.html:281
+msgid "رقم غير صحيح، تم إلغاء الحذف."
+msgstr ""
+
+#: app/templates/base.html:282
+msgid "حدث خطأ في الاتصال بالسحابة: "
+msgstr ""
+
+#: app/templates/base.html:283
+msgid "الرجاء اختيار ملف النسخة الاحتياطية (.json) أولاً!"
+msgstr ""
+
+#: app/templates/base.html:284
+msgid ""
+"⚠️ تحذير: استعادة النسخة الاحتياطية ستمسح بيانات القسم الحالية بالكامل "
+"وتحل محلها بالبيانات الموجودة في الملف. (لن تتأثر الأقسام الأخرى). هل أنت"
+" متأكد من المتابعة؟"
+msgstr ""
+
+#: app/templates/base.html:285
+msgid "جاري الرفع والاستعادة..."
+msgstr ""
+
+#: app/templates/base.html:286 app/templates/base.html:457
+#: app/templates/index.html:1241 app/templates/index.html:1253
+#: app/templates/index.html:1321 app/templates/index.html:1335
+#: app/templates/super_admin.html:145 app/templates/super_admin.html:204
+#: app/templates/super_admin.html:230 app/templates/super_admin.html:262
+#: app/templates/super_admin.html:277 app/templates/super_admin.html:296
+#: app/templates/super_admin.html:317 app/templates/teacher_portal.html:352
+msgid "خطأ: "
+msgstr ""
+
+#: app/templates/base.html:287 app/templates/base.html:429
+msgid "حدث خطأ في الاتصال أثناء رفع الملف."
+msgstr ""
+
+#: app/templates/base.html:290
+msgid "معرف 1\\nمعرف 2..."
+msgstr ""
+
+#: app/templates/base.html:291 app/templates/exams/exams_index.html:353
+#: app/templates/index.html:619
+msgid "الأستاذ"
+msgstr ""
+
+#: app/templates/base.html:292
+msgid "بدء ح2"
+msgstr ""
+
+#: app/templates/base.html:293
+msgid "بدء ح3"
+msgstr ""
+
+#: app/templates/base.html:294
+msgid "إنهاء بـ ح3"
+msgstr ""
+
+#: app/templates/base.html:295
+msgid "إنهاء بـ ح4"
+msgstr ""
+
+#: app/templates/base.html:296
+msgid "بدء ح2 + إنهاء ح4 (يلغي ماسبقه)"
+msgstr ""
+
+#: app/templates/base.html:297
+msgid "قاعدة التوزيع"
+msgstr ""
+
+#: app/templates/base.html:298
+msgid "غير محدد (مرن)"
+msgstr ""
+
+#: app/templates/base.html:299
+msgid "تجميع في يومين"
+msgstr ""
+
+#: app/templates/base.html:300
+msgid "تجميع في 3 أيام"
+msgstr ""
+
+#: app/templates/base.html:301
+msgid "يومان منفصلان"
+msgstr ""
+
+#: app/templates/base.html:302
+msgid "3 أيام منفصلة"
+msgstr ""
+
+#: app/templates/base.html:303 app/templates/index.html:561
+msgid "لا يوجد منع (السماح بالتوالي)"
+msgstr ""
+
+#: app/templates/base.html:304
+msgid "منع التوالي في جميع المدرجات"
+msgstr ""
+
+#: app/templates/base.html:305
+msgid "منع التوالي في:"
+msgstr ""
+
+#: app/templates/base.html:306
+msgid "لم يتم تحديد قاعات (متاح للكل)"
+msgstr ""
+
+#: app/templates/base.html:307
+msgid "مغلقة: مخصصة حصرياً لـ"
+msgstr ""
+
+#: app/templates/base.html:308
+msgid "بدون تخصيص"
+msgstr ""
+
+#: app/templates/base.html:309
+msgid "اختر القاعات"
+msgstr ""
+
+#: app/templates/base.html:310
+msgid "🔒 قاعة حصرية: تفعيل هذا الخيار يمنع المستويات الأخرى"
+msgstr ""
+
+#: app/templates/base.html:311
+msgid "قفل فردي للمستوى"
+msgstr ""
+
+#: app/templates/base.html:312
+msgid "لا يوجد قيد"
+msgstr ""
+
+#: app/templates/base.html:313
+msgid "منع آخر حصة"
+msgstr ""
+
+#: app/templates/base.html:314 app/templates/index.html:581
+msgid "منع آخر حصتين"
+msgstr ""
+
+#: app/templates/base.html:315
+msgid "اختر أستاذ..."
+msgstr ""
+
+#: app/templates/base.html:316
+#: app/templates/resit_exams/manage_constraints.html:166
+msgid "مع"
+msgstr ""
+
+#: app/templates/base.html:317
+msgid "تم حفظ جميع الشروط والقيود بنجاح!"
+msgstr ""
+
+#: app/templates/base.html:318 app/templates/resit_exams/assign_rooms.html:156
+#: app/templates/resit_exams/assign_subjects.html:223
+#: app/templates/resit_exams/manage_constraints.html:352
+#: app/templates/resit_exams/manage_data.html:387
+#: app/templates/resit_exams/manage_schedule.html:339
+#: app/templates/resit_exams/phase7.html:148
+msgid "حدث خطأ أثناء الاتصال بالخادم."
+msgstr ""
+
+#: app/templates/base.html:330
+msgid "يرجى اختيار خوارزمية مساعدة واحدة على الأقل!"
+msgstr ""
+
+#: app/templates/base.html:331 app/templates/index.html:728
+msgid "إيقاف البحث"
+msgstr ""
+
+#: app/templates/base.html:332
+msgid "بدء الاتصال بالخادم وإرسال البيانات...\\n"
+msgstr ""
+
+#: app/templates/base.html:333
+msgid "تم بدء العملية. جاري استقبال المتابعة الحية...\\n"
+msgstr ""
+
+#: app/templates/base.html:334
+msgid "اكتملت عملية الجدولة بنجاح!"
+msgstr ""
+
+#: app/templates/base.html:335
+msgid "باقي"
+msgstr ""
+
+#: app/templates/base.html:336
+msgid "صارم و"
+msgstr ""
+
+#: app/templates/base.html:337
+msgid "مرن)"
+msgstr ""
+
+#: app/templates/base.html:338
+msgid "إعادة الجدولة مرة أخرى"
+msgstr ""
+
+#: app/templates/base.html:339
+msgid "حدث خطأ أثناء قراءة النتيجة النهائية."
+msgstr ""
+
+#: app/templates/base.html:340
+msgid "انقطع الاتصال بالخادم (قد تكون العملية انتهت أو توقفت)."
+msgstr ""
+
+#: app/templates/base.html:341
+msgid "بدء محاولة جديدة"
+msgstr ""
+
+#: app/templates/base.html:342
+msgid "حدث خطأ في بدء الخوارزمية:\\n"
+msgstr ""
+
+#: app/templates/base.html:343 app/templates/base.html:520
+#: app/templates/exams/exams_index.html:684 app/templates/login.html:138
+#: app/templates/setup.html:75
+msgid "حدث خطأ في الاتصال بالخادم."
+msgstr ""
+
+#: app/templates/base.html:344
+#: app/templates/resit_exams/generate_schedule.html:267
+msgid "هل أنت متأكد من إيقاف الخوارزمية؟ قد لا يتم حفظ النتائج الحالية."
+msgstr ""
+
+#: app/templates/base.html:345
+msgid "جاري الإيقاف، يرجى الانتظار..."
+msgstr ""
+
+#: app/templates/base.html:346
+msgid "لم يتم إنشاء أي جداول أو البيانات فارغة."
+msgstr ""
+
+#: app/templates/base.html:347
+msgid "جدول: "
+msgstr ""
+
+#: app/templates/base.html:349 app/templates/teacher_portal.html:393
+msgid "بدون قاعة"
+msgstr ""
+
+#: app/templates/base.html:350
+msgid "➕ نقل إلى هنا"
+msgstr ""
+
+#: app/templates/base.html:351
+msgid "لا توجد بيانات مصدرة. يرجى توليد الجدول أولاً."
+msgstr ""
+
+#: app/templates/base.html:352
+msgid "جداول_المستويات.docx"
+msgstr ""
+
+#: app/templates/base.html:353
+msgid "جداول_الأساتذة.docx"
+msgstr ""
+
+#: app/templates/base.html:354
+msgid "جدول_القاعات_الشاغرة.xlsx"
+msgstr ""
+
+#: app/templates/base.html:355
+msgid "خطأ في التصدير: "
+msgstr ""
+
+#: app/templates/base.html:356
+msgid "العبء_البيداغوجي.xlsx"
+msgstr ""
+
+#: app/templates/base.html:357
+msgid "خطأ في تصدير العبء البيداغوجي: "
+msgstr ""
+
+#: app/templates/base.html:358
+msgid "القائمة_الشاملة_للجداول.xlsx"
+msgstr ""
+
+#: app/templates/base.html:359
+msgid "خطأ في تصدير القائمة الشاملة: "
+msgstr ""
+
+#: app/templates/base.html:360
+msgid "لا توجد نتيجة حالية لحفظها! يرجى توليد جدول أولاً."
+msgstr ""
+
+#: app/templates/base.html:361
+msgid "✅ تم حفظ النتيجة الحالية في [الذاكرة رقم "
+msgstr ""
+
+#: app/templates/base.html:362
+msgid "] بنجاح!"
+msgstr ""
+
+#: app/templates/base.html:363
+msgid "📂 تمت استعادة [النتيجة رقم "
+msgstr ""
+
+#: app/templates/base.html:364
+msgid "] بنجاح! يمكنك الآن مراجعتها أو تصديرها."
+msgstr ""
+
+#: app/templates/base.html:365
+msgid "لا توجد نتيجة محفوظة في هذه الذاكرة."
+msgstr ""
+
+#: app/templates/base.html:366
+msgid "يرجى توليد جدول أولاً قبل محاولة تحسينه!"
+msgstr ""
+
+#: app/templates/base.html:367
+msgid "بسيط (مقيد)"
+msgstr ""
+
+#: app/templates/base.html:368
+msgid "بسيط (مفتوح)"
+msgstr ""
+
+#: app/templates/base.html:369
+msgid "عميق (تفريغ المساء)"
+msgstr ""
+
+#: app/templates/base.html:370
+msgid "عميق (موازنة العبء)"
+msgstr ""
+
+#: app/templates/base.html:371
+msgid "متوازن"
+msgstr ""
+
+#: app/templates/base.html:372
+msgid "لعدد "
+msgstr ""
+
+#: app/templates/base.html:373
+msgid " أساتذة"
+msgstr ""
+
+#: app/templates/base.html:374
+msgid "لجميع الأساتذة"
+msgstr ""
+
+#: app/templates/base.html:375
+msgid "🚀 جاري الاتصال بالخادم لضغط وتحسين أوقات الأساتذة...\\n"
+msgstr ""
+
+#: app/templates/base.html:376
+msgid "⚙️ المستوى: ["
+msgstr ""
+
+#: app/templates/base.html:377
+msgid "] | النطاق: ["
+msgstr ""
+
+#: app/templates/base.html:378
+msgid "]\\n\\n"
+msgstr ""
+
+#: app/templates/base.html:379
+msgid "جاري التحسين..."
+msgstr ""
+
+#: app/templates/base.html:380
+msgid "اكتملت عملية التحسين وسد الفجوات بنجاح!"
+msgstr ""
+
+#: app/templates/base.html:381
+msgid "✨ ضغط وتحسين جداول الأساتذة (سد الفجوات)"
+msgstr ""
+
+#: app/templates/base.html:382
+msgid "✨ تم ضغط الجداول بنجاح! يمكنك الآن مراجعتها أو تصديرها."
+msgstr ""
+
+#: app/templates/base.html:383
+msgid "🚀 الخطوة الختامية: المراجعة والنشر"
+msgstr ""
+
+#: app/templates/base.html:384
+msgid ""
+"يمكنك تعديل الجداول برمجياً، أو تصديرها للإكسل وتعديلها خارجياً، ثم "
+"العودة لنشرها."
+msgstr ""
+
+#: app/templates/base.html:385
+msgid "⬇️ تصدير الجداول (Excel)"
+msgstr ""
+
+#: app/templates/base.html:386
+msgid "⬆️ استيراد الجداول المعدلة"
+msgstr ""
+
+#: app/templates/base.html:387
+msgid "✏️ تفعيل التعديل التفاعلي"
+msgstr ""
+
+#: app/templates/base.html:388
+msgid "✅ إرسال الجداول للأساتذة"
+msgstr ""
+
+#: app/templates/base.html:389
+msgid "🚫 سحب وإخفاء"
+msgstr ""
+
+#: app/templates/base.html:390 app/templates/base.html:483
+#: app/templates/resit_exams/generate_schedule.html:248
+msgid "حدث خطأ: "
+msgstr ""
+
+#: app/templates/base.html:391
+msgid "يرجى توليد جدول أولاً!"
+msgstr ""
+
+#: app/templates/base.html:392
+msgid ""
+"هل أنت متأكد أنك تريد تفعيل الدومينو (صناعة حصص يتيمة) للأساتذة المؤشر "
+"عليهم؟"
+msgstr ""
+
+#: app/templates/base.html:393
+msgid "🟢 جاري الاتصال بالخادم لتفعيل الدومينو (صناعة الحصص اليتيمة)...\\n"
+msgstr ""
+
+#: app/templates/base.html:394
+msgid "جاري التفعيل..."
+msgstr ""
+
+#: app/templates/base.html:395
+msgid "نجحت عملية صناعة الحصص اليتيمة!"
+msgstr ""
+
+#: app/templates/base.html:396
+msgid "🟢 تفعيل الدومينو"
+msgstr ""
+
+#: app/templates/base.html:397
+msgid "🟢 تم تفعيل مسار الدومينو وصناعة الحصص اليتيمة بنجاح!"
+msgstr ""
+
+#: app/templates/base.html:398
+msgid "هل أنت متأكد من تجميع الدومينو وضغط جداول الأساتذة العالقين؟"
+msgstr ""
+
+#: app/templates/base.html:399
+msgid "🔵 جاري الاتصال بالخادم وتجميع مسارات الدومينو لضغط الجداول...\\n"
+msgstr ""
+
+#: app/templates/base.html:400
+msgid "جاري التجميع..."
+msgstr ""
+
+#: app/templates/base.html:401
+msgid "نجحت عملية تجميع مسارات الدومينو!"
+msgstr ""
+
+#: app/templates/base.html:402
+msgid "🔵 تجميع الدومينو"
+msgstr ""
+
+#: app/templates/base.html:403
+msgid "🔵 تم تجميع الحصص اليتيمة وضغط الجداول بنجاح!"
+msgstr ""
+
+#: app/templates/base.html:404
+msgid "الرجاء اختيار الأستاذ الهدف من القائمة المنسدلة."
+msgstr ""
+
+#: app/templates/base.html:405
+msgid "هل أنت متأكد من تنفيذ العملية الجراحية لرفع حصص الأستاذ ["
+msgstr ""
+
+#: app/templates/base.html:406
+msgid "] نحو الصباح؟\\n(ملاحظة: سيتم إزاحة أساتذة آخرين كضحايا بحد أقصى "
+msgstr ""
+
+#: app/templates/base.html:407
+msgid ")."
+msgstr ""
+
+#: app/templates/base.html:408
+msgid "🎯 جاري الاتصال بالخادم لتنفيذ التدخل الجراحي للأستاذ: ["
+msgstr ""
+
+#: app/templates/base.html:409
+msgid "]...\\n"
+msgstr ""
+
+#: app/templates/base.html:410
+msgid "انتهت العملية الجراحية!"
+msgstr ""
+
+#: app/templates/base.html:411
+msgid "🚀 تنفيذ"
+msgstr ""
+
+#: app/templates/base.html:412
+msgid "🎯 تمت العملية الجراحية، ويمكنك معاينة الجدول المحدث!"
+msgstr ""
+
+#: app/templates/base.html:413
+msgid "🔴 إغلاق وضع التعديل"
+msgstr ""
+
+#: app/templates/base.html:414
+msgid ""
+"✨ تم تفعيل الوضع اليدوي!\\n1. انقر على أي مادة لتحديدها.\\n2. انقر على "
+"مادة أخرى (أو فراغ) ليتبادلا الأماكن فوراً."
+msgstr ""
+
+#: app/templates/base.html:415
+msgid "❌ تعارض: الأستاذ ("
+msgstr ""
+
+#: app/templates/base.html:416
+msgid ") يدرّس مستوى آخر في هذا التوقيت!"
+msgstr ""
+
+#: app/templates/base.html:417
+msgid ") يدرّس مستوى آخر في التوقيت الأول!"
+msgstr ""
+
+#: app/templates/base.html:418
+msgid ""
+"❌ عملية مرفوضة: لا يمكن التبديل بين قاعة كبيرة وقاعة صغيرة لاختلاف سعة "
+"الاستيعاب!"
+msgstr ""
+
+#: app/templates/base.html:419
+msgid "❌ عملية مرفوضة: لا توجد أي قاعات شاغرة في الكلية في هذا التوقيت!"
+msgstr ""
+
+#: app/templates/base.html:420
+msgid "❌ عملية مرفوضة: توجد قاعات شاغرة في هذا الوقت، ولكن لا توجد قاعة "
+msgstr ""
+
+#: app/templates/base.html:421
+msgid " تناسب المادة!"
+msgstr ""
+
+#: app/templates/base.html:422
+msgid "كبيرة (مدرج)"
+msgstr ""
+
+#: app/templates/base.html:423
+msgid "صغيرة (عادية)"
+msgstr ""
+
+#: app/templates/base.html:425
+msgid "⚡ تم إرسال صدمة بقوة "
+msgstr ""
+
+#: app/templates/base.html:426
+msgid "الرجاء اختيار ملف Excel أولاً!"
+msgstr ""
+
+#: app/templates/base.html:427
+msgid "جاري الاستيراد والمعالجة..."
+msgstr ""
+
+#: app/templates/base.html:428
+msgid ""
+"✅ تم استيراد الجداول من الإكسل وتحديث قاعدة البيانات بنجاح!\\nالآن يمكنك "
+"الضغط على \\'إرسال للأساتذة\\' لنشرها."
+msgstr ""
+
+#: app/templates/base.html:430
+msgid ""
+"⚠️ لا يوجد جدول حالي في الذاكرة! يرجى استيراد ملف الإكسل مرة أخرى ثم "
+"النقر على إرسال فوراً (دون تحديث الصفحة)."
+msgstr ""
+
+#: app/templates/base.html:431
+msgid ""
+"📢 هل أنت متأكد أنك تريد إرسال الجداول؟\\nسيتمكن جميع الأساتذة من رؤية "
+"جداولهم في بواباتهم الشخصية."
+msgstr ""
+
+#: app/templates/base.html:432
+msgid "✅ تم بناء ونشر جداول الأساتذة بنجاح! يمكنهم رؤيتها الآن."
+msgstr ""
+
+#: app/templates/base.html:433
+msgid "حدث خطأ أثناء محاولة النشر."
+msgstr ""
+
+#: app/templates/base.html:434
+msgid ""
+"🔕 هل أنت متأكد أنك تريد سحب الجداول؟\\nستختفي الجداول من بوابات الأساتذة "
+"وتعود لمرحلة إدخال الرغبات."
+msgstr ""
+
+#: app/templates/base.html:435
+msgid "✅ تم سحب الجداول بنجاح! عادت بوابات الأساتذة إلى وضعها الأولي."
+msgstr ""
+
+#: app/templates/base.html:436
+msgid "حدث خطأ أثناء محاولة سحب الجداول."
+msgstr ""
+
+#: app/templates/base.html:439
+msgid "<i>لا يوجد أساتذة...</i>"
+msgstr ""
+
+#: app/templates/base.html:440
+msgid "<i>لا توجد قاعات...</i>"
+msgstr ""
+
+#: app/templates/base.html:441
+msgid "<i>لا توجد مستويات...</i>"
+msgstr ""
+
+#: app/templates/base.html:442
+msgid ""
+"<i style='color: #888; font-size: 13px; display:block; padding:5px;'>⚠️ "
+"لا توجد مستويات مضافة بعد...</i>"
+msgstr ""
+
+#: app/templates/base.html:443
+msgid "<i>لا توجد مواد...</i>"
+msgstr ""
+
+#: app/templates/base.html:444
+msgid "المستويات: "
+msgstr ""
+
+#: app/templates/base.html:445
+msgid " | القاعة: "
+msgstr ""
+
+#: app/templates/base.html:447
+msgid "-- بدون تغيير --"
+msgstr ""
+
+#: app/templates/base.html:448
+msgid "يرجى إدخال اسم أستاذ واحد على الأقل."
+msgstr ""
+
+#: app/templates/base.html:449
+msgid "يرجى إدخال اسم قاعة واحدة على الأقل."
+msgstr ""
+
+#: app/templates/base.html:450
+msgid "يرجى إدخال مستوى واحد على الأقل."
+msgstr ""
+
+#: app/templates/base.html:451
+msgid "يرجى إدخال مادة واحدة على الأقل."
+msgstr ""
+
+#: app/templates/base.html:452
+msgid "يرجى تحديد مستوى واحد على الأقل عبر التأشير عليه."
+msgstr ""
+
+#: app/templates/base.html:453 app/templates/index.html:1417
+msgid "[مح]"
+msgstr ""
+
+#: app/templates/base.html:456
+msgid "✅ تمت الإضافة المباشرة بنجاح!"
+msgstr ""
+
+#: app/templates/base.html:458
+msgid "يرجى كتابة اسم مادة واحدة على الأقل في صندوق النص."
+msgstr ""
+
+#: app/templates/base.html:459
+msgid "حذف هذه الشعبة"
+msgstr ""
+
+#: app/templates/base.html:460
+msgid "اسم الشعبة (مثال: دراسات نقدية)"
+msgstr ""
+
+#: app/templates/base.html:461
+msgid "التخصصات التابعة لها (مفصولة بفاصلة. مثال: نقد قديم، نقد حديث)"
+msgstr ""
+
+#: app/templates/base.html:462
+msgid "اسم المادة"
+msgstr ""
+
+#: app/templates/base.html:463 app/templates/base.html:500
+#: app/templates/index.html:104
+msgid "محاضرة"
+msgstr ""
+
+#: app/templates/base.html:464 app/templates/base.html:501
+#: app/templates/index.html:105
+msgid "أعمال موجهة"
+msgstr ""
+
+#: app/templates/base.html:465 app/templates/base.html:502
+#: app/templates/index.html:106
+msgid "أعمال تطبيقية"
+msgstr ""
+
+#: app/templates/base.html:466 app/templates/base.html:497
+msgid "مدرج"
+msgstr ""
+
+#: app/templates/base.html:467
+msgid "قاعة عادية"
+msgstr ""
+
+#: app/templates/base.html:468 app/templates/base.html:496
+msgid "عادية"
+msgstr ""
+
+#: app/templates/base.html:469
+msgid "أفواج"
+msgstr ""
+
+#: app/templates/base.html:470
+msgid "محاضرة مشتركة "
+msgstr ""
+
+#: app/templates/base.html:471
+msgid "أفواج ("
+msgstr ""
+
+#: app/templates/base.html:472
+msgid "بدون شعبة"
+msgstr ""
+
+#: app/templates/base.html:473
+msgid "أضف شعبة وتخصص بالأعلى..."
+msgstr ""
+
+#: app/templates/base.html:474
+msgid "أم:"
+msgstr ""
+
+#: app/templates/base.html:475
+msgid "العدد"
+msgstr ""
+
+#: app/templates/base.html:476
+msgid "أت:"
+msgstr ""
+
+#: app/templates/base.html:477
+msgid "كل الشُّعب"
+msgstr ""
+
+#: app/templates/base.html:478
+msgid "كل التخصصات"
+msgstr ""
+
+#: app/templates/base.html:479
+msgid " ف"
+msgstr ""
+
+#: app/templates/base.html:480 app/templates/base.html:498
+msgid "مخبر"
+msgstr ""
+
+#: app/templates/base.html:481
+msgid "لم تقم بإدخال أي أرقام للأفواج أو تحديد محاضرات للتوليد!"
+msgstr ""
+
+#: app/templates/base.html:482
+msgid "✅ تم توليد وإضافة جميع المواد والأفواج بنجاح!"
+msgstr ""
+
+#: app/templates/base.html:484
+msgid "يرجى عدم ترك أي خانة من خانات الرموز فارغة!"
+msgstr ""
+
+#: app/templates/base.html:485
+msgid "✅ تم حفظ الرموز وتحديثها في النظام بنجاح!"
+msgstr ""
+
+#: app/templates/base.html:486
+msgid "حدث خطأ أثناء الحفظ."
+msgstr ""
+
+#: app/templates/base.html:489 app/templates/index.html:191
+#: app/templates/index.html:324
+msgid "قائمة الأساتذة"
+msgstr ""
+
+#: app/templates/base.html:490 app/templates/exams/exams_base.html:381
+#: app/templates/resit_exams/manage_data.html:145
+#: app/templates/resit_exams/manage_data.html:169
+#: app/templates/resit_exams/manage_data.html:193
+#: app/templates/resit_exams/manage_data.html:217
+msgid "تعديل"
+msgstr ""
+
+#: app/templates/base.html:491 app/templates/exams/exams_base.html:223
+#: app/templates/exams/exams_base.html:382
+#: app/templates/exams/exams_index.html:442
+#: app/templates/resit_exams/manage_constraints.html:50
+#: app/templates/resit_exams/manage_constraints.html:131
+#: app/templates/resit_exams/manage_constraints.html:170
+#: app/templates/resit_exams/manage_constraints.html:206
+#: app/templates/resit_exams/manage_data.html:150
+#: app/templates/resit_exams/manage_data.html:174
+#: app/templates/resit_exams/manage_data.html:198
+#: app/templates/resit_exams/manage_data.html:222
+#: app/templates/super_admin.html:184
+msgid "حذف"
+msgstr ""
+
+#: app/templates/base.html:492
+msgid "الحساب"
+msgstr ""
+
+#: app/templates/base.html:493 app/templates/index.html:207
+msgid "قائمة المستويات"
+msgstr ""
+
+#: app/templates/base.html:494 app/templates/index.html:199
+msgid "قائمة القاعات"
+msgstr ""
+
+#: app/templates/base.html:495 app/templates/index.html:337
+msgid "قائمة المواد"
+msgstr ""
+
+#: app/templates/base.html:503 app/templates/index.html:1431
+msgid "حفظ"
+msgstr ""
+
+#: app/templates/base.html:504 app/templates/base.html:564
+#: app/templates/index.html:163 app/templates/index.html:414
+#: app/templates/index.html:1060 app/templates/index.html:1432
+#: app/templates/resit_exams/manage_data.html:259
+#: app/templates/super_admin.html:110 app/templates/super_admin.html:126
+msgid "إلغاء"
+msgstr ""
+
+#: app/templates/base.html:505
+msgid "اسم القاعة مطلوب!"
+msgstr ""
+
+#: app/templates/base.html:506
+msgid "الشعبة..."
+msgstr ""
+
+#: app/templates/base.html:507
+msgid "التخصص..."
+msgstr ""
+
+#: app/templates/base.html:508
+msgid "اسم المادة مطلوب ويجب اختيار مستوى واحد على الأقل!"
+msgstr ""
+
+#: app/templates/base.html:509
+msgid "حدث خطأ في الاتصال بالخادم، راجع شاشة الطرفية السوداء لمعرفة السبب."
+msgstr ""
+
+#: app/templates/base.html:510
+msgid "❌ تعذر الحفظ: "
+msgstr ""
+
+#: app/templates/base.html:511 app/templates/exams/exams_base.html:390
+msgid "أدخل الاسم الجديد:"
+msgstr ""
+
+#: app/templates/base.html:512
+msgid "هل أنت متأكد من حذف هذا العنصر؟ (سيتم حذف أي ارتباطات له)"
+msgstr ""
+
+#: app/templates/base.html:513
+msgid "🔑 حساب الأستاذ: "
+msgstr ""
+
+#: app/templates/base.html:514 app/templates/login.html:103
+#: app/templates/setup.html:50
+msgid "يرجى إدخال اسم المستخدم وكلمة المرور."
+msgstr ""
+
+#: app/templates/base.html:515
+msgid "يرجى كتابة الشعبة، أو التخصص، أو تحديد طبيعة جديدة قبل التطبيق."
+msgstr ""
+
+#: app/templates/base.html:516
+msgid "هل أنت متأكد من تغيير البيانات لـ ("
+msgstr ""
+
+#: app/templates/base.html:517
+msgid ") مواد دفعة واحدة؟"
+msgstr ""
+
+#: app/templates/base.html:518
+msgid "✅ "
+msgstr ""
+
+#: app/templates/base.html:519 app/templates/exams/exams_index.html:678
+msgid "❌ خطأ: "
+msgstr ""
+
+#: app/templates/base.html:523 app/templates/index.html:391
+msgid "إضافة يوم جديد"
+msgstr ""
+
+#: app/templates/base.html:524
+msgid "تكرار اليوم (اختر اليوم الجديد)"
+msgstr ""
+
+#: app/templates/base.html:525
+msgid "هل أنت متأكد من حذف هذا اليوم بالكامل؟"
+msgstr ""
+
+#: app/templates/base.html:526
+msgid "🔂 تكرار هذا اليوم"
+msgstr ""
+
+#: app/templates/base.html:527
+msgid "❌ حذف اليوم"
+msgstr ""
+
+#: app/templates/base.html:528 app/templates/exams/exams_base.html:368
+#: app/templates/resit_exams/manage_schedule.html:109
+msgid "من:"
+msgstr ""
+
+#: app/templates/base.html:529 app/templates/exams/exams_base.html:369
+#: app/templates/resit_exams/manage_schedule.html:112
+msgid "إلى:"
+msgstr ""
+
+#: app/templates/base.html:530 app/templates/exams/exams_base.html:370
+#: app/templates/resit_exams/manage_schedule.html:137
+msgid "حذف الفترة"
+msgstr ""
+
+#: app/templates/base.html:531
+msgid "➕ إضافة قيد"
+msgstr ""
+
+#: app/templates/base.html:532
+msgid "نوع القاعة المتاحة:"
+msgstr ""
+
+#: app/templates/base.html:533
+msgid "جميع المدرجات والقاعات متاحة"
+msgstr ""
+
+#: app/templates/base.html:534
+msgid "القاعات العادية فقط"
+msgstr ""
+
+#: app/templates/base.html:535
+msgid "المدرجات المحددة"
+msgstr ""
+
+#: app/templates/base.html:536
+msgid "لا توجد أي قاعة"
+msgstr ""
+
+#: app/templates/base.html:537
+msgid "حذف القيد ❌"
+msgstr ""
+
+#: app/templates/base.html:538
+msgid "اختر المدرجات:"
+msgstr ""
+
+#: app/templates/base.html:539
+msgid "➕ إضافة فترة زمنية جديدة هنا"
+msgstr ""
+
+#: app/templates/base.html:540
+msgid "تم حفظ الهيكل الزمني بنجاح!"
+msgstr ""
+
+#: app/templates/base.html:556
+msgid "إعدادات حساب المدير"
+msgstr ""
+
+#: app/templates/base.html:557 app/templates/super_admin.html:119
+msgid "أدخل معلومات الدخول الجديدة التي ترغب باستخدامها مستقبلاً."
+msgstr ""
+
+#: app/templates/base.html:560 app/templates/super_admin.html:122
+msgid "اسم المستخدم الجديد..."
+msgstr ""
+
+#: app/templates/base.html:561 app/templates/super_admin.html:123
+msgid "كلمة المرور الجديدة..."
+msgstr ""
+
+#: app/templates/base.html:565 app/templates/super_admin.html:127
+msgid "حفظ التغييرات"
+msgstr ""
+
+#: app/templates/base.html:580 app/templates/super_admin.html:249
+msgid "يرجى ملء جميع الحقول!"
+msgstr ""
+
+#: app/templates/base.html:593
+msgid "خطأ:"
+msgstr ""
+
+#: app/templates/hod_portal.html:7
+msgid "بوابة رئيس القسم - UniPlan"
+msgstr ""
+
+#: app/templates/hod_portal.html:195 app/templates/super_admin.html:54
+#: app/templates/teacher_portal.html:64
+msgid "تسجيل الخروج"
+msgstr ""
+
+#: app/templates/hod_portal.html:199
+msgid "إيقاف النظام"
+msgstr ""
+
+#: app/templates/hod_portal.html:213
+msgid "مرحباً بك في منصة UniPlan السحابية"
+msgstr ""
+
+#: app/templates/hod_portal.html:214
+msgid "بوابة رئيس القسم - يرجى اختيار النظام لإدارة العمليات الأكاديمية"
+msgstr ""
+
+#: app/templates/hod_portal.html:223
+msgid ""
+"إدارة أساتذة ومواد التدريس، توزيع القاعات، وتوليد جداول الحصص الأسبوعية "
+"باستخدام الخوارزميات الذكية."
+msgstr ""
+
+#: app/templates/hod_portal.html:224 app/templates/hod_portal.html:240
+#: app/templates/hod_portal.html:256
+msgid "الدخول للنظام"
+msgstr ""
+
+#: app/templates/hod_portal.html:230 app/templates/hod_portal.html:246
+#: app/templates/hod_portal.html:262
+msgid ""
+"هذا النظام غير مفعل لقسمك حالياً. يرجى التواصل مع الإدارة المركزية "
+"لتفعيله."
+msgstr ""
+
+#: app/templates/hod_portal.html:238 app/templates/hod_portal.html:245
+msgid "حراسة الامتحانات (السداسية)"
+msgstr ""
+
+#: app/templates/hod_portal.html:239
+msgid ""
+"سحب الأساتذة من التدريس، توزيع الحراسات، تحقيق التوازن العادل، وتوليد "
+"جداول الامتحانات النهائية."
+msgstr ""
+
+#: app/templates/hod_portal.html:254 app/templates/hod_portal.html:261
+msgid "الامتحانات الاستدراكية"
+msgstr ""
+
+#: app/templates/hod_portal.html:255
+msgid ""
+"إدارة حراسات الاستدراكي مع استيراد سريع للبيانات المشتركة، وتوزيع مخصص "
+"يتناسب مع معايير الأولوية للأساتذة."
+msgstr ""
+
+#: app/templates/hod_portal.html:273
+msgid "هل أنت متأكد أنك تريد إيقاف الخادم وإغلاق النظام بالكامل؟"
+msgstr ""
+
+#: app/templates/hod_portal.html:278 app/templates/hod_portal.html:286
+msgid "تم إيقاف النظام بنجاح. يمكنك الآن إغلاق هذه النافذة بأمان."
+msgstr ""
+
+#: app/templates/index.html:6
+msgid "لوحة المعلومات والإحصائيات"
+msgstr ""
+
+#: app/templates/index.html:11 app/templates/resit_exams/index.html:17
+msgid "أستاذ مسجل"
+msgstr ""
+
+#: app/templates/index.html:15 app/templates/resit_exams/index.html:27
+msgid "قاعة متاحة"
+msgstr ""
+
+#: app/templates/index.html:19 app/templates/resit_exams/index.html:37
+msgid "مستوى دراسي"
+msgstr ""
+
+#: app/templates/index.html:23 app/templates/resit_exams/index.html:47
+msgid "مادة مسجلة"
+msgstr ""
+
+#: app/templates/index.html:29
+msgid "مرحباً بك في نظام الجداول الدراسية 📅"
+msgstr ""
+
+#: app/templates/index.html:31
+msgid "هذا النظام مصمم لبناء جداول الحصص الأسبوعية بذكاء وكفاءة."
+msgstr ""
+
+#: app/templates/index.html:32
+msgid ""
+"للبدء، انتقل إلى تبويبة <b>\"1. البيانات الأساسية\"</b> وقم بإعداد "
+"مدخلاتك، ثم اتبع المراحل بالتسلسل لضمان الحصول على جدول مثالي."
+msgstr ""
+
+#: app/templates/exams/exams_index.html:39 app/templates/index.html:38
+msgid "المرحلة 1: إدخال البيانات الأساسية"
+msgstr ""
+
+#: app/templates/index.html:39
+msgid ""
+"قم بإدخال البيانات كل عنصر في سطر منفصل. اضغط باستمرار على Ctrl (أو Cmd) "
+"لاختيار أكثر من مستوى للمادة."
+msgstr ""
+
+#: app/templates/index.html:55 app/templates/resit_exams/manage_data.html:139
+msgid "الأساتذة"
+msgstr ""
+
+#: app/templates/index.html:56
+msgid "مثال: أحمد محمد..."
+msgstr ""
+
+#: app/templates/exams/exams_index.html:370
+#: app/templates/exams/exams_index.html:383 app/templates/index.html:57
+#: app/templates/index.html:69 app/templates/index.html:76
+#: app/templates/resit_exams/manage_data.html:57
+#: app/templates/resit_exams/manage_data.html:75
+#: app/templates/resit_exams/manage_data.html:88
+#: app/templates/resit_exams/manage_data.html:124
+msgid "إضافة"
+msgstr ""
+
+#: app/templates/index.html:58
+msgid "لا يوجد أساتذة..."
+msgstr ""
+
+#: app/templates/index.html:62 app/templates/resit_exams/manage_data.html:163
+msgid "القاعات"
+msgstr ""
+
+#: app/templates/index.html:64
+msgid "عادية (أعمال موجهة)"
+msgstr ""
+
+#: app/templates/index.html:65
+msgid "مدرج (محاضرات)"
+msgstr ""
+
+#: app/templates/index.html:66
+msgid "مخبر (إعلام/لغات)"
+msgstr ""
+
+#: app/templates/index.html:68
+msgid "مثال: قاعة 1..."
+msgstr ""
+
+#: app/templates/index.html:70
+msgid "لا توجد قاعات..."
+msgstr ""
+
+#: app/templates/index.html:74 app/templates/index.html:242
+#: app/templates/resit_exams/manage_data.html:187
+msgid "المستويات"
+msgstr ""
+
+#: app/templates/index.html:75
+msgid "مثال: السنة الأولى..."
+msgstr ""
+
+#: app/templates/index.html:77
+msgid "لا توجد مستويات..."
+msgstr ""
+
+#: app/templates/index.html:84 app/templates/resit_exams/manage_data.html:211
+msgid "المواد"
+msgstr ""
+
+#: app/templates/index.html:86
+msgid "اختر المستويات المستهدفة:"
+msgstr ""
+
+#: app/templates/index.html:92
+msgid "الشعبة (مثال: دراسات أدبية)..."
+msgstr ""
+
+#: app/templates/index.html:96
+msgid "التخصص (مثال: نقد قديم)..."
+msgstr ""
+
+#: app/templates/index.html:102
+msgid "طبيعة المادة:"
+msgstr ""
+
+#: app/templates/index.html:108
+msgid "إعدادات الرموز البيداغوجية"
+msgstr ""
+
+#: app/templates/index.html:111
+msgid "هذا الخيار يُستخدم فقط مع الإضافة المباشرة"
+msgstr ""
+
+#: app/templates/index.html:112
+msgid "تُدرّس في: قاعة عادية"
+msgstr ""
+
+#: app/templates/index.html:113
+msgid "تُدرّس في: مدرج"
+msgstr ""
+
+#: app/templates/index.html:114
+msgid "تُدرّس في: مخبر"
+msgstr ""
+
+#: app/templates/index.html:117
+msgid "اكتب أسماء المواد هنا..."
+msgstr ""
+
+#: app/templates/index.html:120
+msgid "إضافة النصوص كما هي للقاعة المحددة"
+msgstr ""
+
+#: app/templates/index.html:120
+msgid "إضافة مباشرة"
+msgstr ""
+
+#: app/templates/index.html:121
+msgid "توليد المحاضرات والأفواج آلياً"
+msgstr ""
+
+#: app/templates/index.html:121
+msgid "توليد الأفواج أو التخصصات"
+msgstr ""
+
+#: app/templates/index.html:124
+msgid "لا توجد مواد..."
+msgstr ""
+
+#: app/templates/index.html:130
+msgid "الضبط المتقدم للمواد وتوليد الأفواج"
+msgstr ""
+
+#: app/templates/index.html:131
+msgid ""
+"حدد طبيعة كل مادة والمكان المخصص للمحاضرة. (أفواج الأعمال الموجهة تُربط "
+"دائماً بـ \"قاعة عادية\")."
+msgstr ""
+
+#: app/templates/index.html:136
+msgid "هذه المواد مشتركة بين عدة تخصصات (تفريع الأفواج)"
+msgstr ""
+
+#: app/templates/index.html:142
+msgid "إعدادات المحاضرة المشتركة [مح]:"
+msgstr ""
+
+#: app/templates/index.html:144
+msgid "الشعبة (مثال: كل الشُّعب)"
+msgstr ""
+
+#: app/templates/index.html:145
+msgid "التخصص (مثال: كل التخصصات)"
+msgstr ""
+
+#: app/templates/index.html:149
+msgid "إدارة الشعب والتخصصات للأفواج (الأعمال الموجهة) [أم]:"
+msgstr ""
+
+#: app/templates/index.html:152
+msgid "إضافة شعبة جديدة"
+msgstr ""
+
+#: app/templates/index.html:164
+msgid "تأكيد وتوليد المواد"
+msgstr ""
+
+#: app/templates/index.html:171
+msgid "المرحلة 2: عرض وإدارة البيانات المدخلة"
+msgstr ""
+
+#: app/templates/index.html:172
+msgid "يمكنك هنا مراجعة البيانات التي أدخلتها وحذف ما لا تريده."
+msgstr ""
+
+#: app/templates/exams/exams_index.html:127
+#: app/templates/exams/exams_index.html:139 app/templates/index.html:193
+#: app/templates/index.html:201
+msgid "الاسم"
+msgstr ""
+
+#: app/templates/index.html:193 app/templates/index.html:201
+#: app/templates/index.html:209 app/templates/index.html:242
+msgid "إجراء"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:139 app/templates/index.html:201
+msgid "النوع"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:151
+#: app/templates/exams/exams_index.html:208 app/templates/index.html:209
+msgid "المستوى"
+msgstr ""
+
+#: app/templates/index.html:216
+msgid "قائمة المواد (المقررات)"
+msgstr ""
+
+#: app/templates/index.html:221
+msgid "التعديل لـ"
+msgstr ""
+
+#: app/templates/index.html:222
+msgid "الشعبة (فارغ للتجاهل)"
+msgstr ""
+
+#: app/templates/index.html:223
+msgid "التخصص (فارغ للتجاهل)"
+msgstr ""
+
+#: app/templates/index.html:226
+msgid "طبيعة المادة (تجاهل)"
+msgstr ""
+
+#: app/templates/index.html:227
+msgid "محاضرة [مح]"
+msgstr ""
+
+#: app/templates/index.html:228
+msgid "أعمال موجهة [أم]"
+msgstr ""
+
+#: app/templates/index.html:229
+msgid "أعمال تطبيقية [أت]"
+msgstr ""
+
+#: app/templates/index.html:232
+msgid "تطبيق"
+msgstr ""
+
+#: app/templates/index.html:239 app/templates/index.html:644
+#: app/templates/index.html:657
+msgid "تحديد الكل"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:163 app/templates/index.html:242
+msgid "المادة"
+msgstr ""
+
+#: app/templates/index.html:242
+msgid "الشعبة"
+msgstr ""
+
+#: app/templates/index.html:242
+msgid "التخصص"
+msgstr ""
+
+#: app/templates/index.html:242
+msgid "طبيعة المادة"
+msgstr ""
+
+#: app/templates/index.html:242
+msgid "نوع القاعة"
+msgstr ""
+
+#: app/templates/index.html:253
+msgid "المرحلة 3: إسناد المواد للأساتذة"
+msgstr ""
+
+#: app/templates/index.html:254
+msgid ""
+"اختر أستاذًا من القائمة، ثم حدد المواد، واضغط على \"تخصيص\". (انقر مرتين "
+"للإلغاء)"
+msgstr ""
+
+#: app/templates/index.html:320
+msgid "تخصيص المواد المحددة للأستاذ المختار"
+msgstr ""
+
+#: app/templates/index.html:325
+msgid "بحث عن أستاذ..."
+msgstr ""
+
+#: app/templates/index.html:330
+#: app/templates/resit_exams/assign_subjects.html:109
+msgid "تخصيص المواد للأستاذ المختار"
+msgstr ""
+
+#: app/templates/index.html:332
+#: app/templates/resit_exams/assign_subjects.html:111
+#: app/templates/resit_exams/assign_subjects.html:226
+msgid "تخصيص"
+msgstr ""
+
+#: app/templates/index.html:338
+msgid "بحث عن مادة..."
+msgstr ""
+
+#: app/templates/index.html:345
+msgid "قائمة المواد غير المسندة (تنتظر أستاذاً)"
+msgstr ""
+
+#: app/templates/index.html:348
+msgid "بمجرد إسناد المادة لأستاذ في الأعلى، ستختفي من هذه القائمة تلقائياً."
+msgstr ""
+
+#: app/templates/index.html:358
+msgid "المرحلة 4: إعداد هيكل الجدول الزمني"
+msgstr ""
+
+#: app/templates/index.html:392
+msgid "حفظ الهيكل"
+msgstr ""
+
+#: app/templates/index.html:400
+msgid "اختر اليوم"
+msgstr ""
+
+#: app/templates/index.html:413
+msgid "تأكيد"
+msgstr ""
+
+#: app/templates/index.html:422
+msgid "المرحلة 5: مرحلة القيود والشروط"
+msgstr ""
+
+#: app/templates/index.html:423 app/templates/index.html:664
+msgid "حفظ جميع القيود"
+msgstr ""
+
+#: app/templates/index.html:444
+msgid "إدارة أوزان القيود (صارمة / مرنة)"
+msgstr ""
+
+#: app/templates/index.html:449
+msgid "قيود صارمة (ثابتة دائماً)"
+msgstr ""
+
+#: app/templates/index.html:450
+msgid ""
+"هذه القيود أساسية لعمل البرنامج ولا يمكن تغييرها. أي خرق لها يعتبر خطأ "
+"فادحاً."
+msgstr ""
+
+#: app/templates/index.html:453
+msgid "تعارض الأستاذ (نفس الأستاذ في نفس الوقت)."
+msgstr ""
+
+#: app/templates/index.html:454
+msgid "تعارض القاعة (نفس القاعة في نفس الوقت)."
+msgstr ""
+
+#: app/templates/index.html:455
+msgid "تعارض القاعة الكبيرة (أكثر من محاضرة في قاعة كبيرة)."
+msgstr ""
+
+#: app/templates/index.html:456
+msgid "تعارض المعرفات (مثل الأعمال الموجهة لنفس المستوى)."
+msgstr ""
+
+#: app/templates/index.html:457
+msgid "توزيع غير متناسق للمواد المشتركة."
+msgstr ""
+
+#: app/templates/index.html:458
+msgid "خرق فترة الراحة العامة (مثل مساء الثلاثاء)."
+msgstr ""
+
+#: app/templates/index.html:459
+msgid ""
+"خرق قواعد الفترة الزمنية (مثل وضع مادة بقاعة كبيرة في فترة للقاعات "
+"الصغيرة فقط)."
+msgstr ""
+
+#: app/templates/index.html:460
+msgid "خرق قيد الأيام اليدوية للأستاذ."
+msgstr ""
+
+#: app/templates/index.html:465
+msgid "قيود قابلة للتحكم (مرنة/صارمة)"
+msgstr ""
+
+#: app/templates/index.html:466
+msgid ""
+"حدد مستوى الأهمية لهذه القيود. \"المرن\" هو تفضيل، و\"الصارم\" هو شرط "
+"إلزامي."
+msgstr ""
+
+#: app/templates/index.html:473
+msgid "صارم (إلزامي)"
+msgstr ""
+
+#: app/templates/index.html:474 app/templates/index.html:505
+msgid "مهم جدا (عقوبة: 20 نقطة)"
+msgstr ""
+
+#: app/templates/index.html:475 app/templates/index.html:506
+msgid "مهم (عقوبة: 10 نقطة)"
+msgstr ""
+
+#: app/templates/index.html:476 app/templates/index.html:507
+msgid "تفضيل بسيط (عقوبة: 1 نقطة)"
+msgstr ""
+
+#: app/templates/index.html:477
+msgid "غير مهم (معطل)"
+msgstr ""
+
+#: app/templates/index.html:480
+msgid "قيد التوزيع (أيام متتالية/منفصلة)"
+msgstr ""
+
+#: app/templates/index.html:481
+msgid "قيد منع تشارك الأساتذة في الأيام"
+msgstr ""
+
+#: app/templates/index.html:482
+msgid "قيد العمل في اليوم المُقيَّد"
+msgstr ""
+
+#: app/templates/index.html:483
+msgid "قيد منع آخر الحصص"
+msgstr ""
+
+#: app/templates/index.html:484
+msgid "قيد الحد الأقصى للحصص اليومية"
+msgstr ""
+
+#: app/templates/index.html:485
+msgid "قيد اشتراك أزواج الأساتذة"
+msgstr ""
+
+#: app/templates/index.html:486
+msgid "قيد منع توالي القاعات الكبيرة"
+msgstr ""
+
+#: app/templates/index.html:487
+msgid "قيد منع تتابع المحاضرات للمستوى"
+msgstr ""
+
+#: app/templates/index.html:502
+msgid "قيد أوقات البدء والانتهاء (عند التوزيع التلقائي)"
+msgstr ""
+
+#: app/templates/index.html:518
+msgid "ملاحظة هامة:"
+msgstr ""
+
+#: app/templates/index.html:518
+msgid "قيد \"أوقات البدء والانتهاء\" يصبح"
+msgstr ""
+
+#: app/templates/index.html:518
+msgid "صارماً"
+msgstr ""
+
+#: app/templates/index.html:518
+msgid "تلقائياً عند تحديد أيام عمل الأستاذ يدوياً، ويبقى"
+msgstr ""
+
+#: app/templates/index.html:518
+msgid "مرناً"
+msgstr ""
+
+#: app/templates/index.html:518
+msgid "عند ترك الأيام للتوزيع التلقائي (الخوارزمية لها حرية الاختيار)."
+msgstr ""
+
+#: app/templates/index.html:523
+msgid "قيد المعرفات (منع التكرار في نفس الفترة)"
+msgstr ""
+
+#: app/templates/index.html:524
+msgid ""
+"أدخل المعرفات التي لا يجب أن تتكرر في نفس الفترة الزمنية لكل مستوى (كل "
+"معرف في سطر)."
+msgstr ""
+
+#: app/templates/index.html:529
+msgid "تحديد أيام وقيود عمل الأساتذة (الأهم)"
+msgstr ""
+
+#: app/templates/index.html:541
+msgid "كيفية التعامل مع الأيام غير المحددة (عند اختيار تجميع/تفرقة):"
+msgstr ""
+
+#: app/templates/index.html:542
+msgid "الأيام مجموعة مسموحة (مرن): يلتزم بالحد الأقصى للأيام فقط."
+msgstr ""
+
+#: app/templates/index.html:543
+msgid "الأيام مجموعة مطلوبة (صارم): يجب استخدام العدد المحدد بالضبط."
+msgstr ""
+
+#: app/templates/index.html:549
+msgid "قيود زمنية ومكانية عامة"
+msgstr ""
+
+#: app/templates/index.html:550
+msgid "الحد الأقصى للحصص في اليوم:"
+msgstr ""
+
+#: app/templates/index.html:553
+msgid "حصتان"
+msgstr ""
+
+#: app/templates/index.html:554
+msgid "3 حصص"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:300 app/templates/index.html:555
+msgid "4 حصص"
+msgstr ""
+
+#: app/templates/index.html:559
+msgid "قيد توالي القاعات الكبيرة:"
+msgstr ""
+
+#: app/templates/index.html:565
+msgid "الحد الأقصى لتتابع المحاضرات للمستوى:"
+msgstr ""
+
+#: app/templates/index.html:567
+msgid "منع التوالي تماماً (حد أقصى محاضرة واحدة)"
+msgstr ""
+
+#: app/templates/index.html:568
+msgid "حد أقصى محاضرتين متتاليتين"
+msgstr ""
+
+#: app/templates/index.html:569
+msgid "حد أقصى 3 محاضرات متتالية"
+msgstr ""
+
+#: app/templates/index.html:570
+msgid "حد أقصى 4 محاضرات متتالية"
+msgstr ""
+
+#: app/templates/index.html:574
+msgid "فترات الراحة (لن توضع فيها حصص):"
+msgstr ""
+
+#: app/templates/index.html:575
+msgid "مساء الثلاثاء (آخر حصتين)"
+msgstr ""
+
+#: app/templates/index.html:578
+msgid "مساء آخر يوم:"
+msgstr ""
+
+#: app/templates/index.html:580
+msgid "منع آخر حصة فقط"
+msgstr ""
+
+#: app/templates/index.html:587
+msgid "تخصيص المدرجات الدائمة (للمحاضرات)"
+msgstr ""
+
+#: app/templates/index.html:593
+msgid "تخصيص القاعات الدائمة للأعمال الموجهة (نظام الأجنحة)"
+msgstr ""
+
+#: app/templates/index.html:598
+msgid ""
+"قفل جميع القاعات المختارة على مستوياتها فقط (إغلاق الأجنحة المشتركة أمام "
+"الغرباء)"
+msgstr ""
+
+#: app/templates/index.html:608
+msgid "العمل في \"اليوم المُقيَّد\" وآخر الحصص"
+msgstr ""
+
+#: app/templates/index.html:611
+msgid "تحديد اليوم المُقيَّد:"
+msgstr ""
+
+#: app/templates/index.html:619
+msgid "السماح باليوم المقيد"
+msgstr ""
+
+#: app/templates/index.html:619
+msgid "منع آخر حصص"
+msgstr ""
+
+#: app/templates/index.html:626
+msgid "تشارك أيام العمل (اختياري)"
+msgstr ""
+
+#: app/templates/index.html:627
+msgid "إجبار التشارك:"
+msgstr ""
+
+#: app/templates/index.html:629 app/templates/index.html:633
+msgid "إضافة زوج"
+msgstr ""
+
+#: app/templates/index.html:631
+msgid "منع التشارك:"
+msgstr ""
+
+#: app/templates/index.html:638
+msgid "إعدادات خوارزمية التحسين (سد الفجوات)"
+msgstr ""
+
+#: app/templates/index.html:639
+msgid "تُنفذ بعد اكتمال التوزيع."
+msgstr ""
+
+#: app/templates/index.html:641
+msgid "اختر الأساتذة لتطبيق التحسين عليهم:"
+msgstr ""
+
+#: app/templates/index.html:645 app/templates/index.html:658
+msgid "إلغاء الكل"
+msgstr ""
+
+#: app/templates/index.html:653
+msgid "أساتذة التوزيع المرن (خوارزمية الدومينو)"
+msgstr ""
+
+#: app/templates/index.html:654
+msgid ""
+"اختر الأساتذة الذين سيتم توزيع جدولهم على 3 أيام مع ترك \"حصة يتيمة\" "
+"قابلة للضغط لاحقاً إلى يومين."
+msgstr ""
+
+#: app/templates/index.html:668
+msgid "المرحلة 6: إنشاء الجداول الدراسية"
+msgstr ""
+
+#: app/templates/index.html:671
+msgid "إعدادات خوارزمية التوزيع"
+msgstr ""
+
+#: app/templates/index.html:677
+msgid "تفعيل التسلسل الهرمي الصارم للأخطاء"
+msgstr ""
+
+#: app/templates/index.html:680
+msgid ""
+"(عند تفعيله، يجب على الخوارزمية حل كل الأخطاء الصارمة أولاً قبل الالتفات "
+"للأخطاء المرنة)."
+msgstr ""
+
+#: app/templates/index.html:684
+msgid "اختر الخوارزميات المساعدة (التحسين):"
+msgstr ""
+
+#: app/templates/index.html:689
+msgid "البحث الجِوَاري الواسع (LNS)"
+msgstr ""
+
+#: app/templates/index.html:693 app/templates/index.html:705
+msgid "التكرارات:"
+msgstr ""
+
+#: app/templates/index.html:694
+msgid "نسبة التدمير (Ruin):"
+msgstr ""
+
+#: app/templates/index.html:696 app/templates/index.html:707
+msgid "حد الركود للطفرة:"
+msgstr ""
+
+#: app/templates/index.html:696
+msgid "النسبة المئوية من التكرارات قبل إحداث طفرة عشوائية"
+msgstr ""
+
+#: app/templates/index.html:702
+msgid "البحث الجِوَاري المتغير (VNS)"
+msgstr ""
+
+#: app/templates/index.html:706
+msgid "أقصى جوار (k):"
+msgstr ""
+
+#: app/templates/index.html:707
+msgid "النسبة المئوية قبل إحداث طفرة عشوائية"
+msgstr ""
+
+#: app/templates/index.html:713
+msgid "إعدادات الطفرة الموحدة (لجميع الخوارزميات):"
+msgstr ""
+
+#: app/templates/index.html:716
+msgid "القوة الصارمة (لتفكيك الأخطاء):"
+msgstr ""
+
+#: app/templates/index.html:720
+msgid "الاحتمالية المرنة (0.0 إلى 1.0):"
+msgstr ""
+
+#: app/templates/index.html:726
+msgid "بدء إنشاء الجداول الدراسية"
+msgstr ""
+
+#: app/templates/index.html:735
+msgid "إحداث طفرة يدوية (انقر للتدخل الفوري)"
+msgstr ""
+
+#: app/templates/index.html:738
+msgid "المتابعة الحية لعمل الخوارزمية"
+msgstr ""
+
+#: app/templates/index.html:750
+msgid "تحليل العقوبات المباشر"
+msgstr ""
+
+#: app/templates/index.html:752
+msgid "تبديل الشكل (أعمدة / شبكة)"
+msgstr ""
+
+#: app/templates/index.html:785
+msgid "أدوات التحكم والتحسين المتقدمة"
+msgstr ""
+
+#: app/templates/index.html:810
+msgid "ضغط وتحسين جداول الأساتذة (سد الفجوات)"
+msgstr ""
+
+#: app/templates/index.html:819
+msgid "الأستاذ الهدف..."
+msgstr ""
+
+#: app/templates/index.html:821
+msgid "الحد الأقصى للضحايا"
+msgstr ""
+
+#: app/templates/index.html:823
+msgid "تنفيذ"
+msgstr ""
+
+#: app/templates/index.html:827
+msgid "المشرط الجراحي (لأستاذ واحد)"
+msgstr ""
+
+#: app/templates/index.html:838
+msgid "تفعيل"
+msgstr ""
+
+#: app/templates/index.html:841
+msgid "تجميع"
+msgstr ""
+
+#: app/templates/index.html:845
+msgid "أدوات الدومينو الجراحية"
+msgstr ""
+
+#: app/templates/index.html:853
+msgid "حدد عمق خوارزمية الضغط:"
+msgstr ""
+
+#: app/templates/index.html:858
+msgid "بسيط (مقيد بنفس اليوم):"
+msgstr ""
+
+#: app/templates/index.html:858
+msgid "تقديم حصص الفترات الأخيرة لملء الشواغر في"
+msgstr ""
+
+#: app/templates/index.html:858
+msgid "نفس اليوم فقط"
+msgstr ""
+
+#: app/templates/index.html:858
+msgid "(الأكثر أماناً)."
+msgstr ""
+
+#: app/templates/index.html:863
+msgid "بسيط (مفتوح):"
+msgstr ""
+
+#: app/templates/index.html:863
+msgid "تقديم حصص الفترات الأخيرة لملء الشواغر ضمن"
+msgstr ""
+
+#: app/templates/index.html:863
+msgid "أي يوم عمل متاح"
+msgstr ""
+
+#: app/templates/index.html:863
+msgid "للأستاذ."
+msgstr ""
+
+#: app/templates/index.html:868
+msgid "متوازن (موصى به):"
+msgstr ""
+
+#: app/templates/index.html:868
+msgid "تقديم معظم الحصص لأبكر وقت ممكن (لا يقتصر على الفترات الأخيرة فقط)."
+msgstr ""
+
+#: app/templates/index.html:873
+msgid "عميق (أبطأ):"
+msgstr ""
+
+#: app/templates/index.html:873
+msgid "تفكيك جداول الأساتذة بالكامل وإعادة تركيبها للحصول على أفضل هيكل مناسب."
+msgstr ""
+
+#: app/templates/index.html:878
+msgid "عميق (موازنة العبء):"
+msgstr ""
+
+#: app/templates/index.html:878
+msgid ""
+"تفكيك الجداول وإعادة توزيعها لضمان التساوي والعدل في عدد الحصص اليومية "
+"للأستاذ."
+msgstr ""
+
+#: app/templates/index.html:887
+msgid "حفظ النتيجة 1"
+msgstr ""
+
+#: app/templates/index.html:888
+msgid "استعادة 1"
+msgstr ""
+
+#: app/templates/index.html:894
+msgid "حفظ النتيجة 2"
+msgstr ""
+
+#: app/templates/index.html:895
+msgid "استعادة 2"
+msgstr ""
+
+#: app/templates/index.html:902
+msgid "تمت عملية الجدولة بنجاح!"
+msgstr ""
+
+#: app/templates/index.html:903
+msgid "اختر ما تريد تصديره أو استعرض جداول المستويات بالأسفل:"
+msgstr ""
+
+#: app/templates/index.html:906
+msgid "لغة التصدير (Export Language):"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:541 app/templates/index.html:910
+#: app/templates/resit_exams/generate_schedule.html:113
+msgid "العربية"
+msgstr ""
+
+#: app/templates/index.html:929
+msgid "تصدير جداول المستويات (Word)"
+msgstr ""
+
+#: app/templates/index.html:931
+msgid "تصدير جداول الأساتذة (Word)"
+msgstr ""
+
+#: app/templates/index.html:933
+msgid "تصدير القاعات الفارغة (Excel)"
+msgstr ""
+
+#: app/templates/index.html:938
+msgid "تصدير جداول القاعات (Excel)"
+msgstr ""
+
+#: app/templates/index.html:940
+msgid "تصدير العبء البيداغوجي (Excel)"
+msgstr ""
+
+#: app/templates/index.html:942
+msgid "تصدير القائمة الشاملة (Excel)"
+msgstr ""
+
+#: app/templates/index.html:953
+msgid "المرحلة 7: غرفة التحكم المركزية (الربط والنشر)"
+msgstr ""
+
+#: app/templates/index.html:954
+msgid ""
+"هذه المساحة مخصصة لربط الموقع بحاسوبك الشخصي. اسحب الرغبات للمعالجة، أو "
+"ارفع البيانات والجداول النهائية."
+msgstr ""
+
+#: app/templates/index.html:957
+msgid "تسجيل الخروج من حساب المدير"
+msgstr ""
+
+#: app/templates/index.html:959
+msgid "إيقاف إجباري لأي توزيع قيد التشغيل وإعادة تهيئة الخادم"
+msgstr ""
+
+#: app/templates/index.html:960
+msgid "إعادة تهيئة الخادم (طوارئ)"
+msgstr ""
+
+#: app/templates/index.html:967
+msgid "الخطوة 1: إدارة قاعدة البيانات الشاملة (.json)"
+msgstr ""
+
+#: app/templates/index.html:970
+msgid "تحميل البيانات من الموقع (لسحب الرغبات):"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:616 app/templates/index.html:971
+msgid "تحميل نسخة احتياطية للقسم (.json)"
+msgstr ""
+
+#: app/templates/index.html:975
+msgid "التحكم في استقبال الرغبات:"
+msgstr ""
+
+#: app/templates/index.html:976
+msgid "جاري التحقق من الحالة..."
+msgstr ""
+
+#: app/templates/index.html:980
+msgid "رفع البيانات إلى الموقع (للتهيئة الأولية):"
+msgstr ""
+
+#: app/templates/index.html:981
+msgid "* تحذير: هذا سيمسح البيانات الحالية ويستبدلها بالملف المرفوع!"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:622 app/templates/index.html:983
+msgid "رفع واستعادة البيانات (.json)"
+msgstr ""
+
+#: app/templates/index.html:987
+msgid "مسح جميع الرغبات الحالية (للتحضير لسداسي جديد)"
+msgstr ""
+
+#: app/templates/index.html:992
+msgid "الخطوة 2: التصدير، الاستيراد والنشر"
+msgstr ""
+
+#: app/templates/index.html:996
+msgid "تصدير الجداول الحالية (للتعديل):"
+msgstr ""
+
+#: app/templates/index.html:997
+msgid "اختر لغة التصدير، ثم قم بتحميل الجداول لتعديلها ببرنامج الإكسل."
+msgstr ""
+
+#: app/templates/index.html:1000
+msgid "العربية (Arabic)"
+msgstr ""
+
+#: app/templates/index.html:1001
+msgid "الإنجليزية (English)"
+msgstr ""
+
+#: app/templates/index.html:1003
+msgid "تصدير الجداول (Excel)"
+msgstr ""
+
+#: app/templates/index.html:1009
+msgid "استيراد الجداول المعدلة:"
+msgstr ""
+
+#: app/templates/index.html:1010
+msgid "ارفع ملف الإكسل (Excel) الذي قمت بتعديله لدمجه في الموقع مجدداً."
+msgstr ""
+
+#: app/templates/exams/exams_index.html:638 app/templates/index.html:1012
+msgid "استيراد الجداول (Excel)"
+msgstr ""
+
+#: app/templates/index.html:1017
+msgid "استيراد القائمة الشاملة (للهندسة العكسية):"
+msgstr ""
+
+#: app/templates/index.html:1018
+msgid ""
+"ارفع ملف \"القائمة الشاملة\" المُعدل ليتم قراءته وإعادة بناء الجداول "
+"الشبكية آلياً."
+msgstr ""
+
+#: app/templates/index.html:1020
+msgid "استيراد القائمة الشاملة (Excel)"
+msgstr ""
+
+#: app/templates/index.html:1025
+msgid "إظهار الجداول:"
+msgstr ""
+
+#: app/templates/index.html:1026
+msgid "إرسال للأساتذة"
+msgstr ""
+
+#: app/templates/index.html:1029
+msgid "إخفاء الجداول:"
+msgstr ""
+
+#: app/templates/index.html:1030
+msgid "سحب الجداول"
+msgstr ""
+
+#: app/templates/index.html:1038
+msgid "منطقة الحذر"
+msgstr ""
+
+#: app/templates/index.html:1039
+msgid ""
+"استخدم هذا الزر فقط إذا أردت مسح كل الجداول، المواد، الرغبات، والأساتذة "
+"لبدء موسم جامعي جديد من الصفر."
+msgstr ""
+
+#: app/templates/index.html:1040
+msgid "ضبط المصنع (مسح شامل)"
+msgstr ""
+
+#: app/templates/index.html:1047
+msgid "إعداد الحساب"
+msgstr ""
+
+#: app/templates/index.html:1051
+msgid "اسم المستخدم (للدخول):"
+msgstr ""
+
+#: app/templates/index.html:1052
+msgid "مثال: ahmed_ali"
+msgstr ""
+
+#: app/templates/index.html:1055 app/templates/login.html:83
+msgid "كلمة المرور:"
+msgstr ""
+
+#: app/templates/index.html:1056
+msgid "اكتب كلمة مرور جديدة..."
+msgstr ""
+
+#: app/templates/index.html:1061
+msgid "حفظ الحساب"
+msgstr ""
+
+#: app/templates/index.html:1071
+msgid "إدارة رغبات الأساتذة"
+msgstr ""
+
+#: app/templates/index.html:1073
+msgid "اعتماد الطلبات (الجديدة) آلياً"
+msgstr ""
+
+#: app/templates/index.html:1075
+msgid "مسح شامل لكل الرغبات"
+msgstr ""
+
+#: app/templates/index.html:1083
+msgid "تقرير التضاربات المحفوظ"
+msgstr ""
+
+#: app/templates/index.html:1084
+msgid "صلاحيات رؤية المواد"
+msgstr ""
+
+#: app/templates/index.html:1087
+msgid "تصدير الرغبات (Excel)"
+msgstr ""
+
+#: app/templates/index.html:1088
+msgid "تصدير التقرير (Excel)"
+msgstr ""
+
+#: app/templates/index.html:1095
+msgid "التضاربات المسجلة آلياً"
+msgstr ""
+
+#: app/templates/index.html:1096
+msgid ""
+"هذا السجل يحتفظ بالمواد التي طلبها أساتذة ولم يحصلوا عليها لأنها حُجزت "
+"مسبقاً:"
+msgstr ""
+
+#: app/templates/index.html:1097
+msgid "مسح التقرير"
+msgstr ""
+
+#: app/templates/index.html:1111
+msgid "التحكم في إظهار أسماء المواد للأساتذة"
+msgstr ""
+
+#: app/templates/index.html:1112
+msgid ""
+"الأساتذة المحددون سيتمكنون من استعراض قائمة بأسماء المواد المسندة إليهم "
+"داخل بوابتهم (تحت العداد) فورا وقبل صدور الجدول النهائي."
+msgstr ""
+
+#: app/templates/index.html:1116
+msgid "تفعيل رؤية أسماء المواد لجميع الأساتذة دفعة واحدة"
+msgstr ""
+
+#: app/templates/index.html:1169
+msgid "لا توجد أي رغبات مسجلة حالياً."
+msgstr ""
+
+#: app/templates/index.html:1177
+msgid "جديد / مُعدّل"
+msgstr ""
+
+#: app/templates/index.html:1178
+msgid "تمت معالجته مسبقاً"
+msgstr ""
+
+#: app/templates/index.html:1187
+msgid "أيام العمل المطلوبة:"
+msgstr ""
+
+#: app/templates/index.html:1193
+msgid "المواد المطلوبة:"
+msgstr ""
+
+#: app/templates/index.html:1199
+msgid "مسح الرغبة"
+msgstr ""
+
+#: app/templates/index.html:1216
+msgid "لا توجد تضاربات مسجلة حتى الآن."
+msgstr ""
+
+#: app/templates/index.html:1222
+msgid "هل أنت متأكد من مسح هذه الرغبة نهائياً؟"
+msgstr ""
+
+#: app/templates/index.html:1236
+msgid ""
+"تمت معالجة الطلبات الجديدة بنجاح! تم العثور على بعض التضاربات، يمكنك "
+"رؤيتها في تبويبة تقرير التضاربات."
+msgstr ""
+
+#: app/templates/index.html:1239
+msgid "تمت معالجة الطلبات الجديدة بنجاح، ولم تُسجل أي تضاربات!"
+msgstr ""
+
+#: app/templates/index.html:1246
+msgid ""
+"⚠️ تحذير: هل أنت متأكد أنك تريد مسح جميع رغبات الأساتذة دفعة "
+"واحدة؟\\nسيؤدي هذا الإجراء إلى تصفير جميع الطلبات ولا يمكن التراجع عنه!"
+msgstr ""
+
+#: app/templates/index.html:1251
+msgid "تم مسح جميع رغبات الأساتذة بنجاح!"
+msgstr ""
+
+#: app/templates/index.html:1258
+msgid "⚠️ هل أنت متأكد أنك تريد مسح سجل التضاربات بالكامل؟"
+msgstr ""
+
+#: app/templates/index.html:1264
+msgid "تم مسح سجل التضاربات بنجاح!"
+msgstr ""
+
+#: app/templates/index.html:1268
+msgid "لا توجد تضاربات مسجلة"
+msgstr ""
+
+#: app/templates/index.html:1271
+msgid "خطأ أثناء المسح: "
+msgstr ""
+
+#: app/templates/index.html:1274
+msgid "حدث خطأ في الاتصال أثناء محاولة مسح التقرير."
+msgstr ""
+
+#: app/templates/index.html:1326
+msgid ""
+"⚠️ تحذير خطير جداً: هل أنت متأكد أنك تريد مسح جميع البيانات (الأساتذة، "
+"المواد، القاعات، الجداول) والعودة لنقطة الصفر؟\\n\\n(ملاحظة: لن يتم حذف "
+"حساب المدير).\\nلا يمكن التراجع عن هذا الإجراء!"
+msgstr ""
+
+#: app/templates/index.html:1332
+msgid "تم مسح جميع البيانات بنجاح! سيتم تحديث الصفحة."
+msgstr ""
+
+#: app/templates/index.html:1338
+msgid "حدث خطأ في الاتصال."
+msgstr ""
+
+#: app/templates/index.html:1342
+msgid ""
+"⚠️ تحذير: هل أنت متأكد أنك تريد إيقاف الخادم بالقوة وإعادة "
+"تهيئته؟\\n(استخدم هذا الزر فقط إذا علقت الخوارزمية أو انقطع الاتصال)."
+msgstr ""
+
+#: app/templates/index.html:1347
+msgid "تم إعادة تهيئة الخادم بنجاح. يمكنك الآن بدء توزيع جديد."
+msgstr ""
+
+#: app/templates/index.html:1353
+msgid "لم نتمكن من إعادة التهيئة: "
+msgstr ""
+
+#: app/templates/index.html:1357
+msgid ""
+"الخادم لا يستجيب تماماً. يرجى إغلاق البرنامج كاملاً (الشاشة السوداء) "
+"وإعادة فتحه."
+msgstr ""
+
+#: app/templates/index.html:1378
+msgid "الرغبات مغلقة حالياً (انقر للفتح)"
+msgstr ""
+
+#: app/templates/index.html:1381
+msgid "الرغبات مفتوحة حالياً (انقر للإغلاق)"
+msgstr ""
+
+#: app/templates/index.html:1388
+msgid ""
+"هل أنت متأكد من إغلاق استقبال الرغبات؟ لن يتمكن الأساتذة من اختيار المواد"
+" أو تعديل طلباتهم."
+msgstr ""
+
+#: app/templates/index.html:1389
+msgid "هل أنت متأكد من فتح استقبال الرغبات للأساتذة مجدداً؟"
+msgstr ""
+
+#: app/templates/index.html:1412
+msgid "إعدادات الرموز"
+msgstr ""
+
+#: app/templates/index.html:1413
+msgid "حدد الرمز الذي سيُضاف تلقائياً لكل مادة:"
+msgstr ""
+
+#: app/templates/index.html:1416
+msgid "محاضرة:"
+msgstr ""
+
+#: app/templates/index.html:1421
+msgid "أعمال موجهة:"
+msgstr ""
+
+#: app/templates/index.html:1426
+msgid "أعمال تطبيقية:"
+msgstr ""
+
+#: app/templates/login.html:7
+msgid "تسجيل الدخول - موزع الجداول الذكي"
+msgstr ""
+
+#: app/templates/login.html:77
+msgid "مرحباً بك مجدداً 👋"
+msgstr ""
+
+#: app/templates/login.html:79
+msgid "اسم المستخدم:"
+msgstr ""
+
+#: app/templates/login.html:80
+msgid "أدخل اسم المستخدم..."
+msgstr ""
+
+#: app/templates/login.html:84 app/templates/setup.html:36
+msgid "أدخل كلمة المرور..."
+msgstr ""
+
+#: app/templates/login.html:86
+msgid "تسجيل الدخول"
+msgstr ""
+
+#: app/templates/login.html:110
+msgid "⏳ جاري الدخول..."
+msgstr ""
+
+#: app/templates/setup.html:7
+msgid "إعداد النظام - موزع الجداول الذكي"
+msgstr ""
+
+#: app/templates/setup.html:27
+msgid "مرحباً بك في موزع الجداول"
+msgstr ""
+
+#: app/templates/setup.html:28
+msgid ""
+"يبدو أن هذه هي المرة الأولى لتشغيل النظام. يرجى إعداد حساب المدير الخاص "
+"بك للبدء في استخدام البرنامج."
+msgstr ""
+
+#: app/templates/setup.html:31
+msgid "اختر اسم مستخدم (للدخول):"
+msgstr ""
+
+#: app/templates/setup.html:32
+msgid "مثال: admin"
+msgstr ""
+
+#: app/templates/setup.html:35
+msgid "اختر كلمة مرور قوية:"
+msgstr ""
+
+#: app/templates/setup.html:38
+msgid "حفظ والبدء"
+msgstr ""
+
+#: app/templates/setup.html:64
+msgid "✅ تم الإعداد بنجاح! جاري التوجيه لصفحة الدخول..."
+msgstr ""
+
+#: app/templates/super_admin.html:7
+msgid "لوحة الإدارة المركزية - UniPlan SaaS"
+msgstr ""
+
+#: app/templates/super_admin.html:45
+msgid "لوحة الإدارة المركزية (UniPlan SaaS)"
+msgstr ""
+
+#: app/templates/super_admin.html:53
+msgid "إعدادات حسابي"
+msgstr ""
+
+#: app/templates/super_admin.html:62
+msgid "الأقسام المشتركة"
+msgstr ""
+
+#: app/templates/super_admin.html:66
+msgid "إجمالي الأساتذة"
+msgstr ""
+
+#: app/templates/super_admin.html:70
+msgid "إجمالي المواد"
+msgstr ""
+
+#: app/templates/super_admin.html:76
+msgid "إدارة الأقسام المشتركة"
+msgstr ""
+
+#: app/templates/super_admin.html:77
+msgid "إضافة قسم جامعي جديد"
+msgstr ""
+
+#: app/templates/super_admin.html:83
+msgid "رقم"
+msgstr ""
+
+#: app/templates/super_admin.html:84
+msgid "اسم القسم / الكلية"
+msgstr ""
+
+#: app/templates/super_admin.html:85
+msgid "حساب رئيس القسم"
+msgstr ""
+
+#: app/templates/super_admin.html:86
+msgid "تاريخ الاشتراك"
+msgstr ""
+
+#: app/templates/super_admin.html:87
+msgid "صلاحيات الأنظمة"
+msgstr ""
+
+#: app/templates/super_admin.html:88
+msgid "حالة الحساب"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:127
+#: app/templates/exams/exams_index.html:139
+#: app/templates/exams/exams_index.html:151
+#: app/templates/exams/exams_index.html:163 app/templates/super_admin.html:89
+msgid "إجراءات"
+msgstr ""
+
+#: app/templates/super_admin.html:99
+msgid "إنشاء بيئة عمل لقسم جديد"
+msgstr ""
+
+#: app/templates/super_admin.html:100
+msgid "اسم القسم (مثال: قسم الإعلام الآلي):"
+msgstr ""
+
+#: app/templates/super_admin.html:101
+msgid "اسم القسم"
+msgstr ""
+
+#: app/templates/super_admin.html:103
+msgid "اسم مستخدم الدخول لرئيس القسم:"
+msgstr ""
+
+#: app/templates/super_admin.html:104
+msgid "مثال: admin_cs"
+msgstr ""
+
+#: app/templates/super_admin.html:106
+msgid "كلمة المرور الابتدائية:"
+msgstr ""
+
+#: app/templates/super_admin.html:107
+msgid "كلمة المرور"
+msgstr ""
+
+#: app/templates/super_admin.html:111
+msgid "إنشاء وتسليم البيئة"
+msgstr ""
+
+#: app/templates/super_admin.html:118
+msgid "إعدادات حساب المدير العام"
+msgstr ""
+
+#: app/templates/super_admin.html:155
+msgid "التدريس: مفعل"
+msgstr ""
+
+#: app/templates/super_admin.html:155
+msgid "التدريس: مقفل"
+msgstr ""
+
+#: app/templates/super_admin.html:158
+msgid "الامتحانات: مفعل"
+msgstr ""
+
+#: app/templates/super_admin.html:158
+msgid "الامتحانات: مقفل"
+msgstr ""
+
+#: app/templates/super_admin.html:170 app/templates/super_admin.html:173
+msgid "انقر لتبديل حالة التفعيل"
+msgstr ""
+
+#: app/templates/super_admin.html:179
+msgid "نشط"
+msgstr ""
+
+#: app/templates/super_admin.html:182
+msgid "تعديل الاسم"
+msgstr ""
+
+#: app/templates/super_admin.html:183
+msgid "تغيير المرور"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:206 app/templates/super_admin.html:207
+#: app/templates/super_admin.html:321
+msgid "حدث خطأ في الاتصال بالخادم"
+msgstr ""
+
+#: app/templates/super_admin.html:268
+msgid "تحذير خطير: هل أنت متأكد من حذف قسم"
+msgstr ""
+
+#: app/templates/super_admin.html:268
+msgid ""
+"بالكامل؟\\nسيتم مسح جميع الأساتذة والمواد والجداول المرتبطة به ولا يمكن "
+"التراجع عن هذا الإجراء."
+msgstr ""
+
+#: app/templates/super_admin.html:283
+msgid "أدخل كلمة المرور الجديدة لحساب رئيس قسم"
+msgstr ""
+
+#: app/templates/super_admin.html:302
+msgid "أدخل الاسم الجديد للقسم بدلاً من"
+msgstr ""
+
+#: app/templates/teacher_portal.html:7
+msgid "بوابة الأستاذ - اختيار الرغبات"
+msgstr ""
+
+#: app/templates/teacher_portal.html:57
+msgid "بوابة الأستاذ"
+msgstr ""
+
+#: app/templates/teacher_portal.html:69
+msgid "مرحباً بك أستاذ..."
+msgstr ""
+
+#: app/templates/teacher_portal.html:73
+msgid "عدد المواد التي تم إسنادها إليك رسمياً حتى الآن:"
+msgstr ""
+
+#: app/templates/teacher_portal.html:77
+msgid "تفاصيل أسماء المواد المُسندة إليك من قِبل الإدارة:"
+msgstr ""
+
+#: app/templates/teacher_portal.html:81
+msgid ""
+"ملاحظة: هذه المواد أُسندت إليك مبدئياً، وسيظهر توزيعها الزمني الكامل فور "
+"نشر الجداول الرسمية."
+msgstr ""
+
+#: app/templates/teacher_portal.html:85
+msgid "تم استلام رغباتك بنجاح، وهي قيد الدراسة من قِبل الإدارة."
+msgstr ""
+
+#: app/templates/teacher_portal.html:89
+msgid "ملاحظات هامة:"
+msgstr ""
+
+#: app/templates/teacher_portal.html:92
+msgid "لا تُؤخذ بعين الاعتبار الاستمارات ناقصة البيانات."
+msgstr ""
+
+#: app/templates/teacher_portal.html:93
+msgid "بطاقة الرغبات استشارية وليست إلزامية (تخضع لمتطلبات التوزيع البيداغوجي)."
+msgstr ""
+
+#: app/templates/teacher_portal.html:98
+msgid "اختر أيام العمل المتاحة لك"
+msgstr ""
+
+#: app/templates/teacher_portal.html:99
+msgid ""
+"حدد الأيام التي يمكنك التدريس فيها (الرجاء اختيار يومين على الأقل لتسهيل "
+"التوزيع)."
+msgstr ""
+
+#: app/templates/teacher_portal.html:102
+msgid "اختر المواد التي ترغب بتدريسها"
+msgstr ""
+
+#: app/templates/teacher_portal.html:103
+msgid "ابحث عن مادة..."
+msgstr ""
+
+#: app/templates/teacher_portal.html:106
+msgid "إرسال الرغبات للإدارة"
+msgstr ""
+
+#: app/templates/teacher_portal.html:112
+msgid "تم إصدار الجدول النهائي!"
+msgstr ""
+
+#: app/templates/teacher_portal.html:113
+msgid "هذا هو جدول حصصك المعتمد رسمياً من الإدارة للموسم الحالي."
+msgstr ""
+
+#: app/templates/teacher_portal.html:116
+msgid "اسحب الجدول يميناً ويساراً لعرض باقي الأيام"
+msgstr ""
+
+#: app/templates/teacher_portal.html:127
+msgid "طباعة الجدول"
+msgstr ""
+
+#: app/templates/teacher_portal.html:133
+msgid "جدول مهام الحراسة للامتحانات"
+msgstr ""
+
+#: app/templates/teacher_portal.html:134
+msgid "تم نشر المهام الموكلة إليك من إدارة القسم للامتحانات القادمة."
+msgstr ""
+
+#: app/templates/teacher_portal.html:150
+msgid "جدول الامتحانات الاستدراكية"
+msgstr ""
+
+#: app/templates/teacher_portal.html:151
+msgid "تم نشر مهامك للامتحانات الاستدراكية للموسم الحالي."
+msgstr ""
+
+#: app/templates/teacher_portal.html:196
+msgid "مرحباً بك الأستاذ(ة):"
+msgstr ""
+
+#: app/templates/teacher_portal.html:209
+msgid "مقياس:"
+msgstr ""
+
+#: app/templates/teacher_portal.html:272
+msgid ""
+"عذراً، تم إغلاق فترة تقديم الرغبات من قِبل الإدارة للبدء في معالجة "
+"الجداول."
+msgstr ""
+
+#: app/templates/teacher_portal.html:338
+msgid "يرجى اختيار يوم واحد للعمل على الأقل!"
+msgstr ""
+
+#: app/templates/teacher_portal.html:339
+msgid "يرجى اختيار مادة واحدة على الأقل!"
+msgstr ""
+
+#: app/templates/teacher_portal.html:365
+msgid "الحصة / اليوم"
+msgstr ""
+
+#: app/templates/teacher_portal.html:376
+msgid "الحصة"
+msgstr ""
+
+#: app/templates/teacher_portal.html:412
+msgid "رسالة"
+msgstr ""
+
+#: app/templates/teacher_portal.html:413
+msgid "لا توجد بيانات متاحة لجدول الامتحانات."
+msgstr ""
+
+#: app/templates/teacher_portal.html:417
+msgid "الفترة \\ التاريخ"
+msgstr ""
+
+#: app/templates/teacher_portal.html:437 app/templates/teacher_portal.html:439
+msgid "تكليف بالحراسة"
+msgstr ""
+
+#: app/templates/teacher_portal.html:441
+msgid "دون حراسة"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:7
+#: app/templates/exams/exams_base.html:133
+msgid "نظام حراسة الامتحانات"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:108
+#: app/templates/exams/exams_base.html:335
+msgid "🎓 نظام حراسة الامتحانات"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:113
+#: app/templates/exams/exams_base.html:333
+#: app/templates/resit_exams/base.html:140
+msgid "💾 حفظ الإعدادات"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:114
+#: app/templates/resit_exams/base.html:141
+msgid "🏠 العودة للبوابة"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:115
+#: app/templates/resit_exams/base.html:142
+msgid "🚪 خروج"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:120
+#: app/templates/resit_exams/base.html:147
+#: app/templates/resit_exams/base.html:171
+msgid "❓ المساعدة ودليل الاستخدام"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:122
+#: app/templates/exams/exams_base.html:334
+#: app/templates/resit_exams/base.html:149
+msgid "ℹ️ عن البرنامج"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:144
+msgid "🏠 الرئيسية"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:149
+msgid "3. الإسناد والقاعات"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:150
+#: app/templates/resit_exams/base.html:193
+msgid "4. الأيام والأوقات"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:152
+msgid "6. التوليد والتصدير"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:165
+msgid "العنوان"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:185
+msgid "الرجاء تظليل أستاذ أولاً"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:186
+msgid "الرجاء تظليل مادة واحدة على الأقل"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:187
+msgid "تم التخصيص بنجاح!"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:188
+msgid "حدث خطأ"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:189
+msgid "الرجاء تظليل أستاذ أولاً لإلغاء إسناده"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:190
+msgid "الرجاء تظليل المواد المراد إلغاء إسنادها"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:191
+msgid "تم إلغاء التخصيص بنجاح!"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:192
+msgid "هل أنت متأكد من إلغاء إسناد جميع المواد للأستاذ"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:193
+msgid "تم إلغاء إسناد جميع المواد بنجاح!"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:194
+msgid "هل أنت متأكد من إلغاء إسناد المادة"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:195
+msgid "تم إلغاء إسناد المادة بنجاح!"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:196
+msgid "تم حفظ قاعات كل المستويات بنجاح!"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:197
+msgid "الأستاذ: "
+msgstr ""
+
+#: app/templates/exams/exams_base.html:200
+msgid "القائمة فارغة"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:201
+msgid "لا توجد مستويات، أضف مستويات أولاً."
+msgstr ""
+
+#: app/templates/exams/exams_base.html:202
+msgid "لا توجد مواد مدخلة بعد"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:203
+msgid "الرجاء إدخال اسم واحد على الأقل."
+msgstr ""
+
+#: app/templates/exams/exams_base.html:204
+msgid "تم الإضافة بنجاح! مضاف: "
+msgstr ""
+
+#: app/templates/exams/exams_base.html:205
+msgid "، مكرر: "
+msgstr ""
+
+#: app/templates/exams/exams_base.html:207
+msgid "الرجاء إدخال اسم واحد على الأقل للمستوى."
+msgstr ""
+
+#: app/templates/exams/exams_base.html:209
+msgid "الرجاء إدخال مادة واحدة على الأقل."
+msgstr ""
+
+#: app/templates/exams/exams_base.html:210
+msgid "حدث خطأ أثناء الإضافة"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:211
+msgid "الرجاء إدخال قاعة واحدة على الأقل."
+msgstr ""
+
+#: app/templates/exams/exams_base.html:214
+msgid "أضف أياماً في المرحلة 4"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:215
+msgid "يوم واحد فقط"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:216
+msgid "مرن (يومان)"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:217
+msgid "يومان متتاليان (إلزامي)"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:218
+msgid "مرن (2 أو 3 أيام)"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:219
+msgid "غير محدد (بدون قيود)"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:220
+msgid "-- اختر الأستاذ 1 --"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:221
+msgid "-- اختر الأستاذ 2 --"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:222
+msgid "اختر أستاذين مختلفين"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:224
+msgid "تضارب منطقي! هذان الأستاذان مشتركان للعمل معاً."
+msgstr ""
+
+#: app/templates/exams/exams_base.html:225
+msgid "هذا التنافر مضاف مسبقاً"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:226
+msgid "أدخل عدد أساتذة صحيح"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:227
+msgid " كبيرة + "
+msgstr ""
+
+#: app/templates/exams/exams_base.html:228
+msgid " أخرى"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:229
+msgid "أخرى"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:230
+msgid "الإجمالي: "
+msgstr ""
+
+#: app/templates/exams/exams_base.html:231
+msgid " أستاذًا في الأنماط المخصصة."
+msgstr ""
+
+#: app/templates/exams/exams_base.html:232
+msgid " (تحذير: العدد يتجاوز إجمالي الأساتذة "
+msgstr ""
+
+#: app/templates/exams/exams_base.html:233
+msgid "!)"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:234
+msgid " (ملاحظة: العدد أقل من إجمالي الأساتذة "
+msgstr ""
+
+#: app/templates/exams/exams_base.html:235
+msgid ". سيتم توزيع الباقي تلقائياً.)"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:236
+msgid " (ممتاز: تم تحديد أنماط لجميع الأساتذة "
+msgstr ""
+
+#: app/templates/exams/exams_base.html:237
+msgid " بدقة.)"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:238
+msgid "تم الحساب بدقة بناءً على المواد وقاعات مستوياتها المشتركة."
+msgstr ""
+
+#: app/templates/exams/exams_base.html:239
+msgid "حدث خطأ أثناء الجلب التلقائي للبيانات."
+msgstr ""
+
+#: app/templates/exams/exams_base.html:240
+msgid "الرجاء ملء جميع الحقول بأرقام صحيحة."
+msgstr ""
+
+#: app/templates/exams/exams_base.html:241
+msgid "عدد الأساتذة يجب أن يكون أكبر من صفر."
+msgstr ""
+
+#: app/templates/exams/exams_base.html:242
+msgid "لا توجد نتائج لعرضها."
+msgstr ""
+
+#: app/templates/exams/exams_base.html:243
+#: app/templates/exams/exams_index.html:437
+#: app/templates/exams/exams_index.html:442
+msgid "عدد الأساتذة"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:244
+msgid "حراسات (كبيرة)"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:245
+msgid "حراسات (أخرى)"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:246
+msgid "نقاط العبء للفرد"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:248
+msgid "حدث خطأ أثناء حفظ القيود."
+msgstr ""
+
+#: app/templates/exams/exams_base.html:249
+msgid "الرجاء إدخال اسم للمجموعة"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:250
+msgid "يجب اختيار مستوى واحد على الأقل"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:251
+msgid "لا توجد مجموعات مسجلة. (جميع المستويات عبارة عن جوكر حرة)."
+msgstr ""
+
+#: app/templates/exams/exams_base.html:252
+msgid "حذف وفك العزل"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:255
+msgid "[System] تم استلام الجدول النهائي ورسمه بنجاح!"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:256
+msgid "فشل في قراءة البيانات النهائية."
+msgstr ""
+
+#: app/templates/exams/exams_base.html:257
+msgid "[Network] انقطع الاتصال بمحرك التوليد."
+msgstr ""
+
+#: app/templates/exams/exams_base.html:258
+#: app/templates/resit_exams/generate_schedule.html:272
+msgid "جاري الإيقاف..."
+msgstr ""
+
+#: app/templates/exams/exams_base.html:259
+msgid "جدول امتحانات: "
+msgstr ""
+
+#: app/templates/exams/exams_base.html:260
+msgid "الفترة / اليوم"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:270
+#: app/templates/exams/exams_index.html:67
+msgid "متوسطة"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:271
+#: app/templates/exams/exams_index.html:66
+msgid "صغيرة"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:272
+msgid "أستاذ المادة: "
+msgstr ""
+
+#: app/templates/exams/exams_base.html:274
+msgid "فشل عرض النتائج بسبب خطأ. راجع الـ Console."
+msgstr ""
+
+#: app/templates/exams/exams_base.html:275
+msgid "سيتم برمجة التصدير إلى Excel قريباً!"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:276
+msgid "سيتم برمجة تصدير جداول الأساتذة قريباً!"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:277
+msgid "إجمالي الحصص الموزعة"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:278
+msgid "كبيرة: "
+msgstr ""
+
+#: app/templates/exams/exams_base.html:279
+msgid " | أخرى: "
+msgstr ""
+
+#: app/templates/exams/exams_base.html:280
+msgid "متوسط الحصص لكل أستاذ"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:281
+msgid "اليوم الأكثر ازدحاماً"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:282
+msgid "بمجموع "
+msgstr ""
+
+#: app/templates/exams/exams_base.html:283
+msgid " حصص حراسة"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:284
+msgid "أكثر 3 أساتذة عملاً 📈"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:285
+msgid " نقطة"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:286
+msgid "أقل 3 أساتذة عملاً 📉"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:287
+msgid "❌ مواد لم تتم جدولتها ("
+msgstr ""
+
+#: app/templates/exams/exams_base.html:288
+msgid ")"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:289
+msgid "⚠️ نقص في الحراسة ("
+msgstr ""
+
+#: app/templates/exams/exams_base.html:290
+msgid "✅ الجدول مكتمل ومثالي!"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:291
+msgid "تقارير الملاحظات والنقص"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:292
+msgid "✅ ممتاز! لا توجد أي أخطاء صارمة أو نقص في الحراس. الجدول سليم أساسياً."
+msgstr ""
+
+#: app/templates/exams/exams_base.html:293
+msgid "✅ رائع! جميع القيود المرنة والحدود القصوى محترمة 100 بالمئة."
+msgstr ""
+
+#: app/templates/exams/exams_base.html:294
+msgid "يرجى إنشاء جدول أولاً قبل التصدير."
+msgstr ""
+
+#: app/templates/exams/exams_base.html:295
+msgid "جاري التصدير..."
+msgstr ""
+
+#: app/templates/exams/exams_base.html:296
+msgid "فشل التصدير من الخادم"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:297
+msgid "حدث خطأ أثناء تصدير الملف."
+msgstr ""
+
+#: app/templates/exams/exams_base.html:298
+#: app/templates/exams/exams_index.html:559
+msgid "تصدير الامتحانات (Word)"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:299
+#: app/templates/exams/exams_index.html:560
+msgid "تصدير الأساتذة (Word)"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:300
+#: app/templates/exams/exams_index.html:561
+msgid "تصدير الأساتذة (مُبسَّط)"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:301
+msgid "⚖️ تقرير توازن توزيع الحراسة"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:302
+msgid "نمط التوزيع"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:303
+msgid "العدد المستهدف من الأساتذة"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:304
+msgid "العدد الفعلي"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:305
+msgid "الانحراف"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:306
+msgid "مؤشر التوازن (العدالة): "
+msgstr ""
+
+#: app/templates/exams/exams_base.html:307
+msgid "* نسبة 100 بالمئة تعني أن التوزيع الفعلي طابق الأهداف المرجوة تماماً."
+msgstr ""
+
+#: app/templates/exams/exams_base.html:308
+msgid "⏳ جاري إنشاء الملف..."
+msgstr ""
+
+#: app/templates/exams/exams_base.html:309
+msgid "تم تصدير الملف بنجاح. يمكنك الآن تعديله."
+msgstr ""
+
+#: app/templates/exams/exams_base.html:310
+msgid "حدث خطأ أثناء تصدير المخطط."
+msgstr ""
+
+#: app/templates/exams/exams_base.html:311
+msgid "فشل الاستيراد"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:312
+msgid ""
+"هل أنت متأكد؟ سيؤدي هذا إلى حذف الجدول اليدوي الذي استوردته والعودة إلى "
+"وضع التوزيع التلقائي للمواد."
+msgstr ""
+
+#: app/templates/exams/exams_base.html:313
+msgid "لا يوجد جدول جاهز لنشره. الرجاء توليد الجدول أولاً."
+msgstr ""
+
+#: app/templates/exams/exams_base.html:314
+msgid "⚠️ هل أنت متأكد من نشر هذا الجدول؟ سيظهر فوراً في حسابات جميع الأساتذة."
+msgstr ""
+
+#: app/templates/exams/exams_base.html:315
+msgid "⏳ جاري النشر..."
+msgstr ""
+
+#: app/templates/exams/exams_base.html:316
+msgid "حدث خطأ أثناء النشر"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:317
+msgid "حدث خطأ في الاتصال"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:318
+msgid ""
+"⚠️ هل أنت متأكد من سحب الجدول؟ سيختفي الجدول فوراً من حسابات جميع "
+"الأساتذة، ولن يروه حتى تقوم بنشره من جديد."
+msgstr ""
+
+#: app/templates/exams/exams_base.html:319
+msgid "⏳ جاري السحب..."
+msgstr ""
+
+#: app/templates/exams/exams_base.html:320
+msgid "حدث خطأ أثناء السحب"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:323
+msgid "لم يتم العثور على إعدادات محفوظة مسبقاً للخوارزميات:"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:324
+msgid "فشل النسخ الاحتياطي"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:325
+msgid "تم تحميل النسخة الاحتياطية بنجاح."
+msgstr ""
+
+#: app/templates/exams/exams_base.html:326
+msgid "حدث خطأ أثناء تصدير النسخة."
+msgstr ""
+
+#: app/templates/exams/exams_base.html:327
+msgid ""
+"⚠️ تحذير: سيتم مسح بيانات الامتحانات الحالية (فقط) واستبدالها ببيانات "
+"الملف المرفوع.\\n\\n(لن تتأثر الجداول الدراسية وقوائم التدريس "
+"إطلاقاً).\\n\\nهل أنت متأكد من الاستمرار؟"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:328
+msgid "ملف غير صالح."
+msgstr ""
+
+#: app/templates/exams/exams_base.html:329
+msgid ""
+"تحذير خطير! هل أنت متأكد من مسح جميع بيانات امتحانات القسم نهائياً للبدء "
+"من الصفر؟"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:330
+msgid "⏳ جاري الحفظ الشامل..."
+msgstr ""
+
+#: app/templates/exams/exams_base.html:331
+msgid "تم حفظ جميع البيانات والإعدادات في كافة المراحل بنجاح! 💾"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:332
+msgid "حدث خطأ أثناء الحفظ الشامل."
+msgstr ""
+
+#: app/templates/exams/exams_base.html:336
+msgid "الإصدار السحابي 2.0"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:337
+msgid "تم تصميم وتطوير هذا النظام السحابي المدمج بواسطة:"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:339
+msgid "جميع الحقوق محفوظة © 2026"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:340
+msgid "❓ مساعدة ودليل الاستخدام"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:341
+msgid "💡 دليل استخدام النظام - مراحل العمل:"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:342
+msgid ""
+"<b>1️⃣ المرحلة 1 (البيانات الأساسية):</b> إدخال قوائم الأساتذة، القاعات، "
+"المستويات، والمواد."
+msgstr ""
+
+#: app/templates/exams/exams_base.html:343
+msgid ""
+"<b>2️⃣ المرحلة 2 (إدارة البيانات):</b> مراجعة، تعديل، أو حذف البيانات "
+"التي تم إدخالها."
+msgstr ""
+
+#: app/templates/exams/exams_base.html:344
+msgid ""
+"<b>3️⃣ المرحلة 3 (الإسناد والقاعات):</b> إسناد المواد لأساتذتها، وتحديد "
+"القاعات المخصصة لكل مستوى."
+msgstr ""
+
+#: app/templates/exams/exams_base.html:345
+msgid ""
+"<b>4️⃣ المرحلة 4 (الأيام والأوقات):</b> بناء الهيكل الزمني وتحديد أيام "
+"وفترات الامتحانات."
+msgstr ""
+
+#: app/templates/exams/exams_base.html:346
+msgid ""
+"<b>5️⃣ المرحلة 5 (القيود والشروط):</b> ضبط غيابات الأساتذة، أنماط العمل، "
+"التنافر، والحدود القصوى."
+msgstr ""
+
+#: app/templates/exams/exams_base.html:347
+msgid ""
+"<b>6️⃣ المرحلة 6 (التوليد والتصدير):</b> تشغيل الخوارزميات الذكية لإنشاء "
+"جداول الحراسة وتصديرها."
+msgstr ""
+
+#: app/templates/exams/exams_base.html:348
+msgid ""
+"<b>7️⃣ المرحلة 7 (النسخ الاحتياطي):</b> أخذ نسخة احتياطية من جميع "
+"البيانات."
+msgstr ""
+
+#: app/templates/exams/exams_base.html:349
+msgid ""
+"<b>⚠️ تلميح هام:</b> تأكد من حفظ إعدادات كل مرحلة (عبر زر الحفظ الأخضر) "
+"قبل الانتقال للمرحلة التي تليها!"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:350
+msgid "لا يوجد جدول جاهز للتصدير. الرجاء توليد الجدول في المرحلة 6 أولاً."
+msgstr ""
+
+#: app/templates/exams/exams_base.html:351
+msgid "فشل التصدير"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:353
+msgid "تم تصدير الجدول بنجاح"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:354
+msgid "حدث خطأ أثناء تصدير الجدول"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:355
+msgid "الرجاء اختيار ملف إكسل أولاً."
+msgstr ""
+
+#: app/templates/exams/exams_base.html:356
+msgid "هل أنت متأكد؟ سيتم استيراد هذا الجدول واعتماده ونشره فوراً للأساتذة."
+msgstr ""
+
+#: app/templates/exams/exams_base.html:357
+msgid "⏳ جاري الاستيراد والنشر..."
+msgstr ""
+
+#: app/templates/exams/exams_base.html:358
+msgid "حدث خطأ أثناء الاستيراد"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:359
+#: app/templates/exams/exams_base.html:389
+msgid "خطأ في الاتصال بالخادم"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:362
+msgid "يوم جديد"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:363
+msgid "يوم غير محدد"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:364
+msgid "التاريخ:"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:365
+msgid "تكرار هذا اليوم مع فتراته"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:366
+msgid "حذف هذا اليوم"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:367
+msgid "+ إضافة فترة زمنية"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:371
+#: app/templates/resit_exams/manage_schedule.html:138
+msgid "❌ حذف"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:372
+#: app/templates/resit_exams/manage_schedule.html:143
+msgid "🎯 مستويات معنية كفترة أساسية:"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:373
+msgid "🔽 عرض المستويات الاحتياطية (انقر للفتح أو الطي)"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:374
+msgid "⏳ حدد المستويات الاحتياطية:"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:375
+#: app/templates/resit_exams/manage_schedule.html:137
+msgid "هل أنت متأكد من حذف هذه الفترة؟"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:376
+msgid "يوجد أيام بدون تاريخ! يرجى تحديد التاريخ لكل يوم."
+msgstr ""
+
+#: app/templates/exams/exams_base.html:377
+msgid "لا يوجد بيانات لحفظها. أضف يوماً وفترة واحدة ومستوى واحداً على الأقل."
+msgstr ""
+
+#: app/templates/exams/exams_base.html:380
+#: app/templates/exams/exams_index.html:123
+msgid "👨‍🏫 قائمة الأساتذة"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:383
+#: app/templates/exams/exams_index.html:135
+msgid "🏫 قائمة القاعات"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:384
+#: app/templates/exams/exams_index.html:147
+msgid "🏗️ قائمة المستويات الدراسية"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:385
+#: app/templates/exams/exams_index.html:159
+msgid "📚 قائمة المواد"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:386
+msgid "هل أنت متأكد من حذف هذا العنصر؟ (قد يؤدي هذا لحذف البيانات المرتبطة به)"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:387
+msgid "تم الحذف بنجاح"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:388
+msgid "فشل الحذف: "
+msgstr ""
+
+#: app/templates/exams/exams_base.html:391
+msgid "تم التعديل بنجاح"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:392
+msgid "أدخل الاسم الجديد للقاعة:"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:393
+msgid "أدخل نوع القاعة (صغيرة، متوسطة، كبيرة):"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:394
+msgid "نوع القاعة غير صالح! يجب أن يكون: صغيرة أو متوسطة أو كبيرة"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:395
+msgid "تم تعديل القاعة بنجاح"
+msgstr ""
+
+#: app/templates/exams/exams_base.html:396
+msgid "⏳ جاري التحديث..."
+msgstr ""
+
+#: app/templates/exams/exams_base.html:397
+msgid "✅ تم تحديث الجداول وجلب أحدث البيانات!"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:5
+msgid "🏠 لوحة المعلومات والإحصائيات"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:11
+msgid "👨‍🏫 أستاذ مسجل"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:15
+msgid "🏫 قاعة متاحة"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:19
+msgid "🏗️ مستوى دراسي"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:23
+msgid "📚 مادة مسجلة"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:29
+msgid "مرحباً بك في نظام حراسة الامتحانات 🎓"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:31
+msgid ""
+"هذا النظام مصمم لتسهيل عملية توزيع حراسات الامتحانات على الأساتذة بعدالة "
+"تامة باستخدام خوارزميات الذكاء الاصطناعي."
+msgstr ""
+
+#: app/templates/exams/exams_index.html:32
+msgid "للبدء، يرجى الانتقال إلى تبويبة"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:32
+msgid "“1. البيانات الأساسية”"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:32
+msgid ""
+"لإدخال قوائم الأساتذة والقاعات والمواد، ثم اتبع المراحل بالتسلسل خطوة "
+"بخطوة حتى تصل إلى التوليد والتصدير النهائي."
+msgstr ""
+
+#: app/templates/exams/exams_index.html:42
+msgid "🔄 استيراد الأساتذة والمستويات والمواد من التدريس"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:49
+msgid "👨‍🏫 إضافة أساتذة"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:50
+msgid "أسماء الأساتذة (كل اسم في سطر):"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:52
+msgid "إضافة الأساتذة"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:55
+msgid "📋 معاينة قائمة الأساتذة المدخلة:"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:63
+msgid "🏫 إضافة قاعات للامتحان"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:64
+msgid "نوع القاعة:"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:70
+msgid "أسماء القاعات (كل قاعة في سطر):"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:72
+msgid "إضافة القاعات"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:75
+msgid "📋 معاينة قائمة القاعات المدخلة:"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:84
+msgid "🏗️ إضافة مستويات دراسية"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:85
+msgid "أسماء المستويات (مثل: السنة الأولى) كل اسم في سطر:"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:87
+msgid "إضافة المستويات"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:90
+msgid "📋 معاينة قائمة المستويات المدخلة:"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:98
+msgid "📚 إضافة مواد للامتحان"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:99
+msgid "المستويات الدراسية (أشّر على المستويات المعنية):"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:102
+msgid "أسماء المواد (كل مادة في سطر):"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:104
+msgid "إضافة المواد للمستوى"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:107
+msgid "📋 معاينة كافة المواد حسب المستويات:"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:117
+msgid "المرحلة 2: إدارة البيانات (تعديل وحذف)"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:118
+msgid "🔄 تحديث الجداول"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:163
+msgid "المستوى التابعة له"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:174
+msgid "المرحلة 3: الإسناد وتحديد القاعات"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:177
+msgid "أ. إسناد المواد للأساتذة"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:181
+msgid "🔍 ابحث عن أستاذ..."
+msgstr ""
+
+#: app/templates/exams/exams_index.html:187
+msgid "◀ تخصيص ◀"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:190
+msgid "إلغاء الإسناد"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:195
+msgid "🔍 ابحث عن مادة أو مستوى..."
+msgstr ""
+
+#: app/templates/exams/exams_index.html:202
+msgid "ب. تحديد قاعات الامتحانات لكل مستوى"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:209
+msgid "القاعات المتاحة (أشّر على القاعات المخصصة)"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:216
+msgid "💾 حفظ قاعات كل المستويات"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:221
+msgid "المرحلة 4: إعداد أيام وأوقات الامتحانات"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:225
+msgid "أ) تحديد أيام وتوقيت الامتحانات"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:226
+msgid "💾 حفظ الهيكل الزمني"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:229
+msgid ""
+"أضف أيام الامتحانات، ثم حدد الفترات الزمنية لكل يوم والمستويات التي "
+"ستُمتحن في كل فترة. يمكنك تحديد ما إذا كانت الفترة \"أساسية\" أو "
+"\"احتياطية\" للمواد المتبقية."
+msgstr ""
+
+#: app/templates/exams/exams_index.html:235
+msgid "➕ إضافة يوم امتحان جديد"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:240
+msgid "المرحلة 5: القيود والشروط"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:242
+msgid "💾 حفظ جميع القيود"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:247
+msgid "📋 دليل القيود المعتمدة في الخوارزمية"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:252
+msgid "🔴 القيود الصارمة (Hard Constraints)"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:252
+msgid "(خرقها يفسد الجدول وتمنعه الخوارزمية تماماً)"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:253
+msgid "🟢 القيود المرنة (Soft Constraints)"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:253
+msgid "(خرقها مسموح لكن الخوارزمية تحاربه لتقليل العقوبة)"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:260
+msgid "عدم الاستنساخ:"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:260
+msgid "منع حراسة الأستاذ في امتحانين بنفس اليوم والفترة."
+msgstr ""
+
+#: app/templates/exams/exams_index.html:261
+msgid "أيام الغياب:"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:261
+msgid "احترام الأيام المحددة كإجازة/غير متاحة للأستاذ."
+msgstr ""
+
+#: app/templates/exams/exams_index.html:262
+msgid "الحد الأقصى الإجمالي:"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:262
+msgid "عدم تجاوز سقف الحصص المحدد لكل أستاذ."
+msgstr ""
+
+#: app/templates/exams/exams_index.html:263
+msgid "الحد الأقصى للقاعات الكبيرة:"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:263
+msgid "عدم تجاوز السقف المسموح للحراسات الشاقة."
+msgstr ""
+
+#: app/templates/exams/exams_index.html:264
+msgid "نمط أيام الحراسة:"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:264
+msgid "الالتزام الصارم بالنمط (يوم، مرن يومان، متتاليان، مرن 3 أيام)."
+msgstr ""
+
+#: app/templates/exams/exams_index.html:265
+msgid "اشتراك الأساتذة:"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:265
+msgid "تطابق أيام العمل للأساتذة \"الشركاء\" تماماً."
+msgstr ""
+
+#: app/templates/exams/exams_index.html:266
+msgid "تنافر الأساتذة:"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:266
+msgid "منع التقاطع في أيام العمل للأساتذة في قائمة \"المنع\"."
+msgstr ""
+
+#: app/templates/exams/exams_index.html:267
+msgid "جبر النقص:"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:267
+msgid "النظام يعتبر تغطية نقص الحراس الأولوية الصارمة القصوى."
+msgstr ""
+
+#: app/templates/exams/exams_index.html:272
+msgid "توازن العبء (الانحراف):"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:272
+msgid ""
+"السعي لتقليل الفارق في التعب بين الأساتذة إلى (0.00) بناءً على نقاط "
+"القاعات، وهو الهدف الأساسي."
+msgstr ""
+
+#: app/templates/exams/exams_index.html:273
+msgid "كفاءة الحضور (تطابق الأيام):"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:273
+msgid "محاولة جعل أيام حراسة الأستاذ هي نفسها أيام امتحان مواده."
+msgstr ""
+
+#: app/templates/exams/exams_index.html:273
+msgid "(عقوبة: 10 نقاط عن كل يوم يحضر فيه لمادته فقط دون حراسة)."
+msgstr ""
+
+#: app/templates/exams/exams_index.html:274
+msgid "منع تشتت المواد:"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:274
+msgid "السعي لجدولة امتحانات مواد الأستاذ في يومين كحد أقصى."
+msgstr ""
+
+#: app/templates/exams/exams_index.html:274
+msgid "(عقوبة: 5 نقاط عن كل يوم إضافي بعد اليوم الثاني)."
+msgstr ""
+
+#: app/templates/exams/exams_index.html:284
+msgid "أ. القيود العامة والتنظيمية"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:288
+msgid "**إلزامي**: تعيين أستاذ المادة لحراسة آخر مادة له في الجدول"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:293
+msgid ""
+"**تفعيل المرحلة 1.5**: محاولة تجميع مواد الأستاذ الواحد في أقل عدد من "
+"الأيام"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:298
+msgid "سقف عدد حصص الحراسة لكل أستاذ:"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:301
+msgid "5 حصص"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:302
+msgid "6 حصص"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:303
+msgid "بدون سقف (مطلق)"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:307
+msgid "الحد الأقصى للحراسة في القاعة الكبيرة:"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:309
+msgid "مرة واحدة"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:310
+msgid "مرتان"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:311
+msgid "3 مرات"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:312
+msgid "4 مرات"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:313
+msgid "بدون حد"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:320
+msgid "عدد الحراس المطلوب لكل نوع قاعة:"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:322
+msgid "كبيرة:"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:323
+msgid "متوسطة:"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:324
+msgid "صغيرة:"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:328
+msgid "منع التوزيع في آخر يوم/حصة للامتحانات:"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:330
+msgid "لا يوجد تقييد"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:331
+msgid "منع المواد والحراسة في آخر حصة"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:332
+msgid "منع المواد والحراسة في آخر حصتين"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:333
+msgid "منع المواد والحراسة في آخر 3 حصص"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:339
+msgid "معايير موازنة الجهد (Workload Weights):"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:340
+msgid "نقاط القاعة الكبيرة:"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:341
+msgid "نقاط القاعات الأخرى:"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:347
+msgid "ب. قيود الأساتذة (أنماط الحراسة والأيام غير المتاحة)"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:348
+msgid "ملاحظة: تظهر تواريخ الامتحانات هنا بناءً على ما تم إعداده في المرحلة 4."
+msgstr ""
+
+#: app/templates/exams/exams_index.html:354
+msgid "نمط أيام الحراسة"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:355
+msgid "الأيام غير المتاحة (غياب)"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:365
+msgid "ج. اشتراك الأساتذة (للعمل في نفس الأيام)"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:377
+msgid "د. عدم اشتراك الأساتذة (منع العمل في نفس الأيام)"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:378
+msgid ""
+"يضمن هذا القيد ألا يعمل هذان الأستاذان في نفس اليوم أبداً (مثال: للتناوب "
+"على مهام أخرى)."
+msgstr ""
+
+#: app/templates/exams/exams_index.html:390
+msgid "هـ. إدارة مجموعات العزل (تشفير الفترات الاحتياطية)"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:393
+#: app/templates/resit_exams/manage_constraints.html:253
+msgid "💡 القاعدة الذهبية:"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:393
+msgid ""
+"أي مستوى تضعه في مجموعة سيقوم باحتكار فترته الاحتياطية لمجموعته فقط، ولن "
+"يسمح للغرباء بالدخول."
+msgstr ""
+
+#: app/templates/exams/exams_index.html:394
+#: app/templates/resit_exams/manage_constraints.html:254
+msgid "🃏 المستوى الجوكر:"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:394
+msgid ""
+"المستويات التي لا تنتمي لأي مجموعة (حرة) يمكنها الدخول كـ \"جوكر\" في أي "
+"فترة احتياطية لأي مجموعة دون أن تطرد أحداً."
+msgstr ""
+
+#: app/templates/exams/exams_index.html:398
+msgid "اسم المجموعة (مثال: مجموعة السنة الأولى)"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:402
+#: app/templates/resit_exams/manage_constraints.html:274
+msgid "➕ إنشاء المجموعة"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:405
+msgid "🛡️ المجموعات المعزولة حالياً:"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:411
+msgid "و. أداة حساب التوزيع العادل والأنماط المخصصة"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:414
+msgid "📊 حاسبة التخطيط (محاكاة التوزيع)"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:416
+msgid "الأساتذة:"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:417
+msgid "حراسات كبيرة:"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:418
+msgid "حراسات أخرى:"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:419
+msgid "معامل العبء:"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:420
+msgid "⚙️ جلب الأرقام"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:421
+msgid "احسب"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:429
+msgid ""
+"تحديد أنماط التوزيع المستهدفة يدوياً (يتجاوز الموازنة التلقائية "
+"للخوارزمية)"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:433
+msgid "حصص كبيرة"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:435
+msgid "حصص أخرى"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:436
+msgid "لـِ"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:438
+msgid "إضافة النمط"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:442
+msgid "النمط"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:455
+msgid "المرحلة 6: التوليد وعرض الجداول"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:458
+msgid "⚙️ اختيار وإعداد الخوارزميات (Pipeline)"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:459
+msgid ""
+"يمكنك اختيار خوارزمية واحدة أو دمج عدة خوارزميات لتعمل بشكل متسلسل "
+"(مثلاً: استخدام LNS لجبر النقص، ثم VNS لتقليل الانحراف)."
+msgstr ""
+
+#: app/templates/exams/exams_index.html:464
+msgid "المحرك الشامل (Unified LNS)"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:467
+msgid "البحث الجواري الواسع (LNS)"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:470
+msgid "البحث الجواري المتغير (VNS)"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:478
+msgid "إعدادات المحرك الشامل"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:479
+#: app/templates/exams/exams_index.html:484
+#: app/templates/exams/exams_index.html:489
+msgid "الدورات:"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:480
+#: app/templates/exams/exams_index.html:485
+msgid "نسبة التدمير:"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:483
+msgid "إعدادات LNS"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:488
+msgid "إعدادات VNS"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:490
+msgid "حجم الجوار (K):"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:495
+msgid "🚀 بدء التوليد والتسلسل"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:496
+#: app/templates/resit_exams/generate_schedule.html:58
+#: app/templates/resit_exams/generate_schedule.html:154
+#: app/templates/resit_exams/generate_schedule.html:294
+msgid "🛑 إيقاف الخوارزمية"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:501
+msgid "التوزيع اليدوي للمواد (اختياري)"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:502
+msgid ""
+"يتيح لك هذا الخيار تصدير مخطط مبدئي للمواد، تعديله يدوياً في Excel، ثم "
+"إعادة استيراده لتثبيته قبل توليد الحراسة."
+msgstr ""
+
+#: app/templates/exams/exams_index.html:504
+msgid "📤 تصدير مخطط المواد"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:505
+msgid "📥 استيراد المخطط"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:506
+msgid "🔄 العودة للوضع التلقائي"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:512
+msgid "🖥️ شاشة المراقبة الحية:"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:514
+msgid "[System Ready] قم بضبط الإعدادات واضغط بدء التوليد..."
+msgstr ""
+
+#: app/templates/exams/exams_index.html:518
+msgid "📊 تقرير الأخطاء والملاحظات بعد التوليد"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:521
+msgid "🔴 أخطاء صارمة ونقص (يجب الانتباه لها)"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:525
+msgid "🟠 ملاحظات مرنة (تجاوزات إدارية)"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:534
+msgid "🎉 النتائج النهائية:"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:538
+#: app/templates/resit_exams/generate_schedule.html:110
+msgid "🌐 لغة التصدير (Export Language):"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:545
+#: app/templates/resit_exams/generate_schedule.html:117
+msgid "English"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:549
+#: app/templates/resit_exams/generate_schedule.html:121
+msgid "Français"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:566
+msgid "📢 نشر الجدول للأساتذة"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:567
+msgid "🚫 سحب الجداول"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:574
+msgid "🔍 ابحث عن اسم أستاذ أو مادة لتظليلها في الجداول..."
+msgstr ""
+
+#: app/templates/exams/exams_index.html:581
+#: app/templates/exams/exams_index.html:587
+msgid "📊 لوحة المعلومات الإحصائية"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:593
+msgid "📈 رسم بياني لتوزيع عبء الحراسة"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:606
+msgid "المرحلة 7: غرفة التحكم المركزية (الاستيراد، النشر، والنسخ الاحتياطي)"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:607
+msgid ""
+"هذه المساحة مخصصة لإدارة قاعدة البيانات، رفع التعديلات اليدوية النهائية "
+"عبر الإكسل، ونشر جداول الحراسة للأساتذة."
+msgstr ""
+
+#: app/templates/exams/exams_index.html:612
+msgid "💾 إدارة قاعدة البيانات (.json)"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:615
+msgid "📥 تحميل البيانات من الموقع:"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:620
+msgid "📤 رفع واستعادة البيانات:"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:627
+msgid "⬆️ التعديل اليدوي والنشر (للأساتذة)"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:630
+msgid "📥 تصدير الجدول النهائي (Excel):"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:631
+msgid "حمل الجدول النهائي لتعديل الحراس والقاعات يدوياً."
+msgstr ""
+
+#: app/templates/exams/exams_index.html:632
+msgid "تصدير الجدول النهائي (Excel)"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:636
+msgid "📂 استيراد الجدول المُعدل:"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:643
+msgid "📢 إرسال للأساتذة"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:646
+msgid "🔕 سحب الجداول"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:654
+msgid "⚠️ منطقة الحذر"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:655
+msgid ""
+"استخدم هذا الزر فقط إذا أردت مسح كل بيانات الامتحانات للعودة لنقطة الصفر "
+"وبدء سداسي جديد."
+msgstr ""
+
+#: app/templates/exams/exams_index.html:656
+msgid "⚠️ ضبط المصنع (مسح شامل)"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:662
+msgid ""
+"⚠️ هل أنت متأكد من سحب البيانات من نظام التدريس؟\\nسيتم استيراد الأساتذة،"
+" المستويات، والمواد بشكل ذكي وتجنب التكرار."
+msgstr ""
+
+#: app/templates/exams/exams_index.html:666
+msgid "⏳ جاري السحب والمزامنة..."
+msgstr ""
+
+#: app/templates/exams/exams_index.html:675
+msgid "✅ تم الاستيراد بنجاح!"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:675
+msgid "👨‍🏫 أساتذة جدد:"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:675
+msgid "📚 مستويات جديدة:"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:675
+msgid "📝 مواد جديدة:"
+msgstr ""
+
+#: app/templates/exams/exams_index.html:675
+msgid "🔗 إسنادات جديدة:"
+msgstr ""
+
+#: app/templates/resit_exams/assign_rooms.html:22
+msgid "تخصيص القاعات للمستويات"
+msgstr ""
+
+#: app/templates/resit_exams/assign_rooms.html:27
+msgid ""
+"⚠️ يرجى إدخال المستويات والقاعات في المرحلة الأولى أولاً لتتمكن من "
+"تخصيصها."
+msgstr ""
+
+#: app/templates/resit_exams/assign_rooms.html:31
+msgid "قم بالتأشير على القاعات المخصصة لكل مستوى، ثم اضغط على زر الحفظ في الأسفل."
+msgstr ""
+
+#: app/templates/resit_exams/assign_rooms.html:47
+msgid "📚 المستوى:"
+msgstr ""
+
+#: app/templates/resit_exams/assign_rooms.html:49
+msgid "قاعات مخصصة"
+msgstr ""
+
+#: app/templates/resit_exams/assign_rooms.html:86
+msgid "💾 حفظ تخصيص القاعات لجميع المستويات"
+msgstr ""
+
+#: app/templates/resit_exams/assign_rooms.html:117
+msgid "⏳ جاري الحفظ..."
+msgstr ""
+
+#: app/templates/resit_exams/assign_rooms.html:143
+msgid "✅ تم الحفظ بنجاح!"
+msgstr ""
+
+#: app/templates/resit_exams/assign_subjects.html:54
+msgid "إسناد المواد للأساتذة"
+msgstr ""
+
+#: app/templates/resit_exams/assign_subjects.html:63
+msgid "👨‍🏫 الأساتذة"
+msgstr ""
+
+#: app/templates/resit_exams/assign_subjects.html:64
+msgid "(نقرة مزدوجة لإلغاء مواده)"
+msgstr ""
+
+#: app/templates/resit_exams/assign_subjects.html:67
+msgid "🔍 بحث عن أستاذ..."
+msgstr ""
+
+#: app/templates/resit_exams/assign_subjects.html:78
+msgid "انقر للتحديد، انقر مرتين لإلغاء مواده"
+msgstr ""
+
+#: app/templates/resit_exams/assign_subjects.html:100
+msgid "لا يوجد أساتذة مسجلين."
+msgstr ""
+
+#: app/templates/resit_exams/assign_subjects.html:119
+msgid "📚 المواد"
+msgstr ""
+
+#: app/templates/resit_exams/assign_subjects.html:120
+msgid "(نقرة مزدوجة لإلغاء المادة)"
+msgstr ""
+
+#: app/templates/resit_exams/assign_subjects.html:124
+msgid "🔍 بحث عن مادة..."
+msgstr ""
+
+#: app/templates/resit_exams/assign_subjects.html:135
+msgid "انقر لتحديد المادة، انقر مرتين لإلغاء إسنادها"
+msgstr ""
+
+#: app/templates/resit_exams/assign_subjects.html:148
+msgid "لا توجد مواد مسجلة."
+msgstr ""
+
+#: app/templates/resit_exams/assign_subjects.html:188
+#: app/templates/resit_exams/manage_constraints.html:324
+#: app/templates/resit_exams/manage_data.html:329
+#: app/templates/resit_exams/manage_schedule.html:285
+msgid "⏳..."
+msgstr ""
+
+#: app/templates/resit_exams/assign_subjects.html:232
+msgid "⚠️ الرجاء تحديد أستاذ من القائمة اليمنى أولاً."
+msgstr ""
+
+#: app/templates/resit_exams/assign_subjects.html:233
+msgid "⚠️ الرجاء تحديد مادة واحدة على الأقل من القائمة اليسرى."
+msgstr ""
+
+#: app/templates/resit_exams/assign_subjects.html:242
+msgid "هل أنت متأكد من إفراغ جميع مواد الأستاذ"
+msgstr ""
+
+#: app/templates/resit_exams/assign_subjects.html:250
+msgid "هل أنت متأكد من إلغاء إسناد هذه المادة؟"
+msgstr ""
+
+#: app/templates/resit_exams/base.html:6
+#: app/templates/resit_exams/base.html:158
+msgid "نظام الامتحانات الاستدراكية"
+msgstr ""
+
+#: app/templates/resit_exams/base.html:136
+msgid "📋 نظام الامتحانات الاستدراكية"
+msgstr ""
+
+#: app/templates/resit_exams/base.html:172
+msgid "💡 مراحل العمل في نظام الاستدراكي:"
+msgstr ""
+
+#: app/templates/resit_exams/base.html:174
+msgid "1️⃣ المرحلة 1 (إدخال البيانات):"
+msgstr ""
+
+#: app/templates/resit_exams/base.html:174
+msgid "إضافة الأساتذة، القاعات، المستويات والمواد الأساسية."
+msgstr ""
+
+#: app/templates/resit_exams/base.html:175
+msgid "2️⃣ المرحلة 2 (إسناد المواد):"
+msgstr ""
+
+#: app/templates/resit_exams/base.html:175
+msgid "ربط وتخصيص كل مادة بالأستاذ الذي يدرسها."
+msgstr ""
+
+#: app/templates/resit_exams/base.html:176
+msgid "3️⃣ المرحلة 3 (تخصيص القاعات):"
+msgstr ""
+
+#: app/templates/resit_exams/base.html:176
+msgid "تحديد القاعات المخصصة لامتحان كل مستوى دراسي."
+msgstr ""
+
+#: app/templates/resit_exams/base.html:177
+msgid "4️⃣ المرحلة 4 (الأيام والأوقات):"
+msgstr ""
+
+#: app/templates/resit_exams/base.html:177
+msgid "بناء الهيكل الزمني وجدولة أيام وفترات الامتحانات."
+msgstr ""
+
+#: app/templates/resit_exams/base.html:178
+msgid "5️⃣ المرحلة 5 (القيود والشروط):"
+msgstr ""
+
+#: app/templates/resit_exams/base.html:178
+msgid "إدراج تعارضات المستويات (آلياً)، المرافقة، الإعفاءات، وتجميع الأيام."
+msgstr ""
+
+#: app/templates/resit_exams/base.html:179
+msgid "6️⃣ المرحلة 6 (التوزيع والتصدير):"
+msgstr ""
+
+#: app/templates/resit_exams/base.html:179
+msgid "إطلاق الخوارزمية الذكية لتوليد الجدول وتصدير مسودات الوورد."
+msgstr ""
+
+#: app/templates/resit_exams/base.html:180
+msgid "7️⃣ المرحلة 7 (الإدارة والنشر):"
+msgstr ""
+
+#: app/templates/resit_exams/base.html:180
+msgid "التعديل اليدوي الدقيق عبر الإكسل، والنشر الرسمي في بوابة الأساتذة."
+msgstr ""
+
+#: app/templates/resit_exams/base.html:183
+msgid "⚠️ تلميح هام:"
+msgstr ""
+
+#: app/templates/resit_exams/base.html:183
+msgid ""
+"احرص على احترام تسلسل المراحل، وتأكد من اكتمال البيانات في كل مرحلة قبل "
+"الانتقال للتي تليها!"
+msgstr ""
+
+#: app/templates/resit_exams/base.html:189
+msgid "الرئيسية"
+msgstr ""
+
+#: app/templates/resit_exams/base.html:190
+msgid "1. إدخال البيانات"
+msgstr ""
+
+#: app/templates/resit_exams/base.html:191
+msgid "2. إسناد المواد"
+msgstr ""
+
+#: app/templates/resit_exams/base.html:192
+msgid "3. تخصيص القاعات"
+msgstr ""
+
+#: app/templates/resit_exams/base.html:195
+msgid "6. التوزيع والتصدير"
+msgstr ""
+
+#: app/templates/resit_exams/base.html:196
+msgid "7. الإدارة والنشر"
+msgstr ""
+
+#: app/templates/resit_exams/base.html:221
+msgid "✅ تم الحفظ!"
+msgstr ""
+
+#: app/templates/resit_exams/base.html:238
+msgid "✅ تم حفظ الإعدادات بنجاح!"
+msgstr ""
+
+#: app/templates/resit_exams/generate_schedule.html:5
+msgid "التوزيع الذكي والتصدير"
+msgstr ""
+
+#: app/templates/resit_exams/generate_schedule.html:16
+msgid "🧠 الخوارزمية المعتمدة:"
+msgstr ""
+
+#: app/templates/resit_exams/generate_schedule.html:21
+msgid "⚙️ إعدادات خوارزمية LNS للبحث العميق (الافتراضية):"
+msgstr ""
+
+#: app/templates/resit_exams/generate_schedule.html:25
+msgid "⏳ مدة البحث الأقصى (ثواني):"
+msgstr ""
+
+#: app/templates/resit_exams/generate_schedule.html:29
+#, python-format
+msgid "💥 نسبة التدمير (%%):"
+msgstr ""
+
+#: app/templates/resit_exams/generate_schedule.html:34
+msgid "📌 تلميح:"
+msgstr ""
+
+#: app/templates/resit_exams/generate_schedule.html:34
+#, python-format
+msgid ""
+"نسبة التدمير تحدد حجم \"تخريب\" الجدول في كل محاولة لإعادة بنائه بشكل "
+"أفضل (ينصح بقيمة بين 15%% و 30%%)."
+msgstr ""
+
+#: app/templates/resit_exams/generate_schedule.html:40
+msgid "🎯 استراتيجية التوزيع:"
+msgstr ""
+
+#: app/templates/resit_exams/generate_schedule.html:44
+msgid "👨‍🏫 تفضيل تجميع مواد الأستاذ"
+msgstr ""
+
+#: app/templates/resit_exams/generate_schedule.html:48
+msgid "🎓 تفضيل تفادي تشتت الطلبة"
+msgstr ""
+
+#: app/templates/resit_exams/generate_schedule.html:55
+msgid "🚀 بدء التوزيع وسجل المتابعة الحي"
+msgstr ""
+
+#: app/templates/resit_exams/generate_schedule.html:67
+msgid "⏳ سجل المتابعة الحي لعملية التوزيع..."
+msgstr ""
+
+#: app/templates/resit_exams/generate_schedule.html:72
+msgid "🖥️ شاشة المتابعة الحية لمحرك البحث (Terminal View):"
+msgstr ""
+
+#: app/templates/resit_exams/generate_schedule.html:83
+msgid "❌ نقص (مواد غير مبرمجة)"
+msgstr ""
+
+#: app/templates/resit_exams/generate_schedule.html:87
+msgid "❌ تعارضات (قيود صارمة)"
+msgstr ""
+
+#: app/templates/resit_exams/generate_schedule.html:91
+msgid "⚠️ تشتت (قيود مرنة)"
+msgstr ""
+
+#: app/templates/resit_exams/generate_schedule.html:95
+msgid "الوقت المنقضي: 0.0 ثانية"
+msgstr ""
+
+#: app/templates/resit_exams/generate_schedule.html:100
+msgid "🎉 اكتمل التوزيع بنجاح!"
+msgstr ""
+
+#: app/templates/resit_exams/generate_schedule.html:106
+msgid "📥 تصدير الجداول"
+msgstr ""
+
+#: app/templates/resit_exams/generate_schedule.html:128
+msgid "📄 جداول المستويات"
+msgstr ""
+
+#: app/templates/resit_exams/generate_schedule.html:131
+msgid "👨‍🏫 جداول الأساتذة"
+msgstr ""
+
+#: app/templates/resit_exams/generate_schedule.html:164
+msgid "[SYSTEM] النظام في حالة جاهزية كاملة..."
+msgstr ""
+
+#: app/templates/resit_exams/generate_schedule.html:164
+msgid "[SYSTEM] بانتظار إطلاق الخوارزمية لبدء معالجة التعارضات وتجميع الإسناد..."
+msgstr ""
+
+#: app/templates/resit_exams/generate_schedule.html:194
+msgid "الوقت المنقضي:"
+msgstr ""
+
+#: app/templates/resit_exams/generate_schedule.html:194
+msgid "ثانية"
+msgstr ""
+
+#: app/templates/resit_exams/generate_schedule.html:198
+msgid "[START] تم إطلاق خوارزمية LNS بنجاح... جاري بناء الحل الأولي..."
+msgstr ""
+
+#: app/templates/resit_exams/generate_schedule.html:210
+msgid "⏳ الوقت المنقضي:"
+msgstr ""
+
+#: app/templates/resit_exams/generate_schedule.html:210
+msgid "ثانية | الخوارزمية تعمل بقوة وتختبر آلاف الاحتمالات..."
+msgstr ""
+
+#: app/templates/resit_exams/generate_schedule.html:218
+msgid "توقيت"
+msgstr ""
+
+#: app/templates/resit_exams/generate_schedule.html:218
+msgid "🤖 جاري التحسين واختزال الأخطاء &gt;&gt; نقص:"
+msgstr ""
+
+#: app/templates/resit_exams/generate_schedule.html:218
+msgid "صارم:"
+msgstr ""
+
+#: app/templates/resit_exams/generate_schedule.html:218
+msgid "مرن:"
+msgstr ""
+
+#: app/templates/resit_exams/generate_schedule.html:242
+msgid "[SUCCESS] 🎉 اكتملت عملية التوزيع بنجاح تام!"
+msgstr ""
+
+#: app/templates/resit_exams/generate_schedule.html:287
+msgid "[STOP] تم إيقاف الخوارزمية يدوياً من قبل المستخدم."
+msgstr ""
+
+#: app/templates/resit_exams/generate_schedule.html:293
+msgid "حدث خطأ أثناء محاولة الإيقاف."
+msgstr ""
+
+#: app/templates/resit_exams/generate_schedule.html:304
+msgid "⚠️ انتهى التوزيع مع وجود ("
+msgstr ""
+
+#: app/templates/resit_exams/generate_schedule.html:304
+msgid ") قيود لم تتحقق:"
+msgstr ""
+
+#: app/templates/resit_exams/generate_schedule.html:309
+#, python-format
+msgid "✨ اكتمل التوزيع بمثالية! 100%% من القيود محققة."
+msgstr ""
+
+#: app/templates/resit_exams/index.html:6
+msgid "مرحباً بك في نظام الامتحانات الاستدراكية"
+msgstr ""
+
+#: app/templates/resit_exams/index.html:7
+msgid "الواجهة الرئيسية للتحكم وإدارة جداول الامتحانات بكل سهولة واحترافية."
+msgstr ""
+
+#: app/templates/resit_exams/index.html:55
+msgid "💡 دليل الاستخدام وخطوات العمل"
+msgstr ""
+
+#: app/templates/resit_exams/index.html:63
+msgid "تجهيز البيانات"
+msgstr ""
+
+#: app/templates/resit_exams/index.html:64
+msgid ""
+"ابدأ بإدخال أسماء الأساتذة، القاعات، المستويات، والمواد من خلال شاشة "
+"الإدخال لتأسيس قاعدة البيانات."
+msgstr ""
+
+#: app/templates/resit_exams/index.html:71
+msgid "الإسناد والتخصيص"
+msgstr ""
+
+#: app/templates/resit_exams/index.html:72
+msgid ""
+"قم بإسناد المواد لأساتذتها، ثم خصص القاعات لكل مستوى دراسي لتجهيز البنية "
+"التحتية للامتحان."
+msgstr ""
+
+#: app/templates/resit_exams/index.html:79
+msgid "الأوقات والتوزيع"
+msgstr ""
+
+#: app/templates/resit_exams/index.html:80
+msgid ""
+"حدد أيام وفترات الامتحان، أضف القيود والشروط الأكاديمية، ثم أطلق خوارزمية"
+" التوزيع الذكي."
+msgstr ""
+
+#: app/templates/resit_exams/index.html:88
+msgid "🚀 ابدأ العمل الآن"
+msgstr ""
+
+#: app/templates/resit_exams/manage_constraints.html:5
+msgid "القيود والشروط (الاستدراكية)"
+msgstr ""
+
+#: app/templates/resit_exams/manage_constraints.html:9
+msgid "💡 تنبيه:"
+msgstr ""
+
+#: app/templates/resit_exams/manage_constraints.html:9
+msgid ""
+"الخوارزمية تعطي الأولوية المطلقة لعدم تعارض المستويات (قيد صارم)، ثم "
+"لتجميع مواد الأساتذة ذوي الأولوية في أقل عدد من الأيام (أقوى قيد مرن)."
+msgstr ""
+
+#: app/templates/resit_exams/manage_constraints.html:18
+msgid "❌ تعارض المستويات (قيد صارم)"
+msgstr ""
+
+#: app/templates/resit_exams/manage_constraints.html:24
+msgid "المستوى الأول..."
+msgstr ""
+
+#: app/templates/resit_exams/manage_constraints.html:28
+msgid "المستوى الثاني..."
+msgstr ""
+
+#: app/templates/resit_exams/manage_constraints.html:32
+msgid "➕ إضافة قيد تعارض"
+msgstr ""
+
+#: app/templates/resit_exams/manage_constraints.html:38
+msgid ""
+"هل أنت متأكد؟ سيقوم النظام بالبحث عن أي مستوى يحتوي على علامة (+) وإضافة "
+"قيد تعارض بينه وبين مستوياته الفرعية آلياً."
+msgstr ""
+
+#: app/templates/resit_exams/manage_constraints.html:39
+msgid "🤖 استخراج آلي للمستويات المشتركة"
+msgstr ""
+
+#: app/templates/resit_exams/manage_constraints.html:46
+msgid "ضد"
+msgstr ""
+
+#: app/templates/resit_exams/manage_constraints.html:53
+#: app/templates/resit_exams/manage_constraints.html:135
+#: app/templates/resit_exams/manage_constraints.html:173
+#: app/templates/resit_exams/manage_constraints.html:209
+msgid "لا توجد قيود مسجلة"
+msgstr ""
+
+#: app/templates/resit_exams/manage_constraints.html:62
+msgid "🌟 أساتذة ذوو أولوية (تجميع الأيام)"
+msgstr ""
+
+#: app/templates/resit_exams/manage_constraints.html:69
+msgid "أشّر على أستاذ أو أكثر:"
+msgstr ""
+
+#: app/templates/resit_exams/manage_constraints.html:83
+msgid "جميع الأساتذة في القائمة بالفعل."
+msgstr ""
+
+#: app/templates/resit_exams/manage_constraints.html:89
+#: app/templates/resit_exams/manage_constraints.html:102
+#: app/templates/resit_exams/manage_constraints.html:125
+msgid "مرن"
+msgstr ""
+
+#: app/templates/resit_exams/manage_constraints.html:90
+#: app/templates/resit_exams/manage_constraints.html:103
+#: app/templates/resit_exams/manage_constraints.html:121
+msgid "تتابع"
+msgstr ""
+
+#: app/templates/resit_exams/manage_constraints.html:91
+#: app/templates/resit_exams/manage_constraints.html:104
+#: app/templates/resit_exams/manage_constraints.html:123
+msgid "انفصال"
+msgstr ""
+
+#: app/templates/resit_exams/manage_constraints.html:94
+msgid "➕ إضافة المحددين"
+msgstr ""
+
+#: app/templates/resit_exams/manage_constraints.html:107
+msgid "هل أنت متأكد من إضافة جميع الأساتذة المتبقين دفعة واحدة؟"
+msgstr ""
+
+#: app/templates/resit_exams/manage_constraints.html:108
+msgid "✨ إضافة البقية دفعة واحدة"
+msgstr ""
+
+#: app/templates/resit_exams/manage_constraints.html:146
+msgid "🚗 المرافقة (سيارة واحدة)"
+msgstr ""
+
+#: app/templates/resit_exams/manage_constraints.html:152
+#: app/templates/resit_exams/manage_constraints.html:188
+msgid "الأستاذ الأول..."
+msgstr ""
+
+#: app/templates/resit_exams/manage_constraints.html:156
+#: app/templates/resit_exams/manage_constraints.html:192
+msgid "الأستاذ الثاني..."
+msgstr ""
+
+#: app/templates/resit_exams/manage_constraints.html:160
+msgid "➕ إضافة قيد مرافقة"
+msgstr ""
+
+#: app/templates/resit_exams/manage_constraints.html:182
+msgid "⚡ قيد الانفصال (لا يشتركان في يوم)"
+msgstr ""
+
+#: app/templates/resit_exams/manage_constraints.html:196
+msgid "➕ إضافة قيد انفصال"
+msgstr ""
+
+#: app/templates/resit_exams/manage_constraints.html:202
+msgid "عكس"
+msgstr ""
+
+#: app/templates/resit_exams/manage_constraints.html:218
+msgid "😴 إعفاء من الحصة الأولى في كل الأيام"
+msgstr ""
+
+#: app/templates/resit_exams/manage_constraints.html:223
+msgid "اختر أستاذاً للإعفاء..."
+msgstr ""
+
+#: app/templates/resit_exams/manage_constraints.html:226
+msgid "➕ إضافة إعفاء"
+msgstr ""
+
+#: app/templates/resit_exams/manage_constraints.html:236
+msgid "إلغاء الإعفاء"
+msgstr ""
+
+#: app/templates/resit_exams/manage_constraints.html:239
+msgid "لا توجد إعفاءات مسجلة"
+msgstr ""
+
+#: app/templates/resit_exams/manage_constraints.html:249
+msgid "🛡️ إدارة مجموعات العزل (تشفير الفترات الاحتياطية)"
+msgstr ""
+
+#: app/templates/resit_exams/manage_constraints.html:253
+msgid "أي مستوى تضعه في مجموعة سيقوم باحتكار فترته الاحتياطية لمجموعته فقط."
+msgstr ""
+
+#: app/templates/resit_exams/manage_constraints.html:254
+msgid ""
+"المستويات التي لا تنتمي لأي مجموعة (حرة) يمكنها دخول أي فترة احتياطية لأي"
+" مجموعة دون أن تطرد أحداً."
+msgstr ""
+
+#: app/templates/resit_exams/manage_constraints.html:261
+msgid "اسم المجموعة (مثال: مجموعة 1)"
+msgstr ""
+
+#: app/templates/resit_exams/manage_constraints.html:279
+msgid "المجموعات المعزولة حالياً:"
+msgstr ""
+
+#: app/templates/resit_exams/manage_constraints.html:290
+msgid "فك العزل وحذف المجموعة"
+msgstr ""
+
+#: app/templates/resit_exams/manage_constraints.html:290
+msgid "هل أنت متأكد من حذف هذه المجموعة؟ ستصبح مستوياتها حرة."
+msgstr ""
+
+#: app/templates/resit_exams/manage_constraints.html:303
+msgid "لا توجد مجموعات عزل مسجلة حالياً. (جميع المستويات عبارة عن \"جوكر\" حرة)."
+msgstr ""
+
+#: app/templates/resit_exams/manage_data.html:8
+msgid "إدخال وتعديل البيانات"
+msgstr ""
+
+#: app/templates/resit_exams/manage_data.html:13
+msgid "🔗 سحب البيانات من الامتحانات السداسية العادية"
+msgstr ""
+
+#: app/templates/resit_exams/manage_data.html:16
+msgid ""
+"بنقرة واحدة، يمكنك جلب (الأساتذة، القاعات، المستويات، المواد، والإسنادات)"
+" من جداول الامتحانات السداسية لتجهيز الاستدراكي."
+msgstr ""
+
+#: app/templates/resit_exams/manage_data.html:18
+msgid ""
+"⚠️ هل أنت متأكد؟ هذه العملية ستقوم باستبدال البيانات الحالية للاستدراكي "
+"بالبيانات القادمة من الامتحانات السداسية."
+msgstr ""
+
+#: app/templates/resit_exams/manage_data.html:19
+msgid "📥 استيراد وتجهيز البيانات الآن"
+msgstr ""
+
+#: app/templates/resit_exams/manage_data.html:27
+msgid "☁️ إدارة البيانات (نسخ واستعادة سحابية)"
+msgstr ""
+
+#: app/templates/resit_exams/manage_data.html:29
+msgid "📥 تحميل نسخة احتياطية (.json)"
+msgstr ""
+
+#: app/templates/resit_exams/manage_data.html:35
+msgid "استعادة البيانات من ملف (JSON):"
+msgstr ""
+
+#: app/templates/resit_exams/manage_data.html:37
+msgid "⚠️ تحذير: الاستعادة ستقوم باستبدال بيانات الاستدراكي لقسمك الحالي بالكامل."
+msgstr ""
+
+#: app/templates/resit_exams/manage_data.html:40
+msgid "هل أنت متأكد من رغبتك في استعادة البيانات؟ سيتم استبدال البيانات الحالية."
+msgstr ""
+
+#: app/templates/resit_exams/manage_data.html:41
+msgid "🔄 استعادة البيانات"
+msgstr ""
+
+#: app/templates/resit_exams/manage_data.html:52
+msgid "إضافة أساتذة"
+msgstr ""
+
+#: app/templates/resit_exams/manage_data.html:56
+#: app/templates/resit_exams/manage_data.html:74
+#: app/templates/resit_exams/manage_data.html:87
+#: app/templates/resit_exams/manage_data.html:122
+msgid "اسم في كل سطر..."
+msgstr ""
+
+#: app/templates/resit_exams/manage_data.html:65
+msgid "إضافة قاعات"
+msgstr ""
+
+#: app/templates/resit_exams/manage_data.html:83
+msgid "إضافة مستويات"
+msgstr ""
+
+#: app/templates/resit_exams/manage_data.html:96
+msgid "إضافة مواد"
+msgstr ""
+
+#: app/templates/resit_exams/manage_data.html:99
+msgid "الرجاء تأشير مستوى واحد على الأقل."
+msgstr ""
+
+#: app/templates/resit_exams/manage_data.html:111
+msgid "أشّر على مستوى أو أكثر:"
+msgstr ""
+
+#: app/templates/resit_exams/manage_data.html:127
+msgid "أضف المستويات أولاً."
+msgstr ""
+
+#: app/templates/resit_exams/manage_data.html:134
+msgid "معاينة البيانات المحفوظة (مع إمكانية الحذف والتعديل المباشر)"
+msgstr ""
+
+#: app/templates/resit_exams/manage_data.html:150
+msgid "هل أنت متأكد من الحذف؟ سيتم إزالة كافة ارتباطاته."
+msgstr ""
+
+#: app/templates/resit_exams/manage_data.html:155
+msgid "لا يوجد أساتذة"
+msgstr ""
+
+#: app/templates/resit_exams/manage_data.html:179
+msgid "لا توجد قاعات"
+msgstr ""
+
+#: app/templates/resit_exams/manage_data.html:198
+msgid "حذف المستوى سيحذف كل مواده وارتباطاته. هل أنت متأكد؟"
+msgstr ""
+
+#: app/templates/resit_exams/manage_data.html:203
+msgid "لا توجد مستويات"
+msgstr ""
+
+#: app/templates/resit_exams/manage_data.html:227
+msgid "لا توجد مواد"
+msgstr ""
+
+#: app/templates/resit_exams/manage_data.html:245
+msgid "✏️ تعديل الاسم"
+msgstr ""
+
+#: app/templates/resit_exams/manage_data.html:250
+msgid "الاسم الحالي في النظام:"
+msgstr ""
+
+#: app/templates/resit_exams/manage_data.html:254
+msgid "الاسم الجديد:"
+msgstr ""
+
+#: app/templates/resit_exams/manage_data.html:260
+msgid "💾 حفظ التعديل"
+msgstr ""
+
+#: app/templates/resit_exams/manage_data.html:297
+msgid "✏️ تعديل اسم الأستاذ"
+msgstr ""
+
+#: app/templates/resit_exams/manage_data.html:298
+msgid "أدخل اسم الأستاذ الجديد:"
+msgstr ""
+
+#: app/templates/resit_exams/manage_data.html:301
+msgid "✏️ تعديل اسم القاعة"
+msgstr ""
+
+#: app/templates/resit_exams/manage_data.html:302
+msgid "أدخل اسم القاعة الجديد:"
+msgstr ""
+
+#: app/templates/resit_exams/manage_data.html:305
+msgid "✏️ تعديل اسم المستوى"
+msgstr ""
+
+#: app/templates/resit_exams/manage_data.html:306
+msgid "أدخل اسم المستوى الجديد:"
+msgstr ""
+
+#: app/templates/resit_exams/manage_data.html:311
+msgid "✏️ تعديل اسم المادة"
+msgstr ""
+
+#: app/templates/resit_exams/manage_data.html:312
+msgid "أدخل الاسم الجديد للمادة التابعة لمستوى"
+msgstr ""
+
+#: app/templates/resit_exams/manage_schedule.html:8
+msgid "أيام وأوقات الامتحان"
+msgstr ""
+
+#: app/templates/resit_exams/manage_schedule.html:13
+msgid "⚠️ يرجى إدخال المستويات في المرحلة الأولى أولاً لتتمكن من وضع الجدول."
+msgstr ""
+
+#: app/templates/resit_exams/manage_schedule.html:23
+msgid "➕ إضافة يوم امتحان:"
+msgstr ""
+
+#: app/templates/resit_exams/manage_schedule.html:29
+msgid "إضافة اليوم"
+msgstr ""
+
+#: app/templates/resit_exams/manage_schedule.html:82
+msgid "🔄 تكرار اليوم لـ:"
+msgstr ""
+
+#: app/templates/resit_exams/manage_schedule.html:84
+msgid "نسخ الأوقات والمستويات"
+msgstr ""
+
+#: app/templates/resit_exams/manage_schedule.html:84
+msgid "نسخ"
+msgstr ""
+
+#: app/templates/resit_exams/manage_schedule.html:92
+msgid "تأكيد حذف يوم"
+msgstr ""
+
+#: app/templates/resit_exams/manage_schedule.html:92
+msgid "بالكامل؟"
+msgstr ""
+
+#: app/templates/resit_exams/manage_schedule.html:93
+msgid "🗑️ حذف هذا اليوم"
+msgstr ""
+
+#: app/templates/resit_exams/manage_schedule.html:116
+msgid "➕ إضافة فترة"
+msgstr ""
+
+#: app/templates/resit_exams/manage_schedule.html:163
+msgid "🔽 عرض المستويات الاحتياطية (انقر للفتح)"
+msgstr ""
+
+#: app/templates/resit_exams/manage_schedule.html:168
+msgid "⏳ مستويات معنية كفترة احتياطية:"
+msgstr ""
+
+#: app/templates/resit_exams/manage_schedule.html:191
+msgid "💾 حفظ توزيع المستويات على فترات هذا اليوم"
+msgstr ""
+
+#: app/templates/resit_exams/manage_schedule.html:195
+msgid "لا توجد فترات مضافة في هذا اليوم."
+msgstr ""
+
+#: app/templates/resit_exams/manage_schedule.html:216
+msgid "لم يتم إضافة أي أيام بعد. ابدأ باختيار تاريخ من التقويم في الأعلى."
+msgstr ""
+
+#: app/templates/resit_exams/manage_schedule.html:329
+msgid "✅ تم"
+msgstr ""
+
+#: app/templates/resit_exams/phase7.html:7
+msgid "المرحلة 7: إدارة المخرجات والتواصل مع الأساتذة"
+msgstr ""
+
+#: app/templates/resit_exams/phase7.html:12
+msgid ""
+"⚠️ لا يوجد جدول استدراكي حالياً! الرجاء العودة للمرحلة السادسة لتوليد "
+"الجدول أولاً."
+msgstr ""
+
+#: app/templates/resit_exams/phase7.html:21
+msgid "📊 التعديل اليدوي عبر الإكسل (Excel)"
+msgstr ""
+
+#: app/templates/resit_exams/phase7.html:24
+msgid ""
+"إذا أردت تعديل حراس أو قاعات بشكل يدوي دقيق، قم بتحميل الجدول، عدّله في "
+"حاسوبك، ثم أعد رفعه هنا."
+msgstr ""
+
+#: app/templates/resit_exams/phase7.html:28
+msgid "📥 1. تحميل الجدول الحالي (Excel)"
+msgstr ""
+
+#: app/templates/resit_exams/phase7.html:35
+msgid "📤 2. رفع الجدول المُعدّل لاعتماده:"
+msgstr ""
+
+#: app/templates/resit_exams/phase7.html:38
+msgid "تأكيد استبدال الجدول الحالي ببيانات ملف الإكسل المرفوع؟"
+msgstr ""
+
+#: app/templates/resit_exams/phase7.html:39
+msgid "🔄 اعتماد التعديلات وتحديث النظام"
+msgstr ""
+
+#: app/templates/resit_exams/phase7.html:50
+msgid "👨‍🏫 إرسال الجدول للأساتذة (البوابة)"
+msgstr ""
+
+#: app/templates/resit_exams/phase7.html:56
+msgid "🌐 الجدول منشور حالياً"
+msgstr ""
+
+#: app/templates/resit_exams/phase7.html:57
+msgid "يستطيع الأساتذة الآن الدخول لحساباتهم لرؤية مهامهم الاستدراكية."
+msgstr ""
+
+#: app/templates/resit_exams/phase7.html:63
+msgid "هل أنت متأكد من سحب الجدول وإخفائه عن الأساتذة؟"
+msgstr ""
+
+#: app/templates/resit_exams/phase7.html:64
+msgid "🚫 سحب وإخفاء الجدول"
+msgstr ""
+
+#: app/templates/resit_exams/phase7.html:69
+msgid "🔒 الجدول مخفي حالياً"
+msgstr ""
+
+#: app/templates/resit_exams/phase7.html:70
+msgid "الجدول محفوظ في النظام ولكنه لا يظهر للأساتذة في بوابتهم."
+msgstr ""
+
+#: app/templates/resit_exams/phase7.html:76
+msgid "هل أنت متأكد من نشر الجدول وإرساله رسمياً لبوابة الأساتذة؟"
+msgstr ""
+
+#: app/templates/resit_exams/phase7.html:77
+msgid "🚀 إرسال ونشر الجدول للأساتذة"
+msgstr ""
+
+#: app/templates/resit_exams/phase7.html:102
+msgid "⏳ جاري المعالجة..."
+msgstr ""
+

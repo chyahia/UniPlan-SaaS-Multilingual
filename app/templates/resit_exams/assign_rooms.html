@@ -1,0 +1,164 @@
+{% extends 'resit_exams/base.html' %}
+
+{% block content %}
+<style>
+    /* تنسيق جمالي لمربعات الاختيار */
+    .room-checkbox-wrapper {
+        transition: all 0.2s;
+        cursor: pointer;
+    }
+    .room-checkbox-wrapper:hover {
+        background-color: #f8f9fa;
+        border-color: #0d6efd !important;
+    }
+    .room-checkbox-wrapper.selected {
+        background-color: #e7f1ff;
+        border-color: #0d6efd !important;
+        box-shadow: 0 0 5px rgba(13,110,253,0.2);
+    }
+</style>
+
+<h2 class="text-center text-primary mb-4 border border-primary p-3 rounded bg-light">
+    {{ _('تخصيص القاعات للمستويات') }}
+</h2>
+
+{% if not db.levels or not db.rooms %}
+    <div class="alert alert-warning text-center fs-5 border-warning shadow-sm">
+        {{ _('⚠️ يرجى إدخال المستويات والقاعات في المرحلة الأولى أولاً لتتمكن من تخصيصها.') }}
+    </div>
+{% else %}
+    <div class="alert alert-info border-info mb-4">
+        {{ _('قم بالتأشير على القاعات المخصصة لكل مستوى، ثم اضغط على زر الحفظ في الأسفل.') }}
+    </div>
+
+    <!-- ✨ تحويل النموذج لمنع الإرسال التقليدي وتشغيل دالة الجافاسكريبت ✨ -->
+    <form id="rooms-form" onsubmit="event.preventDefault(); silentSubmit();">
+        <input type="hidden" name="action" value="save_level_rooms">
+        
+        <!-- ✨ إضافة ID الحاوية التي سيتم تحديثها صمتاً ✨ -->
+        <div class="row g-4 mb-4" id="levels-container">
+            {% for level in db.levels %}
+                {% set outer_index = loop.index %}
+                {% set saved_rooms = db.level_rooms.get(level, []) %}
+                
+                <div class="col-12">
+                    <div class="card shadow-sm border-primary">
+                        <div class="card-header bg-primary text-white fs-5 fw-bold d-flex justify-content-between align-items-center">
+                            <span>{{ _('📚 المستوى:') }} {{ level }}</span>
+                            <span class="badge bg-light text-primary border rounded-pill">
+                                {{ saved_rooms | length }} {{ _('قاعات مخصصة') }}
+                            </span>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-2">
+                                {% for room_name, room_type in db.rooms.items() %}
+                                    {% set room_full_name = room_name ~ ' (' ~ room_type ~ ')' %}
+                                    {% set is_checked = 'checked' if room_full_name in saved_rooms else '' %}
+                                    {% set is_selected_class = 'selected' if room_full_name in saved_rooms else '' %}
+                                    
+                                    <div class="col-lg-3 col-md-4 col-sm-6">
+                                        <div class="form-check border rounded p-2 room-checkbox-wrapper {{ is_selected_class }}" 
+                                             onclick="toggleCheckboxStyle(this)">
+                                             
+                                            <input class="form-check-input ms-2 mt-1" type="checkbox" 
+                                                   name="rooms_for_{{ level }}" 
+                                                   value="{{ room_full_name }}" 
+                                                   id="chk_{{ outer_index }}_{{ loop.index }}" 
+                                                   {{ is_checked }}
+                                                   onclick="event.stopPropagation(); toggleCheckboxStyle(this.parentElement);">
+                                                   
+                                            <label class="form-check-label w-100" for="chk_{{ outer_index }}_{{ loop.index }}" style="cursor: pointer;">
+                                                <strong>{{ room_name }}</strong> 
+                                                <small class="text-muted">({{ room_type }})</small>
+                                            </label>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        
+        <div class="sticky-bottom bg-white p-3 border-top shadow-lg rounded mb-5 text-center" style="z-index: 1000;">
+            <button type="submit" id="save-btn" class="btn btn-primary btn-lg w-75 fw-bold shadow transition-all">
+                {{ _('💾 حفظ تخصيص القاعات لجميع المستويات') }}
+            </button>
+        </div>
+    </form>
+{% endif %}
+
+<script>
+    // دالة تغيير التنسيق البصري عند النقر
+    function toggleCheckboxStyle(element) {
+        let checkbox = element.querySelector('input[type="checkbox"]');
+        if(event.target.tagName !== 'INPUT' && event.target.tagName !== 'LABEL') {
+            checkbox.checked = !checkbox.checked;
+        }
+        
+        if (checkbox.checked) {
+            element.classList.add('selected');
+        } else {
+            element.classList.remove('selected');
+        }
+    }
+
+    // ==========================================
+    // 🚀 المحرك المعماري الصامت (Fetch API)
+    // ==========================================
+    async function silentSubmit() {
+        const form = document.getElementById('rooms-form');
+        const formData = new FormData(form);
+        const btn = document.getElementById('save-btn');
+        const originalText = btn.innerHTML;
+
+        // 1. تغيير حالة الزر لمنع النقر المزدوج وإظهار التحميل
+        btn.innerHTML = "{{ _('⏳ جاري الحفظ...') }}";
+        btn.disabled = true;
+        document.body.style.cursor = 'wait';
+
+        try {
+            // 2. حفظ موضع التمرير الحالي للشاشة
+            const scrollY = window.scrollY;
+
+            // 3. إرسال الطلب في الخلفية
+            const response = await fetch(window.location.href, {
+                method: 'POST',
+                body: formData
+            });
+
+            // 4. جلب كود الصفحة المحدث واقتطاع الحاوية المطلوبة
+            const htmlText = await response.text();
+            const parser = new DOMParser();
+            const newDoc = parser.parseFromString(htmlText, 'text/html');
+
+            // 5. تحديث عدادات المستويات وصناديق الاختيار بصمت
+            document.getElementById('levels-container').innerHTML = newDoc.getElementById('levels-container').innerHTML;
+
+            // 6. إرجاع الشاشة لنفس مستوى التمرير
+            window.scrollTo(0, scrollY);
+
+            // 7. تأثير بصري ذكي لزر الحفظ (تأكيد النجاح)
+            btn.innerHTML = "{{ _('✅ تم الحفظ بنجاح!') }}";
+            btn.classList.remove('btn-primary');
+            btn.classList.add('btn-success');
+            
+            // إعادة الزر لشكله الطبيعي بعد ثانيتين
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.classList.remove('btn-success');
+                btn.classList.add('btn-primary');
+                btn.disabled = false;
+            }, 2000);
+
+        } catch (error) {
+            alert("{{ _('حدث خطأ أثناء الاتصال بالخادم.') }}");
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        } finally {
+            document.body.style.cursor = 'default';
+        }
+    }
+</script>
+{% endblock %}

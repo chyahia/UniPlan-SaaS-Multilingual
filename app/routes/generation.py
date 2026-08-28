@@ -1,0 +1,1266 @@
+# Copyright (c) 2026 Chaib Yahia. All rights reserved.
+# This software is licensed under the CC BY-NC 4.0 License. Commercial use is strictly prohibited.
+from flask import Blueprint, request, jsonify, Response, stream_with_context, session
+import time
+import json
+import traceback
+import copy
+import io
+import openpyxl
+from openpyxl.styles import Alignment, PatternFill, Font
+from flask import current_app
+import threading
+from flask_babel import _  # ✨ استيراد دالة الترجمة
+
+# استدعاء الخوارزميات (بدون المتغيرات العامة القديمة)
+from app.services.algorithms import (
+    run_large_neighborhood_search, run_variable_neighborhood_search, 
+    run_greedy_search_for_best_result, refine_and_compact_schedule,
+    set_algorithm_language, StopByUserException
+)
+
+from app.database import db, Teacher, Room, Level, Course, Setting
+
+# ✨ استدعاء أدوات السحابة الجديدة
+from app.celery_setup import celery_app
+
+
+generation_bp = Blueprint('generation', __name__)
+
+# ✨ الدالة الذكية (المحوّل) لاختيار مسار الذاكرة أو مسار السحابة
+def get_log_queue(tenant_id):
+    from flask import current_app
+    if current_app.config.get('APP_MODE') == 'desktop':
+        from app.memory_logger import MemoryLogQueue
+        return MemoryLogQueue(tenant_id)
+    else:
+        from app.redis_logger import RedisLogQueue
+        return RedisLogQueue(tenant_id)
+
+# ✨ كائن ذكي (Proxy) مطوّر ليعمل في البيئتين
+class SchedulingStateProxy:
+    def __init__(self, tenant_id):
+        self.tenant_id = tenant_id
+        self.log_q = get_log_queue(tenant_id)
+        from flask import current_app
+        self.mode = current_app.config.get('APP_MODE')
+
+    def get(self, key, default=None):
+        if key == 'should_stop': 
+            return self.log_q.should_stop()
+        if key == 'force_mutation': 
+            if self.mode == 'desktop': return self.log_q.get_mutation() is not None
+            from app.redis_logger import redis_client
+            return redis_client.get(f"mutation:tenant_{self.tenant_id}") is not None
+        if key == 'mutation_intensity':
+            if self.mode == 'desktop':
+                val = self.log_q.get_mutation()
+                return int(val) if val else default
+            from app.redis_logger import redis_client
+            val = redis_client.get(f"mutation:tenant_{self.tenant_id}")
+            return int(val) if val else default
+        return default
+
+    def __setitem__(self, key, value): 
+        if key == 'force_mutation' and not value:
+            if self.mode == 'desktop': self.log_q.clear_mutation()
+            else: 
+                from app.redis_logger import redis_client
+                redis_client.delete(f"mutation:tenant_{self.tenant_id}")
+            
+    def pop(self, key, default=None): 
+        if key == 'mutation_intensity':
+            if self.mode == 'desktop': self.log_q.clear_mutation()
+            else: 
+                from app.redis_logger import redis_client
+                redis_client.delete(f"mutation:tenant_{self.tenant_id}")
+
+    def __contains__(self, key):
+        return key in ['should_stop', 'force_mutation', 'mutation_intensity']
+
+
+# ================= مسارات الواجهة الأمامية (Flask API) =================
+
+@generation_bp.route('/api/generate', methods=['POST'])
+def generate_schedule():
+    tenant_id = session.get('tenant_id')
+    # ✨ 1. التقاط لغة المستخدم من الجلسة (افترضنا أن مفتاحها 'lang'، عدله إذا كان مختلفاً)
+    user_lang = session.get('lang', 'ar') 
+    
+    log_q = get_log_queue(tenant_id)
+    
+    if log_q.is_running():
+        return jsonify({"success": False, "error": _("عملية التوزيع تعمل حالياً في قسمك.")}), 400
+
+    data = request.json
+    log_q.clear_logs()
+    log_q.set_running(True)
+    log_q.set_stop_flag(False)
+
+    mode = current_app.config.get('APP_MODE')
+    if mode == 'desktop':
+        log_q.clear_mutation()
+        app_obj = current_app._get_current_object()
+        def run_thread():
+            with app_obj.app_context():
+                # ✨ 2. تمرير اللغة هنا
+                background_generation_task(tenant_id, data.get('strict_hierarchy'), data.get('algorithms'), data.get('settings', {}), user_lang)
+        threading.Thread(target=run_thread).start()
+    else:
+        from app.redis_logger import redis_client
+        redis_client.delete(f"mutation:tenant_{tenant_id}") 
+        # ✨ 3. وتمرير اللغة للسليري هنا
+        background_generation_task.delay(tenant_id, data.get('strict_hierarchy'), data.get('algorithms'), data.get('settings', {}), user_lang)
+        
+    return jsonify({"success": True})
+
+
+@generation_bp.route('/api/refine', methods=['POST'])
+def start_refinement():
+    tenant_id = session.get('tenant_id')
+    user_lang = session.get('lang', 'ar') # ✨ التقاط اللغة
+    log_q = get_log_queue(tenant_id)
+    
+    if log_q.is_running():
+        return jsonify({"error": _("هناك عملية قيد التشغيل بالفعل")}), 400
+    
+    data = request.json
+    current_schedule = data.get('schedule')
+    if not current_schedule: return jsonify({"error": _("الجدول غير موجود أو فارغ.")}), 400
+        
+    # ✨ التقاط المستوى وعدد الضحايا
+    req_level = data.get('level') or data.get('refinement_level') or 'balanced'
+    max_victims = data.get('max_victims', 4)
+    
+    # 🛡️ الحماية الأمنية (الدفاع بعمق): التحقق من تفعيل الميزة الجراحية
+    if req_level == 'deep_surgical' and not current_app.config.get('ENABLE_SURGICAL_FEATURE'):
+        return jsonify({"error": _("ميزة التدخل الجراحي غير مفعلة في هذه النسخة.")}), 403
+    
+    log_q.clear_logs()
+    log_q.set_running(True)
+    log_q.set_stop_flag(False)
+    
+    # ✨ ترجمة رسالة السجل (Log)
+    log_q.put(_("🔍 تم بدء عملية التحسين باختيار المستوى: [{level}]").format(level=req_level))
+
+    mode = current_app.config.get('APP_MODE')
+    if mode == 'desktop':
+        app_obj = current_app._get_current_object()
+        def run_thread():
+            with app_obj.app_context():
+                # ✨ التمرير
+                background_refinement_task(tenant_id, current_schedule, req_level, data.get('teachers', []), max_victims, user_lang)
+        threading.Thread(target=run_thread).start()
+    else:
+        # ✨ التمرير
+        background_refinement_task.delay(tenant_id, current_schedule, req_level, data.get('teachers', []), max_victims, user_lang)
+        
+    return jsonify({"success": True})
+
+
+@generation_bp.route('/api/stream_logs')
+@generation_bp.route('/stream-logs', methods=['GET'])
+def stream_logs():
+    tenant_id = session.get('tenant_id')
+    log_q = get_log_queue(tenant_id)
+    
+    def generate():
+        last_idx = 0
+        import time
+        while True:
+            logs = log_q.get_logs(start_index=last_idx)
+            
+            if logs:
+                # إذا كانت هناك سجلات جديدة، أرسلها
+                for msg in logs:
+                    # ✨ السحر هنا: إصلاح مشكلة الأسطر المتعددة والـ Traceback!
+                    safe_msg = str(msg).replace('\n', '\ndata: ')
+                    yield f"data: {safe_msg}\n\n"
+                last_idx += len(logs)
+            else:
+                # 🚀 نبضة الحياة (Heartbeat)
+                yield ": heartbeat\n\n"
+            
+            if not log_q.is_running() and not logs:
+                break
+                
+            time.sleep(0.5)
+            
+    return Response(stream_with_context(generate()), mimetype='text/event-stream', headers={
+        'X-Accel-Buffering': 'no', 
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive'
+    })
+
+@generation_bp.route('/api/stop-generation', methods=['POST'])
+def stop_generation():
+    tenant_id = session.get('tenant_id')
+    log_q = get_log_queue(tenant_id)
+    log_q.set_stop_flag(True)
+    return jsonify({"success": True})
+
+
+@generation_bp.route('/api/generate/force_mutation', methods=['POST'])
+def force_mutation_route():
+    tenant_id = session.get('tenant_id')
+    data = request.get_json() or {}
+    intensity = data.get('intensity', 4) 
+    
+    mode = current_app.config.get('APP_MODE')
+    if mode == 'desktop':
+        get_log_queue(tenant_id).set_mutation(intensity)
+    else:
+        from app.redis_logger import redis_client
+        redis_client.set(f"mutation:tenant_{tenant_id}", intensity, ex=3600)
+    return jsonify({"success": True})
+
+
+@generation_bp.route('/api/force_reset', methods=['POST'])
+def force_reset():
+    tenant_id = session.get('tenant_id')
+    log_q = get_log_queue(tenant_id)
+    log_q.set_running(False)
+    log_q.set_stop_flag(True)
+    # ✨ ترجمة رسالة الإيقاف
+    log_q.put(_("🛑 تم فرض إيقاف الخادم وإعادة التهيئة يدوياً بواسطة المستخدم."))
+    return jsonify({"success": True})
+
+
+# ================= مسارات التصدير والاستيراد (Excel) =================
+
+@generation_bp.route('/api/export_excel', methods=['POST'])
+def export_excel():
+    data = request.json
+    schedule = data.get('schedule', {})
+    days = data.get('days', [])
+    slots = data.get('slots', [])
+    lang = data.get('lang', 'ar') 
+    
+    # 1. تحديد المفاتيح
+    course_key = "مادة / Course:" if lang == 'en' else "مادة:"
+    prof_key = "أستاذ / Professor:" if lang == 'en' else "أستاذ:"
+    room_key = "قاعة / Room:" if lang == 'en' else "قاعة:"
+    
+    # 2. قاموس ترجمة الأيام
+    day_trans = {
+        "الأحد": "الأحد / Sunday", "الإثنين": "الإثنين / Monday", "الاثنين": "الإثنين / Monday",
+        "الثلاثاء": "الثلاثاء / Tuesday", "الأربعاء": "الأربعاء / Wednesday",
+        "الخميس": "الخميس / Thursday", "الجمعة": "الجمعة / Friday", "السبت": "السبت / Saturday"
+    }
+    
+    wb = openpyxl.Workbook()
+    wb.remove(wb.active) 
+    
+    for level, grid in schedule.items():
+        safe_title = level.replace("/", "-").replace("\\", "-")[:31]
+        ws = wb.create_sheet(title=safe_title)
+        ws.sheet_view.rightToLeft = (lang == 'ar')
+        
+        ws['A1'] = level
+        ws['A1'].font = Font(bold=True, color="FFFFFF")
+        ws['A1'].fill = PatternFill(start_color="34495e", fill_type="solid")
+        
+        # 3. ترجمة الترويسة والأيام
+        display_days = [day_trans.get(d, d) if lang == 'en' else d for d in days]
+        time_header = "الوقت / Time" if lang == 'en' else _("الوقت")
+        headers = [time_header] + display_days 
+        ws.append(headers)
+        
+        for cell in ws[2]: 
+            cell.font = Font(bold=True)
+            cell.fill = PatternFill(start_color="ecf0f1", fill_type="solid")
+            cell.alignment = Alignment(horizontal='center', vertical='center')
+        
+        for slot_idx, slot_name in enumerate(slots):
+            row = [slot_name]
+            for day_idx, day_name in enumerate(days):
+                cell_data = grid[day_idx][slot_idx] if day_idx < len(grid) and slot_idx < len(grid[day_idx]) else []
+                if not cell_data:
+                    row.append("-")
+                else:
+                    parts = []
+                    for lec in cell_data:
+                        # 4. النزول لسطر جديد (\n) بعد كل مفتاح لتلبية طلبك
+                        parts.append(f"{course_key}\n{lec.get('name','')}\n{prof_key}\n{lec.get('teacher_name','')}\n{room_key}\n{lec.get('room','')}")
+                    row.append("\n===\n".join(parts))
+            ws.append(row)
+            
+        for row in ws.iter_rows(min_row=3):
+            for cell in row:
+                cell.alignment = Alignment(wrap_text=True, horizontal='center', vertical='center')
+        for col in ws.columns:
+            ws.column_dimensions[col[0].column_letter].width = 30
+            
+        last_row = ws.max_row + 2
+        max_col = len(days) + 1
+        ws.merge_cells(start_row=last_row, start_column=1, end_row=last_row, end_column=max_col)
+        note_cell = ws.cell(row=last_row, column=1)
+        
+        if lang == 'en':
+            note_cell.value = "⚠️ Note: Do not change the text ending with a colon (:). Only modify the data in the lines below them."
+        else:
+            note_cell.value = "⚠️ ملاحظة هامة: الرجاء عدم تغيير الأسطر التي تنتهي بنقطتين رأسيتين (:). قم بتعديل البيانات في الأسطر التي تحتها فقط."
+            
+        note_cell.font = Font(bold=True, color="C00000")
+        note_cell.alignment = Alignment(horizontal='center', vertical='center')
+            
+    out = io.BytesIO()
+    wb.save(out)
+    out.seek(0)
+    
+    return Response(
+        out, 
+        mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": "attachment;filename=schedule_export.xlsx"}
+    )
+
+@generation_bp.route('/api/import_excel', methods=['POST'])
+def import_excel():
+    if 'file' not in request.files:
+        return jsonify({"error": _("لم يتم إرسال أي ملف")}), 400
+        
+    file = request.files['file']
+    days = json.loads(request.form.get('days', '[]'))
+    slots = json.loads(request.form.get('slots', '[]'))
+    
+    if not days or not slots:
+        tenant_id = session.get('tenant_id')
+        struct_setting = Setting.query.filter_by(key='schedule_structure', tenant_id=tenant_id).first()
+        if struct_setting and struct_setting.value:
+            structure_data = json.loads(struct_setting.value)
+            days = [d['name'] for d in structure_data]
+            if structure_data and structure_data[0].get('slots'):
+                slots = [f"{s['start']}-{s['end']}" for s in structure_data[0]['slots']]
+    
+    if not days or not slots:
+        return jsonify({"error": _("لم يتم العثور على هيكل الأيام والحصص. يرجى إعداده في المرحلة 4 أولاً.")}), 400
+
+    try:
+        wb = openpyxl.load_workbook(file)
+        new_schedule = {}
+        new_prof_schedules = {}
+        
+        for sheet_name in wb.sheetnames:
+            ws = wb[sheet_name]
+            level_name = str(ws['A1'].value) if ws['A1'].value else sheet_name
+            grid = [[ [] for _ in slots ] for _ in days]
+            
+            for slot_idx, slot_name in enumerate(slots):
+                row_idx = slot_idx + 3
+                for day_idx, day_name in enumerate(days):
+                    col_idx = day_idx + 2 
+                    cell_val = ws.cell(row=row_idx, column=col_idx).value
+                    if not cell_val or str(cell_val).strip() == "-": continue
+                        
+                    blocks = str(cell_val).split('===')
+                    for block in blocks:
+                        lines = [line.strip() for line in block.strip().split('\n') if line.strip()]
+                        lec = {"name": "", "teacher_name": "", "room": "", "level": level_name}
+                        
+                        for i, line in enumerate(lines):
+                            if ':' in line:
+                                key_part = line.split(':', 1)[0].strip()
+                                value_part = ""
+                                
+                                if i + 1 < len(lines) and ':' not in lines[i+1]:
+                                    value_part = lines[i+1].strip()
+                                
+                                if 'مادة' in key_part or 'Course' in key_part: 
+                                    lec["name"] = value_part
+                                elif 'أستاذ' in key_part or 'Professor' in key_part: 
+                                    lec["teacher_name"] = value_part
+                                elif 'قاعة' in key_part or 'Room' in key_part: 
+                                    lec["room"] = value_part
+                                
+                        if lec["name"]: 
+                            grid[day_idx][slot_idx].append(lec)
+                            t_name = lec["teacher_name"]
+                            if t_name and t_name != "None":
+                                if t_name not in new_prof_schedules:
+                                    new_prof_schedules[t_name] = [[ [] for _ in slots ] for _ in days]
+                                new_prof_schedules[t_name][day_idx][slot_idx].append(lec)
+                                
+            # نهاية حلقة بناء مستوى معين
+            new_schedule[level_name] = grid
+            
+        # ⬅️ تأكد من أن هذا الجزء خارج حلقة (for sheet_name in wb.sheetnames)
+        # ✨ جلب جميع القاعات من قاعدة البيانات بطريقة SQLAlchemy الآمنة للسحابة
+        tenant_id = session.get('tenant_id')
+        all_rooms = [r.name for r in Room.query.filter_by(tenant_id=tenant_id).all()]
+
+        # ✨ حساب القاعات الفارغة المحدثة للجدول الشبكي
+        free_rooms = [[ [] for _ in slots ] for _ in days]
+        for d_idx in range(len(days)):
+            for s_idx in range(len(slots)):
+                busy_rooms = set()
+                for grid_level in new_schedule.values():
+                    if d_idx < len(grid_level) and s_idx < len(grid_level[d_idx]):
+                        for lec in grid_level[d_idx][s_idx]:
+                            rm = lec.get('room')
+                            if rm and rm not in ["None", "بدون قاعة", "", "-"]:
+                                busy_rooms.add(rm.strip())
+                
+                for r_name in all_rooms:
+                    if r_name.strip() not in busy_rooms:
+                        free_rooms[d_idx][s_idx].append(r_name)
+        
+        return jsonify({
+            "success": True, 
+            "schedule": new_schedule, 
+            "prof_schedules": new_prof_schedules,
+            "free_rooms": free_rooms
+        })
+        
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({"error": _("فشل في قراءة ملف الإكسل. تأكد من عدم تغيير هيكل الملف. التفاصيل: {error}").format(error=str(e))}), 500
+
+# ================= مهام الخلفية (Celery Tasks) =================
+
+@celery_app.task
+def background_generation_task(tenant_id, strict_hierarchy, algorithms, algo_settings, user_lang='ar'):
+    # ✨ 1. استيراد المترجم الخلفي الآمن ليعمل داخل هذه المهمة فقط!
+    from app.services.algorithms import _ 
+    
+    # ✨ 2. تفعيل المترجم المستقل قبل أي شيء آخر
+    set_algorithm_language(user_lang)
+    
+    log_q = get_log_queue(tenant_id)
+    scheduling_state = SchedulingStateProxy(tenant_id)
+    from flask import current_app as app 
+    
+    try:
+        # الآن هذه الرسالة ستُترجم وتُطبع بأمان تام دون انهيار
+        log_q.put(_("🚀 بدء جلب البيانات من قاعدة البيانات السحابية المعزولة..."))
+        
+        with app.app_context():
+            teachers_list = Teacher.query.filter_by(tenant_id=tenant_id).all()
+            teacher_map = {t.id: t.name for t in teachers_list}
+            teachers = [{"id": t.id, "name": t.name} for t in teachers_list]
+            
+            rooms_data = [{"id": r.id, "name": r.name, "type": r.type} for r in Room.query.filter_by(tenant_id=tenant_id).all()]
+            levels = [lvl.name for lvl in Level.query.filter_by(tenant_id=tenant_id).order_by(Level.name).all()]
+            
+            courses_raw = []
+            for c in Course.query.filter_by(tenant_id=tenant_id).all():
+                courses_raw.append({
+                    'id': c.id,
+                    'name': c.name,
+                    'room_type': c.room_type,
+                    'course_nature': c.course_nature,
+                    'teacher_name': teacher_map.get(c.teacher_id),
+                    'level_names': ",".join([l.name for l in c.levels])
+                })
+                
+            struct_setting = Setting.query.filter_by(key='schedule_structure', tenant_id=tenant_id).first()
+            cond_setting = Setting.query.filter_by(key='schedule_conditions', tenant_id=tenant_id).first()
+            
+            structure_data = json.loads(struct_setting.value) if struct_setting and struct_setting.value else []
+            conditions_data = json.loads(cond_setting.value) if cond_setting and cond_setting.value else {}
+
+        if not structure_data:
+            # ✨ ترجمة رسالة الخطأ
+            raise Exception(_("لم يتم إعداد هيكل الجدول (المرحلة 4)."))
+
+        all_lectures = []
+        from collections import defaultdict
+        lectures_by_teacher_map = defaultdict(list)
+        
+        for c in courses_raw:
+            lec = dict(c)
+            lec['levels'] = lec['level_names'].split(',') if lec['level_names'] else []
+            if lec['room_type'] in ['عادية', 'قاعة', 'صغيرة']: lec['room_type'] = 'صغيرة'
+            elif lec['room_type'] in ['مدرج', 'كبيرة']: lec['room_type'] = 'كبيرة'
+            
+            all_lectures.append(lec)
+            if lec.get('teacher_name'):
+                lectures_by_teacher_map[lec['teacher_name']].append(lec)
+        
+        lectures_by_teacher_map['__all_lectures__'] = all_lectures
+
+        for r in rooms_data:
+            if r['type'] in ['عادية', 'قاعة', 'صغيرة']: r['type'] = 'صغيرة'
+            elif r['type'] in ['مدرج', 'كبيرة']: r['type'] = 'كبيرة'
+
+        days = [d['name'] for d in structure_data]
+        day_to_idx = {d: i for i, d in enumerate(days)}
+        slots = []
+        if structure_data and structure_data[0].get('slots'):
+            slots = [f"{s['start']}-{s['end']}" for s in structure_data[0]['slots']]
+        
+        rules_grid = [[[] for _ in slots] for _ in days]
+        for d_idx, day_obj in enumerate(structure_data):
+            for s_idx, slot_obj in enumerate(day_obj.get('slots', [])):
+                for constr in slot_obj.get('constraints', []):
+                    rule_type = 'ANY_HALL'
+                    if constr['room_rule'] == 'regular': rule_type = 'SMALL_HALLS_ONLY'
+                    elif constr['room_rule'] == 'specific': rule_type = 'SPECIFIC_LARGE_HALL'
+                    elif constr['room_rule'] == 'none': rule_type = 'NO_HALLS_ALLOWED'
+                    
+                    rules_grid[d_idx][s_idx].append({
+                        'rule_type': rule_type,
+                        'levels': constr['levels'],
+                        'hall_name': constr['specific_halls'][0] if constr['specific_halls'] else None
+                    })
+
+        identifiers_by_level = conditions_data.get('identifiers', {})
+        teacher_rules = conditions_data.get('teacher_rules', {})
+        global_rules = conditions_data.get('global', {})
+        weights = conditions_data.get('weights', {})
+        spec_teachers = conditions_data.get('special_teachers', {})
+        
+        teacher_constraints = {}
+        special_constraints = {}
+        saturday_teachers = []
+        last_slot_restrictions = {}
+        
+        for t_id_str, rule in teacher_rules.items():
+            t_name = next((t['name'] for t in teachers if str(t['id']) == t_id_str), None)
+            if not t_name: continue
+            
+            if rule.get('days'):
+                teacher_constraints[t_name] = {'allowed_days': {day_to_idx[d] for d in rule['days'] if d in day_to_idx}}
+            
+            s_const = {}
+            limits = rule.get('limits', [])
+            
+            if 'always_s2_e4' in limits: s_const['always_s2_to_s4'] = True
+            if 's2' in limits: s_const['start_d1_s2'] = True
+            if 's3' in limits: s_const['start_d1_s3'] = True
+            if 'e3' in limits: s_const['end_s3'] = True
+            if 'e4' in limits: s_const['end_s4'] = True
+            if rule.get('rule') != 'unspecified':
+                rules_map = {'group2': 'يومان متتاليان', 'group3': 'ثلاثة أيام متتالية', 'sep2': 'يومان منفصلان', 'sep3': 'ثلاثة أيام منفصلة'}
+                s_const['distribution_rule'] = rules_map.get(rule['rule'], 'غير محدد')
+            
+            special_constraints[t_name] = s_const
+
+        for t_id_str, spec in spec_teachers.items():
+            t_name = next((t['name'] for t in teachers if str(t['id']) == t_id_str), None)
+            if not t_name: continue
+            if spec.get('allow_saturday'): saturday_teachers.append(t_name)
+            if spec.get('prevent_last') == '1': last_slot_restrictions[t_name] = 'last_1'
+            elif spec.get('prevent_last') == '2': last_slot_restrictions[t_name] = 'last_2'
+
+        days_rule_val = global_rules.get('days_rule') or global_rules.get('days_interpretation')
+        distribution_rule_type = 'strict' if days_rule_val == 'strict' else 'allowed'
+        max_sess = global_rules.get('max_slots')
+        max_sessions_per_day = int(max_sess) if max_sess and max_sess.isdigit() else None
+        consecutive_large_hall_rule = global_rules.get('consecutive_hall_ban', 'none')
+        
+        globally_unavailable_slots = set()
+        if global_rules.get('rest_tue_pm') and 'الثلاثاء' in day_to_idx and len(slots) >= 2:
+            globally_unavailable_slots.update([(day_to_idx['الثلاثاء'], len(slots)-1), (day_to_idx['الثلاثاء'], len(slots)-2)])
+            
+        if global_rules.get('rest_last_day_pm') and len(days) > 0 and len(slots) >= 1:
+            last_day_idx = len(days) - 1 
+            num_slots_to_block = int(global_rules.get('rest_last_day_slots', 2))
+            for i in range(1, num_slots_to_block + 1):
+                if len(slots) - i >= 0:
+                    globally_unavailable_slots.add((last_day_idx, len(slots) - i))
+
+        level_specific_large_rooms = {}
+        for lvl, r_id in conditions_data.get('level_amphis', {}).items():
+            r_name = next((r['name'] for r in rooms_data if str(r['id']) == str(r_id)), None)
+            if r_name: level_specific_large_rooms[lvl] = r_name
+
+        specific_small_room_assignments = {}
+        for lvl, r_ids in conditions_data.get('level_small_rooms', {}).items():
+            if not isinstance(r_ids, list): r_ids = [r_ids] 
+            room_names = []
+            for r_id in r_ids:
+                r_name = next((r['name'] for r in rooms_data if str(r['id']) == str(r_id)), None)
+                if r_name: room_names.append(r_name)
+            if room_names:
+                is_excl = conditions_data.get('level_exclusive_rooms', {}).get(lvl)
+                specific_small_room_assignments[lvl] = [f"EXCL_{name}" if is_excl else name for name in room_names]
+        
+        specific_small_room_assignments['__GLOBAL_EXCLUSIVE__'] = conditions_data.get('global', {}).get('global_exclusive_rooms', False)
+        
+        pairs_data = conditions_data.get('pairs', {'share':[], 'noshare':[]})
+        teacher_pairs = []
+        for p in pairs_data.get('share', []):
+            t1 = next((t['name'] for t in teachers if str(t['id']) == str(p[0])), None)
+            t2 = next((t['name'] for t in teachers if str(t['id']) == str(p[1])), None)
+            if t1 and t2: teacher_pairs.append((t1, t2))
+            
+        non_sharing_teacher_pairs = []
+        for p in pairs_data.get('noshare', []):
+            t1 = next((t['name'] for t in teachers if str(t['id']) == str(p[0])), None)
+            t2 = next((t['name'] for t in teachers if str(t['id']) == str(p[1])), None)
+            if t1 and t2: non_sharing_teacher_pairs.append((t1, t2))
+
+        constraint_severities = {
+            'distribution': weights.get('distribution', '10'),
+            'non_sharing_days': weights.get('no_share', '10'),
+            'saturday_work': weights.get('saturday', '10'),
+            'last_slot': weights.get('last_slot', '10'),
+            'max_sessions': weights.get('max_daily', '10'),
+            'teacher_pairs': weights.get('share_pairs', '10'),
+            'consecutive_halls': weights.get('consecutive_halls', '10'),
+            'prefer_morning': weights.get('morning_pref', '10'),
+            'consecutive_lectures': weights.get('consecutive_lectures', '0'),
+            'max_consecutive_lectures_limit': weights.get('max_consecutive_lectures_limit', 2),
+            'restricted_day': weights.get('restricted_day', 'السبت')
+        }
+        
+        teacher_constraints['__GLOBAL__'] = {
+            'restricted_day': constraint_severities['restricted_day'],
+            'weight': constraint_severities['saturday_work']
+        }
+
+        for k, v in constraint_severities.items():
+            if v == 'strict': constraint_severities[k] = 'hard'
+            elif v == '20': constraint_severities[k] = 'high'
+            elif v == '10': constraint_severities[k] = 'medium'
+            elif v == '1': constraint_severities[k] = 'low'
+            elif v == '0': constraint_severities[k] = 'disabled'
+
+        prefer_morning_slots = constraint_severities['prefer_morning'] != 'disabled'
+        
+        # ✨ ترجمة السجل
+        log_q.put(_("✅ تمت قراءة ومعالجة جميع البيانات والقيود بنجاح!"))
+        time.sleep(0.5)
+
+        lns_iterations = int(algo_settings.get('lns_iterations', 500))
+        lns_ruin_factor = float(algo_settings.get('lns_ruin_factor', 20)) / 100.0 
+        vns_iterations = int(algo_settings.get('vns_iterations', 300))
+        vns_k_max = int(algo_settings.get('vns_k_max', 5))
+        lns_stagnation = int(algo_settings.get('lns_stagnation_threshold', 15))
+        vns_stagnation = int(algo_settings.get('vns_stagnation_threshold', 15))
+
+        domino_teachers_ids = conditions_data.get('domino_teachers', [])
+        domino_teacher_names = []
+        for t_id in domino_teachers_ids:
+            matched_name = next((t['name'] for t in teachers if str(t['id']) == str(t_id)), None)
+            if matched_name: domino_teacher_names.append(matched_name)
+
+        primary_slots = []
+        reserve_slots = []
+        half_slots = max(1, len(slots) // 2)
+        for d_idx in range(len(days)):
+            for s_idx in range(len(slots)):
+                if s_idx < half_slots:
+                    primary_slots.append((d_idx, s_idx))
+                else:
+                    reserve_slots.append((d_idx, s_idx))
+
+        # ✨ ترجمة السجل
+        log_q.put(_("\n🚀 جاري بناء الجدول المبدئي السريع (الطماعة)..."))
+        
+        current_solution, final_failures = run_greedy_search_for_best_result(
+            log_q=log_q, 
+            lectures_sorted=all_lectures,
+            days=days, slots=slots, rules_grid=rules_grid, rooms_data=rooms_data, 
+            teachers=teachers, all_levels=levels,
+            teacher_constraints=teacher_constraints, globally_unavailable_slots=globally_unavailable_slots, 
+            special_constraints=special_constraints,
+            primary_slots=primary_slots, reserve_slots=reserve_slots, identifiers_by_level=identifiers_by_level, 
+            prioritize_primary=True,
+            saturday_teachers=saturday_teachers, day_to_idx=day_to_idx, level_specific_large_rooms=level_specific_large_rooms,
+            specific_small_room_assignments=specific_small_room_assignments, consecutive_large_hall_rule=consecutive_large_hall_rule, 
+            prefer_morning_slots=prefer_morning_slots,
+            lectures_by_teacher_map=lectures_by_teacher_map, distribution_rule_type=distribution_rule_type, 
+            teacher_pairs=teacher_pairs, constraint_severities=constraint_severities, 
+            non_sharing_teacher_pairs=non_sharing_teacher_pairs,
+            base_initial_schedule=None
+        )
+        
+        # ✨ ترجمة مع تنسيق المتغير
+        log_q.put(_("✅ تم بناء الجدول المبدئي بنجاح! (باقي {count} أخطاء مرنة)").format(count=len(final_failures)))
+            
+        if "lns" in algorithms and not scheduling_state.get('should_stop'):
+            # ✨ ترجمة السجل
+            log_q.put(_("\n=== 🌪️ بدء البحث الجواري الواسع (LNS) بتكرارات: {iterations} وتخريب: {ruin_factor}% ===").format(iterations=lns_iterations, ruin_factor=lns_ruin_factor*100))
+            
+            current_solution, final_cost, final_failures = run_large_neighborhood_search(
+                log_q, all_lectures, days, slots, rooms_data, teachers, levels, 
+                identifiers_by_level, special_constraints, teacher_constraints, distribution_rule_type, 
+                lectures_by_teacher_map, globally_unavailable_slots, saturday_teachers, teacher_pairs, 
+                day_to_idx, rules_grid, max_iterations=lns_iterations, ruin_factor=lns_ruin_factor, prioritize_primary=True,
+                mutation_hard_intensity=algo_settings.get('mutation_hard_intensity', 4), 
+                mutation_soft_probability=algo_settings.get('mutation_soft_probability', 0.5),
+                scheduling_state=scheduling_state, last_slot_restrictions=last_slot_restrictions, 
+                level_specific_large_rooms=level_specific_large_rooms, specific_small_room_assignments=specific_small_room_assignments, 
+                constraint_severities=constraint_severities, initial_solution=current_solution, 
+                max_sessions_per_day=max_sessions_per_day, consecutive_large_hall_rule=consecutive_large_hall_rule, 
+                progress_channel=scheduling_state, prefer_morning_slots=prefer_morning_slots, 
+                use_strict_hierarchy=strict_hierarchy, non_sharing_teacher_pairs=non_sharing_teacher_pairs,
+                lns_stagnation_threshold=lns_stagnation
+            )
+            
+        if "vns" in algorithms and not scheduling_state.get('should_stop'):
+            # ✨ ترجمة السجل
+            log_q.put(_("\n=== 🌊 بدء البحث الجواري المتغير (VNS) بتكرارات: {iterations} وجوار أقصى: {k_max} ===").format(iterations=vns_iterations, k_max=vns_k_max))
+            
+            current_solution, final_cost, final_failures = run_variable_neighborhood_search(
+                log_q, all_lectures, days, slots, rooms_data, teachers, levels,
+                identifiers_by_level, special_constraints, teacher_constraints, distribution_rule_type,
+                lectures_by_teacher_map, globally_unavailable_slots, saturday_teachers, teacher_pairs,
+                day_to_idx, rules_grid, max_iterations=vns_iterations, k_max=vns_k_max, prioritize_primary=True,
+                mutation_hard_intensity=algo_settings.get('mutation_hard_intensity', 4), 
+                mutation_soft_probability=algo_settings.get('mutation_soft_probability', 0.5),
+                scheduling_state=scheduling_state, last_slot_restrictions=last_slot_restrictions, 
+                level_specific_large_rooms=level_specific_large_rooms, specific_small_room_assignments=specific_small_room_assignments, 
+                constraint_severities=constraint_severities, algorithm_settings={'vns_local_search_iterations': 10}, 
+                initial_solution=current_solution, max_sessions_per_day=max_sessions_per_day, 
+                consecutive_large_hall_rule=consecutive_large_hall_rule, progress_channel=scheduling_state, 
+                prefer_morning_slots=prefer_morning_slots, use_strict_hierarchy=strict_hierarchy, non_sharing_teacher_pairs=non_sharing_teacher_pairs,
+                vns_stagnation_threshold=vns_stagnation
+            )
+
+        if scheduling_state.get('should_stop'):
+            # ✨ ترجمة السجل
+            log_q.put(_("\n🛑 تم إيقاف عملية التوزيع من قبل المستخدم."))
+            return
+        else:
+            # ✨ ترجمة السجل
+            log_q.put(_("\n✅ تم الانتهاء من جميع الخوارزميات بنجاح!"))
+
+        if final_failures:
+            log_q.put("\n" + "="*50)
+            # ✨ ترجمة السجل
+            log_q.put(_("📊 تقرير الأخطاء المتبقية في الجدول النهائي:"))
+            log_q.put("="*50)
+            
+            missing = [f for f in final_failures if f.get('penalty', 0) >= 1000] 
+            hard = [f for f in final_failures if 100 <= f.get('penalty', 0) < 1000] 
+            soft = [f for f in final_failures if 0 < f.get('penalty', 0) < 100] 
+            
+            if missing:
+                log_q.put(_("❌ المواد غير المجدولة (نقص): {count}").format(count=len(missing)))
+                for f in missing[:10]: log_q.put(_("  - {course} ({teacher}): {reason}").format(course=f.get('course_name'), teacher=f.get('teacher_name'), reason=f.get('reason')))
+                if len(missing) > 10: log_q.put(_("  ... والمزيد"))
+            
+            if hard:
+                log_q.put(_("\n🚫 الأخطاء الصارمة (تعارضات قوية): {count}").format(count=len(hard)))
+                for f in hard[:10]: log_q.put(_("  - {course} ({teacher}): {reason}").format(course=f.get('course_name'), teacher=f.get('teacher_name'), reason=f.get('reason')))
+                if len(hard) > 10: log_q.put(_("  ... والمزيد"))
+                
+            if soft:
+                log_q.put(_("\n⚠️ الأخطاء المرنة (تفضيلات لم تتحقق): {count}").format(count=len(soft)))
+                for f in soft[:10]: log_q.put(_("  - {course} ({teacher}): {reason}").format(course=f.get('course_name'), teacher=f.get('teacher_name'), reason=f.get('reason')))
+                if len(soft) > 10: log_q.put(_("  ... والمزيد"))
+                
+            log_q.put("="*50 + "\n")
+        else:
+            # ✨ ترجمة السجل
+            log_q.put(_("\n🎉 الجدول مثالي! لا توجد أي أخطاء متبقية."))
+
+        # ✨ ترجمة السجل
+        log_q.put(_("جاري تجهيز ملفات التصدير (جداول الأساتذة والقاعات)..."))
+        
+        prof_schedules = {t['name']: [[[] for _ in slots] for _ in days] for t in teachers}
+        free_rooms = [[[] for _ in slots] for _ in days]
+        
+        if current_solution:
+            for level, grid in current_solution.items():
+                for d, day in enumerate(grid):
+                    for s, slot in enumerate(day):
+                        for lec in slot:
+                            t_name = lec.get('teacher_name')
+                            if t_name and t_name in prof_schedules:
+                                lec_copy = lec.copy()
+                                lec_copy['level'] = level
+                                prof_schedules[t_name][d][s].append(lec_copy)
+            
+            for d in range(len(days)):
+                for s in range(len(slots)):
+                    busy_rooms = set()
+                    for level, grid in current_solution.items():
+                        for lec in grid[d][s]:
+                            if lec.get('room'): busy_rooms.add(lec['room'])
+                    
+                    for r in rooms_data:
+                        if r['name'] not in busy_rooms:
+                            free_rooms[d][s].append(r['name'])
+                            
+        prof_schedules = {p: g for p, g in prof_schedules.items() if any(lec for day in g for slot in day for lec in slot)}
+
+        final_result = {
+            "schedule": current_solution if current_solution else {},
+            "prof_schedules": prof_schedules, 
+            "free_rooms": free_rooms,         
+            "days": days,
+            "slots": slots,
+            "final_failures": final_failures,        
+            "total_lectures": len(all_lectures)      
+        }
+        
+        # حفظ النتيجة في قاعدة البيانات للسماح بنشرها للأساتذة لاحقاً
+        with app.app_context():
+            res_setting = Setting.query.filter_by(key='schedule_result', tenant_id=tenant_id).first()
+            if res_setting: res_setting.value = json.dumps(current_solution)
+            else: db.session.add(Setting(key='schedule_result', value=json.dumps(current_solution), tenant_id=tenant_id))
+            db.session.commit()
+
+        log_q.put(f"DONE{json.dumps(final_result)}")
+
+    except StopByUserException:
+        # ✨ التقاط آمن لحالة الإيقاف اليدوي دون طباعة أي خطأ أو Traceback
+        log_q.put(_("\n🛑 تم إيقاف عملية التوزيع بأمان بناءً على طلبك."))
+    except Exception as e:
+        # ✨ ترجمة رسالة الخطأ الحقيقية في التوزيع
+        log_q.put(_("\n❌ حدث خطأ فادح أثناء التوزيع:\n{error}").format(error=str(e)))
+        log_q.put(traceback.format_exc())
+    finally:
+        log_q.set_running(False)
+
+@celery_app.task
+def background_refinement_task(tenant_id, current_schedule, refinement_level, selected_teachers, max_victims=4, user_lang='ar'):
+    # ✨ 1. استيراد المترجم الخلفي الآمن محلياً
+    from app.services.algorithms import _ 
+    
+    # ✨ 2. تفعيل المترجم المستقل
+    set_algorithm_language(user_lang)
+    
+    log_q = get_log_queue(tenant_id)
+    scheduling_state = SchedulingStateProxy(tenant_id)
+    from flask import current_app as app
+
+    try:
+        # ستعمل بأمان وتُترجم الرسالة
+        log_q.put(_("\n🚀 بدء عملية ضغط وتحسين جداول الأساتذة (سد الفجوات)..."))
+        
+        with app.app_context():
+            teachers_list = Teacher.query.filter_by(tenant_id=tenant_id).all()
+            teacher_map = {t.id: t.name for t in teachers_list}
+            teachers = [{"id": t.id, "name": t.name} for t in teachers_list]
+            
+            rooms_data = [{"id": r.id, "name": r.name, "type": r.type} for r in Room.query.filter_by(tenant_id=tenant_id).all()]
+            levels = [lvl.name for lvl in Level.query.filter_by(tenant_id=tenant_id).order_by(Level.name).all()]
+            
+            for r in rooms_data:
+                if r['type'] in ['عادية', 'قاعة', 'صغيرة']: r['type'] = 'صغيرة'
+                elif r['type'] in ['مدرج', 'كبيرة']: r['type'] = 'كبيرة'
+                
+            courses_raw = []
+            for c in Course.query.filter_by(tenant_id=tenant_id).all():
+                courses_raw.append({
+                    'id': c.id,
+                    'name': c.name,
+                    'room_type': c.room_type,
+                    'course_nature': c.course_nature,
+                    'teacher_name': teacher_map.get(c.teacher_id),
+                    'level_names': ",".join([l.name for l in c.levels])
+                })
+                
+            struct_setting = Setting.query.filter_by(key='schedule_structure', tenant_id=tenant_id).first()
+            cond_setting = Setting.query.filter_by(key='schedule_conditions', tenant_id=tenant_id).first()
+            
+            structure_data = json.loads(struct_setting.value) if struct_setting and struct_setting.value else []
+            conditions_data = json.loads(cond_setting.value) if cond_setting and cond_setting.value else {}
+        
+        all_lectures = []
+        from collections import defaultdict
+        lectures_by_teacher_map = defaultdict(list)
+        
+        for c in courses_raw:
+            lec = dict(c)
+            lec['levels'] = lec['level_names'].split(',') if lec['level_names'] else []
+            if lec['room_type'] in ['عادية', 'قاعة', 'صغيرة']: lec['room_type'] = 'صغيرة'
+            elif lec['room_type'] in ['مدرج', 'كبيرة']: lec['room_type'] = 'كبيرة'
+            
+            all_lectures.append(lec)
+            if lec.get('teacher_name'):
+                lectures_by_teacher_map[lec['teacher_name']].append(lec)
+        
+        lectures_by_teacher_map['__all_lectures__'] = all_lectures
+
+        days = [d['name'] for d in structure_data]
+        day_to_idx = {d: i for i, d in enumerate(days)}
+        slots = []
+        if structure_data and structure_data[0].get('slots'):
+            slots = [f"{s['start']}-{s['end']}" for s in structure_data[0]['slots']]
+        
+        rules_grid = [[[] for _ in slots] for _ in days]
+        for d_idx, day_obj in enumerate(structure_data):
+            for s_idx, slot_obj in enumerate(day_obj.get('slots', [])):
+                for constr in slot_obj.get('constraints', []):
+                    rule_type = 'ANY_HALL'
+                    if constr['room_rule'] == 'regular': rule_type = 'SMALL_HALLS_ONLY'
+                    elif constr['room_rule'] == 'specific': rule_type = 'SPECIFIC_LARGE_HALL'
+                    elif constr['room_rule'] == 'none': rule_type = 'NO_HALLS_ALLOWED'
+                    rules_grid[d_idx][s_idx].append({
+                        'rule_type': rule_type,
+                        'levels': constr['levels'],
+                        'hall_name': constr['specific_halls'][0] if constr['specific_halls'] else None
+                    })
+        
+        identifiers_by_level = conditions_data.get('identifiers', {})
+        teacher_rules = conditions_data.get('teacher_rules', {})
+        global_rules = conditions_data.get('global', {})
+        weights = conditions_data.get('weights', {})
+        spec_teachers = conditions_data.get('special_teachers', {})
+        
+        teacher_constraints = {}
+        special_constraints = {}
+        saturday_teachers = []
+        last_slot_restrictions = {}
+        
+        for t_id_str, rule in teacher_rules.items():
+            t_name = next((t['name'] for t in teachers if str(t['id']) == t_id_str), None)
+            if not t_name: continue
+            if rule.get('days'):
+                teacher_constraints[t_name] = {'allowed_days': {day_to_idx[d] for d in rule['days'] if d in day_to_idx}}
+            s_const = {}
+            limits = rule.get('limits', [])
+            
+            if 'always_s2_e4' in limits: s_const['always_s2_to_s4'] = True
+            if 's2' in limits: s_const['start_d1_s2'] = True
+            if 's3' in limits: s_const['start_d1_s3'] = True
+            if 'e3' in limits: s_const['end_s3'] = True
+            if 'e4' in limits: s_const['end_s4'] = True
+            rules_map = {'group2': 'يومان متتاليان', 'group3': 'ثلاثة أيام متتالية', 'sep2': 'يومان منفصلان', 'sep3': 'ثلاثة أيام منفصلة'}
+            if rule.get('rule') != 'unspecified': s_const['distribution_rule'] = rules_map.get(rule.get('rule'), 'غير محدد')
+            special_constraints[t_name] = s_const
+
+        for t_id_str, spec in spec_teachers.items():
+            t_name = next((t['name'] for t in teachers if str(t['id']) == t_id_str), None)
+            if not t_name: continue
+            if spec.get('allow_saturday'): saturday_teachers.append(t_name)
+            if spec.get('prevent_last') == '1': last_slot_restrictions[t_name] = 'last_1'
+            elif spec.get('prevent_last') == '2': last_slot_restrictions[t_name] = 'last_2'
+
+        days_rule_val = global_rules.get('days_rule') or global_rules.get('days_interpretation')
+        distribution_rule_type = 'strict' if days_rule_val == 'strict' else 'allowed'
+        max_sess = global_rules.get('max_slots')
+        max_sessions_per_day = int(max_sess) if max_sess and max_sess.isdigit() else None
+        consecutive_large_hall_rule = global_rules.get('consecutive_hall_ban', 'none')
+        
+        globally_unavailable_slots = set()
+        if global_rules.get('rest_tue_pm') and 'الثلاثاء' in day_to_idx and len(slots) >= 2:
+            globally_unavailable_slots.update([(day_to_idx['الثلاثاء'], len(slots)-1), (day_to_idx['الثلاثاء'], len(slots)-2)])
+        if global_rules.get('rest_last_day_pm') and len(days) > 0 and len(slots) >= 1:
+            last_day_idx = len(days) - 1 
+            num_slots_to_block = int(global_rules.get('rest_last_day_slots', 2))
+            for i in range(1, num_slots_to_block + 1):
+                if len(slots) - i >= 0:
+                    globally_unavailable_slots.add((last_day_idx, len(slots) - i))
+
+        level_specific_large_rooms = {}
+        for lvl, r_id in conditions_data.get('level_amphis', {}).items():
+            r_name = next((r['name'] for r in rooms_data if str(r['id']) == str(r_id)), None)
+            if r_name: level_specific_large_rooms[lvl] = r_name
+            
+        specific_small_room_assignments = {}
+        for lvl, r_ids in conditions_data.get('level_small_rooms', {}).items():
+            if not isinstance(r_ids, list): r_ids = [r_ids] 
+            room_names = []
+            for r_id in r_ids:
+                r_name = next((r['name'] for r in rooms_data if str(r['id']) == str(r_id)), None)
+                if r_name: room_names.append(r_name)
+            if room_names:
+                is_excl = conditions_data.get('level_exclusive_rooms', {}).get(lvl)
+                specific_small_room_assignments[lvl] = [f"EXCL_{name}" if is_excl else name for name in room_names]
+        
+        specific_small_room_assignments['__GLOBAL_EXCLUSIVE__'] = conditions_data.get('global', {}).get('global_exclusive_rooms', False)
+        
+        pairs_data = conditions_data.get('pairs', {'share':[], 'noshare':[]})
+        teacher_pairs = []
+        for p in pairs_data.get('share', []):
+            t1 = next((t['name'] for t in teachers if str(t['id']) == str(p[0])), None)
+            t2 = next((t['name'] for t in teachers if str(t['id']) == str(p[1])), None)
+            if t1 and t2: teacher_pairs.append((t1, t2))
+            
+        non_sharing_teacher_pairs = []
+        for p in pairs_data.get('noshare', []):
+            t1 = next((t['name'] for t in teachers if str(t['id']) == str(p[0])), None)
+            t2 = next((t['name'] for t in teachers if str(t['id']) == str(p[1])), None)
+            if t1 and t2: non_sharing_teacher_pairs.append((t1, t2))
+        
+        constraint_severities = {
+            'distribution': weights.get('distribution', '10'),
+            'non_sharing_days': weights.get('no_share', '10'),
+            'saturday_work': weights.get('saturday', '10'),
+            'last_slot': weights.get('last_slot', '10'),
+            'max_sessions': weights.get('max_daily', '10'),
+            'teacher_pairs': weights.get('share_pairs', '10'),
+            'consecutive_halls': weights.get('consecutive_halls', '10'),
+            'prefer_morning': weights.get('morning_pref', '10'),
+            'consecutive_lectures': weights.get('consecutive_lectures', '0'),
+            'max_consecutive_lectures_limit': weights.get('max_consecutive_lectures_limit', 2)
+        }
+        for k, v in constraint_severities.items():
+            if v == 'strict': constraint_severities[k] = 'hard'
+            elif v == '20': constraint_severities[k] = 'high'
+            elif v == '10': constraint_severities[k] = 'medium'
+            elif v == '1': constraint_severities[k] = 'low'
+            elif v == '0': constraint_severities[k] = 'disabled'
+
+        if constraint_severities.get('prefer_morning') == 'disabled':
+            constraint_severities['prefer_morning'] = 'low'
+
+        actual_selected_names = []
+        if selected_teachers and len(selected_teachers) > 0:
+            for st in selected_teachers:
+                matched_name = next((t['name'] for t in teachers if str(t['id']) == str(st)), None)
+                if matched_name:
+                    actual_selected_names.append(matched_name)
+                else:
+                    actual_selected_names.append(st)
+        else:
+            actual_selected_names = [t['name'] for t in teachers]
+
+        # تشغيل دالة التحسين
+        refined_schedule, refinement_log = refine_and_compact_schedule(
+            initial_schedule=current_schedule, log_q=log_q, 
+            selected_teachers=actual_selected_names, 
+            all_lectures=all_lectures, days=days, slots=slots, rooms_data=rooms_data, teachers=teachers, all_levels=levels, 
+            identifiers_by_level=identifiers_by_level, special_constraints=special_constraints, teacher_constraints=teacher_constraints, distribution_rule_type=distribution_rule_type,
+            lectures_by_teacher_map=lectures_by_teacher_map, globally_unavailable_slots=globally_unavailable_slots, saturday_teachers=saturday_teachers, teacher_pairs=teacher_pairs,
+            day_to_idx=day_to_idx, rules_grid=rules_grid, last_slot_restrictions=last_slot_restrictions, level_specific_large_rooms=level_specific_large_rooms,
+            specific_small_room_assignments=specific_small_room_assignments, constraint_severities=constraint_severities, max_sessions_per_day=max_sessions_per_day, 
+            consecutive_large_hall_rule=consecutive_large_hall_rule, prefer_morning_slots=True, non_sharing_teacher_pairs=non_sharing_teacher_pairs, 
+            refinement_level=refinement_level, max_victims=max_victims
+        )
+
+        prof_schedules = {t['name']: [[[] for _ in slots] for _ in days] for t in teachers}
+        free_rooms = [[[] for _ in slots] for _ in days]
+        
+        for level_name, grid in refined_schedule.items():
+            for d, day_slots in enumerate(grid):
+                for s, slot_lectures in enumerate(day_slots):
+                    for lec in slot_lectures:
+                        t_name = lec.get('teacher_name')
+                        if t_name and t_name in prof_schedules:
+                            lec_copy = lec.copy()
+                            lec_copy['level'] = level_name
+                            prof_schedules[t_name][d][s].append(lec_copy)
+
+        for d in range(len(days)):
+            for s in range(len(slots)):
+                busy_rooms = set()
+                for grid in refined_schedule.values():
+                    for lec in grid[d][s]:
+                        if lec.get('room'): busy_rooms.add(lec['room'])
+                for r in rooms_data:
+                    if r['name'] not in busy_rooms:
+                        free_rooms[d][s].append(r['name'])
+                        
+        prof_schedules = {p: g for p, g in prof_schedules.items() if any(lec for day in g for slot in day for lec in slot)}
+
+        final_result = {
+            "schedule": refined_schedule,
+            "prof_schedules": prof_schedules,
+            "free_rooms": free_rooms,
+            "days": days,
+            "slots": slots,
+            "final_failures": [],
+            "total_lectures": len(all_lectures)
+        }
+        
+        # حفظ النتيجة المهذبة
+        with app.app_context():
+            res_setting = Setting.query.filter_by(key='schedule_result', tenant_id=tenant_id).first()
+            if res_setting: res_setting.value = json.dumps(refined_schedule)
+            else: db.session.add(Setting(key='schedule_result', value=json.dumps(refined_schedule), tenant_id=tenant_id))
+            db.session.commit()
+
+        log_q.put(f"DONE{json.dumps(final_result)}")
+
+    except Exception as e:
+        # ✨ ترجمة رسالة الخطأ في التحسين
+        log_q.put(_("\n❌ حدث خطأ أثناء التحسين:\n{error}").format(error=str(e)))
+        log_q.put(traceback.format_exc())
+    finally:
+        log_q.set_running(False)
+
+
+
+
+@generation_bp.route('/api/activate_domino', methods=['POST'])
+def api_activate_domino():
+    tenant_id = session.get('tenant_id')
+    user_lang = session.get('lang', 'ar') # ✨ التقاط اللغة
+    if not tenant_id: 
+        # ✨ ترجمة
+        return jsonify({"error": _("غير مصرح")}), 403
+        
+    # ✨ حماية المسار: التحقق من أن الميزة مفعلة مركزياً
+    if not current_app.config.get('ENABLE_DOMINO_FEATURE'):
+        # ✨ ترجمة
+        return jsonify({"error": _("ميزة خوارزمية الدومينو غير مفعلة في هذه النسخة.")}), 403
+        
+    data = request.json or {}
+    current_schedule = data.get('schedule')
+    if not current_schedule:
+        # ✨ ترجمة
+        return jsonify({"error": _("الجدول غير موجود. يرجى التأكد من توليد الجدول أولاً.")}), 400
+
+    from app.services.domino_algorithm import background_activate_domino_task
+    
+    app = current_app._get_current_object()
+    thread = threading.Thread(
+        target=background_activate_domino_task,
+        args=(app, tenant_id, current_schedule, user_lang)
+    )
+    thread.daemon = True
+    thread.start()
+
+    # ✨ ترجمة
+    return jsonify({"message": _("تم بدء تفعيل الدومينو بنجاح")})
+
+@generation_bp.route('/api/compress_domino', methods=['POST'])
+def api_compress_domino():
+    tenant_id = session.get('tenant_id')
+    user_lang = session.get('lang', 'ar') # ✨ التقاط اللغة
+    if not tenant_id: 
+        # ✨ ترجمة
+        return jsonify({"error": _("غير مصرح")}), 403
+        
+    # ✨ حماية المسار: التحقق من أن الميزة مفعلة مركزياً
+    if not current_app.config.get('ENABLE_DOMINO_FEATURE'):
+        # ✨ ترجمة
+        return jsonify({"error": _("ميزة خوارزمية الدومينو غير مفعلة في هذه النسخة.")}), 403
+        
+    data = request.json or {}
+    current_schedule = data.get('schedule')
+    if not current_schedule:
+        # ✨ ترجمة
+        return jsonify({"error": _("الجدول غير موجود. يرجى التأكد من توليد الجدول أولاً.")}), 400
+
+    from app.services.domino_algorithm import background_compress_domino_task
+    
+    app = current_app._get_current_object()
+    thread = threading.Thread(
+        target=background_compress_domino_task,
+        args=(app, tenant_id, current_schedule, user_lang)
+    )
+    thread.daemon = True
+    thread.start()
+
+    # ✨ ترجمة
+    return jsonify({"message": _("تم بدء تجميع الدومينو بنجاح")})
+
+# 3. مسار استيراد القائمة الشاملة (النسخة النهائية والدائمة للسحابة)
+@generation_bp.route('/api/import_comprehensive_excel', methods=['POST'])
+def import_comprehensive_excel():
+    from flask_babel import _  # تأكد من استيراد دالة الترجمة
+    
+    # ✨ 1. التغليف الأمني
+    tenant_id = session.get('tenant_id')
+    if not tenant_id:
+        return jsonify({"error": _("غير مصرح بالدخول أو انتهت الجلسة")}), 403
+
+    if 'file' not in request.files:
+        return jsonify({"error": _("لم يتم إرسال أي ملف")}), 400
+        
+    file = request.files['file']
+    
+    # محاولة قراءة الأيام والفترات من الواجهة
+    days = json.loads(request.form.get('days', '[]'))
+    slots = json.loads(request.form.get('slots', '[]'))
+    
+    # ✨ الاتصال بالقاعدة باستخدام SQLAlchemy
+    if not days or not slots:
+        struct_setting = Setting.query.filter_by(key='schedule_structure', tenant_id=tenant_id).first()
+        if struct_setting and struct_setting.value:
+            structure_data = json.loads(struct_setting.value)
+            days = [d['name'] for d in structure_data]
+            if structure_data and structure_data[0].get('slots'):
+                slots = [f"{s['start']}-{s['end']}" for s in structure_data[0]['slots']]
+    
+    if not days or not slots:
+        return jsonify({"error": _("لم يتم العثور على هيكل الأيام والحصص. يرجى إعداده في المرحلة 4 أولاً.")}), 400
+
+    all_rooms = [r.name for r in Room.query.filter_by(tenant_id=tenant_id).all()]
+
+    # ✨ 2. قاموس الترجمة العكسية (لتحويل الإنجليزي/الفرنسي إلى عربي لقاعدة البيانات)
+    reverse_days_map = {
+        'Sunday': 'الأحد', 'Dimanche': 'الأحد',
+        'Monday': 'الإثنين', 'Lundi': 'الإثنين', 'الاثنين': 'الإثنين',
+        'Tuesday': 'الثلاثاء', 'Mardi': 'الثلاثاء',
+        'Wednesday': 'الأربعاء', 'Mercredi': 'الأربعاء',
+        'Thursday': 'الخميس', 'Jeudi': 'الخميس',
+        'Friday': 'الجمعة', 'Vendredi': 'الجمعة',
+        'Saturday': 'السبت', 'Samedi': 'السبت'
+    }
+    ignore_texts = ["None", "بدون أستاذ", "بدون قاعة", "-", "", "No Teacher", "Sans Professeur", "No Room", "Sans Salle"]
+
+    # ✨ 3. تغليف الأخطاء (Try-Except)
+    try:
+        import openpyxl
+        wb = openpyxl.load_workbook(file)
+        new_schedule = {}
+        new_prof_schedules = {}
+        
+        for sheet_name in wb.sheetnames:
+            if sheet_name in ["فارغ", "Empty", "Vide"]: continue
+            ws = wb[sheet_name]
+            level_name = sheet_name 
+            
+            grid = [[ [] for _ in slots ] for _ in days]
+            
+            for row_idx in range(2, ws.max_row + 1):
+                raw_day = str(ws.cell(row=row_idx, column=1).value).strip()      
+                slot_name = str(ws.cell(row=row_idx, column=2).value).strip()     
+                teacher_name = str(ws.cell(row=row_idx, column=3).value).strip()  
+                course_name = str(ws.cell(row=row_idx, column=4).value).strip()   
+                course_type = str(ws.cell(row=row_idx, column=5).value).strip()   
+                room_name = str(ws.cell(row=row_idx, column=6).value).strip()     
+                
+                if raw_day in ignore_texts: continue
+                
+                # إرجاع اليوم إلى أصله العربي للمطابقة
+                day_name = reverse_days_map.get(raw_day, raw_day)
+                    
+                if day_name in days and slot_name in slots:
+                    day_idx = days.index(day_name)
+                    slot_idx = slots.index(slot_name)
+                    
+                    # استرجاع نوع المادة من جميع اللغات
+                    nature_tag = "[أم]"
+                    if course_type in ["محاضرة", "Lecture", "Cours"]: nature_tag = "[مح]"
+                    elif course_type in ["أعمال تطبيقية", "TP"]: nature_tag = "[أت]"
+                    
+                    full_course_name = f"{course_name} {nature_tag}"
+                    
+                    if teacher_name in ignore_texts: teacher_name = ""
+                    if room_name in ignore_texts: room_name = ""
+                    
+                    lec = {
+                        "name": full_course_name,
+                        "teacher_name": teacher_name,
+                        "room": room_name,
+                        "level": level_name,
+                        "type": course_type
+                    }
+                    
+                    grid[day_idx][slot_idx].append(lec)
+                    
+                    if teacher_name:
+                        if teacher_name not in new_prof_schedules:
+                            new_prof_schedules[teacher_name] = [[ [] for _ in slots ] for _ in days]
+                        new_prof_schedules[teacher_name][day_idx][slot_idx].append(lec)
+            
+            new_schedule[level_name] = grid
+            
+        # حساب القاعات الفارغة المحدثة
+        free_rooms = [[ [] for _ in slots ] for _ in days]
+        for d_idx in range(len(days)):
+            for s_idx in range(len(slots)):
+                busy_rooms = set()
+                for grid_level in new_schedule.values():
+                    if d_idx < len(grid_level) and s_idx < len(grid_level[d_idx]):
+                        for lec in grid_level[d_idx][s_idx]:
+                            rm = lec.get('room')
+                            if rm and rm not in ignore_texts:
+                                busy_rooms.add(rm.strip())
+                
+                for r_name in all_rooms:
+                    if r_name.strip() not in busy_rooms:
+                        free_rooms[d_idx][s_idx].append(r_name)
+        
+        return jsonify({
+            "success": True, 
+            "schedule": new_schedule, 
+            "prof_schedules": new_prof_schedules,
+            "free_rooms": free_rooms
+        })
+        
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({"error": _("فشل في قراءة ملف الإكسل الشامل. التفاصيل: {error}").format(error=str(e))}), 500
