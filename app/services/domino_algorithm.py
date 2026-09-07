@@ -9,7 +9,15 @@ from collections import defaultdict
 # الاستدعاءات السحابية المعزولة (SQLAlchemy)
 from app.database import db, Teacher, Room, Level, Course, Setting
 from app.services.algorithms import is_placement_valid, set_algorithm_language, _
-from app.redis_logger import RedisLogQueue
+
+def get_log_queue(tenant_id):
+    from flask import current_app
+    if current_app.config.get('APP_MODE') == 'desktop':
+        from app.memory_logger import MemoryLogQueue
+        return MemoryLogQueue(tenant_id)
+    else:
+        from app.redis_logger import RedisLogQueue
+        return RedisLogQueue(tenant_id)
 
 # =====================================================================
 # 0. دالة جلب البيانات والقيود بأمان سحابي تام
@@ -245,7 +253,7 @@ def background_activate_domino_task(app, tenant_id, current_schedule, user_lang=
     # ✨ تفعيل المترجم المستقل قبل أي شيء!
     set_algorithm_language(user_lang)
     with app.app_context():
-        log_q = RedisLogQueue(tenant_id)
+        log_q = get_log_queue(tenant_id)
         log_q.clear_logs()
         log_q.set_running(True)
         
@@ -424,7 +432,7 @@ def background_compress_domino_task(app, tenant_id, current_schedule, user_lang=
     # ✨ تفعيل المترجم المستقل!
     set_algorithm_language(user_lang)
     with app.app_context():
-        log_q = RedisLogQueue(tenant_id)
+        log_q = get_log_queue(tenant_id)
         log_q.clear_logs()
         log_q.set_running(True)
         
