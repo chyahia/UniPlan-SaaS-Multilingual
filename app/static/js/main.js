@@ -82,14 +82,15 @@ function loadPreviews() {
     fetch('/api/course_natures').then(res => res.json()).then(data => {
         globalNatures = data;
         
-        // ملاحظة: المقارنة باللغة العربية يجب أن تبقى هكذا إذا كانت محفوظة في قاعدة البيانات هكذا
         const lecObj = data.find(n => n.name === 'محاضرة');
         const tdObj = data.find(n => n.name === 'أعمال موجهة');
         const tpObj = data.find(n => n.name === 'أعمال تطبيقية');
+        const grpObj = data.find(n => n.name === 'فوج'); // 👈 السطر الجديد
         
         if(lecObj && document.getElementById('symbol-lec')) document.getElementById('symbol-lec').value = lecObj.symbol;
         if(tdObj && document.getElementById('symbol-td')) document.getElementById('symbol-td').value = tdObj.symbol;
         if(tpObj && document.getElementById('symbol-tp')) document.getElementById('symbol-tp').value = tpObj.symbol;
+        if(grpObj && document.getElementById('symbol-grp')) document.getElementById('symbol-grp').value = grpObj.symbol; // 👈 السطر الجديد
         
         // تحديث قائمة التعديل الجماعي في المرحلة 2
         const bulkNatureSelect = document.getElementById('bulk-nature');
@@ -378,6 +379,7 @@ function confirmCourseWizard() {
     const lecSymbol = getNatureSymbol('محاضرة', _t('[مح]'));
     const tdSymbol = getNatureSymbol('أعمال موجهة', _t('[أم]'));
     const tpSymbol = getNatureSymbol('أعمال تطبيقية', _t('[أت]'));
+    const grpSymbol = getNatureSymbol('فوج', _t(' ف')); // 👈 السطر الجديد (مع مسافة كقيمة افتراضية)
 
     if (!isShared) {
         // --- معالجة الوضع العادي ---
@@ -400,7 +402,7 @@ function confirmCourseWizard() {
                 } else {
                     for (let i = 1; i <= tdGrpCount; i++) {
                         // إضافة الـ _t للمسافة مع حرف الفاء لتسهيل الترجمة لاحقاً (e.g. " G")
-                        finalCoursesData.push({ name: `${baseName} ${tdSymbol}${_t(" ف")}${i}`, room_type: 'عادية', levels: selectedLevels, division: globalDivision, specialization: globalSpec, course_nature: 'أعمال موجهة' });
+                        finalCoursesData.push({ name: `${baseName} ${tdSymbol}${grpSymbol}${i}`, room_type: 'عادية', levels: selectedLevels, division: globalDivision, specialization: globalSpec, course_nature: 'أعمال موجهة' });
                     }
                 }
             }
@@ -409,7 +411,7 @@ function confirmCourseWizard() {
                     finalCoursesData.push({ name: `${baseName} ${tpSymbol}`, room_type: 'مخبر', levels: selectedLevels, division: globalDivision, specialization: globalSpec, course_nature: 'أعمال تطبيقية' });
                 } else {
                     for (let i = 1; i <= tpGrpCount; i++) {
-                        finalCoursesData.push({ name: `${baseName} ${tpSymbol}${_t(" ف")}${i}`, room_type: 'مخبر', levels: selectedLevels, division: globalDivision, specialization: globalSpec, course_nature: 'أعمال تطبيقية' });
+                        finalCoursesData.push({ name: `${baseName} ${tpSymbol}${grpSymbol}${i}`, room_type: 'مخبر', levels: selectedLevels, division: globalDivision, specialization: globalSpec, course_nature: 'أعمال تطبيقية' });
                     }
                 }
             }
@@ -439,7 +441,7 @@ function confirmCourseWizard() {
                         finalCoursesData.push({ name: `${baseName} (${obj.spec}) ${tdSymbol}`, room_type: 'عادية', levels: selectedLevels, division: obj.division, specialization: obj.spec, course_nature: 'أعمال موجهة' });
                     } else {
                         for (let i = 1; i <= tdGrpCount; i++) {
-                            finalCoursesData.push({ name: `${baseName} (${obj.spec}) ${tdSymbol}${_t(" ف")}${i}`, room_type: 'عادية', levels: selectedLevels, division: obj.division, specialization: obj.spec, course_nature: 'أعمال موجهة' });
+                            finalCoursesData.push({ name: `${baseName} (${obj.spec}) ${tdSymbol}${grpSymbol}${i}`, room_type: 'عادية', levels: selectedLevels, division: obj.division, specialization: obj.spec, course_nature: 'أعمال موجهة' });
                         }
                     }
                 }
@@ -450,7 +452,7 @@ function confirmCourseWizard() {
                         finalCoursesData.push({ name: `${baseName} (${obj.spec}) ${tpSymbol}`, room_type: 'مخبر', levels: selectedLevels, division: obj.division, specialization: obj.spec, course_nature: 'أعمال تطبيقية' });
                     } else {
                         for (let i = 1; i <= tpGrpCount; i++) {
-                            finalCoursesData.push({ name: `${baseName} (${obj.spec}) ${tpSymbol}${_t(" ف")}${i}`, room_type: 'مخبر', levels: selectedLevels, division: obj.division, specialization: obj.spec, course_nature: 'أعمال تطبيقية' });
+                            finalCoursesData.push({ name: `${baseName} (${obj.spec}) ${tpSymbol}${grpSymbol}${i}`, room_type: 'مخبر', levels: selectedLevels, division: obj.division, specialization: obj.spec, course_nature: 'أعمال تطبيقية' });
                         }
                     }
                 }
@@ -495,16 +497,17 @@ function saveNatures() {
     const lecSymbol = document.getElementById('symbol-lec').value.trim();
     const tdSymbol = document.getElementById('symbol-td').value.trim();
     const tpSymbol = document.getElementById('symbol-tp').value.trim();
+    const grpSymbol = document.getElementById('symbol-grp').value.trim(); // 👈 السطر الجديد
     
-    if(!lecSymbol || !tdSymbol || !tpSymbol) {
+    if(!lecSymbol || !tdSymbol || !tpSymbol || !grpSymbol) {
         return alert(_t('يرجى عدم ترك أي خانة من خانات الرموز فارغة!'));
     }
     
-    // تجهيز حزمة البيانات للتحديث - تبقى القيم العربية هنا لأن الخادم يتعرف عليها
     const updates = [
         { name: 'محاضرة', symbol: lecSymbol },
         { name: 'أعمال موجهة', symbol: tdSymbol },
-        { name: 'أعمال تطبيقية', symbol: tpSymbol }
+        { name: 'أعمال تطبيقية', symbol: tpSymbol },
+        { name: 'فوج', symbol: grpSymbol } // 👈 السطر الجديد
     ];
     
     let promises = updates.map(data => {
